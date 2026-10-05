@@ -1118,3 +1118,21 @@ body.brand-admin-body .brand-admin-actions>a{
   body.app-shell-enabled.legal-public-body .legal-page h1{font-size:1.38rem!important;margin:.25rem 0 .8rem!important}
   body.app-shell-enabled.legal-public-body .legal-copy{font-size:.84rem!important;line-height:1.68!important}
 }
+
+
+/* R15.10 — complete private header coverage */
+:is(.security-top){background:#fff!important;color:#173553!important;border-bottom:1px solid #dbe4ee!important;box-shadow:0 7px 22px rgba(13,32,54,.08)!important}
+:is(.security-top)>.private-brand-link{display:flex!important;align-items:center!important;justify-content:flex-start!important;flex:1 1 auto!important;min-width:0!important;max-width:380px!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;color:inherit!important;text-decoration:none!important}
+@media(min-width:851px){
+  :is(.access-top,.tech-top,.warranty-admin-top,.mail-top,.inquiry-top,.security-top){
+    min-height:92px!important;padding:6px max(18px,calc((100% - 1320px)/2))!important;display:flex!important;align-items:center!important;gap:18px!important;
+  }
+  :is(.access-top,.tech-top,.warranty-admin-top,.mail-top,.inquiry-top,.security-top)>nav{margin-left:auto!important}
+  :is(.access-top,.tech-top,.warranty-admin-top,.mail-top,.inquiry-top,.security-top) .private-brand-image{max-width:320px!important}
+}
+@media(max-width:850px){
+  :is(.security-top){position:sticky!important;top:0!important;z-index:220!important;display:grid!important;grid-template-columns:minmax(0,1fr) 46px!important;align-items:center!important;gap:8px!important;padding:5px 10px!important;min-height:108px!important}
+  :is(.security-top)>.private-brand-link{max-width:none!important;width:100%!important}
+  :is(.security-top)>nav{display:none!important;grid-column:1/-1!important;width:100%!important;margin:0!important;padding:9px!important;border:1px solid #dbe4ee!important;border-radius:14px!important;background:#fff!important;box-shadow:0 12px 30px rgba(13,32,54,.12)!important}
+  :is(.security-top).menu-open>nav{display:grid!important;gap:7px!important}
+}
