@@ -18,11 +18,12 @@ public sealed record MailSettingsSnapshot(
     string AdminAddress,
     bool PasswordConfigured)
 {
+    public bool RequiresCredentials => !string.Equals(Provider, "smtp", StringComparison.OrdinalIgnoreCase) || !string.IsNullOrWhiteSpace(Username);
     public bool IsConfigured => Enabled
         && !string.IsNullOrWhiteSpace(Host)
         && Port is > 0 and <= 65535
         && MailAddress.TryCreate(FromAddress, out _)
-        && (string.IsNullOrWhiteSpace(Username) || PasswordConfigured);
+        && (!RequiresCredentials || (!string.IsNullOrWhiteSpace(Username) && PasswordConfigured));
 }
 
 public sealed class MailSettingsStore
@@ -123,8 +124,15 @@ public sealed class MailSettingsStore
             if (!string.IsNullOrWhiteSpace(newPassword)) next["protectedPassword"] = protector.Protect(newPassword);
             else if (!string.IsNullOrWhiteSpace(currentStored["protectedPassword"]?.ToString())) next["protectedPassword"] = currentStored["protectedPassword"]!.ToString();
 
-            if (enabled && !string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(newPassword) && string.IsNullOrWhiteSpace(next["protectedPassword"]?.ToString()) && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("INOKSKAR_MAIL_PASSWORD")) && string.IsNullOrWhiteSpace(config["Mail:Password"]))
-                throw new ArgumentException("Sağlayıcı aktif edilecekse SMTP parolası veya API anahtarı gereklidir.");
+            var hasPassword = !string.IsNullOrWhiteSpace(newPassword)
+                || !string.IsNullOrWhiteSpace(next["protectedPassword"]?.ToString())
+                || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("INOKSKAR_MAIL_PASSWORD"))
+                || !string.IsNullOrWhiteSpace(config["Mail:Password"]);
+            var requiresCredentials = provider != "smtp" || !string.IsNullOrWhiteSpace(username);
+            if (enabled && requiresCredentials && string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Seçilen sağlayıcı için SMTP kullanıcı adı veya API Key gereklidir.");
+            if (enabled && requiresCredentials && !hasPassword)
+                throw new ArgumentException("Seçilen sağlayıcı için SMTP parolası veya Secret Key gereklidir.");
 
             var temp = file + ".tmp";
             File.WriteAllText(temp, next.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
