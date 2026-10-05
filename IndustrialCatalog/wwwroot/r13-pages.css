@@ -625,3 +625,25 @@ body.brand-admin-body .brand-admin-actions>a{
   body.page-home.app-shell-enabled .featured .product-card{border-radius:13px!important}
   body.page-home.app-shell-enabled .featured .card-link{min-height:44px!important}
 }
+
+
+/* R15.3 — clean app-style category shortcuts */
+@media(max-width:1100px){
+  body.page-home.app-shell-enabled .category-card{
+    background:#fff!important;background-image:none!important;color:#173553!important;
+    border:1px solid #dce6f1!important;border-top-width:3px!important;
+  }
+  body.page-home.app-shell-enabled .category-card::before,
+  body.page-home.app-shell-enabled .category-card::after{display:none!important;background:none!important}
+  body.page-home.app-shell-enabled .category-card h3{color:#173553!important;text-shadow:none!important}
+  body.page-home.app-shell-enabled .category-icon{
+    display:grid!important;place-items:center!important;border-radius:10px!important;
+    background:#edf4ff!important;color:#1767d4!important;
+  }
+  body.page-home.app-shell-enabled .category-card:nth-child(2) .category-icon{
+    background:#fff1e6!important;color:#d76314!important;
+  }
+  body.page-home.app-shell-enabled .category-card:nth-child(3) .category-icon{
+    background:#fff0f2!important;color:#c93144!important;
+  }
+}
