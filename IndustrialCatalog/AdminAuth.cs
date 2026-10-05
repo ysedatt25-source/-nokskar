@@ -22,33 +22,20 @@ public static class AdminAuth
                 RecoveryCodeHash = config["Admin:RecoveryCodeHash"] ?? ""
             };
             var file = Path.Combine(dataPath, "admin-auth.json");
-            var state = fallback;
-            if (File.Exists(file))
+            if (!File.Exists(file)) return fallback;
+            try
             {
-                try
-                {
-                    var stored = JsonSerializer.Deserialize<AdminAuthState>(File.ReadAllText(file)) ?? new AdminAuthState();
-                    if (string.IsNullOrWhiteSpace(stored.Email)) stored.Email = fallback.Email;
-                    if (string.IsNullOrWhiteSpace(stored.PasswordHash)) stored.PasswordHash = fallback.PasswordHash;
-                    if (string.IsNullOrWhiteSpace(stored.RecoveryCodeHash)) stored.RecoveryCodeHash = fallback.RecoveryCodeHash;
-                    state = stored;
-                }
-                catch
-                {
-                    // Bozuk yerel kimlik dosyası uygulamanın açılmasını engellemez; appsettings değerlerine geri dönülür.
-                    state = fallback;
-                }
+                var stored = JsonSerializer.Deserialize<AdminAuthState>(File.ReadAllText(file)) ?? new AdminAuthState();
+                if (string.IsNullOrWhiteSpace(stored.Email)) stored.Email = fallback.Email;
+                if (string.IsNullOrWhiteSpace(stored.PasswordHash)) stored.PasswordHash = fallback.PasswordHash;
+                if (string.IsNullOrWhiteSpace(stored.RecoveryCodeHash)) stored.RecoveryCodeHash = fallback.RecoveryCodeHash;
+                return stored;
             }
-
-            // Altyapı erişimi olan hesap sahibi için acil kurtarma yolu.
-            // Değer parola değil, uygulamanın kullandığı PBKDF2 hashidir; işlemden sonra ortam değişkeni boşaltılır.
-            var emergencyHash = (config["Admin:EmergencyPasswordHash"] ?? "").Trim();
-            if (!string.IsNullOrWhiteSpace(emergencyHash) && !string.Equals(state.PasswordHash, emergencyHash, StringComparison.Ordinal))
+            catch
             {
-                state.PasswordHash = emergencyHash;
-                Persist(dataPath, state);
+                // Bozuk yerel kimlik dosyası uygulamanın açılmasını engellemez; appsettings değerlerine geri dönülür.
+                return fallback;
             }
-            return state;
         }
     }
 
