@@ -75,6 +75,19 @@ public static class AdminAuth
         }
     }
 
+    public static void ResetPasswordByVerifiedEmail(string dataPath, IConfiguration config, string email, string newPassword)
+    {
+        lock (Gate)
+        {
+            var auth = Load(dataPath, config);
+            if (!string.Equals((email ?? "").Trim(), auth.Email, StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Hesap bulunamadı.");
+            ValidateNewPassword(newPassword);
+            auth.PasswordHash = Passwords.Hash(newPassword);
+            Persist(dataPath, auth);
+        }
+    }
+
     static void ValidateNewPassword(string password)
     {
         if (string.IsNullOrWhiteSpace(password) || password.Length < 8 || password.Length > 128)
