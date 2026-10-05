@@ -6,6 +6,7 @@
   const health=document.getElementById('mail-health');
   const passwordState=document.getElementById('password-state');
   const usernameHint=document.getElementById('username-hint');
+  const providerHelp=document.getElementById('provider-help');
   const testRecipient=document.getElementById('test-recipient');
   const testResult=document.getElementById('mail-test-result');
   const testButton=document.getElementById('mail-connection-test');
@@ -19,6 +20,7 @@
     form.elements.port.value=p.port||587;
     form.elements.enableSsl.value=String(p.enableSsl!==false);
     usernameHint.textContent=p.usernameHint?`Örnek: ${p.usernameHint}`:'';
+    if(providerHelp)providerHelp.textContent=p.helpText||'Seçim yaptığınızda bilinen SMTP bilgileri aşağıya uygulanır.';
   };
   const fill=s=>{
     settings=s;
@@ -34,7 +36,7 @@
     form.elements.adminAddress.value=s.adminAddress||'';
     testRecipient.value=s.adminAddress||'';
     passwordState.textContent=s.passwordConfigured?'Kayıtlı parola/API anahtarı var. Değiştirmeyecekseniz alanı boş bırakın.':'Henüz parola/API anahtarı kaydedilmemiş.';
-    const p=providers.find(x=>x.id===form.elements.provider.value);usernameHint.textContent=p?.usernameHint?`Örnek: ${p.usernameHint}`:'';
+    const p=providers.find(x=>x.id===form.elements.provider.value);usernameHint.textContent=p?.usernameHint?`Örnek: ${p.usernameHint}`:'';if(providerHelp)providerHelp.textContent=p?.helpText||'Seçim yaptığınızda bilinen SMTP bilgileri aşağıya uygulanır.';
     health.className='mail-health '+(s.configured?'ok':'warn');
     health.textContent=s.configured?'● Sağlayıcı hazır':s.enabled?'● Yapılandırma eksik':'○ E-posta sistemi pasif';
   };
