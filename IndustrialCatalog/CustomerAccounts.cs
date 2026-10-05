@@ -98,6 +98,20 @@ public sealed class CustomerDirectory
         }
     }
 
+    public void ResetPasswordByEmail(string email,string newPassword)
+    {
+        ValidatePassword(newPassword);
+        var value=(email??"").Trim();
+        lock(gate)
+        {
+            var rows=LoadUnsafe(); var index=rows.FindIndex(x=>x.Active&&string.Equals(x.Email,value,StringComparison.OrdinalIgnoreCase));
+            if(index<0) throw new ArgumentException("Müşteri hesabı bulunamadı.");
+            rows[index].PasswordHash=Passwords.Hash(newPassword);
+            rows[index].UpdatedUtc=DateTimeOffset.UtcNow.ToString("O");
+            Persist(rows);
+        }
+    }
+
     public static ClaimsPrincipal Principal(CustomerAccountRecord user)=>new(new ClaimsIdentity(new[]{
         new Claim(ClaimTypes.Name,user.Email),new Claim(ClaimTypes.Email,user.Email),new Claim(ClaimTypes.Role,"Customer"),new Claim("inokskar:user-id",user.Id),new Claim("inokskar:display-name",user.Name)
     },CookieAuthenticationDefaults.AuthenticationScheme));
