@@ -57,7 +57,7 @@ document.addEventListener('submit',event=>{
 /* R15.1 — public mobile/tablet application shell */
 (()=>{
   const path=()=>location.pathname.replace(/\/$/,'')||'/';
-  const excluded=()=>/^(\/admin(?:\/|$)|\/teknik(?:\/|$)|\/login$|\/kayit$|\/forgot-password$|\/account\/security$|\/api(?:\/|$))/.test(path())||/\/certificate$/.test(path());
+  const excluded=()=>/^(\/admin(?:\/|$)|\/teknik(?:\/|$)|\/login$|\/kayit$|\/forgot-password$|\/reset-password$|\/account\/security$|\/api(?:\/|$))/.test(path())||/\/certificate$/.test(path());
   const icon=name=>({
     home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
     products:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>',
