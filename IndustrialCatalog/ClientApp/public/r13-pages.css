@@ -757,3 +757,105 @@ body.brand-admin-body .brand-admin-actions>a{
   body.app-shell-enabled.page-detail .specs{grid-template-columns:1fr!important;gap:7px!important}
   body.app-shell-enabled.page-detail .specs>div{grid-template-columns:minmax(96px,.8fr) minmax(0,1.2fr)!important;align-items:center!important}
 }
+
+
+/* R15.5 — application-style service and warranty flows */
+@media(max-width:1100px){
+  body.app-shell-enabled.service-request-body .public-home-return-wrap,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .public-home-return-wrap{display:none!important}
+  body.app-shell-enabled.service-request-body .service-page,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-page{
+    padding-top:12px!important;
+  }
+  body.app-shell-enabled.service-request-body .service-intro,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-intro{
+    width:calc(100% - 24px)!important;margin:0 auto 10px!important;padding:18px!important;
+    border:1px solid #dce6f1!important;border-radius:17px!important;background:#fff!important;
+    box-shadow:0 8px 22px rgba(16,42,81,.055)!important;
+  }
+  body.app-shell-enabled.service-request-body .service-intro h1,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-intro h1{
+    font-size:1.65rem!important;line-height:1.15!important;margin:.3rem 0 .5rem!important;color:#173553!important;
+  }
+  body.app-shell-enabled.service-request-body .service-intro>p:not(.eyebrow),
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-intro>p:not(.eyebrow){
+    margin:0!important;font-size:.87rem!important;line-height:1.55!important;color:#627991!important;
+  }
+  body.app-shell-enabled.service-request-body .service-layout,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-layout{
+    width:calc(100% - 24px)!important;gap:12px!important;
+  }
+  body.app-shell-enabled.service-request-body .service-info,
+  body.app-shell-enabled.service-request-body .service-form,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-query-card,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-result{
+    border:1px solid #dce6f1!important;border-radius:17px!important;background:#fff!important;
+    box-shadow:0 9px 24px rgba(16,42,81,.055)!important;
+  }
+  body.app-shell-enabled.service-request-body .service-info{padding:20px!important}
+  body.app-shell-enabled.service-request-body .service-form{padding:20px!important}
+  body.app-shell-enabled.service-request-body .service-product-box{
+    padding:16px!important;border-radius:13px!important;background:#f7f9fc!important;border:1px solid #e0e8f2!important;
+  }
+  body.app-shell-enabled.service-request-body .service-form :is(input,select,textarea),
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-form :is(input,select,textarea){
+    border-radius:11px!important;border-color:#ccd9e8!important;background:#fff!important;
+  }
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-query-card,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-result{padding:20px!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-shield{
+    width:46px!important;height:46px!important;border-radius:13px!important;background:#edf4ff!important;color:#1767d4!important;
+  }
+}
+@media(min-width:701px) and (max-width:1100px){
+  body.app-shell-enabled.service-request-body .service-layout{
+    grid-template-columns:minmax(220px,.72fr) minmax(0,1.28fr)!important;align-items:start!important;
+  }
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-layout{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:start!important;
+  }
+}
+@media(max-width:700px){
+  body.app-shell-enabled.service-request-body .service-page,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-page{padding-top:9px!important}
+  body.app-shell-enabled.service-request-body .service-intro,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-intro{
+    width:calc(100% - 20px)!important;padding:15px 14px!important;border-radius:15px!important;
+  }
+  body.app-shell-enabled.service-request-body .service-intro .eyebrow,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-intro .eyebrow{font-size:.62rem!important}
+  body.app-shell-enabled.service-request-body .service-intro h1,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-intro h1{font-size:1.35rem!important}
+  body.app-shell-enabled.service-request-body .service-intro>p:not(.eyebrow),
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-intro>p:not(.eyebrow){font-size:.8rem!important}
+  body.app-shell-enabled.service-request-body .service-layout,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-layout{
+    width:calc(100% - 20px)!important;grid-template-columns:1fr!important;gap:9px!important;
+  }
+  body.app-shell-enabled.service-request-body .service-info{padding:15px 14px!important;border-radius:15px!important}
+  body.app-shell-enabled.service-request-body .service-info h2{font-size:1.08rem!important}
+  body.app-shell-enabled.service-request-body .service-info p{font-size:.8rem!important;line-height:1.55!important}
+  body.app-shell-enabled.service-request-body .service-info a{
+    display:inline-flex!important;align-items:center!important;min-height:40px!important;margin:4px 5px 0 0!important;
+    padding:7px 10px!important;border-radius:9px!important;background:#edf4ff!important;color:#1756a7!important;text-decoration:none!important;font-size:.76rem!important;font-weight:800!important;
+  }
+  body.app-shell-enabled.service-request-body .service-form{padding:16px 14px!important;border-radius:15px!important}
+  body.app-shell-enabled.service-request-body .service-two-col{grid-template-columns:1fr!important;gap:10px!important}
+  body.app-shell-enabled.service-request-body .service-form label{font-size:.8rem!important;gap:5px!important}
+  body.app-shell-enabled.service-request-body .service-form :is(input,select){min-height:50px!important;font-size:16px!important}
+  body.app-shell-enabled.service-request-body .service-form textarea{font-size:16px!important;min-height:104px!important}
+  body.app-shell-enabled.service-request-body .service-product-box{padding:13px 11px!important;margin-block:12px!important}
+  body.app-shell-enabled.service-request-body .service-product-box h2{font-size:.96rem!important;line-height:1.35!important}
+  body.app-shell-enabled.service-request-body .service-form>.button{width:100%!important;min-height:52px!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-query-card,
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-result{padding:16px 14px!important;border-radius:15px!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-query-head{gap:10px!important;align-items:flex-start!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-shield{width:40px!important;height:40px!important;flex:0 0 40px!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-query-head h2{font-size:1.05rem!important;line-height:1.3!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-query-head p{font-size:.78rem!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-form{gap:11px!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-form input{min-height:50px!important;font-size:16px!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-form .button{width:100%!important;min-height:52px!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-privacy{font-size:.72rem!important;line-height:1.5!important}
+  body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-placeholder{min-height:150px!important;padding:18px!important;border-radius:12px!important}
+}
