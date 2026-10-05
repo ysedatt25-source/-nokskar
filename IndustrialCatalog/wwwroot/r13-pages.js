@@ -52,3 +52,87 @@ document.addEventListener('submit',event=>{
   const start=()=>{mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),30000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
+
+/* R15.1 — public mobile/tablet application shell */
+(()=>{
+  const path=()=>location.pathname.replace(/\/$/,'')||'/';
+  const excluded=()=>/^(\/admin(?:\/|$)|\/teknik(?:\/|$)|\/login$|\/kayit$|\/forgot-password$|\/account\/security$|\/api(?:\/|$))/.test(path())||/\/certificate$/.test(path());
+  const icon=name=>({
+    home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
+    products:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>',
+    categories:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+    service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.2 2.2-3-3z"/></svg>',
+    account:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+    search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>',
+    close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+  }[name]||'');
+  const activeKey=()=>{
+    const p=path();
+    if(p==='/')return'home';
+    if(p==='/urunler'||p.startsWith('/urun/'))return'products';
+    if(p.startsWith('/kategori/'))return'categories';
+    if(p==='/servis-talebi'||p==='/garanti-sorgulama'||p==='/iletisim')return'service';
+    if(p.startsWith('/hesabim'))return'account';
+    return'';
+  };
+  const uniqueCategories=()=>{
+    const seen=new Set(),rows=[];
+    document.querySelectorAll('a[href^="/kategori/"]').forEach(a=>{
+      const href=a.getAttribute('href')||'',label=(a.textContent||'').trim();
+      if(!href||!label||seen.has(href))return;seen.add(href);rows.push({href,label});
+    });
+    return rows.slice(0,18);
+  };
+  const mountSheet=()=>{
+    let overlay=document.querySelector('.app-category-overlay');
+    if(overlay)return overlay;
+    overlay=document.createElement('div');overlay.className='app-category-overlay';overlay.hidden=true;
+    overlay.innerHTML='<div class="app-category-sheet" role="dialog" aria-modal="true" aria-label="Ürün kategorileri"><div class="app-sheet-handle"></div><div class="app-sheet-head"><div><small>ÜRÜN KATALOĞU</small><strong>Kategoriler</strong></div><button class="app-sheet-close" type="button" aria-label="Kapat">'+icon('close')+'</button></div><div class="app-category-list"></div><a class="app-all-products" href="/urunler">Tüm ürünleri görüntüle <span>→</span></a></div>';
+    document.body.append(overlay);
+    const close=()=>{overlay.hidden=true;document.body.classList.remove('app-sheet-open')};
+    overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
+    overlay.querySelector('.app-sheet-close').addEventListener('click',close);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
+    overlay._open=()=>{
+      const list=overlay.querySelector('.app-category-list'),cats=uniqueCategories();
+      list.innerHTML=cats.length?cats.map(x=>'<a href="'+x.href+'"><span>'+x.label+'</span><b>›</b></a>').join(''):'<p class="app-sheet-empty">Kategoriler yükleniyor…</p>';
+      overlay.hidden=false;document.body.classList.add('app-sheet-open');
+    };
+    return overlay;
+  };
+  const mountNav=()=>{
+    if(document.querySelector('.app-bottom-nav'))return;
+    const active=activeKey(),nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Mobil uygulama navigasyonu');
+    const items=[
+      ['home','/','Ana Sayfa','home'],
+      ['products','/urunler','Ürünler','products'],
+      ['categories','#','Kategoriler','categories'],
+      ['service','/servis-talebi','Servis','service'],
+      ['account','/hesabim','Hesabım','account']
+    ];
+    nav.innerHTML=items.map(([key,href,label,ic])=>key==='categories'
+      ?'<button type="button" class="app-bottom-item '+(active===key?'active':'')+'" data-app-categories>'+icon(ic)+'<span>'+label+'</span></button>'
+      :'<a class="app-bottom-item '+(active===key?'active':'')+'" href="'+href+'">'+icon(ic)+'<span>'+label+'</span></a>').join('');
+    document.body.append(nav);
+    nav.querySelector('[data-app-categories]').addEventListener('click',()=>mountSheet()._open());
+  };
+  const mountSearch=()=>{
+    const p=path(),eligible=p==='/'||p==='/urunler'||p.startsWith('/kategori/');
+    const old=document.querySelector('.app-mobile-search');
+    if(!eligible){old?.remove();return}
+    if(old)return;
+    const header=document.querySelector('.site-header');if(!header)return;
+    const form=document.createElement('form');form.className='app-mobile-search';form.action='/urunler';form.method='get';form.setAttribute('role','search');
+    const q=new URLSearchParams(location.search).get('q')||'';
+    form.innerHTML='<div class="app-search-field">'+icon('search')+'<input name="q" value="'+q.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))+'" placeholder="Ürün adı veya koduyla ara" aria-label="Ürün adı veya koduyla ara"><button type="submit">Ara</button></div>';
+    header.insertAdjacentElement('afterend',form);
+  };
+  const mount=()=>{
+    if(excluded()){document.body.classList.remove('app-shell-enabled');document.querySelector('.app-bottom-nav')?.remove();document.querySelector('.app-mobile-search')?.remove();return}
+    document.body.classList.add('app-shell-enabled');
+    mountNav();mountSearch();
+  };
+  const start=()=>{mount();const o=new MutationObserver(()=>{if(!excluded()){mountSearch();}});o.observe(document.body,{childList:true,subtree:true});window.addEventListener('popstate',mount)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
