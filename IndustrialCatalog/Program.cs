@@ -104,8 +104,8 @@ app.MapPost("/forgot-password",async(HttpContext ctx,IConfiguration config,MailQ
     if(kind!=null)
     {
         var token=resets.Create(normalized,kind);
-        var origin=$"{ctx.Request.Scheme}://{ctx.Request.Host}";
-        var resetUrl=origin+"/reset-password?token="+Uri.EscapeDataString(token);
+        var origin=SeoPages.Origin(config)??$"{ctx.Request.Scheme}://{ctx.Request.Host}";
+        var resetUrl=origin.TrimEnd('/')+"/reset-password?token="+Uri.EscapeDataString(token);
         var message=MailTemplates.PasswordReset(resetUrl);
         mail.Enqueue(normalized,message.Subject,message.Html,message.Text);
         store.RecordAudit("Şifre yenileme bağlantısı oluşturuldu","password-reset","",normalized);
@@ -125,11 +125,12 @@ app.MapPost("/reset-password",async(HttpContext ctx,IConfiguration config,Passwo
     if(string.IsNullOrWhiteSpace(next)||next.Length is <8 or >128)return Results.Content(ResetPasswordPage(token,"Yeni şifre 8 ile 128 karakter arasında olmalıdır.",true),"text/html; charset=utf-8",statusCode:400);
     try
     {
+        target=resets.ConsumeTarget(token);
+        if(target==null)throw new ArgumentException("Şifre yenileme bağlantısı artık geçerli değil.");
         if(target.Kind=="superadmin")AdminAuth.ResetPasswordByVerifiedEmail(dataPath,config,target.Email,next);
         else if(target.Kind=="staff")directory.ResetPasswordByEmail(target.Email,next);
         else if(target.Kind=="customer")customers.ResetPasswordByEmail(target.Email,next);
         else throw new ArgumentException("Şifre yenileme hedefi geçersiz.");
-        if(!resets.Consume(token))throw new ArgumentException("Şifre yenileme bağlantısı artık geçerli değil.");
         store.RecordAudit("Şifre e-posta bağlantısıyla yenilendi","password-reset","",target.Email);
         return Results.Redirect("/login?reset=1");
     }
