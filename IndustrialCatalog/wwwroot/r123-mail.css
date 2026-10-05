@@ -2,3 +2,20 @@
 @media(max-width:850px){.mail-top{padding-inline:20px}.mail-wrap{width:min(100% - 30px,900px);margin-top:24px}.mail-heading{align-items:flex-start;flex-direction:column;gap:14px}.mail-grid.three{grid-template-columns:1fr 160px 210px}.mail-test-card{grid-template-columns:1fr}}
 @media(max-width:620px){.mail-top{position:sticky;top:0;z-index:20;align-items:flex-start;flex-direction:column;padding:13px 14px calc(13px + env(safe-area-inset-bottom));gap:8px}.mail-top nav{display:grid;grid-template-columns:1fr 1fr;width:100%}.mail-top a{justify-content:center;min-height:48px;background:#ffffff0d}.mail-wrap{width:calc(100% - 22px);margin:18px auto 44px;gap:12px}.mail-heading h1{font-size:1.85rem}.mail-health{width:100%;justify-content:center;border-radius:11px}.mail-card{padding:18px 15px;border-radius:14px}.mail-section{padding:20px 0}.mail-grid.two,.mail-grid.three{grid-template-columns:1fr}.mail-actions{display:grid;grid-template-columns:1fr}.button{width:100%;min-height:52px}.mail-test-card{gap:18px}.mail-security{padding:16px;border-radius:13px}input,select{min-height:50px;font-size:16px}}
 @media(prefers-reduced-motion:reduce){.test-dot{animation:none}}
+
+
+/* R14.9 — compact mail provider page + vivid action hierarchy */
+.mail-top{min-height:58px;padding:7px max(16px,calc((100vw - 1380px)/2));background:#252b33;border-bottom:1px solid #ffffff12;box-shadow:0 7px 22px #1320331f}
+.mail-top>div{gap:9px}.mail-top strong{font-size:.88rem;letter-spacing:.08em}.mail-top span{font-size:.7rem;color:#aebdce}
+.mail-top nav{gap:7px;flex-wrap:nowrap}.mail-top a{min-height:38px;padding:0 11px;border:1px solid #ffffff16;border-radius:10px;background:#303944;color:#f4f8fd;font-size:.76rem;font-weight:760;white-space:nowrap}.mail-top a:hover{background:#394655;color:#fff}
+.mail-card{box-shadow:0 14px 34px #102a510d}.button{position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(180deg,#2478df,#1557b8);box-shadow:0 8px 18px #1455c024;transition:transform .18s ease,box-shadow .18s ease}.button.secondary{background:#fff;color:#1756a7;border:1px solid #c7d8ee;box-shadow:0 5px 14px #102a5110}
+.button::after{content:"";position:absolute;z-index:2;top:-90%;bottom:-90%;left:-58%;width:28%;pointer-events:none;transform:skewX(-22deg);background:linear-gradient(90deg,transparent,#ffffff24,#ffffffd6,#ffffff24,transparent);transition:left .65s cubic-bezier(.22,.61,.36,1)}.button:hover::after{left:138%}.button:hover{transform:translateY(-1px)}
+#mail-connection-test{background:linear-gradient(180deg,#ff8426,#dc5e0b);box-shadow:0 8px 20px #e86d1730}
+#provider-help{min-height:2.2em;color:#58708d}
+@media(max-width:620px){
+ .mail-top{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 10px;min-height:58px}
+ .mail-top>div{display:grid;gap:0}.mail-top>div span{display:none}.mail-top nav{display:flex;width:auto;gap:5px;overflow-x:auto;scrollbar-width:none}.mail-top nav::-webkit-scrollbar{display:none}.mail-top a{min-height:36px;padding:0 8px;font-size:.68rem}
+ .mail-wrap{margin-top:16px}.mail-heading{gap:10px}.mail-heading h1{font-size:1.72rem}.mail-heading p:not(.eyebrow){font-size:.9rem;line-height:1.55}.mail-health{min-height:40px}
+ .mail-card{padding:16px 13px}.mail-section{padding:18px 0}.mail-grid{gap:12px}.mail-actions{gap:9px}.button{min-height:50px}
+}
+@media(prefers-reduced-motion:reduce){.button::after{display:none}}
