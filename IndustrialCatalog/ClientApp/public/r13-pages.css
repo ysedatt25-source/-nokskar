@@ -859,3 +859,19 @@ body.brand-admin-body .brand-admin-actions>a{
   body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-privacy{font-size:.72rem!important;line-height:1.5!important}
   body.app-shell-enabled.warranty-public-body:not(.service-request-body) .warranty-placeholder{min-height:150px!important;padding:18px!important;border-radius:12px!important}
 }
+
+
+/* R15.6 — device chrome, safe areas and floating-action coordination */
+@media(max-width:1100px){
+  body.app-shell-enabled .site-header .header-actions>.small-btn{display:none!important}
+  body.app-shell-enabled .floating-wa{bottom:calc(var(--app-dock-h) + var(--app-safe-bottom) + 14px)!important;right:12px!important;z-index:240!important}
+  body.app-shell-enabled .site-header{padding-top:max(7px,env(safe-area-inset-top))!important;padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}
+  body.app-shell-enabled .app-mobile-search{padding-left:max(12px,env(safe-area-inset-left))!important;padding-right:max(12px,env(safe-area-inset-right))!important}
+  body.app-shell-enabled .app-bottom-nav{padding-left:max(8px,env(safe-area-inset-left))!important;padding-right:max(8px,env(safe-area-inset-right))!important}
+}
+@media(max-width:600px){
+  body.app-shell-enabled .floating-wa{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;padding:0!important;border-radius:15px!important;display:grid!important;place-items:center!important}
+  body.app-shell-enabled .floating-wa span{display:none!important}
+  body.app-shell-enabled .floating-wa svg{width:23px!important;height:23px!important}
+}
+@media(min-width:701px) and (max-width:1100px){body.app-shell-enabled .floating-wa{bottom:96px!important;right:18px!important}}
