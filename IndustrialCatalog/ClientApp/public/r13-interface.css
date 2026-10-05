@@ -171,3 +171,8 @@ body.page-home .header-cta{background:#b94c0b;color:#fff;box-shadow:none;min-hei
  body[data-ui-page="admin-products"] .table-box .demo-tag,
  body[data-ui-page="admin-prices"] .table-box .demo-tag{display:block!important;margin-top:2px!important}
 }
+
+
+/* R14.13 — admin dialogs must sit above the sticky mobile shell */
+body[data-ui-page^="admin-"] [data-slot="dialog-overlay"]{z-index:290!important}
+body[data-ui-page^="admin-"] [data-slot="dialog-content"]{z-index:300!important}
