@@ -136,3 +136,37 @@ document.addEventListener('submit',event=>{
   const start=()=>{mount();const o=new MutationObserver(()=>{if(!excluded()){mountSearch();}});o.observe(document.body,{childList:true,subtree:true});window.addEventListener('popstate',mount)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
+
+/* R15.8 — unified private/customer brand headers */
+(()=>{
+  const icon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+  const brandHtml='<img class="private-brand-image" src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak">';
+  const setupHeader=header=>{
+    if(!header||header.dataset.r158Brand)return;
+    header.dataset.r158Brand='1';header.classList.add('private-brand-header');
+    let brand=header.matches('.top')?header.querySelector(':scope>a[href="/"]'):header.querySelector(':scope>div');
+    if(brand){
+      if(brand.tagName!=='A'){
+        const link=document.createElement('a');link.href='/';link.className='private-brand-link';link.innerHTML=brandHtml;brand.replaceWith(link);brand=link;
+      }else{brand.classList.add('private-brand-link');brand.innerHTML=brandHtml;}
+    }
+    const nav=header.querySelector(':scope>nav');
+    if(nav&&!header.querySelector('.private-header-toggle')){
+      const toggle=document.createElement('button');toggle.type='button';toggle.className='private-header-toggle';toggle.setAttribute('aria-label','Menüyü aç');toggle.setAttribute('aria-expanded','false');toggle.innerHTML=icon;
+      header.insertBefore(toggle,nav);
+      const close=()=>{header.classList.remove('menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menüyü aç')};
+      toggle.addEventListener('click',()=>{const open=header.classList.toggle('menu-open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menüyü kapat':'Menüyü aç')});
+      nav.addEventListener('click',e=>{if(innerWidth<=850&&e.target.closest('a,button'))close()});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+    }
+  };
+  const mount=()=>{
+    const side=document.querySelector('.admin-sidebar');
+    const sideBrand=side?.querySelector(':scope>.brand');
+    if(sideBrand&&!sideBrand.dataset.r158Brand){sideBrand.dataset.r158Brand='1';sideBrand.classList.add('private-brand-link');sideBrand.innerHTML=brandHtml;}
+    document.querySelectorAll('.top,.access-top,.tech-top,.warranty-admin-top,.mail-top,.inquiry-top').forEach(setupHeader);
+  };
+  const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),30000)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
