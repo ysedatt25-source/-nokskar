@@ -875,3 +875,10 @@ body.brand-admin-body .brand-admin-actions>a{
   body.app-shell-enabled .floating-wa svg{width:23px!important;height:23px!important}
 }
 @media(min-width:701px) and (max-width:1100px){body.app-shell-enabled .floating-wa{bottom:96px!important;right:18px!important}}
+
+/* R15.7 — app shell overflow guard */
+@media(max-width:1100px){
+  html:has(body.app-shell-enabled),body.app-shell-enabled{max-width:100%!important;overflow-x:hidden!important}
+  body.app-shell-enabled main,body.app-shell-enabled .wrap{min-width:0!important;max-width:100%!important}
+  body.app-shell-enabled :is(.app-bottom-nav,.app-mobile-search,.site-header){box-sizing:border-box!important}
+}
