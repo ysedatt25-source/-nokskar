@@ -192,4 +192,13 @@ public static class MailTemplates
         var text = $"Sayın {name},\n\n{kind} talebiniz kayıt altına alınmıştır. Talep numarası: {id}. Ekibimiz sizinle iletişime geçecektir.\n\nİNOKSKAR";
         return (subject, html, text);
     }
+
+    public static (string Subject, string Html, string Text) PasswordReset(string resetUrl)
+    {
+        var safeUrl = E(resetUrl);
+        var subject = "Şifre yenileme bağlantınız | İNOKSKAR";
+        var html = $"<div style='font-family:Arial,sans-serif;line-height:1.7;color:#102a51;max-width:620px'><h2>Şifre yenileme isteği</h2><p>İNOKSKAR hesabınız için bir şifre yenileme isteği aldık.</p><p><a href='{safeUrl}' style='display:inline-block;padding:12px 18px;border-radius:9px;background:#1455c0;color:#fff;text-decoration:none;font-weight:700'>Şifremi yenile</a></p><p>Bu bağlantı <strong>30 dakika</strong> boyunca ve yalnızca bir kez kullanılabilir.</p><p>Bu isteği siz yapmadıysanız e-postayı yok sayabilirsiniz; mevcut şifreniz değişmez.</p><p>Saygılarımızla,<br><strong>İNOKSKAR Soğutma ve Endüstriyel Mutfak</strong></p></div>";
+        var text = $"İNOKSKAR şifre yenileme isteği. Bağlantı 30 dakika boyunca ve yalnızca bir kez geçerlidir:\n{resetUrl}\n\nBu isteği siz yapmadıysanız e-postayı yok sayabilirsiniz.";
+        return (subject, html, text);
+    }
 }
