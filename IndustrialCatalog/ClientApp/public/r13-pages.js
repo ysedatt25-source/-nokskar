@@ -22,3 +22,10 @@ function refine(){
 function start(){refine();const o=new MutationObserver(refine);o.observe(document.body,{childList:true,subtree:true});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+/* Legacy visual scripts change React-owned nodes. Use a clean document for
+   global search navigation so those changes cannot break reconciliation. */
+document.addEventListener('submit',event=>{
+ const form=event.target;if(!(form instanceof HTMLFormElement)||!form.matches('.site-header .header-search')||!form.closest('#root'))return;
+ const input=form.querySelector('input');if(!input)return;
+ event.preventDefault();event.stopImmediatePropagation();const q=input.value.trim();location.assign('/urunler'+(q?'?q='+encodeURIComponent(q):''));
+},true);
