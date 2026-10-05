@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.DataProtection;
 
-public sealed record MailProviderPreset(string Id, string Name, string Host, int Port, bool EnableSsl, string UsernameHint = "");
+public sealed record MailProviderPreset(string Id, string Name, string Host, int Port, bool EnableSsl, string UsernameHint = "", string HelpText = "");
 
 public sealed record MailSettingsSnapshot(
     string Provider,
@@ -40,6 +40,7 @@ public sealed class MailSettingsStore
         new MailProviderPreset("yandex", "Yandex Mail", "smtp.yandex.com", 587, true, "ornek@yandex.com"),
         new MailProviderPreset("zoho", "Zoho Mail", "smtp.zoho.com", 587, true, "ornek@firma.com"),
         new MailProviderPreset("brevo", "Brevo", "smtp-relay.brevo.com", 587, true, "Brevo SMTP kullanıcı adı"),
+        new MailProviderPreset("mailjet", "Mailjet", "in-v3.mailjet.com", 587, true, "Mailjet API Key", "Mailjet için kullanıcı adı alanına API Key, parola alanına Secret Key girin."),
         new MailProviderPreset("sendgrid", "SendGrid", "smtp.sendgrid.net", 587, true, "apikey"),
         new MailProviderPreset("amazon-ses", "Amazon SES", "email-smtp.eu-central-1.amazonaws.com", 587, true, "SES SMTP kullanıcı adı"),
         new MailProviderPreset("mailgun", "Mailgun", "smtp.mailgun.org", 587, true, "postmaster@alanadiniz.com"),
@@ -158,7 +159,8 @@ public sealed class MailSettingsStore
         ["host"] = p.Host,
         ["port"] = p.Port,
         ["enableSsl"] = p.EnableSsl,
-        ["usernameHint"] = p.UsernameHint
+        ["usernameHint"] = p.UsernameHint,
+        ["helpText"] = p.HelpText
     }).ToArray());
 
     MailSettingsSnapshot SnapshotUnlocked(JsonObject stored)
@@ -218,6 +220,7 @@ public sealed class MailSettingsStore
         if (value.Contains("yandex")) return "yandex";
         if (value.Contains("zoho")) return "zoho";
         if (value.Contains("brevo")) return "brevo";
+        if (value.Contains("mailjet")) return "mailjet";
         if (value.Contains("sendgrid")) return "sendgrid";
         if (value.Contains("amazonaws")) return "amazon-ses";
         if (value.Contains("mailgun")) return "mailgun";
