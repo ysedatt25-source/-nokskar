@@ -1,0 +1,162 @@
+{
+  "settings": {
+    "name": "İNOKSKAR",
+    "tagline": "Soğutma ve Endüstriyel Mutfak",
+    "heroTitle": "Profesyonel alanlara\ngüçlü ve dayanıklı çözümler.",
+    "heroText": "İnokskar; sanayi soğutma, endüstriyel mutfak ve ticari mobilya ihtiyaçlarını tek katalogda buluşturur.",
+    "hero": "/hero.png",
+    "headerImage": "/inokskar-header-brand.png",
+    "phone": "",
+    "whatsapp": "",
+    "email": "",
+    "address": "",
+    "hours": "",
+    "social": "",
+    "waMessage": "Merhaba, İnokskar ürünleri hakkında bilgi almak istiyorum.",
+    "waEnabled": true,
+    "rate": 0,
+    "autoRate": true,
+    "lastRate": "",
+    "about": "İnokskar; sanayi soğutma, endüstriyel mutfak ve ticari mobilya alanlarında profesyonel işletmelere yönelik ürün çözümlerini bir araya getirir.",
+    "menu": [
+      {
+        "name": "Ürünler",
+        "url": "/urunler"
+      },
+      {
+        "name": "Hakkımızda",
+        "url": "/hakkimizda"
+      },
+      {
+        "name": "İletişim",
+        "url": "/iletisim"
+      }
+    ],
+    "rateSource": "",
+    "rateDate": ""
+  },
+  "categories": [
+    {
+      "id": "sogutma",
+      "name": "Sanayi Soğutma",
+      "parent": "",
+      "description": "Doğru sıcaklık. Kesintisiz performans.",
+      "image": "",
+      "menu": true,
+      "visible": true,
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "mutfak",
+      "name": "Endüstriyel Mutfak",
+      "parent": "",
+      "description": "Üretimin her aşamasına güçlü çözümler.",
+      "image": "",
+      "menu": true,
+      "visible": true,
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "mobilya",
+      "name": "Ticari Mobilya",
+      "parent": "",
+      "description": "Çalışma alanınıza sağlam bir temel.",
+      "image": "",
+      "menu": true,
+      "visible": true,
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "dolaplar",
+      "name": "Soğutma Dolapları",
+      "parent": "sogutma",
+      "description": "",
+      "image": "",
+      "menu": false,
+      "visible": true,
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "pisirme",
+      "name": "Pişirme Ekipmanları",
+      "parent": "mutfak",
+      "description": "",
+      "image": "",
+      "menu": false,
+      "visible": true,
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "tezgah",
+      "name": "Çalışma Tezgâhları",
+      "parent": "mobilya",
+      "description": "",
+      "image": "",
+      "menu": false,
+      "visible": true,
+      "seoTitle": "",
+      "seoDescription": ""
+    }
+  ],
+  "products": [
+    {
+      "id": "ornek-dolap",
+      "name": "Dik Tip Soğutma Dolabı",
+      "category": "dolaplar",
+      "euro": 0,
+      "tl": 0,
+      "description": "Profesyonel mutfaklarda düzenli ve erişilebilir soğuk depolama için örnek ürün kaydı.",
+      "after": "Ölçü ve kapasite bilgileri gerçek ürününüzle birlikte güncellenebilir.",
+      "specs": [],
+      "images": [],
+      "pdf": "",
+      "status": "Bilgi alınız",
+      "visible": true,
+      "demo": true,
+      "vatRate": 20,
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "ornek-ocak",
+      "name": "Endüstriyel Pişirme Ünitesi",
+      "category": "pisirme",
+      "euro": 0,
+      "tl": 0,
+      "description": "Yoğun mutfak operasyonlarına yönelik örnek ürün kaydı.",
+      "after": "",
+      "specs": [],
+      "images": [],
+      "pdf": "",
+      "status": "Sipariş üzerine",
+      "visible": true,
+      "demo": true,
+      "vatRate": 20,
+      "seoTitle": "",
+      "seoDescription": ""
+    },
+    {
+      "id": "ornek-tezgah",
+      "name": "Paslanmaz Çalışma Tezgâhı",
+      "category": "tezgah",
+      "euro": 0,
+      "tl": 0,
+      "description": "Profesyonel hazırlık alanları için örnek ürün kaydı.",
+      "after": "",
+      "specs": [],
+      "images": [],
+      "pdf": "",
+      "status": "Bilgi alınız",
+      "visible": true,
+      "demo": true,
+      "vatRate": 20,
+      "seoTitle": "",
+      "seoDescription": ""
+    }
+  ]
+}

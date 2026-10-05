@@ -1,0 +1,77 @@
+/* R12.3 — Ortak profesyonel yerleşim, erişilebilirlik ve üç cihaz standardı */
+:root{
+  --r123-shell-max:1560px;
+  --r123-content-max:1380px;
+  --r123-page-gutter:clamp(18px,3vw,34px);
+  --r123-space-1:6px;
+  --r123-space-2:10px;
+  --r123-space-3:14px;
+  --r123-space-4:18px;
+  --r123-space-5:24px;
+  --r123-space-6:32px;
+  --r123-radius:14px;
+  --r123-radius-lg:18px;
+  --r123-border:#d9e4f0;
+  --r123-text:#173553;
+  --r123-muted:#647992;
+  --r123-primary:#1455c0;
+  --r123-focus:#2b6ed2;
+}
+html{overflow-x:hidden;text-size-adjust:100%;-webkit-text-size-adjust:100%;scroll-padding-top:86px}body{overflow-x:hidden}img,video,svg{max-width:100%}
+:where(.wrap,.admin-wrap,.warranty-admin-wrap,.warranty-admin-wrap-wide,.tech-wrap,.access-wrap,.inquiry-wrap,.service-page .wrap,.mail-wrap){max-width:var(--r123-content-max)}
+:where(button,a,input,select,textarea):focus-visible{outline:3px solid color-mix(in srgb,var(--r123-focus) 30%,transparent);outline-offset:2px}
+:where(button,.button,.small-btn,.primary-button,.danger-button,.icon-btn,a.button){touch-action:manipulation}
+:where(input,select,textarea){max-width:100%}
+:where(.table-box,.table-wrap,.access-card,.warranty-table-wrap){overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+:where(dialog,[role="dialog"]){max-width:min(1040px,calc(100vw - 48px));max-height:min(88dvh,900px)}
+:where(dialog)::backdrop{background:rgba(9,25,48,.58);backdrop-filter:blur(2px)}
+.r123-device-note{display:none}
+
+@media (min-width:1180px){
+  :where(.admin-main,.admin-content){min-width:0}
+  :where(.table-box,.table-wrap){scrollbar-gutter:stable both-edges}
+}
+
+@media (max-width:1099px){
+  :root{--r123-page-gutter:22px}
+  :where(.wrap,.admin-wrap,.warranty-admin-wrap,.warranty-admin-wrap-wide,.tech-wrap,.access-wrap,.inquiry-wrap,.mail-wrap){width:calc(100% - 36px)}
+  :where(.admin-grid,.dashboard-grid){gap:14px}
+  :where(dialog,[role="dialog"]){max-width:calc(100vw - 30px);max-height:92dvh}
+}
+
+@media (max-width:700px){
+  :root{--r123-page-gutter:14px;--r123-radius:12px;--r123-radius-lg:15px}
+  body{padding-bottom:env(safe-area-inset-bottom)}
+  :where(.wrap,.admin-wrap,.warranty-admin-wrap,.warranty-admin-wrap-wide,.tech-wrap,.access-wrap,.inquiry-wrap,.service-page .wrap,.mail-wrap){width:calc(100% - 24px);margin-left:auto;margin-right:auto}
+  :where(button,.button,.small-btn,.primary-button,.danger-button,.icon-btn,a.button){min-height:48px}
+  :where(input,select,textarea){font-size:16px;min-height:48px}
+  :where(textarea){min-height:112px}
+  :where(.table-box,.table-wrap){max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;border-radius:12px}
+  :where(.table-box table,.table-wrap table){min-width:720px}
+  :where(.admin-toolbar,.access-toolbar,.warranty-toolbar,.panel-actions,.dialog-actions,.warranty-form-actions){gap:10px}
+  :where(.dialog-actions,.warranty-form-actions){display:grid;grid-template-columns:1fr}
+  :where(dialog){width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border:0;border-radius:0;padding:0}
+  :where(dialog>form,dialog>.dialog-content){min-height:100dvh;padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+  :where(.admin-shell [role="dialog"],.admin-main [role="dialog"]){width:100vw;max-width:none;min-height:100dvh;max-height:100dvh;border-radius:0}
+  :where(.admin-shell [data-radix-dialog-content],.admin-main [data-radix-dialog-content]){padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  :where(.sticky-actions,.dialog-actions.sticky){position:sticky;bottom:0;padding-bottom:env(safe-area-inset-bottom);background:#fff;box-shadow:0 -8px 20px rgba(16,42,81,.07)}
+}
+
+@media (max-width:430px){
+  :where(.wrap,.admin-wrap,.warranty-admin-wrap,.warranty-admin-wrap-wide,.tech-wrap,.access-wrap,.inquiry-wrap,.service-page .wrap,.mail-wrap){width:calc(100% - 20px)}
+  :where(.card,.admin-box,.inquiry-card,.access-card,.warranty-card,.tech-card){border-radius:12px}
+  :where(.button,.primary-button,.danger-button,a.button){width:100%;justify-content:center}
+}
+
+@media (hover:none) and (pointer:coarse){
+  :where(button,.button,.small-btn,.primary-button,.danger-button,.icon-btn,a.button){min-height:48px}
+  :where(.table-box tbody tr:hover,.table-wrap tbody tr:hover){background:inherit}
+}
+
+@media (orientation:landscape) and (max-height:520px){
+  :where(dialog,[role="dialog"]){max-height:100dvh}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto;animation-duration:.001ms;animation-iteration-count:1;transition-duration:.001ms}
+}
