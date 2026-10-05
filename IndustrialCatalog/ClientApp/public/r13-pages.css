@@ -182,3 +182,6 @@ body.page-listing .filterbar [role=combobox]{width:100%!important;max-width:none
 body.page-listing .filterbar select{width:100%!important}
 @media(max-width:1000px){body.page-listing .filterbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}body.page-listing .filterbar .search-field{grid-column:1/-1!important}body.page-listing .filterbar select{grid-column:1/-1!important}}
 @media(max-width:850px){body[data-ui-page=product] .detail-grid,body[data-ui-page=iletisim] .contact-grid{grid-template-columns:1fr!important}body.page-detail .detail-photo{max-height:460px!important}body.page-detail .detail-photo .photo-placeholder{min-height:320px!important}}
+body .site-header .main-nav .nav-dropdown a,body .site-header .main-nav .nav-dropdown a span{color:#233b5a!important}
+body .site-header .main-nav .nav-dropdown a:hover,body .site-header .main-nav .nav-dropdown a:hover span{color:#125cc9!important}
+body.page-home .product-copy h3,body.page-listing .product-copy h3{font-size:20px!important;line-height:1.35!important}
