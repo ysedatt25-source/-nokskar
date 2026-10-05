@@ -301,3 +301,116 @@ body[data-ui-page^="admin-"] .admin-mobile-toggle{display:none}
   body[data-ui-page^="admin-"] .admin-header-actions .button{width:100%!important;min-height:46px!important}
   body[data-ui-page^="admin-"] .metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+
+/* R14.10 — warranty + branding visual continuation */
+body.warranty-admin-body .warranty-admin-top,
+body.brand-admin-body .brand-admin-top{
+  min-height:58px!important;
+  padding:7px max(14px,calc((100vw - 1380px)/2))!important;
+  background:#252b33!important;
+  color:#fff!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:0 7px 22px rgba(19,32,51,.12)!important;
+}
+body.warranty-admin-body .warranty-admin-top>div,
+body.brand-admin-body .brand-admin-top>div{gap:1px!important}
+body.warranty-admin-body .warranty-admin-top strong,
+body.brand-admin-body .brand-admin-top strong{font-size:.88rem!important;letter-spacing:.08em!important}
+body.warranty-admin-body .warranty-admin-top span,
+body.brand-admin-body .brand-admin-top span{font-size:.68rem!important;color:#aebdce!important}
+body.warranty-admin-body .warranty-admin-top nav{display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:nowrap!important}
+body.warranty-admin-body .warranty-admin-top a,
+body.brand-admin-body .brand-admin-top>a{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:38px!important;padding:0 11px!important;border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:10px!important;background:#303944!important;color:#f4f8fd!important;
+  font-size:.76rem!important;font-weight:760!important;text-decoration:none!important;white-space:nowrap!important;
+}
+body.warranty-admin-body .warranty-admin-top a:hover,
+body.brand-admin-body .brand-admin-top>a:hover{background:#394655!important;color:#fff!important}
+
+body.warranty-admin-body :is(.button,.small-btn,.warranty-filter),
+body.brand-admin-body :is(button,a,.brand-upload-button){
+  position:relative!important;overflow:hidden!important;isolation:isolate!important;
+}
+body.warranty-admin-body :is(.button,.small-btn)::after,
+body.brand-admin-body :is(button,a,.brand-upload-button)::after{
+  content:"";position:absolute;z-index:2;top:-90%;bottom:-90%;left:-58%;width:28%;pointer-events:none;
+  transform:skewX(-22deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),rgba(255,255,255,.82),rgba(255,255,255,.14),transparent);
+  transition:left .65s cubic-bezier(.22,.61,.36,1);
+}
+body.warranty-admin-body :is(.button,.small-btn):hover::after,
+body.brand-admin-body :is(button,a,.brand-upload-button):hover::after{left:138%}
+
+body.warranty-admin-body .button:not(.secondary){
+  background:linear-gradient(180deg,#2478df,#1557b8)!important;color:#fff!important;border-color:#1455b7!important;
+  box-shadow:0 8px 18px rgba(20,85,192,.16)!important;
+}
+body.warranty-admin-body .button.secondary,
+body.warranty-admin-body .small-btn:not(.danger){
+  background:#fff!important;color:#1756a7!important;border-color:#c7d8ee!important;
+  box-shadow:0 5px 14px rgba(16,42,81,.06)!important;
+}
+body.warranty-admin-body .small-btn.danger{background:#fff5f5!important;border-color:#efc6ca!important;color:#ad2937!important}
+body.warranty-admin-body .warranty-filter.active{
+  background:linear-gradient(180deg,#283746,#1f2a35)!important;border-color:#273849!important;color:#fff!important;
+}
+body.warranty-admin-body .warranty-admin-form-card,
+body.warranty-admin-body .warranty-list-shell,
+body.warranty-admin-body .warranty-list-card{
+  box-shadow:0 14px 34px rgba(16,42,81,.055)!important;
+}
+
+body.brand-admin-body .brand-admin-card{box-shadow:0 14px 34px rgba(16,42,81,.06)!important}
+body.brand-admin-body .brand-upload-button{
+  background:linear-gradient(180deg,#2478df,#1557b8)!important;color:#fff!important;border-color:#1455b7!important;
+  box-shadow:0 8px 18px rgba(20,85,192,.16)!important;
+}
+body.brand-admin-body #brand-default{
+  background:linear-gradient(180deg,#ff8426,#dc5e0b)!important;color:#fff!important;border-color:#ca5207!important;
+  box-shadow:0 8px 18px rgba(220,94,11,.17)!important;
+}
+body.brand-admin-body .brand-admin-actions>a{
+  background:#fff!important;color:#1756a7!important;border:1px solid #c7d8ee!important;
+}
+
+@media(max-width:700px){
+  body.warranty-admin-body .warranty-admin-top{
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;
+    gap:6px 9px!important;padding:7px 10px!important;min-height:58px!important;
+  }
+  body.warranty-admin-body .warranty-admin-top>div{grid-column:1!important;grid-row:1!important}
+  body.warranty-admin-body .warranty-admin-top>div span{display:none!important}
+  body.warranty-admin-body .warranty-admin-top nav{
+    grid-column:2!important;grid-row:1!important;max-width:64vw!important;overflow-x:auto!important;
+    scrollbar-width:none!important;overscroll-behavior-x:contain!important;
+  }
+  body.warranty-admin-body .warranty-admin-top nav::-webkit-scrollbar{display:none!important}
+  body.warranty-admin-body .warranty-admin-top a{min-height:36px!important;padding:0 8px!important;font-size:.68rem!important}
+  body.warranty-admin-body .warranty-admin-wrap{margin-top:18px!important}
+  body.warranty-admin-body .warranty-admin-heading{gap:14px!important}
+  body.warranty-admin-body .warranty-heading-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
+  body.warranty-admin-body .warranty-heading-actions>*{width:100%!important}
+  body.warranty-admin-body .warranty-filter-group{
+    width:100%!important;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:2px!important;
+    scrollbar-width:none!important;overscroll-behavior-x:contain!important;
+  }
+  body.warranty-admin-body .warranty-filter-group::-webkit-scrollbar{display:none!important}
+  body.warranty-admin-body .warranty-filter{white-space:nowrap!important;flex:0 0 auto!important}
+  body.warranty-admin-body .warranty-list-card-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  body.warranty-admin-body .warranty-list-card-actions>*{width:100%!important;justify-content:center!important}
+  body.brand-admin-body .brand-admin-top{min-height:58px!important;padding:7px 10px!important}
+  body.brand-admin-body .brand-admin-top span{display:none!important}
+  body.brand-admin-body .brand-admin-top>a{min-height:36px!important;padding:0 8px!important;font-size:.68rem!important}
+  body.brand-admin-body .brand-admin-main{margin-top:18px!important}
+  body.brand-admin-body .brand-admin-actions{display:grid!important;grid-template-columns:1fr!important}
+  body.brand-admin-body .brand-admin-actions>*{width:100%!important;justify-content:center!important}
+}
+@media(max-width:430px){
+  body.warranty-admin-body .warranty-list-card-actions{grid-template-columns:1fr!important}
+}
+@media(prefers-reduced-motion:reduce){
+  body.warranty-admin-body :is(.button,.small-btn)::after,
+  body.brand-admin-body :is(button,a,.brand-upload-button)::after{display:none!important}
+}
