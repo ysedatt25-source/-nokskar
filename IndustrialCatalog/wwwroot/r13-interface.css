@@ -127,3 +127,47 @@ body.page-home .header-cta{background:#b94c0b;color:#fff;box-shadow:none;min-hei
  body[data-ui-page^="admin-"] .admin-toolbar [role="combobox"]{height:48px!important;min-height:48px!important;max-height:48px!important;width:100%!important}
  body[data-ui-page^="admin-"] .admin-toolbar :is(.button,.small-btn){height:48px!important;min-height:48px!important;max-height:48px!important;width:100%!important;justify-content:center!important}
 }
+
+
+/* R14.12 — mobile product/price tables become readable cards */
+@media(max-width:600px){
+ body[data-ui-page="admin-products"] .table-box,
+ body[data-ui-page="admin-prices"] .table-box{overflow:visible!important;border:0!important;background:transparent!important}
+ body[data-ui-page="admin-products"] .table-box table,
+ body[data-ui-page="admin-prices"] .table-box table{display:block!important;min-width:0!important;width:100%!important;background:transparent!important}
+ body[data-ui-page="admin-products"] .table-box thead,
+ body[data-ui-page="admin-prices"] .table-box thead{display:none!important}
+ body[data-ui-page="admin-products"] .table-box tbody,
+ body[data-ui-page="admin-prices"] .table-box tbody{display:grid!important;gap:10px!important;width:100%!important}
+ body[data-ui-page="admin-products"] .table-box tr,
+ body[data-ui-page="admin-prices"] .table-box tr{display:grid!important;grid-template-columns:1fr!important;position:relative!important;width:100%!important;padding:12px 12px 12px 48px!important;border:1px solid #dbe5f0!important;border-left:3px solid #2478df!important;border-radius:12px!important;background:#fff!important;box-shadow:0 7px 18px #102a510b!important}
+ body[data-ui-page="admin-prices"] .table-box tr{border-left-color:#f07c24!important}
+ body[data-ui-page="admin-products"] .table-box td,
+ body[data-ui-page="admin-prices"] .table-box td{display:grid!important;grid-template-columns:96px minmax(0,1fr)!important;gap:8px!important;align-items:start!important;width:100%!important;min-width:0!important;min-height:0!important;padding:5px 0!important;border:0!important;white-space:normal!important;overflow-wrap:anywhere!important}
+ body[data-ui-page="admin-products"] .table-box td:first-child,
+ body[data-ui-page="admin-prices"] .table-box td:first-child{position:absolute!important;left:12px!important;top:14px!important;display:block!important;width:24px!important;padding:0!important}
+ body[data-ui-page="admin-products"] .table-box td:first-child [role="checkbox"],
+ body[data-ui-page="admin-prices"] .table-box td:first-child [role="checkbox"]{width:22px!important;height:22px!important;min-height:22px!important}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(n+2)::before,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(n+2)::before{font-size:.68rem!important;font-weight:850!important;letter-spacing:.035em!important;text-transform:uppercase!important;color:#71849a!important;line-height:1.4!important}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(2)::before,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(2)::before{content:"Ürün"}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(3)::before,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(3)::before{content:"Kategori"}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(4)::before,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(4)::before{content:"Euro"}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(5)::before,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(5)::before{content:"Yayınlanan TL"}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(6)::before,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(6)::before{content:"Durum"}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(7)::before,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(7)::before{content:"İşlem"}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(7),
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(7){align-items:center!important}
+ body[data-ui-page="admin-products"] .table-box td:nth-child(7) .small-btn,
+ body[data-ui-page="admin-prices"] .table-box td:nth-child(7) .small-btn{min-height:42px!important;height:42px!important;width:auto!important;margin-right:6px!important}
+ body[data-ui-page="admin-products"] .table-box .product-code,
+ body[data-ui-page="admin-prices"] .table-box .product-code,
+ body[data-ui-page="admin-products"] .table-box .demo-tag,
+ body[data-ui-page="admin-prices"] .table-box .demo-tag{display:block!important;margin-top:2px!important}
+}
