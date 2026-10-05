@@ -172,11 +172,11 @@ body[data-ui-page=forgot-password] .card{border-top:4px solid #f0802b!important}
 body[data-ui-page=garanti-sorgulama] .small-btn,body[data-ui-page=servis-talebi] .small-btn{box-shadow:0 5px 14px #1556bb20!important}
 @media(max-width:850px){body .site-header{grid-template-rows:40px!important;align-items:start!important}body .site-header .header-actions{align-self:start!important}body .site-header .main-nav{grid-area:auto!important;grid-template:none!important}body .site-header .brand{align-self:start!important}body[data-ui-page=servis-talebi] .service-two-col{grid-template-columns:1fr!important}}
 @media(prefers-reduced-motion:reduce){body[data-ui-page=login] .submit::after,body[data-ui-page=kayit] form>button::after,body[data-ui-page=forgot-password] form>button::after,body[data-ui-page=servis-talebi] .button::after,body[data-ui-page=garanti-sorgulama] .button::after{display:none!important}}
-body:is(.page-home,.page-internal,.warranty-public-body) :is(button,.card-link,.category-action,.small-btn){position:relative;overflow:hidden}
-body:is(.page-home,.page-internal,.warranty-public-body) :is(button,.card-link,.category-action,.small-btn)::after{content:'';position:absolute;inset:-65% auto -65% -70%;width:35%;background:linear-gradient(90deg,transparent,#ffffff80,transparent);transform:skewX(-24deg);transition:left .6s;pointer-events:none}
-body:is(.page-home,.page-internal,.warranty-public-body) :is(button,.card-link,.category-action,.small-btn):hover::after{left:140%}
-body:is(.page-home,.page-internal,.warranty-public-body) button:focus-visible,body:is(.page-home,.page-internal,.warranty-public-body) a:focus-visible{outline:3px solid #52a7ff;outline-offset:3px}
-@media(prefers-reduced-motion:reduce){body:is(.page-home,.page-internal,.warranty-public-body) :is(button,.card-link,.category-action,.small-btn)::after{display:none}}
+body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) :is(button,.card-link,.category-action,.small-btn){position:relative;overflow:hidden}
+body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) :is(button,.card-link,.category-action,.small-btn)::after{content:'';position:absolute;inset:-65% auto -65% -70%;width:35%;background:linear-gradient(90deg,transparent,#ffffff80,transparent);transform:skewX(-24deg);transition:left .6s;pointer-events:none}
+body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) :is(button,.card-link,.category-action,.small-btn):hover::after{left:140%}
+body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) button:focus-visible,body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) a:focus-visible{outline:3px solid #52a7ff;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) :is(button,.card-link,.category-action,.small-btn)::after{display:none}}
 body.page-listing .filterbar{display:grid!important;grid-template-columns:minmax(230px,1fr) 175px 190px 130px auto!important;align-items:center!important;gap:12px!important}
 body.page-listing .filterbar [role=combobox]{width:100%!important;max-width:none!important}
 body.page-listing .filterbar select{width:100%!important}
@@ -948,38 +948,38 @@ body.brand-admin-body .brand-admin-actions>a{
 /* R15.8 — large white brand headers + cleaner customer hero */
 .private-header-toggle{display:none}
 @media(min-width:851px){
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header{
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header{
     min-height:88px!important;height:88px!important;padding:5px max(18px,calc((100% - 1440px)/2))!important;
     background:#fff!important;border-bottom:1px solid #dbe4ee!important;box-shadow:0 7px 22px rgba(13,32,54,.08)!important;
   }
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header>.brand{
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header>.brand{
     width:290px!important;min-width:250px!important;max-width:290px!important;height:78px!important;display:flex!important;align-items:center!important;
   }
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header .brand img.header-brand-image{
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header .brand img.header-brand-image{
     width:100%!important;height:78px!important;max-width:none!important;object-fit:contain!important;object-position:left center!important;
   }
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header .main-nav>a,
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header .nav-category-link{color:#203d5c!important}
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header .nav-category-toggle{color:#45627f!important}
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header .header-util-links a{color:#294a69!important}
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header .main-nav>a,
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header .nav-category-link{color:#203d5c!important}
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header .nav-category-toggle{color:#45627f!important}
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header .header-util-links a{color:#294a69!important}
 }
 @media(max-width:850px){
   body.app-shell-enabled .site-header,
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header{
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header{
     min-height:108px!important;height:108px!important;padding:5px 10px!important;
     grid-template-columns:minmax(0,1fr) 48px!important;background:#fff!important;
     border-bottom:1px solid #dbe4ee!important;box-shadow:0 7px 22px rgba(13,32,54,.09)!important;
   }
   body.app-shell-enabled .site-header>.brand,
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header>.brand{
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header>.brand{
     width:100%!important;min-width:0!important;max-width:none!important;height:98px!important;display:flex!important;align-items:center!important;
   }
   body.app-shell-enabled .site-header .brand img.header-brand-image,
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header .brand img.header-brand-image{
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header .brand img.header-brand-image{
     width:100%!important;height:98px!important;max-width:none!important;object-fit:contain!important;object-position:left center!important;
   }
   body.app-shell-enabled .site-header .mobile-menu,
-  body:is(.page-home,.page-internal,.warranty-public-body) .site-header .mobile-menu{
+  body:is(.page-home,.page-internal,.warranty-public-body,.legal-public-body) .site-header .mobile-menu{
     width:46px!important;height:46px!important;min-height:46px!important;border:1px solid #cbd8e7!important;border-radius:13px!important;
     background:linear-gradient(180deg,#334151,#242d38)!important;color:#fff!important;box-shadow:0 6px 15px rgba(17,38,61,.16)!important;
   }
