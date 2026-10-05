@@ -69,16 +69,23 @@ public sealed class PasswordResetStore
         }
     }
 
-    public bool Consume(string token)
+    public bool Consume(string token) => ConsumeTarget(token) != null;
+
+    public PasswordResetTarget? ConsumeTarget(string token)
     {
-        if (string.IsNullOrWhiteSpace(token)) return false;
+        if (string.IsNullOrWhiteSpace(token)) return null;
         lock (gate)
         {
+            var now = DateTimeOffset.UtcNow;
             var hash = Hash(token);
             var rows = Load();
-            var removed = rows.RemoveAll(x => string.Equals(x.TokenHash, hash, StringComparison.Ordinal)) > 0;
-            if (removed) Persist(rows);
-            return removed;
+            var index = rows.FindIndex(x => string.Equals(x.TokenHash, hash, StringComparison.Ordinal)
+                && DateTimeOffset.TryParse(x.ExpiresUtc, out var expires) && expires > now);
+            if (index < 0) return null;
+            var row = rows[index];
+            rows.RemoveAt(index);
+            Persist(rows);
+            return new PasswordResetTarget(row.Email, row.Kind);
         }
     }
 
