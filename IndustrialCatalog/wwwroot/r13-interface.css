@@ -115,3 +115,15 @@ body.page-home .hero{background:#252b33;min-height:0}
 body.page-home .hero-actions .gold{background:#b94c0b;color:#fff;border-color:transparent}
 body.page-home .header-cta{background:#b94c0b;color:#fff;box-shadow:none;min-height:42px}
 @media(max-width:850px){body.page-home .site-header{display:grid;grid-template-columns:minmax(0,1fr) auto;padding:6px 12px;gap:0 10px}body.page-home .brand img.header-brand-image{height:34px;max-width:165px}body.page-home .header-actions{width:auto;display:flex;margin:0}body.page-home .header-search,body.page-home .header-cta,body.page-home .header-util-links{display:none}body.page-home .main-nav{grid-column:1/-1;width:100%}}
+
+
+/* R14.11 — compact mobile admin toolbars */
+@media(max-width:600px){
+ body[data-ui-page^="admin-"] .admin-toolbar{display:grid!important;grid-template-columns:1fr!important;align-items:stretch!important;gap:8px!important;height:auto!important}
+ body[data-ui-page^="admin-"] .admin-toolbar>*{flex:none!important;width:100%!important;min-width:0!important;height:auto!important;min-height:48px!important;max-height:52px!important}
+ body[data-ui-page^="admin-"] .admin-toolbar>p{min-height:0!important;max-height:none!important;margin:0 0 4px!important;line-height:1.5!important}
+ body[data-ui-page^="admin-"] .admin-toolbar .search-field{max-width:none!important;min-height:48px!important}
+ body[data-ui-page^="admin-"] .admin-toolbar .search-field input{height:48px!important;min-height:48px!important;padding:10px 12px!important}
+ body[data-ui-page^="admin-"] .admin-toolbar [role="combobox"]{height:48px!important;min-height:48px!important;max-height:48px!important;width:100%!important}
+ body[data-ui-page^="admin-"] .admin-toolbar :is(.button,.small-btn){height:48px!important;min-height:48px!important;max-height:48px!important;width:100%!important;justify-content:center!important}
+}
