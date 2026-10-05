@@ -116,6 +116,12 @@ public sealed class UserDirectory
         lock (gate) return CloneOrNull(LoadUnsafe().FirstOrDefault(x => x.Id == id));
     }
 
+    public AccessUserRecord? ByEmail(string email)
+    {
+        var value = (email ?? "").Trim();
+        lock (gate) return CloneOrNull(LoadUnsafe().FirstOrDefault(x => x.Active && string.Equals(x.Email, value, StringComparison.OrdinalIgnoreCase)));
+    }
+
     public bool IsActive(string id)
     {
         lock (gate) return LoadUnsafe().Any(x => x.Id == id && x.Active);
@@ -196,6 +202,21 @@ public sealed class UserDirectory
             if (!Passwords.Verify(currentPassword ?? "", rows[index].PasswordHash)) throw new ArgumentException("Mevcut şifre hatalı.");
             if (Passwords.Verify(newPassword, rows[index].PasswordHash)) throw new ArgumentException("Yeni şifre mevcut şifreyle aynı olamaz.");
             rows[index].PasswordHash = Passwords.Hash(newPassword); rows[index].MustChangePassword = false; rows[index].UpdatedUtc = DateTimeOffset.UtcNow.ToString("O"); Persist(rows);
+        }
+    }
+
+    public void ResetPasswordByEmail(string email, string newPassword)
+    {
+        ValidatePassword(newPassword);
+        var value = (email ?? "").Trim();
+        lock (gate)
+        {
+            var rows = LoadUnsafe(); var index = rows.FindIndex(x => x.Active && string.Equals(x.Email, value, StringComparison.OrdinalIgnoreCase));
+            if (index < 0) throw new ArgumentException("Kullanıcı bulunamadı.");
+            rows[index].PasswordHash = Passwords.Hash(newPassword);
+            rows[index].MustChangePassword = false;
+            rows[index].UpdatedUtc = DateTimeOffset.UtcNow.ToString("O");
+            Persist(rows);
         }
     }
 
