@@ -30,3 +30,25 @@ document.addEventListener('submit',event=>{
  const input=form.querySelector('input');if(!input)return;
  event.preventDefault();event.stopImmediatePropagation();const q=input.value.trim();location.assign('/urunler'+(q?'?q='+encodeURIComponent(q):''));
 },true);
+
+
+/* R14.8 — compact admin mobile drawer */
+(()=>{
+  if(!location.pathname.startsWith('/admin'))return;
+  const mount=()=>{
+    const side=document.querySelector('.admin-sidebar');
+    const nav=side?.querySelector('nav');
+    if(!side||!nav||side.dataset.r148Drawer)return;
+    side.dataset.r148Drawer='1';
+    const toggle=document.createElement('button');
+    toggle.type='button';toggle.className='admin-mobile-toggle';toggle.setAttribute('aria-label','Yönetim menüsünü aç');toggle.setAttribute('aria-expanded','false');
+    toggle.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+    side.insertBefore(toggle,nav);
+    const close=()=>{side.classList.remove('menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç')};
+    toggle.addEventListener('click',()=>{const open=side.classList.toggle('menu-open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Yönetim menüsünü kapat':'Yönetim menüsünü aç')});
+    nav.addEventListener('click',e=>{if(innerWidth<=850&&e.target.closest('button,a'))close()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  };
+  const start=()=>{mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),30000)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
