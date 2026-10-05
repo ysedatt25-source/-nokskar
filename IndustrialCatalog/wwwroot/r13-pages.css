@@ -177,3 +177,8 @@ body:is(.page-home,.page-internal,.warranty-public-body) :is(button,.card-link,.
 body:is(.page-home,.page-internal,.warranty-public-body) :is(button,.card-link,.category-action,.small-btn):hover::after{left:140%}
 body:is(.page-home,.page-internal,.warranty-public-body) button:focus-visible,body:is(.page-home,.page-internal,.warranty-public-body) a:focus-visible{outline:3px solid #52a7ff;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){body:is(.page-home,.page-internal,.warranty-public-body) :is(button,.card-link,.category-action,.small-btn)::after{display:none}}
+body.page-listing .filterbar{display:grid!important;grid-template-columns:minmax(230px,1fr) 175px 190px 130px auto!important;align-items:center!important;gap:12px!important}
+body.page-listing .filterbar [role=combobox]{width:100%!important;max-width:none!important}
+body.page-listing .filterbar select{width:100%!important}
+@media(max-width:1000px){body.page-listing .filterbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}body.page-listing .filterbar .search-field{grid-column:1/-1!important}body.page-listing .filterbar select{grid-column:1/-1!important}}
+@media(max-width:850px){body[data-ui-page=product] .detail-grid,body[data-ui-page=iletisim] .contact-grid{grid-template-columns:1fr!important}body.page-detail .detail-photo{max-height:460px!important}body.page-detail .detail-photo .photo-placeholder{min-height:320px!important}}
