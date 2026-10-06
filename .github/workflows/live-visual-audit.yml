@@ -32,19 +32,23 @@ jobs:
           npm install playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Wait for live deployment
+      - name: Wait for exact live deployment
         run: |
           set -euo pipefail
-          for i in {1..60}; do
-            code="$(curl -L --silent --output /tmp/live-home --write-out '%{http_code}' "$LIVE_URL/")"
-            if [ "$code" = "200" ]; then
-              echo "Live site is responding with 200"
+          echo "Expected live commit: $GITHUB_SHA"
+          for i in {1..90}; do
+            info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
+            actual="$(printf '%s' "$info" | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p')"
+            if [ "$actual" = "$GITHUB_SHA" ]; then
+              echo "Exact commit is live: $actual"
+              curl -fsS "$LIVE_URL/healthz"
               exit 0
             fi
-            echo "Waiting for live site, current HTTP $code"
+            echo "Waiting for exact Railway deployment. Current: ${actual:-unavailable}"
             sleep 5
           done
-          echo "Live site did not become ready"
+          echo "Exact commit did not become live in time"
+          curl -fsS "$LIVE_URL/build-info" || true
           exit 1
 
       - name: Run live Chromium visual and interaction audit
