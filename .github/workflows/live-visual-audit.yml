@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r17-4"
+          expected="r17-5"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -202,6 +202,47 @@ jobs:
               clickThroughBlocked: mainInert && urlBefore === urlAfter,
               menuClosedAfterBackdrop
             };
+
+            // Reopen the drawer, open the first category submenu and verify links below it cannot be clicked.
+            const toggleBox2 = await toggle.boundingBox();
+            if (!toggleBox2) throw new Error('Mobile menu button disappeared');
+            await page.mouse.click(toggleBox2.x + toggleBox2.width / 2, toggleBox2.y + toggleBox2.height / 2);
+            await page.waitForTimeout(180);
+            const categoryToggle = page.locator('.main-nav.open .nav-category-toggle').first();
+            const categoryToggleBox = await categoryToggle.boundingBox();
+            if (!categoryToggleBox) throw new Error('Category submenu toggle is not visible');
+            await page.mouse.click(categoryToggleBox.x + categoryToggleBox.width / 2, categoryToggleBox.y + categoryToggleBox.height / 2);
+            await page.waitForTimeout(220);
+
+            const categoryDropdownVisible = await page.locator('.main-nav.open .nav-category.open .nav-dropdown').first().isVisible().catch(()=>false);
+            const siblingPointerLocked = await page.evaluate(() => {
+              const nav=document.querySelector('.main-nav.open.category-layer-open');
+              if(!nav) return false;
+              const siblings=[...nav.children].filter(el=>el.matches('a,.nav-category:not(.open)'));
+              return siblings.length>0 && siblings.every(el=>getComputedStyle(el).pointerEvents==='none');
+            });
+            const lowerLink = page.locator('.main-nav.open > a').first();
+            const lowerBox = await lowerLink.boundingBox().catch(()=>null);
+            const categoryUrlBefore = page.url();
+            let categoryUrlAfter = categoryUrlBefore;
+            if(lowerBox){
+              await page.mouse.click(lowerBox.x + lowerBox.width/2, lowerBox.y + lowerBox.height/2);
+              await page.waitForTimeout(350);
+              categoryUrlAfter = page.url();
+            }
+            const categoryClickBlocked = !!lowerBox && categoryUrlBefore === categoryUrlAfter;
+            await page.screenshot({
+              path: out + '/home-mobile-category-open.png',
+              fullPage: false,
+              animations: 'disabled'
+            });
+            report.interaction.mobileCategorySubmenu = {
+              categoryDropdownVisible,
+              siblingPointerLocked,
+              categoryClickBlocked,
+              categoryUrlBefore,
+              categoryUrlAfter
+            };
             await context.close();
           }
 
@@ -210,11 +251,12 @@ jobs:
 
           const failedPages = report.pages.filter(p => p.status !== 200 || p.horizontalOverflow);
           const m = report.interaction.publicMobileMenu;
-          const interactionOk = m.menuVisible && m.backdropVisible && m.mainInert && m.clickThroughBlocked && m.focusContained;
+          const cat = report.interaction.mobileCategorySubmenu;
+          const interactionOk = m.menuVisible && m.backdropVisible && m.mainInert && m.clickThroughBlocked && m.focusContained && m.menuClosedAfterBackdrop && cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.categoryClickBlocked;
           console.log(JSON.stringify(report, null, 2));
 
           if (failedPages.length || !interactionOk) {
-            console.error('Live visual audit failed', { failedPages, interaction: m });
+            console.error('Live visual audit failed', { failedPages, interaction: m, categorySubmenu: cat });
             process.exit(1);
           }
           EOF
