@@ -148,7 +148,7 @@ document.addEventListener('submit',event=>{
   const setupHeader=header=>{
     if(!header||header.dataset.r158Brand)return;
     header.dataset.r158Brand='1';header.classList.add('private-brand-header');
-    let brand=header.matches('header.top')?header.querySelector(':scope>a[href="/"]'):header.querySelector(':scope>div');
+    let brand=header.querySelector(':scope>.private-brand-link')||(header.matches('header.top')?header.querySelector(':scope>a[href="/"]'):header.querySelector(':scope>div'));
     if(brand&&brand.tagName!=='A'){
       const link=document.createElement('a');link.href='/';link.className='private-brand-link';link.innerHTML=brandHtml;brand.replaceWith(link);brand=link;
     }else if(brand){brand.classList.add('private-brand-link');brand.innerHTML=brandHtml;}
