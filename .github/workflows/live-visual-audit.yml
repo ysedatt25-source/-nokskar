@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r17-7"
+          expected="r17-8"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -204,15 +204,13 @@ jobs:
             };
 
             // Reopen the drawer, open the first category submenu and verify links below it cannot be clicked.
-            const toggleBox2 = await toggle.boundingBox();
-            if (!toggleBox2) throw new Error('Mobile menu button disappeared');
-            await page.touchscreen.tap(toggleBox2.x + toggleBox2.width / 2, toggleBox2.y + toggleBox2.height / 2);
+            const liveToggle = page.locator('.site-header > .header-actions > .mobile-menu:visible').first();
+            await liveToggle.tap();
+            await page.locator('.main-nav.open').first().waitFor({state:'visible',timeout:5000});
             await page.waitForTimeout(180);
-            const categoryToggle = page.locator('.main-nav.open .nav-category-toggle').first();
-            const categoryToggleBox = await categoryToggle.boundingBox();
-            if (!categoryToggleBox) throw new Error('Category submenu toggle is not visible');
-            await page.touchscreen.tap(categoryToggleBox.x + categoryToggleBox.width / 2, categoryToggleBox.y + categoryToggleBox.height / 2);
-            await page.waitForTimeout(220);
+            const categoryToggle = page.locator('.main-nav.open .nav-category-toggle:visible').first();
+            await categoryToggle.tap();
+            await page.waitForTimeout(260);
 
             const categoryDropdownVisible = await page.locator('.main-nav.open .nav-category.open .nav-dropdown').first().isVisible().catch(()=>false);
             const siblingPointerLocked = await page.evaluate(() => {
