@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r17-6"
+          expected="r17-7"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -133,7 +133,7 @@ jobs:
             await toggle.waitFor({ state: 'visible', timeout: 10000 });
             const toggleBox = await toggle.boundingBox();
             if (!toggleBox) throw new Error('Mobile menu button has no clickable box');
-            await page.mouse.click(toggleBox.x + toggleBox.width / 2, toggleBox.y + toggleBox.height / 2);
+            await page.touchscreen.tap(toggleBox.x + toggleBox.width / 2, toggleBox.y + toggleBox.height / 2);
             await page.waitForTimeout(300);
 
             const menu = page.locator('.main-nav.open').first();
@@ -184,7 +184,7 @@ jobs:
                 const el = document.elementFromPoint(x,y);
                 return el ? { tag: el.tagName, cls: String(el.className || ''), aria: el.getAttribute('aria-label') } : null;
               }, targetPoint);
-              await page.mouse.click(targetPoint.x, targetPoint.y);
+              await page.touchscreen.tap(targetPoint.x, targetPoint.y);
               await page.waitForTimeout(450);
               urlAfter = page.url();
               menuClosedAfterBackdrop = !(await menu.isVisible().catch(() => false));
@@ -206,12 +206,12 @@ jobs:
             // Reopen the drawer, open the first category submenu and verify links below it cannot be clicked.
             const toggleBox2 = await toggle.boundingBox();
             if (!toggleBox2) throw new Error('Mobile menu button disappeared');
-            await page.mouse.click(toggleBox2.x + toggleBox2.width / 2, toggleBox2.y + toggleBox2.height / 2);
+            await page.touchscreen.tap(toggleBox2.x + toggleBox2.width / 2, toggleBox2.y + toggleBox2.height / 2);
             await page.waitForTimeout(180);
             const categoryToggle = page.locator('.main-nav.open .nav-category-toggle').first();
             const categoryToggleBox = await categoryToggle.boundingBox();
             if (!categoryToggleBox) throw new Error('Category submenu toggle is not visible');
-            await page.mouse.click(categoryToggleBox.x + categoryToggleBox.width / 2, categoryToggleBox.y + categoryToggleBox.height / 2);
+            await page.touchscreen.tap(categoryToggleBox.x + categoryToggleBox.width / 2, categoryToggleBox.y + categoryToggleBox.height / 2);
             await page.waitForTimeout(220);
 
             const categoryDropdownVisible = await page.locator('.main-nav.open .nav-category.open .nav-dropdown').first().isVisible().catch(()=>false);
@@ -226,7 +226,7 @@ jobs:
             const categoryUrlBefore = page.url();
             let categoryUrlAfter = categoryUrlBefore;
             if(lowerBox){
-              await page.mouse.click(lowerBox.x + lowerBox.width/2, lowerBox.y + lowerBox.height/2);
+              await page.touchscreen.tap(lowerBox.x + lowerBox.width/2, lowerBox.y + lowerBox.height/2);
               await page.waitForTimeout(350);
               categoryUrlAfter = page.url();
             }
