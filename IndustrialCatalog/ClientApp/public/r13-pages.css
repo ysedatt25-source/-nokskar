@@ -1239,3 +1239,54 @@ body.brand-admin-body .brand-admin-actions>a{
   .private-app-item{font-size:.61rem;padding-inline:0}
   .private-app-item svg{width:20px;height:20px}
 }
+
+
+/* R15.15 — enforce white management brand bars + compact customer account */
+body.warranty-admin-body .warranty-admin-top.private-brand-header,
+body.brand-admin-body .brand-admin-top.private-brand-header{
+  background:#fff!important;color:#173553!important;border-bottom:1px solid #dbe4ee!important;
+  box-shadow:0 7px 22px rgba(13,32,54,.08)!important;
+}
+body.warranty-admin-body .warranty-admin-top.private-brand-header>.private-brand-link,
+body.brand-admin-body .brand-admin-top.private-brand-header>.private-brand-link{
+  background:transparent!important;border:0!important;color:inherit!important;box-shadow:none!important;
+  padding:0!important;min-height:0!important;justify-content:flex-start!important;
+}
+body.warranty-admin-body .warranty-admin-top.private-brand-header>nav :is(a,button),
+body.brand-admin-body .brand-admin-top.private-brand-header>nav :is(a,button){
+  background:#f5f8fb!important;color:#274764!important;border-color:#d8e2ec!important;
+}
+body.warranty-admin-body .warranty-admin-top.private-brand-header>nav :is(a,button):hover,
+body.brand-admin-body .brand-admin-top.private-brand-header>nav :is(a,button):hover{
+  background:#eaf2fb!important;color:#174f8d!important;
+}
+body[data-ui-page="hesabim"] .wrap{margin-top:16px!important}
+body[data-ui-page="hesabim"] .welcome{
+  margin-bottom:12px!important;padding:16px 18px!important;border:1px solid #dbe5ef!important;border-left:4px solid #1767d4!important;
+  border-radius:16px!important;background:linear-gradient(135deg,#fff 0%,#f7fbff 72%,#fff7ef 100%)!important;
+  box-shadow:0 8px 22px rgba(16,42,81,.05)!important;
+}
+body[data-ui-page="hesabim"] .welcome h1{font-size:clamp(1.55rem,3vw,2.1rem)!important;line-height:1.12!important}
+body[data-ui-page="hesabim"] .layout{gap:12px!important}
+body[data-ui-page="hesabim"] .card{border-radius:16px!important;padding:20px!important;box-shadow:0 9px 24px rgba(16,42,81,.045)!important}
+body[data-ui-page="hesabim"] .profile-form{gap:10px!important}
+body[data-ui-page="hesabim"] .quick{gap:8px!important;margin-top:12px!important}
+body[data-ui-page="hesabim"] .security{margin-top:12px!important;padding-top:12px!important}
+body[data-ui-page="hesabim"] .request-card{box-shadow:0 5px 15px rgba(16,42,81,.035)!important}
+@media(max-width:700px){
+  body[data-ui-page="hesabim"] .wrap{width:calc(100% - 20px)!important;margin:10px auto 92px!important}
+  body[data-ui-page="hesabim"] .welcome{padding:13px 14px!important;border-radius:14px!important}
+  body[data-ui-page="hesabim"] .welcome .eyebrow{font-size:.62rem!important;margin-bottom:4px!important}
+  body[data-ui-page="hesabim"] .welcome h1{font-size:1.42rem!important;letter-spacing:-.025em!important}
+  body[data-ui-page="hesabim"] .layout{gap:9px!important}
+  body[data-ui-page="hesabim"] .card{padding:15px 13px!important;border-radius:14px!important}
+  body[data-ui-page="hesabim"] .card h2{font-size:1.12rem!important;margin-bottom:10px!important}
+  body[data-ui-page="hesabim"] .profile-form label{font-size:.78rem!important}
+  body[data-ui-page="hesabim"] .profile-form :is(input,textarea){font-size:16px!important;min-height:50px!important;border-radius:10px!important}
+  body[data-ui-page="hesabim"] .profile-form textarea{min-height:88px!important}
+  body[data-ui-page="hesabim"] .profile-form .button{width:100%!important;min-height:50px!important}
+  body[data-ui-page="hesabim"] .quick a{min-height:48px!important;font-size:.78rem!important}
+  body[data-ui-page="hesabim"] .history-head{margin-bottom:10px!important}
+  body[data-ui-page="hesabim"] .history-head a{display:inline-flex!important;align-items:center!important;min-height:42px!important;padding:0 11px!important;border-radius:10px!important;background:#fff1e7!important;color:#b8500e!important}
+  body[data-ui-page="hesabim"] .request-card{padding:12px!important;border-radius:12px!important}
+}
