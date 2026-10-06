@@ -32,22 +32,23 @@ jobs:
           npm install playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Wait for exact live deployment
+      - name: Wait for exact live release
         run: |
           set -euo pipefail
-          echo "Expected live commit: $GITHUB_SHA"
+          expected="r16-5"
+          echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
-            actual="$(printf '%s' "$info" | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p')"
-            if [ "$actual" = "$GITHUB_SHA" ]; then
-              echo "Exact commit is live: $actual"
+            actual="$(printf '%s' "$info" | sed -n 's/.*"release":"\([^"]*\)".*/\1/p')"
+            if [ "$actual" = "$expected" ]; then
+              echo "Exact UI release is live: $actual"
               curl -fsS "$LIVE_URL/healthz"
               exit 0
             fi
-            echo "Waiting for exact Railway deployment. Current: ${actual:-unavailable}"
+            echo "Waiting for Railway release. Current: ${actual:-unavailable}"
             sleep 5
           done
-          echo "Exact commit did not become live in time"
+          echo "Expected release did not become live in time"
           curl -fsS "$LIVE_URL/build-info" || true
           exit 1
 
