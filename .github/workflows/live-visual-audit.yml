@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r17-8"
+          expected="r18-0"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -109,6 +109,22 @@ jobs:
               const overflow = bodyWidth.scrollWidth > bodyWidth.innerWidth + 2;
               const title = await page.title();
               report.pages.push({ device: device.name, name, path, status, title, horizontalOverflow: overflow, widths: bodyWidth });
+              if (name === 'home' && device.name !== 'desktop') {
+                const geometry = await page.evaluate(() => {
+                  const header = document.querySelector('.site-header')?.getBoundingClientRect();
+                  const search = document.querySelector('.app-mobile-search')?.getBoundingClientRect();
+                  const logo = document.querySelector('.header-brand-image')?.getBoundingClientRect();
+                  return {
+                    headerHeight: header ? Math.round(header.height) : null,
+                    searchTop: search ? Math.round(search.top) : null,
+                    headerBottom: header ? Math.round(header.bottom) : null,
+                    headerSearchGap: header && search ? Math.round(search.top - header.bottom) : null,
+                    logoHeight: logo ? Math.round(logo.height) : null,
+                    logoWidth: logo ? Math.round(logo.width) : null
+                  };
+                });
+                report.interaction[device.name + 'HomeGeometry'] = geometry;
+              }
               await page.screenshot({
                 path: out + '/' + name + '-' + device.name + '.png',
                 fullPage: true,
@@ -244,17 +260,75 @@ jobs:
             await context.close();
           }
 
+          // Tablet drawer and click-to-open category behavior.
+          {
+            const context = await browser.newContext({
+              viewport: { width: 820, height: 1180 },
+              deviceScaleFactor: 1,
+              hasTouch: true
+            });
+            const page = await context.newPage();
+            await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 45000 });
+            await page.locator('.site-header > .header-actions > .mobile-menu:visible').first().tap();
+            const sheet = page.locator('.main-nav.open').first();
+            await sheet.waitFor({state:'visible',timeout:5000});
+            const bg = await sheet.evaluate(el=>getComputedStyle(el).backgroundColor);
+            const radius = await sheet.evaluate(el=>getComputedStyle(el).borderTopLeftRadius);
+            const categoryToggle = page.locator('.main-nav.open .nav-category-toggle:visible').first();
+            await categoryToggle.tap();
+            await page.waitForTimeout(220);
+            const categoryDropdownVisible = await page.locator('.main-nav.open .nav-category.open .nav-dropdown').first().isVisible().catch(()=>false);
+            report.interaction.tabletMenu = {
+              visible: await sheet.isVisible(),
+              categoryDropdownVisible,
+              background: bg,
+              borderRadius: radius
+            };
+            await page.screenshot({path:out+'/home-tablet-menu-open.png',fullPage:false,animations:'disabled'});
+            await context.close();
+          }
+
+          // Desktop categories must open automatically on hover.
+          {
+            const context = await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
+            const page = await context.newPage();
+            await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 45000 });
+            const firstCategory = page.locator('.main-nav .nav-category').first();
+            await firstCategory.hover();
+            await page.waitForTimeout(240);
+            const dropdown = firstCategory.locator('.nav-dropdown').first();
+            const hoverDropdownVisible = await dropdown.isVisible().catch(()=>false);
+            report.interaction.desktopCategoryHover = { hoverDropdownVisible };
+            await page.screenshot({path:out+'/home-desktop-category-hover.png',fullPage:false,animations:'disabled'});
+            await context.close();
+          }
+
           await browser.close();
           fs.writeFileSync(out + '/report.json', JSON.stringify(report, null, 2));
 
           const failedPages = report.pages.filter(p => p.status !== 200 || p.horizontalOverflow);
           const m = report.interaction.publicMobileMenu;
           const cat = report.interaction.mobileCategorySubmenu;
-          const interactionOk = m.menuVisible && m.backdropVisible && m.mainInert && m.clickThroughBlocked && m.focusContained && m.menuClosedAfterBackdrop && cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.categoryClickBlocked;
+          const mobileGeometry = report.interaction.mobileHomeGeometry || {};
+          const tabletGeometry = report.interaction.tabletHomeGeometry || {};
+          const tabletMenu = report.interaction.tabletMenu || {};
+          const desktopHover = report.interaction.desktopCategoryHover || {};
+          const geometryOk =
+            Number(mobileGeometry.headerSearchGap) <= 2 &&
+            Number(tabletGeometry.headerSearchGap) <= 2 &&
+            Number(mobileGeometry.headerHeight) <= 54 &&
+            Number(tabletGeometry.headerHeight) <= 58 &&
+            Number(mobileGeometry.logoHeight) >= 40 &&
+            Number(tabletGeometry.logoHeight) >= 42;
+          const interactionOk =
+            m.menuVisible && m.backdropVisible && m.mainInert && m.clickThroughBlocked && m.focusContained && m.menuClosedAfterBackdrop &&
+            cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.categoryClickBlocked &&
+            tabletMenu?.visible && tabletMenu?.categoryDropdownVisible &&
+            desktopHover?.hoverDropdownVisible && geometryOk;
           console.log(JSON.stringify(report, null, 2));
 
           if (failedPages.length || !interactionOk) {
-            console.error('Live visual audit failed', { failedPages, interaction: m, categorySubmenu: cat });
+            console.error('Live visual audit failed', { failedPages, interaction: m, categorySubmenu: cat, mobileGeometry, tabletGeometry, tabletMenu, desktopHover, geometryOk });
             process.exit(1);
           }
           EOF
