@@ -3085,3 +3085,33 @@ body[data-ui-page^="admin-"] .admin-direct-save:hover{background:#e1efff!importa
   body.admin-drawer-open .admin-sidebar{z-index:420!important}
   body.admin-drawer-open .admin-sidebar.menu-open>nav{z-index:430!important}
 }
+
+
+/* R18.1 — menu stacking fix and centered brand halo */
+@media(max-width:1100px){
+  body.app-shell-enabled .site-header{
+    background:
+      radial-gradient(ellipse 58% 74% at 50% 50%,
+        #ffffff 0%,#ffffff 24%,#eef0f2 40%,#b4b9be 62%,#687078 82%,#293038 100%)!important;
+  }
+  body.app-shell-enabled .site-header .brand img.header-brand-image{
+    transform:scale(1.18)!important;
+    transform-origin:center center!important;
+  }
+  body.app-shell-enabled.storefront-layer-open .site-layer-backdrop{
+    z-index:410!important;
+  }
+  body.app-shell-enabled.storefront-layer-open .site-header{
+    z-index:425!important;
+  }
+  body.app-shell-enabled.storefront-layer-open .site-header .main-nav.open{
+    z-index:440!important;
+  }
+}
+@media(max-width:600px){
+  body.app-shell-enabled .site-header{
+    background:
+      radial-gradient(ellipse 60% 72% at 50% 50%,
+        #ffffff 0%,#ffffff 23%,#eef0f2 39%,#b3b8bd 61%,#666e76 81%,#293038 100%)!important;
+  }
+}
