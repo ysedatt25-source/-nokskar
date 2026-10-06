@@ -32,7 +32,7 @@ document.addEventListener('submit',event=>{
 },true);
 
 
-/* R14.8 — compact admin mobile drawer */
+/* R14.8 / R18 — compact, interaction-safe admin mobile drawer */
 (()=>{
   if(!location.pathname.startsWith('/admin'))return;
   const mount=()=>{
@@ -47,10 +47,17 @@ document.addEventListener('submit',event=>{
     toggle.type='button';toggle.className='admin-mobile-toggle';toggle.setAttribute('aria-label','Yönetim menüsünü aç');toggle.setAttribute('aria-expanded','false');
     toggle.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
     side.insertBefore(toggle,nav);
-    const close=()=>{side.classList.remove('menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç')};
-    toggle.addEventListener('click',()=>{const open=side.classList.toggle('menu-open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Yönetim menüsünü kapat':'Yönetim menüsünü aç')});
+    const backdrop=document.createElement('button');
+    backdrop.type='button';backdrop.className='admin-drawer-backdrop';backdrop.setAttribute('aria-label','Yönetim menüsünü kapat');backdrop.hidden=true;
+    document.body.append(backdrop);
+    let previousFocus=null;
+    const focusables=()=>[...nav.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>x.getClientRects().length);
+    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');previousFocus?.focus?.({preventScroll:true});};
+    const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
+    toggle.addEventListener('click',()=>side.classList.contains('menu-open')?close():open());
+    backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});
     nav.addEventListener('click',e=>{if(innerWidth<=1100&&e.target.closest('button,a'))close()});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&side.classList.contains('menu-open'))close();if(e.key==='Tab'&&side.classList.contains('menu-open')){const list=focusables();if(!list.length)return;const first=list[0],last=list[list.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
   };
   const start=()=>{mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),30000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
@@ -259,3 +266,112 @@ document.addEventListener('submit',event=>{
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
+
+
+/* R16 — central overlay shield: prevent click-through and keep focus inside open layers. */
+(()=>{
+  let shield=null,lastFocus=null,inerted=[];
+  const focusables=root=>root?[...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x=>!x.hidden&&x.getClientRects().length):[];
+  const activeLayer=()=>{
+    const admin=document.querySelector('.admin-sidebar.menu-open nav');if(admin)return {panel:admin,kind:'admin',close:()=>document.querySelector('.admin-sidebar .admin-mobile-toggle')?.click()};
+    const priv=document.querySelector('.private-brand-header.menu-open>nav');if(priv)return {panel:priv,kind:'private',close:()=>document.querySelector('.private-brand-header>.private-header-toggle')?.click()};
+    const pub=[...document.querySelectorAll('.site-header .main-nav.open')].find(x=>!x.closest('#root'));if(pub)return {panel:pub,kind:'public',close:()=>document.querySelector('.site-header .mobile-menu')?.click()};
+    return null;
+  };
+  const setBackgroundInert=(on,layer)=>{
+    if(!on){inerted.forEach(el=>el.removeAttribute('inert'));inerted=[];return;}
+    const targets=layer?.kind==='admin'?[document.querySelector('.admin-main')]:[document.querySelector('main'),document.querySelector('.site-footer'),document.querySelector('.public-home-return-wrap')];
+    inerted=targets.filter(Boolean);inerted.forEach(el=>el.setAttribute('inert',''));
+  };
+  const sync=()=>{
+    const layer=activeLayer();
+    if(layer&&!shield){
+      lastFocus=document.activeElement;shield=document.createElement('button');shield.type='button';shield.className='ui-interaction-shield '+layer.kind+'-shield';shield.setAttribute('aria-label','Açık menüyü kapat');
+      shield.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();activeLayer()?.close();},{capture:true});
+      document.body.append(shield);document.body.classList.add('ui-layer-locked');setBackgroundInert(true,layer);
+      requestAnimationFrame(()=>focusables(layer.panel)[0]?.focus({preventScroll:true}));
+    }else if(!layer&&shield){
+      shield.remove();shield=null;document.body.classList.remove('ui-layer-locked');setBackgroundInert(false,null);if(lastFocus instanceof HTMLElement)lastFocus.focus({preventScroll:true});lastFocus=null;
+    }else if(layer&&shield){shield.className='ui-interaction-shield '+layer.kind+'-shield';}
+  };
+  document.addEventListener('keydown',e=>{
+    const layer=activeLayer();if(!layer)return;
+    if(e.key==='Escape'){e.preventDefault();layer.close();return;}
+    if(e.key!=='Tab')return;const items=focusables(layer.panel);if(!items.length)return;const first=items[0],last=items[items.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  },true);
+  const start=()=>{sync();new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','hidden'],childList:true});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
+
+/* R16 — customer account: profile / requests / security tabs and compact summary. */
+(()=>{
+  if(!location.pathname.startsWith('/hesabim/profil'))return;
+  const mount=()=>{
+    const layout=document.querySelector('.layout');if(!layout||layout.dataset.r16Tabs)return;const cards=[...layout.querySelectorAll(':scope>.card')];if(cards.length<2)return;layout.dataset.r16Tabs='1';
+    const profile=cards[0],requests=cards[1],security=profile.querySelector('.security');
+    const securityPanel=document.createElement('section');securityPanel.className='card customer-tab-panel';securityPanel.innerHTML='<h2>Hesap güvenliği</h2><p class="muted">Şifrenizi ve güvenli hesap erişiminizi buradan yönetin.</p>';
+    if(security)securityPanel.append(security);layout.append(securityPanel);
+    [profile,requests,securityPanel].forEach((x,i)=>{x.classList.add('customer-tab-panel');x.dataset.customerTab=['profile','requests','security'][i];});
+    const tabs=document.createElement('nav');tabs.className='customer-account-tabs';tabs.setAttribute('aria-label','Hesabım bölümleri');tabs.innerHTML='<button type="button" data-tab="profile">Profil</button><button type="button" data-tab="requests">Taleplerim</button><button type="button" data-tab="security">Güvenlik</button>';
+    const welcome=document.querySelector('.welcome');
+    const readonly=profile.querySelector('input[readonly]'),name=profile.querySelector('input[name="name"]');
+    const summary=document.createElement('section');summary.className='customer-profile-summary';const initials=(name?.value||'İ').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toLocaleUpperCase('tr-TR');
+    summary.innerHTML='<span class="avatar">'+(initials||'İ')+'</span><div><strong>'+String(name?.value||'Müşteri').replace(/[&<>]/g,'')+'</strong><small>'+String(readonly?.value||'').replace(/[&<>]/g,'')+'</small></div><a href="/servis-talebi">Yeni servis talebi</a>';
+    welcome?.insertAdjacentElement('afterend',summary);summary.insertAdjacentElement('afterend',tabs);
+    const select=key=>{tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===key));layout.querySelectorAll('.customer-tab-panel').forEach(p=>p.hidden=p.dataset.customerTab!==key);};
+    tabs.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)select(b.dataset.tab)});select('profile');
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
+
+/* R16 — service request: three-step mobile-friendly wizard without changing POST payload. */
+(()=>{
+  if(location.pathname!='/servis-talebi')return;
+  const mount=()=>{
+    const form=document.getElementById('service-request-form');if(!form||form.dataset.r16Wizard)return;form.dataset.r16Wizard='1';
+    const children=[...form.children],product=form.querySelector('.service-product-box'),message=[...form.querySelectorAll('label')].find(l=>l.querySelector('textarea[name="message"]'));
+    if(!product||!message)return;
+    const step1=document.createElement('section'),step2=document.createElement('section'),step3=document.createElement('section');[step1,step2,step3].forEach((x,i)=>{x.className='service-step-panel';x.dataset.step=String(i+1)});
+    children.forEach(node=>{if(node===product)step2.append(node);else if(node===message||node.matches?.('.service-honeypot,.service-note,.service-save-profile,#service-request-message')||node.tagName==='BUTTON')step3.append(node);else step1.append(node)});
+    form.append(step1,step2,step3);
+    const hint=document.createElement('div');hint.className='service-scan-hint';hint.innerHTML='<strong>İpucu:</strong><span>Ürün kodu veya seri numarası cihaz etiketinde yer alır. Garanti sorgulamasından geldiyseniz bu alanlar otomatik doldurulur.</span>';step2.insertBefore(hint,step2.firstChild);
+    const stepper=document.createElement('nav');stepper.className='service-stepper';stepper.setAttribute('aria-label','Servis talebi adımları');stepper.innerHTML='<button type="button" data-step="1"><b>1</b><span>İletişim</span></button><button type="button" data-step="2"><b>2</b><span>Cihaz</span></button><button type="button" data-step="3"><b>3</b><span>Arıza</span></button>';form.before(stepper);
+    const actions=document.createElement('div');actions.className='service-step-actions';actions.innerHTML='<button type="button" class="back">← Geri</button><button type="button" class="next">Devam →</button>';form.append(actions);let current=1;
+    const validate=()=>{for(const el of [...form.querySelectorAll('.service-step-panel[data-step="'+current+'"] input[required],.service-step-panel[data-step="'+current+'"] textarea[required],.service-step-panel[data-step="'+current+'"] select[required]')]){if(!el.checkValidity()){el.reportValidity();el.focus();return false;}}return true;};
+    const show=n=>{current=Math.max(1,Math.min(3,n));form.querySelectorAll('.service-step-panel').forEach(p=>p.hidden=Number(p.dataset.step)!==current);stepper.querySelectorAll('button').forEach(b=>b.classList.toggle('active',Number(b.dataset.step)===current));actions.querySelector('.back').hidden=current===1;actions.querySelector('.next').hidden=current===3;window.scrollTo({top:Math.max(0,form.getBoundingClientRect().top+scrollY-150),behavior:'smooth'});};
+    stepper.addEventListener('click',e=>{const b=e.target.closest('button[data-step]');if(!b)return;const n=Number(b.dataset.step);if(n<current||validate())show(n)});actions.querySelector('.back').addEventListener('click',()=>show(current-1));actions.querySelector('.next').addEventListener('click',()=>{if(validate())show(current+1)});form.addEventListener('submit',e=>{if(current!==3){e.preventDefault();e.stopImmediatePropagation();if(validate())show(current+1);}});show(1);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
+
+/* R16 — warranty query help for locating serial/verification information. */
+(()=>{
+  if(location.pathname!='/garanti-sorgulama')return;
+  const mount=()=>{const form=document.getElementById('warranty-query-form');if(!form||form.dataset.r16Help)return;form.dataset.r16Help='1';const button=document.createElement('button');button.type='button';button.className='warranty-help-trigger';button.textContent='Bu bilgiler nerede?';const hint=document.createElement('div');hint.className='warranty-label-hint';hint.hidden=true;hint.innerHTML='<strong>Seri numarası:</strong><span>Cihazın ürün etiketinde bulunur. Garanti doğrulama kodu ise size verilen garanti belgesinde yer alır. Güvenlik nedeniyle yalnız seri numarasıyla sorgulama yapılamaz.</span>';form.querySelector('label:last-of-type')?.after(button,hint);button.addEventListener('click',()=>{hint.hidden=!hint.hidden;button.textContent=hint.hidden?'Bu bilgiler nerede?':'Yardımı kapat'});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
+
+/* R16 — access management: one primary add button, role chosen after tap. */
+(()=>{
+  if(location.pathname!='/admin/users')return;
+  const mount=()=>{const actions=document.querySelector('.access-actions'),admin=document.getElementById('add-admin'),tech=document.getElementById('add-tech');if(!actions||!admin||!tech||actions.dataset.r16Add)return;actions.dataset.r16Add='1';admin.hidden=true;tech.hidden=true;const wrap=document.createElement('div');wrap.className='access-add-menu';wrap.innerHTML='<button type="button" class="button" aria-expanded="false">+ Kullanıcı ekle</button><div class="access-add-popover" hidden><button type="button" data-role="admin">Admin hesabı</button><button type="button" data-role="tech">Teknik servis hesabı</button></div>';actions.prepend(wrap);const main=wrap.firstElementChild,pop=wrap.lastElementChild;const close=()=>{pop.hidden=true;main.setAttribute('aria-expanded','false')};main.addEventListener('click',()=>{pop.hidden=!pop.hidden;main.setAttribute('aria-expanded',String(!pop.hidden))});pop.addEventListener('click',e=>{const b=e.target.closest('button[data-role]');if(!b)return;(b.dataset.role==='admin'?admin:tech).click();close()});document.addEventListener('pointerdown',e=>{if(!pop.hidden&&!wrap.contains(e.target)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();close()}},{capture:true});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
+
+/* R16 — mail settings: visible task progression and collapsible technical sections. */
+(()=>{
+  if(location.pathname!='/admin/mail')return;
+  const mount=()=>{const form=document.getElementById('mail-settings-form'),card=form?.closest('.mail-card');if(!form||!card||card.dataset.r16Mail)return;card.dataset.r16Mail='1';const progress=document.createElement('div');progress.className='mail-progress';progress.innerHTML='<span class="current">1 · Sağlayıcı</span><span>2 · SMTP</span><span>3 · Gönderici</span><span>4 · Test</span>';card.prepend(progress);const sections=[...form.querySelectorAll('.mail-section')];sections.forEach((section,i)=>{const heading=section.querySelector('h2')?.textContent||'Ayar bölümü';const toggle=document.createElement('button');toggle.type='button';toggle.className='mail-section-toggle';toggle.innerHTML='<strong>'+heading+'</strong><span>−</span>';section.prepend(toggle);toggle.addEventListener('click',()=>{section.classList.toggle('collapsed');toggle.lastElementChild.textContent=section.classList.contains('collapsed')?'+':'−'});if(innerWidth<=600&&i>0){section.classList.add('collapsed');toggle.lastElementChild.textContent='+';}});const health=document.getElementById('mail-health');if(health)new MutationObserver(()=>{const ok=/hazır/i.test(health.textContent||'');progress.children[0].classList.toggle('ready',!!form.elements.provider?.value);progress.children[1].classList.toggle('ready',ok);progress.children[2].classList.toggle('ready',Boolean(form.elements.fromAddress?.value));}).observe(health,{childList:true,subtree:true,characterData:true});};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
+
+/* R16 — branding: show recommended geometry and desktop/phone previews. */
+(()=>{
+  if(location.pathname!='/admin/header-brand')return;
+  const mount=()=>{const card=document.querySelector('.brand-admin-card'),preview=document.getElementById('brand-preview');if(!card||!preview||card.dataset.r16Preview)return;card.dataset.r16Preview='1';const meta=document.createElement('div');meta.className='brand-preview-meta';meta.innerHTML='<span>PNG / WebP önerilir</span><span>Yatay logo oranı</span><span>Şeffaf zemin uygundur</span>';const devices=document.createElement('div');devices.className='brand-live-devices';devices.innerHTML='<div class="brand-device"><small>Masaüstü üst başlık</small><img alt="Masaüstü logo önizleme"></div><div class="brand-device"><small>Mobil üst başlık</small><img alt="Mobil logo önizleme"></div>';card.append(meta,devices);const sync=()=>devices.querySelectorAll('img').forEach(i=>i.src=preview.src);new MutationObserver(sync).observe(preview,{attributes:true,attributeFilter:['src']});preview.addEventListener('load',sync);sync();};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
+
+/* R16.5 — eliminate duplicate page-size controls regardless of legacy wrapper/class. */
+(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;new MutationObserver(clean).observe(root,{subtree:true,childList:true,characterData:true});};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
