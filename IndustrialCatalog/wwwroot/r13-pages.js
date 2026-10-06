@@ -180,3 +180,48 @@ document.addEventListener('submit',event=>{
   const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),30000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
+
+/* R15.13 — admin phone/tablet application dock */
+(()=>{
+  if(location.pathname!=='/admin')return;
+  const icon=name=>({
+    overview:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+    products:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>',
+    prices:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.7-.5-1.5-.8-2.5-.8-1.4 0-2.5.7-2.5 1.8 0 2.8 5.5 1.2 5.5 4 0 1.2-1.1 2-2.7 2-.9 0-1.9-.3-2.8-.9M12.5 6v12"/></svg>',
+    inquiries:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>',
+    menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>'
+  }[name]||'');
+  const mount=()=>{
+    const side=document.querySelector('.admin-sidebar'),nav=side?.querySelector('nav');
+    if(!side||!nav||document.querySelector('.admin-app-dock'))return;
+    const find=label=>[...nav.querySelectorAll('button')].find(b=>(b.textContent||'').trim()===label);
+    const refs={
+      overview:find('Genel bakış'),
+      products:find('Ürünler'),
+      prices:find('Fiyat yönetimi'),
+      inquiries:find('Müşteri talepleri')
+    };
+    if(Object.values(refs).some(x=>!x))return;
+    const dock=document.createElement('nav');dock.className='admin-app-dock';dock.setAttribute('aria-label','Yönetim uygulama navigasyonu');
+    const rows=[['overview','Genel'],['products','Ürünler'],['prices','Fiyatlar'],['inquiries','Talepler'],['menu','Menü']];
+    dock.innerHTML=rows.map(([key,label])=>'<button type="button" class="admin-app-item" data-admin-dock="'+key+'">'+icon(key)+'<span>'+label+'</span></button>').join('');
+    document.body.append(dock);
+    const sync=()=>{
+      for(const [key,ref] of Object.entries(refs)){
+        dock.querySelector('[data-admin-dock="'+key+'"]')?.classList.toggle('active',ref.classList.contains('active'));
+      }
+      dock.querySelector('[data-admin-dock="menu"]')?.classList.toggle('active',side.classList.contains('menu-open'));
+    };
+    dock.addEventListener('click',e=>{
+      const btn=e.target.closest('[data-admin-dock]');if(!btn)return;
+      const key=btn.dataset.adminDock;
+      if(key==='menu'){side.querySelector('.admin-mobile-toggle')?.click();sync();return;}
+      refs[key]?.click();side.classList.remove('menu-open');window.scrollTo({top:0,behavior:'smooth'});sync();
+    });
+    new MutationObserver(sync).observe(side,{subtree:true,attributes:true,attributeFilter:['class']});
+    sync();
+  };
+  const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),30000)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
