@@ -345,22 +345,6 @@ document.addEventListener('submit',event=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
 
-/* R16 — registration: password feedback and compact optional fields on phones. */
-(()=>{
-  if(location.pathname!='/kayit')return;
-  const mount=()=>{const form=document.querySelector('form[action="/kayit"]');if(!form||form.dataset.r16Register)return;form.dataset.r16Register='1';const pass=form.querySelector('input[name="password"]'),confirm=form.querySelector('input[name="confirm"]');if(pass){const meter=document.createElement('small');meter.className='r16-password-meter';pass.closest('label')?.append(meter);const update=()=>{const v=pass.value;let score=(v.length>=8?1:0)+(/[A-ZÇĞİÖŞÜ]/.test(v)?1:0)+(/[a-zçğıöşü]/.test(v)?1:0)+(/\d/.test(v)?1:0)+(/[^\w\s]/.test(v)?1:0);meter.textContent=!v?'En az 8 karakter kullanın.':score<=2?'Şifre gücü: zayıf':score<=4?'Şifre gücü: iyi':'Şifre gücü: güçlü';meter.dataset.strength=String(score);if(confirm?.value)confirm.setCustomValidity(confirm.value===v?'':'Şifre tekrarı aynı olmalıdır.');};pass.addEventListener('input',update);confirm?.addEventListener('input',update);update();}
-    if(matchMedia('(max-width:600px)').matches){const optional=[form.querySelector('input[name="businessName"]')?.closest('label'),form.querySelector('input[name="phone"]')?.closest('label')].filter(Boolean);optional.forEach(x=>{x.classList.add('r16-optional-field');x.hidden=true;});const toggle=document.createElement('button');toggle.type='button';toggle.className='r16-optional-toggle';toggle.textContent='Firma ve telefon bilgisi ekle';form.querySelector('.two')?.after(toggle);toggle.addEventListener('click',()=>{const open=form.classList.toggle('show-optional');optional.forEach(x=>x.hidden=!open);toggle.textContent=open?'İsteğe bağlı bilgileri gizle':'Firma ve telefon bilgisi ekle'});}
-  };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-})();
-
-/* R16 — password recovery helper text. */
-(()=>{
-  if(!['/forgot-password','/reset-password'].includes(location.pathname))return;
-  const mount=()=>{const card=document.querySelector('main.card');if(!card||card.querySelector('.r16-recovery-help'))return;const p=document.createElement('p');p.className='r16-recovery-help';p.textContent=location.pathname==='/forgot-password'?'E-posta birkaç dakika içinde görünmezse spam / gereksiz klasörünü de kontrol edin. Güvenlik nedeniyle hesabın sistemde kayıtlı olup olmadığı açıklanmaz.':'Yeni şifrenizi başka hesaplarda kullanmadığınız, size özel bir şifre olarak belirleyin.';card.querySelector('form')?.after(p);};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-})();
-
 /* R16 — access management: one primary add button, role chosen after tap. */
 (()=>{
   if(location.pathname!='/admin/users')return;
