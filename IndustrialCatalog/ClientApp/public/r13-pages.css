@@ -1750,3 +1750,112 @@ body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]{
   body.warranty-admin-body .warranty-list-card-grid{grid-template-columns:1fr!important}
   body.warranty-admin-body .warranty-list-info:nth-child(odd){border-right:0!important}
 }
+
+
+/* R15.24 — polish remaining private admin modules */
+@media(max-width:1100px){
+  body[data-ui-page="admin-system"] .wrap,
+  body[data-ui-page="admin-header-brand"] .brand-admin-main,
+  body[data-ui-page="admin-users"] .access-wrap,
+  body[data-ui-page="teknik"] .tech-wrap{
+    padding-bottom:94px!important;
+  }
+}
+@media(max-width:700px){
+  body[data-ui-page="admin-system"] .wrap{
+    width:calc(100% - 20px)!important;margin:10px auto 94px!important;
+  }
+  body[data-ui-page="admin-system"] .head{
+    gap:10px!important;padding:14px 13px!important;border:1px solid #dce6f1!important;border-radius:14px!important;
+    background:#fff!important;box-shadow:0 7px 20px rgba(16,42,81,.045)!important;
+  }
+  body[data-ui-page="admin-system"] .head h1{font-size:1.35rem!important;line-height:1.15!important;margin:.15rem 0 .35rem!important}
+  body[data-ui-page="admin-system"] .head .muted{font-size:.78rem!important;line-height:1.48!important;margin:0!important}
+  body[data-ui-page="admin-system"] .head-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;
+  }
+  body[data-ui-page="admin-system"] .head-actions .button{
+    width:100%!important;min-height:46px!important;margin:0!important;padding:8px!important;font-size:.73rem!important;
+  }
+  body[data-ui-page="admin-system"] .head-actions .secondary{grid-column:1/-1!important}
+  body[data-ui-page="admin-system"] .grid{gap:8px!important;margin-top:10px!important}
+  body[data-ui-page="admin-system"] .card{padding:14px 12px!important;border-radius:13px!important}
+  body[data-ui-page="admin-system"] .card h2{font-size:.82rem!important;margin-bottom:6px!important}
+  body[data-ui-page="admin-system"] .value{font-size:1.3rem!important}
+  body[data-ui-page="admin-system"] .audit-toolbar{gap:8px!important;margin:10px 0!important}
+  body[data-ui-page="admin-system"] .audit-toolbar :is(input,select){min-height:50px!important;font-size:16px!important;border-radius:10px!important}
+  body[data-ui-page="admin-system"] .audit-row{
+    padding:11px 0!important;gap:3px!important;font-size:.79rem!important;
+  }
+  body[data-ui-page="admin-system"] .errors pre{font-size:.72rem!important;padding:10px!important;max-height:220px!important;overflow:auto!important}
+
+  body[data-ui-page="admin-header-brand"] .brand-admin-main{
+    width:calc(100% - 20px)!important;margin:10px auto 94px!important;
+  }
+  body[data-ui-page="admin-header-brand"] .brand-admin-main>section:first-child{
+    padding:14px 13px!important;border:1px solid #dce6f1!important;border-radius:14px!important;background:#fff!important;
+    box-shadow:0 7px 20px rgba(16,42,81,.045)!important;
+  }
+  body[data-ui-page="admin-header-brand"] .brand-admin-main h1{font-size:1.35rem!important;line-height:1.15!important;margin:.15rem 0 .35rem!important}
+  body[data-ui-page="admin-header-brand"] .brand-admin-main>section:first-child p:last-child{font-size:.79rem!important;line-height:1.48!important;margin:0!important}
+  body[data-ui-page="admin-header-brand"] .brand-admin-card{padding:14px 13px!important;border-radius:14px!important;margin-top:9px!important}
+  body[data-ui-page="admin-header-brand"] .brand-preview-frame{
+    min-height:110px!important;padding:10px!important;border-radius:12px!important;background:#fff!important;border:1px solid #e0e8f1!important;
+  }
+  body[data-ui-page="admin-header-brand"] .brand-preview-frame img{max-height:100px!important;object-fit:contain!important}
+  body[data-ui-page="admin-header-brand"] .brand-admin-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:10px!important;
+  }
+  body[data-ui-page="admin-header-brand"] .brand-admin-actions :is(button,a,.brand-upload-button){
+    width:100%!important;min-height:48px!important;margin:0!important;justify-content:center!important;font-size:.73rem!important;text-align:center!important;
+  }
+  body[data-ui-page="admin-header-brand"] .brand-admin-actions .brand-upload-button{grid-column:1/-1!important}
+  body[data-ui-page="admin-header-brand"] .brand-help{font-size:.72rem!important;line-height:1.45!important;margin-top:9px!important}
+
+  body[data-ui-page="admin-users"] .access-wrap{
+    width:calc(100% - 20px)!important;margin:10px auto 94px!important;
+  }
+  body[data-ui-page="admin-users"] .access-heading{
+    gap:10px!important;padding:14px 13px!important;margin-bottom:9px!important;border:1px solid #dce6f1!important;
+    border-radius:14px!important;background:#fff!important;box-shadow:0 7px 20px rgba(16,42,81,.045)!important;
+  }
+  body[data-ui-page="admin-users"] .access-heading h1{font-size:1.35rem!important;line-height:1.15!important;margin:.15rem 0 .35rem!important}
+  body[data-ui-page="admin-users"] .access-heading p:not(.eyebrow){font-size:.79rem!important;line-height:1.48!important;margin:0!important}
+  body[data-ui-page="admin-users"] .access-actions{grid-template-columns:1fr 1fr!important;gap:8px!important}
+  body[data-ui-page="admin-users"] .access-actions .button{min-height:46px!important;font-size:.74rem!important;padding:8px!important}
+  body[data-ui-page="admin-users"] .access-card{padding:13px 11px!important;border-radius:14px!important}
+  body[data-ui-page="admin-users"] .access-toolbar{gap:8px!important;margin-bottom:10px!important}
+  body[data-ui-page="admin-users"] .access-toolbar>input{min-height:50px!important;font-size:16px!important}
+  body[data-ui-page="admin-users"] .role-filter{gap:6px!important}
+  body[data-ui-page="admin-users"] .filter{min-height:40px!important;padding:7px 10px!important;font-size:.72rem!important}
+  body[data-ui-page="admin-users"] .user-row{padding:12px 2px!important;gap:7px 10px!important}
+  body[data-ui-page="admin-users"] .user-main strong{font-size:.94rem!important}
+  body[data-ui-page="admin-users"] .user-main span,
+  body[data-ui-page="admin-users"] .user-meta small{font-size:.75rem!important}
+  body[data-ui-page="admin-users"] .row-actions{gap:6px!important}
+  body[data-ui-page="admin-users"] .row-actions .small-btn{min-height:42px!important;font-size:.71rem!important}
+
+  body[data-ui-page="teknik"] .tech-wrap{
+    width:calc(100% - 20px)!important;margin:10px auto 92px!important;
+  }
+  body[data-ui-page="teknik"] .tech-heading{
+    margin:0 0 9px!important;padding:14px 13px!important;border:1px solid #dce6f1!important;border-left:4px solid #f07c24!important;
+    border-radius:14px!important;background:#fff!important;box-shadow:0 7px 20px rgba(16,42,81,.045)!important;
+  }
+  body[data-ui-page="teknik"] .tech-heading h1{font-size:1.35rem!important;line-height:1.15!important;margin:.15rem 0 .35rem!important}
+  body[data-ui-page="teknik"] .tech-heading p:not(.eyebrow){font-size:.79rem!important;line-height:1.48!important;margin:0!important}
+  body[data-ui-page="teknik"] .tech-card{padding:13px 11px!important;border-radius:14px!important}
+  body[data-ui-page="teknik"] .tech-toolbar{gap:8px!important;margin-bottom:10px!important}
+  body[data-ui-page="teknik"] .tech-toolbar input{min-height:50px!important;font-size:16px!important;border-radius:10px!important}
+  body[data-ui-page="teknik"] .tech-list{gap:8px!important}
+  body[data-ui-page="teknik"] .tech-list :is(.tech-row,.tech-list-item,.device-row){
+    border-radius:12px!important;
+  }
+}
+@media(max-width:430px){
+  body[data-ui-page="admin-system"] .head-actions,
+  body[data-ui-page="admin-header-brand"] .brand-admin-actions,
+  body[data-ui-page="admin-users"] .access-actions{grid-template-columns:1fr!important}
+  body[data-ui-page="admin-system"] .head-actions .secondary,
+  body[data-ui-page="admin-header-brand"] .brand-admin-actions .brand-upload-button{grid-column:auto!important}
+}
