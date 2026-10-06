@@ -14,13 +14,13 @@
     <Compile Remove="ClientApp/**"/>
     <Content Update="seed.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"/>
   </ItemGroup>
-  <Target Name="DetectNpm" BeforeTargets="BuildClientForPublish" Condition="'$(BuildClientApp)' == 'true'">
+  <Target Name="DetectNpm" BeforeTargets="BuildClientApp" Condition="'$(BuildClientApp)' == 'true'">
     <Exec Command="npm --version" WorkingDirectory="$(MSBuildProjectDirectory)/ClientApp" IgnoreExitCode="true" ConsoleToMSBuild="true">
       <Output TaskParameter="ExitCode" PropertyName="NpmExitCode"/>
     </Exec>
   </Target>
-  <Target Name="BuildClientForPublish" BeforeTargets="ComputeFilesToPublish" DependsOnTargets="DetectNpm" Condition="'$(BuildClientApp)' == 'true'">
-    <Warning Condition="'$(NpmExitCode)' != '0'" Text="Node.js/npm bulunamadı; mevcut önceden derlenmiş wwwroot arayüzü yayınlanacak. Güncel React kaynaklarını derlemek için Node.js 22+ kurun."/>
+  <Target Name="BuildClientApp" BeforeTargets="Build" DependsOnTargets="DetectNpm" Condition="'$(BuildClientApp)' == 'true'">
+    <Warning Condition="'$(NpmExitCode)' != '0'" Text="Node.js/npm bulunamadı; mevcut önceden derlenmiş wwwroot arayüzü kullanılacak. Güncel React kaynaklarını derlemek için Node.js 22+ kurun."/>
     <Exec Condition="'$(NpmExitCode)' == '0'" Command="npm install --no-audit --no-fund" WorkingDirectory="$(MSBuildProjectDirectory)/ClientApp"/>
     <Exec Condition="'$(NpmExitCode)' == '0'" Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)/ClientApp"/>
   </Target>
