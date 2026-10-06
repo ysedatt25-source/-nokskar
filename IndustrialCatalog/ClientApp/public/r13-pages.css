@@ -1432,3 +1432,28 @@ body[data-ui-page="hesabim"] .request-card{box-shadow:0 5px 15px rgba(16,42,81,.
     scroll-margin-top:124px!important;scroll-margin-bottom:118px!important;
   }
 }
+
+
+/* R15.19 — tablet menu offset + native dialog viewport safety */
+@media(min-width:851px) and (max-width:1100px){
+  body.app-shell-enabled .site-header .main-nav.open{
+    top:96px!important;
+    max-height:calc(100dvh - 176px)!important;
+  }
+  dialog[open]{
+    max-height:calc(100dvh - 24px)!important;
+    width:min(900px,calc(100% - 24px))!important;
+  }
+  dialog[open] form{
+    max-height:calc(100dvh - 24px)!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+}
+@media(min-width:851px) and (max-width:1100px) and (orientation:landscape){
+  body.app-shell-enabled .site-header .main-nav.open{
+    top:88px!important;
+    max-height:calc(100dvh - 156px)!important;
+  }
+}
