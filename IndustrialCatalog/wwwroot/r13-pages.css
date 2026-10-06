@@ -1290,3 +1290,34 @@ body[data-ui-page="hesabim"] .request-card{box-shadow:0 5px 15px rgba(16,42,81,.
   body[data-ui-page="hesabim"] .history-head a{display:inline-flex!important;align-items:center!important;min-height:42px!important;padding:0 11px!important;border-radius:10px!important;background:#fff1e7!important;color:#b8500e!important}
   body[data-ui-page="hesabim"] .request-card{padding:12px!important;border-radius:12px!important}
 }
+
+
+/* R15.16 — technical device app tab bar */
+.tech-tabs .tab-short{display:none}
+@media(max-width:1100px){
+  body[data-ui-page="device"]{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))!important}
+  body[data-ui-page="device"] .tech-wrap{padding-bottom:82px!important}
+  body[data-ui-page="device"] .tech-tabs{
+    position:fixed!important;z-index:250!important;left:50%!important;bottom:12px!important;transform:translateX(-50%)!important;
+    width:min(720px,calc(100% - 28px))!important;min-height:68px!important;margin:0!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))!important;
+    display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:3px!important;overflow:visible!important;
+    border:1px solid #d7e2ed!important;border-radius:20px!important;background:rgba(255,255,255,.98)!important;
+    box-shadow:0 14px 38px rgba(13,32,54,.18)!important;backdrop-filter:blur(18px)!important;
+  }
+  body[data-ui-page="device"] .tech-tabs button{
+    width:100%!important;min-width:0!important;min-height:54px!important;height:auto!important;padding:5px 3px!important;
+    border:0!important;border-radius:12px!important;background:transparent!important;color:#6e8197!important;
+    display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;
+    font-size:.66rem!important;font-weight:800!important;line-height:1.12!important;white-space:normal!important;
+  }
+  body[data-ui-page="device"] .tech-tabs button.active{background:#edf4ff!important;color:#1767d4!important}
+  body[data-ui-page="device"] .tech-tabs .tab-full{display:none!important}
+  body[data-ui-page="device"] .tech-tabs .tab-short{display:inline!important}
+}
+@media(max-width:600px){
+  body[data-ui-page="device"] .tech-tabs{
+    left:0!important;right:0!important;bottom:0!important;transform:none!important;width:100%!important;
+    min-height:72px!important;border-width:1px 0 0!important;border-radius:0!important;padding:6px 3px calc(6px + env(safe-area-inset-bottom,0px))!important;
+  }
+  body[data-ui-page="device"] .tech-tabs button{font-size:.6rem!important;padding-inline:1px!important}
+}
