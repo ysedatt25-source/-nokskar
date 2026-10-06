@@ -1,0 +1,103 @@
+name: Build and HTTP Smoke Test
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ASPNETCORE_ENVIRONMENT: Production
+      RAILWAY_ENVIRONMENT: ci
+      Storage__Path: /tmp/inokskar-ci-data
+      Site__PublicBaseUrl: http://127.0.0.1:5099
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build solution
+        run: dotnet build INOKSKAR.sln -c Release
+
+      - name: Start application
+        run: |
+          dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --urls http://127.0.0.1:5099 > /tmp/inokskar.log 2>&1 &
+          echo $! > /tmp/inokskar.pid
+          for i in {1..40}; do
+            if curl --fail --silent http://127.0.0.1:5099/healthz > /tmp/health.json; then
+              cat /tmp/health.json
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/inokskar.log
+          exit 1
+
+      - name: Verify public routes
+        run: |
+          set -euo pipefail
+          check_200() {
+            local path="$1"
+            local code
+            code="$(curl --silent --show-error --output /tmp/response --write-out '%{http_code}' "http://127.0.0.1:5099$path")"
+            if [ "$code" != "200" ]; then
+              echo "Expected 200 for $path, got $code"
+              cat /tmp/response
+              exit 1
+            fi
+          }
+          check_200 "/"
+          check_200 "/urunler"
+          check_200 "/login"
+          check_200 "/kayit"
+          check_200 "/forgot-password"
+          check_200 "/garanti-sorgulama"
+          check_200 "/servis-talebi"
+          check_200 "/iletisim"
+          check_200 "/hakkimizda"
+          check_200 "/robots.txt"
+          check_200 "/sitemap.xml"
+          check_200 "/api/catalog"
+
+      - name: Verify access boundaries
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/admin --write-out '%{http_code}' http://127.0.0.1:5099/admin)"
+          test "$code" = "302" || { echo "Expected /admin to redirect unauthenticated users, got $code"; cat /tmp/admin; exit 1; }
+
+          code="$(curl --silent --show-error --output /tmp/admin-api --write-out '%{http_code}' 'http://127.0.0.1:5099/api/catalog?admin=1')"
+          test "$code" = "401" || { echo "Expected admin catalog API to return 401, got $code"; cat /tmp/admin-api; exit 1; }
+
+      - name: Check key page markers
+        run: |
+          set -euo pipefail
+          curl --fail --silent http://127.0.0.1:5099/login | grep -Fq "Hesabınıza giriş yapın"
+          curl --fail --silent http://127.0.0.1:5099/kayit | grep -Fq "Müşteri hesabı oluşturun"
+          curl --fail --silent http://127.0.0.1:5099/urunler | grep -Fq "İNOKSKAR"
+
+      - name: Print application log on failure
+        if: failure()
+        run: cat /tmp/inokskar.log || true
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f /tmp/inokskar.pid ]; then
+            kill "$(cat /tmp/inokskar.pid)" 2>/dev/null || true
+          fi
