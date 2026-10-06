@@ -1,0 +1,11 @@
+(()=>{
+ const statusTone=v=>{v=(v||'').trim().toLocaleLowerCase('tr-TR');if(v==='stokta')return'instock';if(v==='sipariş üzerine')return'order';if(v==='bilgi alınız')return'info';if(v==='yeni')return'new';if(v.includes('incele'))return'review';if(v.includes('planlandı'))return'scheduled';if(v.includes('parça'))return'parts';if(v.includes('tamam')||v.includes('çöz'))return'completed';if(v.includes('iptal'))return'cancelled';if(v==='yayında')return'published';if(v==='gizli')return'hidden';return'neutral'};
+ const decorate=()=>{
+  document.querySelectorAll('.availability,.status').forEach(el=>{el.classList.add('status-badge','status-'+statusTone(el.textContent));});
+  if(location.pathname!=='/'||document.querySelector('[data-r12-home]'))return true;
+  const featured=document.querySelector('.featured.wrap'),categories=document.querySelector('.categories-section.wrap');if(!featured||!categories)return false;
+  const section=document.createElement('section');section.className='home-confidence wrap';section.dataset.r12Home='';section.innerHTML='<div class="confidence-copy"><p class="eyebrow">PROJEDEN SERVİSE TEK MUHATAP</p><h2>Endüstriyel mutfak ve soğutmada işi kolaylaştıran yaklaşım.</h2><p>Ürün seçiminden satış sonrası desteğe kadar ihtiyaçlarınıza uygun, izlenebilir ve hızlı bir süreç sunuyoruz.</p><div class="confidence-actions"><a class="button" href="/iletisim">Projeniz için bilgi alın</a><a class="button secondary" href="/servis-talebi">Servis talebi oluşturun</a></div></div><div class="confidence-grid"><article><span class="confidence-icon">✓</span><div><strong>İhtiyaca uygun çözüm</strong><p>Ürün kodu, kapasite ve kullanım alanına göre doğru ekipmanı daha hızlı belirleyin.</p></div></article><article><span class="confidence-icon">◇</span><div><strong>Garanti takibi</strong><p>Garanti sorgulama ve servis süreçlerinizi tek noktadan takip edin.</p></div></article><article><span class="confidence-icon">⚙</span><div><strong>Servis desteği</strong><p>Servis talebinizi ürün bilgileriyle iletin; süreç ekip tarafından kayıtlı şekilde yönetilsin.</p></div></article></div>';
+  featured.parentNode.insertBefore(section,featured);return true;
+ };
+ let tries=0;const run=()=>{if(decorate()||tries++>40)return;requestAnimationFrame(run)};run();
+})();
