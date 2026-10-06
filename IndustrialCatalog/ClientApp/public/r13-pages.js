@@ -17,7 +17,7 @@ function refine(){
  }
  if((location.pathname==='/urunler'||location.pathname.startsWith('/kategori/'))&&!document.querySelector('.page-intro')&&document.querySelector('.catalogue')){
   const path=location.pathname;const name=path==='/urunler'?'Ürün koleksiyonu':([...nav.querySelectorAll('a')].find(a=>a.getAttribute('href')===path)?.textContent.trim()||'Ürün kategorisi');
-  const intro=document.createElement('section');intro.className='wrap page-intro';const crumb=document.createElement('div');crumb.className='breadcrumb';const home=document.createElement('a');home.href='/';home.textContent='Ana sayfa';crumb.append(home,document.createTextNode(' / '+name));const title=document.createElement('h1');title.textContent=name;const desc=document.createElement('p');desc.textContent='İhtiyacınıza uygun ekipmanları ürün adı veya koduyla keşfedin.';intro.append(crumb,title,desc);document.querySelector('.catalogue').before(intro);
+  const intro=document.createElement('section');intro.className='wrap page-intro';const crumb=document.createElement('div');crumb.className='breadcrumb';const home=document.createElement('a');home.href='/';home.textContent='Ana sayfa';crumb.append(home,document.createTextNode(' / '+name));const title=document.createElement('h1');title.textContent=name;intro.append(crumb,title);document.querySelector('.catalogue').before(intro);
  }
 }
 function start(){refine();const o=new MutationObserver(refine);o.observe(document.body,{childList:true,subtree:true});}
