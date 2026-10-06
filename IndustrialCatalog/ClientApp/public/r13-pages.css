@@ -3058,3 +3058,15 @@ body.storefront-layer-open .site-header .header-search{pointer-events:none!impor
   body[data-ui-page^="admin-"] .metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
   body[data-ui-page^="admin-"] .metrics>div{min-height:82px!important;padding:9px!important}
 }
+
+
+/* R18 admin save-state affordances */
+body[data-ui-page^="admin-"] .saved-state{
+  display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:4px 9px;border:1px solid #cde6d7;border-radius:999px;
+  background:#edf8f1;color:#24704d;font-size:.72rem;font-weight:850;white-space:nowrap
+}
+body[data-ui-page^="admin-"] .saved-state svg{width:15px;height:15px}
+body[data-ui-page^="admin-"] .admin-direct-save{
+  border-color:#b9d5f6!important;background:#eef6ff!important;color:#175caf!important
+}
+body[data-ui-page^="admin-"] .admin-direct-save:hover{background:#e1efff!important}
