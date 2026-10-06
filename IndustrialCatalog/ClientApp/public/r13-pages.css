@@ -1529,3 +1529,68 @@ body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]{
 @media(max-width:430px){
   body[data-ui-page^="admin-"] [data-slot="alert-dialog-footer"]{grid-template-columns:1fr!important}
 }
+
+
+/* R15.22 — polish remaining admin tabs on phones */
+@media(max-width:700px){
+  body[data-ui-page="admin-categories"] .category-admin-list{display:grid!important;gap:8px!important}
+  body[data-ui-page="admin-categories"] .category-admin{
+    display:grid!important;grid-template-columns:28px repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;align-items:center!important;padding:12px!important;border-radius:13px!important;
+  }
+  body[data-ui-page="admin-categories"] .category-admin>svg{grid-column:1!important;grid-row:1!important;align-self:start!important;margin-top:3px!important}
+  body[data-ui-page="admin-categories"] .category-admin>div{grid-column:2/-1!important;grid-row:1!important;min-width:0!important}
+  body[data-ui-page="admin-categories"] .category-admin>button{
+    width:100%!important;min-width:0!important;min-height:42px!important;margin:0!important;justify-content:center!important;font-size:.72rem!important;
+  }
+  body[data-ui-page="admin-categories"] .category-admin>button:nth-of-type(1){grid-column:2!important;grid-row:2!important}
+  body[data-ui-page="admin-categories"] .category-admin>button:nth-of-type(2){grid-column:3!important;grid-row:2!important}
+  body[data-ui-page="admin-categories"] .category-admin>button:nth-of-type(3){grid-column:2!important;grid-row:3!important}
+  body[data-ui-page="admin-categories"] .category-admin>button:nth-of-type(4){grid-column:3!important;grid-row:3!important}
+  body[data-ui-page="admin-stats"] .table-box{
+    overflow:visible!important;border:0!important;background:transparent!important;
+  }
+  body[data-ui-page="admin-stats"] .table-box table{display:block!important;width:100%!important;min-width:0!important;background:transparent!important}
+  body[data-ui-page="admin-stats"] .table-box thead{display:none!important}
+  body[data-ui-page="admin-stats"] .table-box tbody{display:grid!important;gap:8px!important}
+  body[data-ui-page="admin-stats"] .table-box tr{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px 10px!important;
+    padding:11px 12px!important;border:1px solid #dbe5f0!important;border-left:3px solid #2478df!important;
+    border-radius:12px!important;background:#fff!important;
+  }
+  body[data-ui-page="admin-stats"] .table-box td{
+    display:grid!important;gap:2px!important;width:100%!important;padding:0!important;border:0!important;white-space:normal!important;overflow-wrap:anywhere!important;
+  }
+  body[data-ui-page="admin-stats"] .table-box td:first-child{grid-column:1/-1!important;font-weight:800!important}
+  body[data-ui-page="admin-stats"] .table-box td::before{
+    font-size:.63rem!important;font-weight:850!important;text-transform:uppercase!important;letter-spacing:.04em!important;color:#71849a!important;
+  }
+  body[data-ui-page="admin-stats"] .table-box td:nth-child(1)::before{content:"Ürün / Alan"}
+  body[data-ui-page="admin-stats"] .table-box td:nth-child(2)::before{content:"İşlem"}
+  body[data-ui-page="admin-stats"] .table-box td:nth-child(3)::before{content:"Toplam"}
+  body[data-ui-page="admin-history"] .list-line{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;align-items:stretch!important;padding:13px!important;
+  }
+  body[data-ui-page="admin-history"] .list-line>div:first-child{grid-column:1/-1!important;min-width:0!important}
+  body[data-ui-page="admin-history"] .list-line>:is(button,.button,.upload-button){
+    width:100%!important;min-height:46px!important;margin:0!important;justify-content:center!important;
+  }
+  body[data-ui-page="admin-history"] .backup-full-actions{
+    grid-column:1/-1!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;
+  }
+  body[data-ui-page="admin-history"] .backup-full-actions>:is(button,label){width:100%!important;min-height:46px!important;justify-content:center!important}
+  body[data-ui-page="admin-inquiries"] .admin-box{padding:13px!important;border-radius:13px!important;margin-bottom:8px!important}
+  body[data-ui-page="admin-inquiries"] .list-line{display:grid!important;grid-template-columns:1fr!important;gap:5px!important}
+  body[data-ui-page="admin-inquiries"] .list-line>small{justify-self:start!important}
+  body[data-ui-page="admin-inquiries"] .admin-box>p{font-size:.8rem!important;line-height:1.5!important;margin:.5rem 0!important}
+  body[data-ui-page="admin-inquiries"] .inquiry-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin-top:10px!important;
+  }
+  body[data-ui-page="admin-inquiries"] .inquiry-actions .small-btn{
+    width:100%!important;min-height:44px!important;margin:0!important;justify-content:center!important;
+  }
+}
+@media(max-width:430px){
+  body[data-ui-page="admin-history"] .list-line,
+  body[data-ui-page="admin-history"] .backup-full-actions{grid-template-columns:1fr!important}
+}
