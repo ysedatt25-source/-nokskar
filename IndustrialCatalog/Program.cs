@@ -41,7 +41,7 @@ builder.Services.AddRateLimiter(o=>{
     o.AddPolicy("warranty-query",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=12,Window=TimeSpan.FromMinutes(5)}));
 });
 var app=builder.Build();
-if(!app.Environment.IsDevelopment()){app.UseExceptionHandler("/error");app.UseHsts();app.UseHttpsRedirection();}
+if(!app.Environment.IsDevelopment()){app.UseExceptionHandler("/error");app.UseHsts();if(string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")))app.UseHttpsRedirection();}
 app.Use(async(ctx,next)=>{try{await next();}catch(Exception ex){app.Services.GetRequiredService<OperationalLog>().Error(ex,ctx);throw;}});
 app.Use(async(ctx,next)=>{
     ctx.Response.Headers["X-Content-Type-Options"]="nosniff";ctx.Response.Headers["X-Frame-Options"]="SAMEORIGIN";ctx.Response.Headers["Referrer-Policy"]="strict-origin-when-cross-origin";ctx.Response.Headers["Permissions-Policy"]="camera=(), microphone=(), geolocation=(), payment=(), usb=()";
