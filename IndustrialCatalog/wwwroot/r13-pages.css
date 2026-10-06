@@ -3386,3 +3386,202 @@ body[data-ui-page^="admin-"] .admin-direct-save:hover{background:#e1efff!importa
     margin-bottom:6px!important;
   }
 }
+
+
+/* R18.2 — compact management shell and single-save affordances */
+body[data-ui-page^="admin-"] .sidebar-footer{
+  margin-top:auto!important;
+  display:grid!important;
+  gap:6px!important;
+  padding-top:10px!important;
+  border-top:1px solid rgba(255,255,255,.08)!important;
+}
+body[data-ui-page^="admin-"] .sidebar-footer form{margin:0!important}
+body[data-ui-page^="admin-"] .sidebar-logout{
+  width:100%!important;
+  min-height:40px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  padding:8px 10px!important;
+  border:1px solid rgba(239,92,106,.24)!important;
+  border-radius:10px!important;
+  background:rgba(239,92,106,.08)!important;
+  color:#ffd8dc!important;
+  font-size:.78rem!important;
+  font-weight:780!important;
+  text-align:left!important;
+  cursor:pointer!important;
+}
+body[data-ui-page^="admin-"] .sidebar-logout:hover{
+  background:rgba(239,92,106,.14)!important;
+  border-color:rgba(239,92,106,.38)!important;
+}
+body[data-ui-page^="admin-"] .admin-header-actions:empty{display:none!important}
+body[data-ui-page^="admin-"] .admin-header-actions{
+  min-height:0!important;
+  align-items:center!important;
+}
+body[data-ui-page^="admin-"] .admin-welcome{
+  min-height:0!important;
+  padding:20px 22px!important;
+  border-radius:14px!important;
+}
+body[data-ui-page^="admin-"] .admin-welcome .eyebrow{
+  margin-bottom:6px!important;
+  font-size:.64rem!important;
+}
+body[data-ui-page^="admin-"] .admin-welcome h2{
+  margin:0 0 8px!important;
+  max-width:760px!important;
+  font-size:clamp(1.45rem,2.4vw,2.05rem)!important;
+  line-height:1.08!important;
+}
+body[data-ui-page^="admin-"] .admin-welcome p:not(.eyebrow){
+  margin:0 0 13px!important;
+  max-width:760px!important;
+  font-size:.84rem!important;
+  line-height:1.5!important;
+}
+body[data-ui-page^="admin-"] .admin-welcome .button{
+  min-height:42px!important;
+  padding:8px 13px!important;
+  font-size:.76rem!important;
+}
+body[data-ui-page^="admin-"] .metrics{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin-top:10px!important;
+}
+body[data-ui-page^="admin-"] .metrics>div{
+  min-height:108px!important;
+  padding:11px 12px!important;
+  border-radius:12px!important;
+}
+body[data-ui-page^="admin-"] .metrics>div>svg{
+  width:19px!important;
+  height:19px!important;
+  margin-bottom:8px!important;
+}
+body[data-ui-page^="admin-"] .metrics>div>strong{
+  font-size:1.45rem!important;
+  line-height:1!important;
+}
+body[data-ui-page^="admin-"] .metrics>div>span{
+  margin-top:5px!important;
+  font-size:.72rem!important;
+}
+body[data-ui-page^="admin-"] .metrics>div>small{
+  margin-top:4px!important;
+  font-size:.63rem!important;
+}
+body[data-ui-page^="admin-"] .setup-checks{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:7px!important;
+}
+body[data-ui-page^="admin-"] .setup-checks span{
+  min-height:34px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  padding:6px 9px!important;
+  border:1px solid #dce6f1!important;
+  border-radius:999px!important;
+  background:#f8fafc!important;
+  font-size:.72rem!important;
+}
+body[data-ui-page^="admin-"] .admin-box>h2{
+  margin:0 0 9px!important;
+  font-size:1rem!important;
+}
+body[data-ui-page^="admin-"] .admin-box>.muted{
+  margin-top:9px!important;
+  font-size:.72rem!important;
+  line-height:1.4!important;
+}
+body[data-ui-page="admin-settings"] .saved-state{
+  min-height:32px!important;
+  padding:5px 9px!important;
+  font-size:.7rem!important;
+}
+body[data-ui-page="admin-settings"] .unsaved{
+  min-height:32px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  padding:5px 9px!important;
+  border:1px solid #f2d7a7!important;
+  border-radius:999px!important;
+  background:#fff7e8!important;
+  color:#8b611f!important;
+  font-size:.7rem!important;
+  font-weight:820!important;
+}
+body[data-ui-page="admin-settings"] .admin-header-actions .button{
+  min-height:40px!important;
+  padding:8px 11px!important;
+  font-size:.74rem!important;
+}
+
+@media(max-width:1100px){
+  body[data-ui-page^="admin-"] .sidebar-footer{
+    display:none!important;
+  }
+  body[data-ui-page^="admin-"] .admin-welcome{
+    padding:15px!important;
+  }
+  body[data-ui-page^="admin-"] .admin-welcome h2{
+    font-size:1.55rem!important;
+    margin-bottom:7px!important;
+  }
+  body[data-ui-page^="admin-"] .admin-welcome p:not(.eyebrow){
+    font-size:.79rem!important;
+    margin-bottom:11px!important;
+  }
+  body[data-ui-page^="admin-"] .metrics{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:7px!important;
+  }
+  body[data-ui-page^="admin-"] .metrics>div{
+    min-height:88px!important;
+    padding:9px 10px!important;
+  }
+}
+@media(max-width:600px){
+  body[data-ui-page^="admin-"] .admin-welcome{
+    padding:12px!important;
+    border-radius:12px!important;
+  }
+  body[data-ui-page^="admin-"] .admin-welcome h2{
+    font-size:1.28rem!important;
+    line-height:1.1!important;
+  }
+  body[data-ui-page^="admin-"] .admin-welcome p:not(.eyebrow){
+    font-size:.73rem!important;
+    line-height:1.42!important;
+  }
+  body[data-ui-page^="admin-"] .admin-welcome .button{
+    min-height:39px!important;
+    padding:7px 10px!important;
+    font-size:.71rem!important;
+  }
+  body[data-ui-page^="admin-"] .metrics>div{
+    min-height:78px!important;
+    padding:8px 9px!important;
+  }
+  body[data-ui-page^="admin-"] .metrics>div>strong{font-size:1.28rem!important}
+  body[data-ui-page^="admin-"] .setup-checks{gap:5px!important}
+  body[data-ui-page^="admin-"] .setup-checks span{
+    min-height:30px!important;
+    padding:5px 8px!important;
+    font-size:.67rem!important;
+  }
+  body[data-ui-page="admin-settings"] .admin-header{
+    align-items:flex-start!important;
+  }
+  body[data-ui-page="admin-settings"] .admin-header-actions{
+    width:100%!important;
+    display:flex!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+  }
+}
