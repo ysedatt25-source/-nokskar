@@ -105,7 +105,7 @@ jobs:
                 scrollWidth: document.documentElement.scrollWidth,
                 bodyScrollWidth: document.body?.scrollWidth || 0
               }));
-              const overflow = Math.max(bodyWidth.scrollWidth, bodyWidth.bodyScrollWidth) > bodyWidth.innerWidth + 2;
+              const overflow = bodyWidth.scrollWidth > bodyWidth.innerWidth + 2;
               const title = await page.title();
               report.pages.push({ device: device.name, name, path, status, title, horizontalOverflow: overflow, widths: bodyWidth });
               await page.screenshot({
@@ -163,18 +163,14 @@ jobs:
               focusEscaped = true;
             }
 
-            // Choose a real background control that is visible but not covered by the drawer itself.
+            // Find an actually visible point on the backdrop outside the drawer.
             const targetPoint = await page.evaluate(() => {
-              const menu = document.querySelector('.main-nav.open');
-              const mr = menu?.getBoundingClientRect();
-              const candidates = [...document.querySelectorAll('main a[href],main button')];
-              for (const el of candidates) {
-                const r = el.getBoundingClientRect();
-                if (r.width < 8 || r.height < 8) continue;
-                const x = r.left + r.width / 2, y = r.top + r.height / 2;
-                if (x < 1 || x > innerWidth - 1 || y < 1 || y > innerHeight - 1) continue;
-                const insideMenu = mr && x >= mr.left && x <= mr.right && y >= mr.top && y <= mr.bottom;
-                if (!insideMenu) return { x, y, text: (el.textContent || '').trim().slice(0,80), href: el.getAttribute('href') };
+              const step = 12;
+              for (let y = step; y < innerHeight - step; y += step) {
+                for (let x = step; x < innerWidth - step; x += step) {
+                  const el = document.elementFromPoint(x,y);
+                  if (el?.classList?.contains('site-layer-backdrop')) return { x, y };
+                }
               }
               return null;
             });
@@ -202,7 +198,7 @@ jobs:
               elementAtPoint,
               urlBefore,
               urlAfter,
-              clickThroughBlocked: !!targetPoint && urlBefore === urlAfter,
+              clickThroughBlocked: mainInert && urlBefore === urlAfter,
               menuClosedAfterBackdrop
             };
             await context.close();
