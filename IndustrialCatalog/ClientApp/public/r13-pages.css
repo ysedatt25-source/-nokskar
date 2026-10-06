@@ -1594,3 +1594,159 @@ body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]{
   body[data-ui-page="admin-history"] .list-line,
   body[data-ui-page="admin-history"] .backup-full-actions{grid-template-columns:1fr!important}
 }
+
+
+/* R15.23 — warranty + mail administration app-form refinement */
+@media(max-width:1100px){
+  body.warranty-admin-body.has-private-app-dock .warranty-admin-wrap-wide,
+  body.r123-admin-page.has-private-app-dock .mail-wrap{
+    padding-bottom:92px!important;
+  }
+  body.warranty-admin-body .warranty-admin-heading,
+  body.r123-admin-page .mail-heading{
+    margin-bottom:12px!important;
+  }
+  body.warranty-admin-body .warranty-admin-form-card-wide,
+  body.r123-admin-page .mail-card{
+    border-radius:16px!important;
+    box-shadow:0 9px 24px rgba(16,42,81,.05)!important;
+  }
+  body.warranty-admin-body .warranty-form :is(input,select,textarea),
+  body.r123-admin-page .mail-card :is(input,select,textarea){
+    min-height:48px!important;
+    border-radius:10px!important;
+  }
+  body.warranty-admin-body .warranty-form textarea,
+  body.r123-admin-page .mail-card textarea{min-height:90px!important}
+}
+@media(min-width:701px) and (max-width:1100px){
+  body.warranty-admin-body .warranty-admin-wrap-wide{width:calc(100% - 28px)!important;margin:16px 14px 30px!important}
+  body.warranty-admin-body .warranty-admin-form-card-wide{padding:20px!important}
+  body.warranty-admin-body .warranty-three-col{grid-template-columns:1fr 1fr!important}
+  body.warranty-admin-body .warranty-three-col label:last-child{grid-column:1/-1!important}
+  body.warranty-admin-body .warranty-form-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  body.warranty-admin-body .warranty-form-actions .button{width:100%!important;justify-content:center!important}
+  body.r123-admin-page .mail-wrap{width:min(100% - 28px,980px)!important;margin-top:16px!important}
+  body.r123-admin-page .mail-card{padding:20px!important}
+  body.r123-admin-page .mail-grid.three{grid-template-columns:minmax(0,1fr) 150px 190px!important}
+}
+@media(max-width:700px){
+  body.warranty-admin-body .warranty-admin-wrap-wide{
+    width:calc(100% - 20px)!important;margin:10px 10px 94px!important;padding-bottom:0!important;
+  }
+  body.warranty-admin-body .warranty-admin-heading{
+    display:grid!important;grid-template-columns:1fr!important;gap:10px!important;padding:14px 13px!important;
+    border:1px solid #dce6f1!important;border-radius:14px!important;background:#fff!important;
+    box-shadow:0 7px 20px rgba(16,42,81,.045)!important;
+  }
+  body.warranty-admin-body .warranty-admin-heading .eyebrow{font-size:.61rem!important;margin-bottom:3px!important}
+  body.warranty-admin-body .warranty-admin-heading h1{font-size:1.35rem!important;line-height:1.14!important;margin:.15rem 0 .35rem!important}
+  body.warranty-admin-body .warranty-admin-heading p:not(.eyebrow){font-size:.79rem!important;line-height:1.48!important;margin:0!important}
+  body.warranty-admin-body .warranty-heading-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;
+  }
+  body.warranty-admin-body .warranty-heading-actions .button{
+    width:100%!important;min-height:46px!important;margin:0!important;justify-content:center!important;font-size:.76rem!important;
+  }
+  body.warranty-admin-body .warranty-admin-form-card-wide{padding:15px 13px!important;border-radius:14px!important}
+  body.warranty-admin-body .warranty-admin-form-card-wide>h2{font-size:1.1rem!important;margin:0 0 10px!important}
+  body.warranty-admin-body .warranty-form-wide{gap:10px!important}
+  body.warranty-admin-body .warranty-three-col,
+  body.warranty-admin-body .warranty-two-col{grid-template-columns:1fr!important;gap:9px!important}
+  body.warranty-admin-body .warranty-form label{font-size:.78rem!important;gap:5px!important;margin:0!important}
+  body.warranty-admin-body .warranty-form :is(input,select,textarea){
+    min-height:50px!important;font-size:16px!important;border-radius:10px!important;
+  }
+  body.warranty-admin-body .warranty-form small{font-size:.72rem!important;line-height:1.45!important}
+  body.warranty-admin-body .warranty-code-warning,
+  body.warranty-admin-body .warranty-date-preview{
+    padding:10px 11px!important;border-radius:10px!important;font-size:.76rem!important;line-height:1.48!important;
+  }
+  body.warranty-admin-body .warranty-optional{
+    padding:11px!important;border-radius:11px!important;background:#f8fafc!important;border:1px solid #e0e8f1!important;
+  }
+  body.warranty-admin-body .warranty-optional summary{min-height:40px!important;display:flex!important;align-items:center!important}
+  body.warranty-admin-body .warranty-components-head{
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important;
+    padding-top:4px!important;
+  }
+  body.warranty-admin-body .warranty-components-head small{display:none!important}
+  body.warranty-admin-body .warranty-components-head .small-btn{min-height:44px!important;margin:0!important;white-space:nowrap!important}
+  body.warranty-admin-body .warranty-component-edit{
+    display:grid!important;grid-template-columns:1fr!important;gap:8px!important;padding:11px!important;
+    border:1px solid #dfe7f0!important;border-radius:11px!important;background:#f9fbfd!important;
+  }
+  body.warranty-admin-body .warranty-component-edit :is(input,select,textarea){width:100%!important;min-width:0!important}
+  body.warranty-admin-body .warranty-component-edit .small-btn{width:100%!important;min-height:42px!important;justify-content:center!important}
+  body.warranty-admin-body .warranty-form-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;
+    position:sticky!important;bottom:calc(72px + env(safe-area-inset-bottom,0px))!important;z-index:8!important;
+    margin:12px -13px -15px!important;padding:10px 13px!important;
+    background:rgba(255,255,255,.97)!important;border-top:1px solid #dfe7ef!important;backdrop-filter:blur(14px)!important;
+  }
+  body.warranty-admin-body .warranty-form-actions .button{
+    width:100%!important;min-height:46px!important;margin:0!important;padding:8px!important;font-size:.73rem!important;justify-content:center!important;
+  }
+  body.warranty-admin-body .warranty-form-actions .button:first-child{grid-column:1/-1!important;min-height:50px!important}
+  body.warranty-admin-body .warranty-list-shell{padding:12px!important;border-radius:14px!important}
+  body.warranty-admin-body .warranty-list-toolbar{gap:10px!important;margin-bottom:12px!important}
+  body.warranty-admin-body .warranty-list-search input{min-height:50px!important;font-size:16px!important}
+  body.warranty-admin-body .warranty-filter-group{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;
+  }
+  body.warranty-admin-body .warranty-filter{min-width:0!important;padding:8px 6px!important;font-size:.68rem!important;text-align:center!important}
+  body.warranty-admin-body .warranty-list-card{border-radius:12px!important}
+  body.warranty-admin-body .warranty-list-card-head{padding:13px 12px 10px!important;gap:8px!important}
+  body.warranty-admin-body .warranty-list-card-grid{grid-template-columns:1fr 1fr!important}
+  body.warranty-admin-body .warranty-list-info{padding:10px!important;border-bottom:1px solid #e5ebf3!important}
+  body.warranty-admin-body .warranty-list-info:nth-child(odd){border-right:1px solid #e5ebf3!important}
+  body.warranty-admin-body .warranty-list-card-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;padding:10px 12px!important;
+  }
+  body.warranty-admin-body .warranty-list-card-actions :is(a,button){width:100%!important;min-height:44px!important;justify-content:center!important;margin:0!important}
+
+  body.r123-admin-page .mail-wrap{width:calc(100% - 20px)!important;margin:10px auto 94px!important;gap:9px!important}
+  body.r123-admin-page .mail-heading{
+    padding:14px 13px!important;border:1px solid #dce6f1!important;border-radius:14px!important;background:#fff!important;
+    box-shadow:0 7px 20px rgba(16,42,81,.045)!important;
+  }
+  body.r123-admin-page .mail-heading .eyebrow{font-size:.61rem!important}
+  body.r123-admin-page .mail-heading h1{font-size:1.35rem!important;margin:.15rem 0 .35rem!important}
+  body.r123-admin-page .mail-heading p:not(.eyebrow){font-size:.79rem!important;line-height:1.48!important}
+  body.r123-admin-page .mail-health{min-height:38px!important;font-size:.74rem!important;padding:7px 10px!important}
+  body.r123-admin-page .mail-card{padding:15px 13px!important;border-radius:14px!important}
+  body.r123-admin-page .mail-section{padding:14px 0!important}
+  body.r123-admin-page .mail-section h2,
+  body.r123-admin-page .mail-test-card h2{font-size:1.06rem!important;margin-bottom:5px!important}
+  body.r123-admin-page .mail-section>div>p,
+  body.r123-admin-page .mail-test-card>div>p:not(.eyebrow){font-size:.78rem!important;line-height:1.5!important;margin:.2rem 0 .5rem!important}
+  body.r123-admin-page .mail-grid{gap:9px!important}
+  body.r123-admin-page .mail-grid label,
+  body.r123-admin-page .mail-test-controls label{font-size:.78rem!important}
+  body.r123-admin-page .mail-card :is(input,select){
+    min-height:50px!important;font-size:16px!important;border-radius:10px!important;
+  }
+  body.r123-admin-page .mail-card small{font-size:.71rem!important;line-height:1.4!important}
+  body.r123-admin-page .mail-actions{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;
+    position:sticky!important;bottom:calc(72px + env(safe-area-inset-bottom,0px))!important;z-index:8!important;
+    margin:12px -13px -15px!important;padding:10px 13px!important;
+    background:rgba(255,255,255,.97)!important;border-top:1px solid #dfe7ef!important;backdrop-filter:blur(14px)!important;
+  }
+  body.r123-admin-page .mail-actions .button{width:100%!important;min-height:48px!important;margin:0!important;font-size:.74rem!important}
+  body.r123-admin-page .mail-test-card{gap:12px!important}
+  body.r123-admin-page .mail-test-controls{gap:8px!important}
+  body.r123-admin-page #mail-connection-test{width:100%!important;min-height:50px!important}
+  body.r123-admin-page .mail-security{padding:12px 13px!important;border-radius:12px!important}
+  body.r123-admin-page .mail-security p{font-size:.72rem!important;line-height:1.45!important}
+}
+@media(max-width:430px){
+  body.warranty-admin-body .warranty-heading-actions,
+  body.warranty-admin-body .warranty-form-actions,
+  body.warranty-admin-body .warranty-list-card-actions,
+  body.r123-admin-page .mail-actions{grid-template-columns:1fr!important}
+  body.warranty-admin-body .warranty-form-actions .button:first-child{grid-column:auto!important}
+  body.warranty-admin-body .warranty-filter-group{grid-template-columns:1fr!important}
+  body.warranty-admin-body .warranty-list-card-grid{grid-template-columns:1fr!important}
+  body.warranty-admin-body .warranty-list-info:nth-child(odd){border-right:0!important}
+}
