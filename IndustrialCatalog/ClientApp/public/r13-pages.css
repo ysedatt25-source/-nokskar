@@ -553,7 +553,7 @@ body.brand-admin-body .brand-admin-actions>a{
     min-height:400px!important;border-radius:20px!important;box-shadow:0 14px 34px rgba(8,25,45,.13)!important;
   }
   body.page-home.app-shell-enabled .hero-content{
-    width:min(570px,68%)!important;min-height:400px!important;padding:28px 30px!important;
+    width:min(570px,68%)!important;min-height:400px!important;margin:0!important;padding:28px 30px!important;
     display:flex!important;flex-direction:column!important;justify-content:center!important;box-sizing:border-box!important;
   }
   body.page-home.app-shell-enabled .hero h1{
