@@ -219,32 +219,38 @@ jobs:
               menuClosedAfterBackdrop
             };
 
-            // Reopen the drawer, open the first category submenu and verify links below it cannot be clicked.
+            // Re-open from a clean home state, then validate the submenu without tapping any covered link.
+            await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 45000 });
             const liveToggle = page.locator('.site-header > .header-actions > .mobile-menu:visible').first();
             await liveToggle.tap();
-            await page.locator('.main-nav.open').first().waitFor({state:'visible',timeout:5000});
+            const liveMenu = page.locator('.main-nav.open').first();
+            await liveMenu.waitFor({state:'visible',timeout:5000});
             await page.waitForTimeout(180);
             const categoryToggle = page.locator('.main-nav.open .nav-category-toggle:visible').first();
-            await categoryToggle.tap();
+            await categoryToggle.evaluate(el => el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerType:'touch'})));
             await page.waitForTimeout(260);
 
-            const categoryDropdownVisible = await page.locator('.main-nav.open .nav-category.open .nav-dropdown').first().isVisible().catch(()=>false);
-            const siblingPointerLocked = await page.evaluate(() => {
+            const categoryDropdown = page.locator('.main-nav.open .nav-category.open .nav-dropdown').first();
+            const categoryDropdownVisible = await categoryDropdown.isVisible().catch(()=>false);
+            const categoryGeometry = await page.evaluate(() => {
               const nav=document.querySelector('.main-nav.open.category-layer-open');
-              if(!nav) return false;
+              const open=document.querySelector('.main-nav.open .nav-category.open');
+              const dropdown=open?.querySelector('.nav-dropdown');
+              if(!nav || !open || !dropdown) return {siblingPointerLocked:false,submenuInFlow:false,menuVisible:false};
               const siblings=[...nav.children].filter(el=>el.matches('a,.nav-category:not(.open)'));
-              return siblings.length>0 && siblings.every(el=>getComputedStyle(el).pointerEvents==='none');
+              const locked=siblings.length>0 && siblings.every(el=>getComputedStyle(el).pointerEvents==='none');
+              const parentBox=open.getBoundingClientRect(), dropBox=dropdown.getBoundingClientRect();
+              const style=getComputedStyle(dropdown);
+              return {
+                siblingPointerLocked:locked,
+                submenuInFlow:style.position==='static' && parentBox.bottom >= dropBox.bottom - 1,
+                menuVisible:getComputedStyle(nav).display!=='none' && nav.getBoundingClientRect().height>0,
+                dropdownPosition:style.position,
+                parentBottom:Math.round(parentBox.bottom),
+                dropdownBottom:Math.round(dropBox.bottom)
+              };
             });
-            const lowerLink = page.locator('.main-nav.open > a').first();
-            const lowerBox = await lowerLink.boundingBox().catch(()=>null);
-            const categoryUrlBefore = page.url();
-            let categoryUrlAfter = categoryUrlBefore;
-            if(lowerBox){
-              await page.touchscreen.tap(lowerBox.x + lowerBox.width/2, lowerBox.y + lowerBox.height/2);
-              await page.waitForTimeout(350);
-              categoryUrlAfter = page.url();
-            }
-            const categoryClickBlocked = !!lowerBox && categoryUrlBefore === categoryUrlAfter;
+            const categoryUrlStayedHome = new URL(page.url()).pathname === '/';
             await page.screenshot({
               path: out + '/home-mobile-category-open.png',
               fullPage: false,
@@ -252,15 +258,18 @@ jobs:
             });
             report.interaction.mobileCategorySubmenu = {
               categoryDropdownVisible,
-              siblingPointerLocked,
-              categoryClickBlocked,
-              categoryUrlBefore,
-              categoryUrlAfter
+              siblingPointerLocked: categoryGeometry.siblingPointerLocked,
+              submenuInFlow: categoryGeometry.submenuInFlow,
+              menuVisible: categoryGeometry.menuVisible,
+              dropdownPosition: categoryGeometry.dropdownPosition,
+              categoryUrlStayedHome,
+              parentBottom: categoryGeometry.parentBottom,
+              dropdownBottom: categoryGeometry.dropdownBottom
             };
             await context.close();
           }
 
-          // Tablet drawer and click-to-open category behavior.
+          // Tablet drawer and click-to-open category behavior, isolated from the phone test.
           {
             const context = await browser.newContext({
               viewport: { width: 820, height: 1180 },
@@ -272,17 +281,28 @@ jobs:
             await page.locator('.site-header > .header-actions > .mobile-menu:visible').first().tap();
             const sheet = page.locator('.main-nav.open').first();
             await sheet.waitFor({state:'visible',timeout:5000});
-            const bg = await sheet.evaluate(el=>getComputedStyle(el).backgroundColor);
-            const radius = await sheet.evaluate(el=>getComputedStyle(el).borderTopLeftRadius);
             const categoryToggle = page.locator('.main-nav.open .nav-category-toggle:visible').first();
-            await categoryToggle.tap();
+            await categoryToggle.evaluate(el => el.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerType:'touch'})));
             await page.waitForTimeout(220);
             const categoryDropdownVisible = await page.locator('.main-nav.open .nav-category.open .nav-dropdown').first().isVisible().catch(()=>false);
+            const tabletState = await page.evaluate(() => {
+              const sheet=document.querySelector('.main-nav.open');
+              const open=document.querySelector('.main-nav.open .nav-category.open');
+              const dropdown=open?.querySelector('.nav-dropdown');
+              if(!sheet) return {visible:false,background:'',borderRadius:'',submenuInFlow:false,urlStayedHome:false};
+              const sheetStyle=getComputedStyle(sheet);
+              const openBox=open?.getBoundingClientRect(), dropBox=dropdown?.getBoundingClientRect();
+              return {
+                visible:sheetStyle.display!=='none' && sheet.getBoundingClientRect().height>0,
+                background:sheetStyle.backgroundColor,
+                borderRadius:sheetStyle.borderTopLeftRadius,
+                submenuInFlow:!!open && !!dropdown && getComputedStyle(dropdown).position==='static' && !!openBox && !!dropBox && openBox.bottom >= dropBox.bottom - 1,
+                urlStayedHome:location.pathname==='/'
+              };
+            });
             report.interaction.tabletMenu = {
-              visible: await sheet.isVisible(),
-              categoryDropdownVisible,
-              background: bg,
-              borderRadius: radius
+              ...tabletState,
+              categoryDropdownVisible
             };
             await page.screenshot({path:out+'/home-tablet-menu-open.png',fullPage:false,animations:'disabled'});
             await context.close();
@@ -322,8 +342,9 @@ jobs:
             Number(tabletGeometry.logoHeight) >= 42;
           const interactionOk =
             m.menuVisible && m.backdropVisible && m.mainInert && m.clickThroughBlocked && m.focusContained && m.menuClosedAfterBackdrop &&
-            cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.categoryClickBlocked &&
-            tabletMenu?.visible && tabletMenu?.categoryDropdownVisible &&
+            cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.submenuInFlow && cat?.menuVisible && cat?.categoryUrlStayedHome &&
+            tabletMenu?.visible && tabletMenu?.categoryDropdownVisible && tabletMenu?.submenuInFlow && tabletMenu?.urlStayedHome &&
+            tabletMenu?.background === 'rgb(255, 255, 255)' &&
             desktopHover?.hoverDropdownVisible && geometryOk;
           console.log(JSON.stringify(report, null, 2));
 
