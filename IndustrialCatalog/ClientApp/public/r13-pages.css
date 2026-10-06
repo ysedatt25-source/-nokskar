@@ -3634,3 +3634,61 @@ body[data-ui-page^="admin-"] .admin-mobile-logout{display:none!important;margin:
     min-width:132px!important;
   }
 }
+
+
+/* R18.4 — final mobile admin header geometry */
+@media(max-width:600px){
+  body[data-ui-page^="admin-"] .admin-sidebar>.brand,
+  body[data-ui-page^="admin-"] .admin-sidebar>.brand .private-brand-image{
+    min-height:0!important;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar>.brand{
+    width:auto!important;
+    max-width:240px!important;
+    height:46px!important;
+    align-self:center!important;
+    overflow:hidden!important;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar>.brand .private-brand-image{
+    display:block!important;
+    width:auto!important;
+    height:41px!important;
+    max-width:220px!important;
+    max-height:41px!important;
+    object-fit:contain!important;
+    object-position:left center!important;
+  }
+  body[data-ui-page^="admin-"] .admin-header{
+    min-height:44px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:8px!important;
+    margin-bottom:8px!important;
+    padding-bottom:7px!important;
+  }
+  body[data-ui-page^="admin-"] .admin-header>div:first-child{
+    min-width:0!important;
+    flex:1 1 auto!important;
+  }
+  body[data-ui-page^="admin-"] .admin-header .eyebrow{display:none!important}
+  body[data-ui-page^="admin-"] .admin-header h1{
+    margin:0!important;
+    font-size:1.12rem!important;
+    line-height:1.15!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  body[data-ui-page^="admin-"] .admin-header-actions{
+    width:auto!important;
+    min-width:0!important;
+    flex:0 0 auto!important;
+    display:flex!important;
+    grid-template-columns:none!important;
+    justify-content:flex-end!important;
+    align-items:center!important;
+    gap:6px!important;
+  }
+  body[data-ui-page="admin-settings"] .admin-header-actions .saved-state{display:none!important}
+}
