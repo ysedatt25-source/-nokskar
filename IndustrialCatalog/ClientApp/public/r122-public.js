@@ -26,10 +26,12 @@
   });
  }
  function pagination(){
-  const catalogue=$('.catalogue'),grid=catalogue&&$('.product-grid',catalogue),bar=catalogue&&$('.filterbar',catalogue);if(!grid||!bar||$('.catalog-pagination',catalogue))return;
+  const catalogue=$('.catalogue'),grid=catalogue&&$('.product-grid',catalogue),bar=catalogue&&$('.filterbar',catalogue);if(!grid||!bar)return;
+  if($('.page-size-select',bar)){ $('.fallback-page-size',bar)?.remove(); $('.catalog-pagination[data-fallback-pagination]',catalogue)?.remove(); return; }
+  if($('.catalog-pagination',catalogue))return;
   let page=1,size=matchMedia('(max-width:600px)').matches?12:24,lastCount=-1;
   const select=document.createElement('select');select.className='fallback-page-size';select.setAttribute('aria-label','Sayfa başına ürün');[12,24,48].forEach(n=>{const o=document.createElement('option');o.value=String(n);o.textContent=n+' / sayfa';if(n===size)o.selected=true;select.appendChild(o)});bar.insertBefore(select,$('.result-count',bar)||null);
-  const nav=document.createElement('nav');nav.className='catalog-pagination';nav.setAttribute('aria-label','Ürün sayfaları');
+  const nav=document.createElement('nav');nav.className='catalog-pagination';nav.dataset.fallbackPagination='1';nav.setAttribute('aria-label','Ürün sayfaları');
   const prev=document.createElement('button');prev.type='button';prev.className='pagination-button';prev.textContent='‹ Önceki';
   const status=document.createElement('span');status.className='pagination-status';
   const next=document.createElement('button');next.type='button';next.className='pagination-button';next.textContent='Sonraki ›';nav.append(prev,status,next);grid.after(nav);
