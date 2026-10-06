@@ -1380,3 +1380,55 @@ body[data-ui-page="hesabim"] .request-card{box-shadow:0 5px 15px rgba(16,42,81,.
 @media(max-width:430px){
   dialog[open] .dialog-actions{grid-template-columns:1fr!important}
 }
+
+
+/* R15.18 — tablet landscape geometry + focus safety */
+@media(min-width:851px) and (max-width:1100px){
+  body.app-shell-enabled .app-mobile-search{top:88px!important}
+  body :is(input,textarea,select,[role="combobox"],[contenteditable="true"]){
+    scroll-margin-top:132px!important;scroll-margin-bottom:112px!important;
+  }
+}
+@media(min-width:851px) and (max-width:1100px) and (orientation:landscape){
+  body.app-shell-enabled .site-header{
+    min-height:80px!important;height:80px!important;padding-top:4px!important;padding-bottom:4px!important;
+  }
+  body.app-shell-enabled .site-header>.brand{height:70px!important}
+  body.app-shell-enabled .site-header .brand img.header-brand-image{
+    height:70px!important;max-height:70px!important;max-width:270px!important;
+  }
+  body.app-shell-enabled .app-mobile-search{top:80px!important;padding-top:6px!important;padding-bottom:6px!important}
+  body[data-ui-page^="admin-"] .admin-sidebar{
+    padding-top:4px!important;padding-bottom:4px!important;
+    grid-template-columns:minmax(0,1fr) 46px!important;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar .brand.private-brand-link,
+  body[data-ui-page^="admin-"] .admin-sidebar .brand.private-brand-link .private-brand-image{
+    height:78px!important;min-height:78px!important;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar .brand.private-brand-link .private-brand-image{
+    max-width:285px!important;
+  }
+  body[data-ui-page^="admin-"] .admin-main{padding-top:14px!important;padding-bottom:94px!important}
+  .admin-app-dock,.private-app-dock{
+    width:min(660px,calc(100% - 44px))!important;min-height:60px!important;bottom:10px!important;padding:4px 7px!important;
+    border-radius:18px!important;
+  }
+  .admin-app-item,.private-app-item{min-height:50px!important;font-size:.64rem!important}
+  .admin-app-item svg,.private-app-item svg{width:19px!important;height:19px!important;flex-basis:19px!important}
+  :is(.private-brand-header,.access-top,.tech-top,.warranty-admin-top,.mail-top,.inquiry-top,.security-top){
+    min-height:80px!important;padding-top:4px!important;padding-bottom:4px!important;
+  }
+  :is(.private-brand-header,.access-top,.tech-top,.warranty-admin-top,.mail-top,.inquiry-top,.security-top) .private-brand-image{
+    max-width:285px!important;max-height:70px!important;
+  }
+  body[data-ui-page="device"] .tech-tabs{
+    width:min(660px,calc(100% - 44px))!important;min-height:60px!important;bottom:10px!important;padding:4px 7px!important;border-radius:18px!important;
+  }
+  body[data-ui-page="device"] .tech-tabs button{min-height:50px!important;font-size:.64rem!important}
+}
+@media(max-width:850px){
+  body :is(input,textarea,select,[role="combobox"],[contenteditable="true"]){
+    scroll-margin-top:124px!important;scroll-margin-bottom:118px!important;
+  }
+}
