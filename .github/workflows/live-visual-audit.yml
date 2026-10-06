@@ -126,8 +126,10 @@ jobs:
             await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 45000 });
             const toggle = page.locator('.mobile-menu').first();
             await toggle.waitFor({ state: 'visible', timeout: 10000 });
-            await toggle.click();
-            await page.waitForTimeout(250);
+            const toggleBox = await toggle.boundingBox();
+            if (!toggleBox) throw new Error('Mobile menu button has no clickable box');
+            await page.mouse.click(toggleBox.x + toggleBox.width / 2, toggleBox.y + toggleBox.height / 2);
+            await page.waitForTimeout(300);
 
             const menu = page.locator('.main-nav.open').first();
             const backdrop = page.locator('.site-layer-backdrop').first();
@@ -142,46 +144,62 @@ jobs:
               animations: 'disabled'
             });
 
-            const target = page.locator('main a, main button').filter({ visible: true }).first();
-            const box = await target.boundingBox().catch(() => null);
-            let elementAtPoint = null;
-            let urlAfter = urlBefore;
-            if (box) {
-              const x = Math.max(1, Math.min(389, box.x + box.width / 2));
-              const y = Math.max(1, Math.min(843, box.y + box.height / 2));
-              elementAtPoint = await page.evaluate(({x,y}) => {
-                const el = document.elementFromPoint(x,y);
-                return el ? { tag: el.tagName, cls: el.className, aria: el.getAttribute('aria-label') } : null;
-              }, {x,y});
-              await page.mouse.click(x,y);
-              await page.waitForTimeout(500);
-              urlAfter = page.url();
+            // Check focus containment before closing the menu.
+            let focusEscaped = false;
+            if (menuVisible) {
+              for (let i=0;i<12;i++) {
+                await page.keyboard.press('Tab');
+                const inside = await page.evaluate(() => {
+                  const nav = document.querySelector('.main-nav.open');
+                  return !!nav && nav.contains(document.activeElement);
+                });
+                if (!inside) { focusEscaped = true; break; }
+              }
+            } else {
+              focusEscaped = true;
             }
 
-            // Reopen and check focus doesn't escape the drawer with repeated Tabs.
-            if (!(await menu.isVisible().catch(() => false))) {
-              await toggle.click();
-              await page.waitForTimeout(150);
-            }
-            let focusEscaped = false;
-            for (let i=0;i<12;i++) {
-              await page.keyboard.press('Tab');
-              const inside = await page.evaluate(() => {
-                const nav = document.querySelector('.main-nav.open');
-                return !!nav && nav.contains(document.activeElement);
-              });
-              if (!inside) { focusEscaped = true; break; }
+            // Choose a real background control that is visible but not covered by the drawer itself.
+            const targetPoint = await page.evaluate(() => {
+              const menu = document.querySelector('.main-nav.open');
+              const mr = menu?.getBoundingClientRect();
+              const candidates = [...document.querySelectorAll('main a[href],main button')];
+              for (const el of candidates) {
+                const r = el.getBoundingClientRect();
+                if (r.width < 8 || r.height < 8) continue;
+                const x = r.left + r.width / 2, y = r.top + r.height / 2;
+                if (x < 1 || x > innerWidth - 1 || y < 1 || y > innerHeight - 1) continue;
+                const insideMenu = mr && x >= mr.left && x <= mr.right && y >= mr.top && y <= mr.bottom;
+                if (!insideMenu) return { x, y, text: (el.textContent || '').trim().slice(0,80), href: el.getAttribute('href') };
+              }
+              return null;
+            });
+
+            let elementAtPoint = null;
+            let urlAfter = urlBefore;
+            let menuClosedAfterBackdrop = false;
+            if (targetPoint) {
+              elementAtPoint = await page.evaluate(({x,y}) => {
+                const el = document.elementFromPoint(x,y);
+                return el ? { tag: el.tagName, cls: String(el.className || ''), aria: el.getAttribute('aria-label') } : null;
+              }, targetPoint);
+              await page.mouse.click(targetPoint.x, targetPoint.y);
+              await page.waitForTimeout(450);
+              urlAfter = page.url();
+              menuClosedAfterBackdrop = !(await menu.isVisible().catch(() => false));
             }
 
             report.interaction.publicMobileMenu = {
               menuVisible,
               backdropVisible,
               mainInert,
+              focusContained: !focusEscaped,
+              targetPoint,
               elementAtPoint,
               urlBefore,
               urlAfter,
-              clickThroughBlocked: urlBefore === urlAfter,
-              focusContained: !focusEscaped
+              clickThroughBlocked: !!targetPoint && urlBefore === urlAfter,
+              menuClosedAfterBackdrop
             };
             await context.close();
           }
