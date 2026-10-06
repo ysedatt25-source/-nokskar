@@ -49,7 +49,7 @@ document.addEventListener('submit',event=>{
     side.insertBefore(toggle,nav);
     const close=()=>{side.classList.remove('menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç')};
     toggle.addEventListener('click',()=>{const open=side.classList.toggle('menu-open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Yönetim menüsünü kapat':'Yönetim menüsünü aç')});
-    nav.addEventListener('click',e=>{if(innerWidth<=850&&e.target.closest('button,a'))close()});
+    nav.addEventListener('click',e=>{if(innerWidth<=1100&&e.target.closest('button,a'))close()});
     document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
   };
   const start=()=>{mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),30000)};
