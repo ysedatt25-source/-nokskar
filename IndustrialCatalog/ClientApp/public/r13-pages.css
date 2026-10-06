@@ -129,7 +129,8 @@ body.page-home .confidence-grid{display:grid!important;grid-template-columns:1fr
 body.page-home .confidence-grid article{display:flex!important;align-items:center!important;gap:18px!important;padding:22px!important;background:#fff!important;border:1px solid #e0e8f1!important;border-radius:14px!important;min-width:0!important}
 body.page-home .confidence-grid article p{font-size:14px!important;line-height:1.6!important;margin-top:6px!important}
 body.page-home .featured{width:min(1280px,calc(100% - 48px))!important;margin:48px auto!important}
-body.page-home .product-grid,body.page-listing .product-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:22px!important}
+body.page-home .product-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:22px!important}
+body.page-listing .product-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important}
 body.page-home .product-card,body.page-listing .product-card{border:1px solid #dbe4f0!important;box-shadow:0 8px 24px #1c3d6510!important;border-radius:16px!important}
 body.page-home .card-link,body.page-listing .card-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:42px!important;padding:10px 14px!important;border-radius:8px!important;background:#1762d6!important;color:#fff!important;border:1px solid #1762d6!important}
 body.page-listing .page-intro{display:block!important;background:#eef4ff!important;color:#1b334e!important;border:1px solid #d9e6fa!important;box-shadow:none!important;margin:28px auto 20px!important}
@@ -150,7 +151,15 @@ body.page-home .category-card h3,body.page-home .category-card p{width:100%!impo
 body.page-home .category-icon{align-self:flex-start!important}
 body.page-home .confidence-copy p{max-width:100%!important}
 body.page-home .confidence-grid article{position:relative!important;overflow:visible!important}
-body.page-listing .product-photo{aspect-ratio:4/3!important}
+body.page-listing .product-card{overflow:hidden!important;display:grid!important;grid-template-rows:auto 1fr!important}
+body.page-listing .product-photo-wrap{position:relative!important;aspect-ratio:4/3!important;overflow:hidden!important;background:#eef4fb!important}
+body.page-listing .product-photo{width:100%!important;height:100%!important;aspect-ratio:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+body.page-listing .product-photo img{width:100%!important;height:100%!important;object-fit:contain!important;padding:10px!important}
+body.page-listing .photo-empty{width:100%!important;height:100%!important;min-height:0!important}
+body.page-listing .gallery-arrow{top:50%!important}
+body.page-listing .gallery-count{right:8px!important;bottom:8px!important}
+body.page-listing .product-copy{display:flex!important;flex-direction:column!important}
+body.page-listing .card-bottom{margin-top:auto!important}
 body[data-ui-page=garanti-sorgulama] .button,body[data-ui-page=servis-talebi] .button,body[data-ui-page=garanti-sorgulama] .small-btn,body[data-ui-page=servis-talebi] .small-btn{position:relative;overflow:hidden;border:1px solid #185bc5!important;border-radius:10px!important;background:linear-gradient(135deg,#2478ec,#1254c0)!important;color:#fff!important;min-height:46px;padding:12px 18px!important;display:inline-flex;align-items:center;justify-content:center;font-weight:750;text-decoration:none}
 body[data-ui-page=servis-talebi] #service-request-form>.button{background:linear-gradient(135deg,#e94e62,#c72840)!important;border-color:#cb3046!important}
 body[data-ui-page=garanti-sorgulama] .button::after,body[data-ui-page=servis-talebi] .button::after{content:'';position:absolute;inset:-60% auto -60% -70%;width:35%;background:linear-gradient(90deg,transparent,#ffffff80,transparent);transform:skewX(-24deg);transition:left .6s;pointer-events:none}
@@ -677,7 +686,7 @@ body.brand-admin-body .brand-admin-actions>a{
     min-height:24px!important;padding:0 3px!important;font-size:.72rem!important;font-weight:800!important;color:#71849a!important;
   }
   body.app-shell-enabled.page-listing .product-grid{
-    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;
   }
   body.app-shell-enabled.page-listing .product-card{border-radius:15px!important;min-width:0!important}
   body.app-shell-enabled.page-listing .product-copy{padding:12px!important}
