@@ -37,7 +37,7 @@ jobs:
 
       - name: Start application
         run: |
-          dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --urls http://127.0.0.1:5099 > /tmp/inokskar.log 2>&1 &
+          dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --no-launch-profile --urls http://127.0.0.1:5099 > /tmp/inokskar.log 2>&1 &
           echo $! > /tmp/inokskar.pid
           for i in {1..40}; do
             if curl --fail --silent http://127.0.0.1:5099/healthz > /tmp/health.json; then
