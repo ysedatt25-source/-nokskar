@@ -3692,3 +3692,27 @@ body[data-ui-page^="admin-"] .admin-mobile-logout{display:none!important;margin:
   }
   body[data-ui-page="admin-settings"] .admin-header-actions .saved-state{display:none!important}
 }
+
+
+/* R18.5 — override legacy 92px mobile admin logo rule with equal specificity */
+@media(max-width:600px){
+  body[data-ui-page^="admin-"] .admin-sidebar .brand.private-brand-link{
+    width:auto!important;
+    max-width:240px!important;
+    height:46px!important;
+    min-height:0!important;
+    margin:0!important;
+    align-self:center!important;
+    overflow:hidden!important;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar .brand.private-brand-link .private-brand-image{
+    display:block!important;
+    width:auto!important;
+    height:41px!important;
+    min-height:0!important;
+    max-width:220px!important;
+    max-height:41px!important;
+    object-fit:contain!important;
+    object-position:left center!important;
+  }
+}
