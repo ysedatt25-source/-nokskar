@@ -2252,7 +2252,7 @@ body.storefront-layer-open .site-header .header-search{pointer-events:none!impor
     min-height:58px!important;
     height:58px!important;
     padding:0 8px 0 10px!important;
-    overflow:hidden!important;
+    overflow:visible!important;
     border-bottom:1px solid #d8dde3!important;
     background:linear-gradient(90deg,#fff 0%,#fff 48%,#eef0f2 67%,#8d9298 84%,#2a3037 100%)!important;
     box-shadow:0 4px 14px rgba(16,42,81,.07)!important;
@@ -2443,4 +2443,41 @@ body.storefront-layer-open .site-header .header-search{pointer-events:none!impor
     padding:6px 9px!important;
     font-size:.67rem!important;
   }
+}
+
+
+/* R17.8 — keep home drawer outside the gradient header clip. */
+@media(max-width:1100px){
+  body.page-home.app-shell-enabled .site-header{overflow:visible!important}
+  body.page-home.app-shell-enabled .site-header .main-nav.open{
+    display:flex!important;
+    position:fixed!important;
+    z-index:232!important;
+    top:62px!important;
+    left:auto!important;
+    right:10px!important;
+    width:min(390px,calc(100% - 20px))!important;
+    max-height:calc(100dvh - 154px)!important;
+    overflow:auto!important;
+    padding:12px!important;
+    border:1px solid #445263!important;
+    border-radius:18px!important;
+    background:#252b33!important;
+    box-shadow:0 20px 60px rgba(3,13,25,.34)!important;
+  }
+  body.page-home.app-shell-enabled .site-header .main-nav.open .nav-category-head,
+  body.page-home.app-shell-enabled .site-header .main-nav.open>a{
+    position:relative!important;
+    z-index:2!important;
+  }
+  body.page-home.app-shell-enabled .site-header .main-nav.open.category-layer-open>.nav-category.open .nav-dropdown{
+    display:grid!important;
+    width:100%!important;
+    max-height:min(52dvh,420px)!important;
+    overflow:auto!important;
+    overscroll-behavior:contain!important;
+  }
+}
+@media(max-width:600px){
+  body.page-home.app-shell-enabled .site-header .main-nav.open{top:58px!important}
 }
