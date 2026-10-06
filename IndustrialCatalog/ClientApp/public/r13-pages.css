@@ -2109,3 +2109,12 @@ body.ui-layer-locked .private-brand-header>.private-brand-link,
 body.ui-layer-locked .admin-sidebar>.brand{pointer-events:none!important}
 body.storefront-layer-open .site-header>.brand,
 body.storefront-layer-open .site-header .header-search{pointer-events:none!important}
+
+
+/* R16.2 — keep the open drawer above the interaction shield on touch layouts. */
+@media(max-width:1100px){
+ body.storefront-layer-open .site-header,
+ body.ui-layer-locked .site-header{z-index:220!important;isolation:isolate}
+ body.storefront-layer-open .site-header .main-nav.open,
+ body.ui-layer-locked .site-header .main-nav.open{z-index:232!important}
+}
