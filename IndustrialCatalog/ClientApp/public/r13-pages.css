@@ -2210,3 +2210,19 @@ body.storefront-layer-open .site-header .header-search{pointer-events:none!impor
   body.storefront-layer-open .site-header{z-index:220!important}
   body.storefront-layer-open .site-header .main-nav.open{z-index:232!important}
 }
+
+
+/* R16.5 — exact live visual polish */
+@media(max-width:600px){
+  body.app-shell-enabled[data-ui-page="iletisim"] .contact-pro .contact-info{
+    background:linear-gradient(145deg,#102f56,#163c69)!important;
+    border-color:#1d4b7e!important;
+    color:#fff!important;
+  }
+  body.app-shell-enabled[data-ui-page="iletisim"] .contact-pro .contact-info h2,
+  body.app-shell-enabled[data-ui-page="iletisim"] .contact-pro .contact-info>p{
+    color:#fff!important;
+  }
+  body.app-shell-enabled[data-ui-page="iletisim"] .contact-pro .contact-info>p{opacity:.9!important}
+  body[data-ui-page="kayit"] form[action="/kayit"] .r16-optional-field[hidden]{display:none!important}
+}
