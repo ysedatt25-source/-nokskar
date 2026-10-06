@@ -1211,3 +1211,31 @@ body.brand-admin-body .brand-admin-actions>a{
   .admin-app-item{font-size:.61rem;padding-inline:0}
   .admin-app-item svg{width:20px;height:20px}
 }
+
+
+/* R15.14 — admin subpage phone/tablet dock */
+.private-app-dock{display:none}
+@media(max-width:1100px){
+  body.has-private-app-dock{padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))!important}
+  .private-app-dock{
+    position:fixed;z-index:250;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;
+    left:50%;bottom:12px;transform:translateX(-50%);width:min(720px,calc(100% - 28px));
+    min-height:68px;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+    border:1px solid #d7e2ed;border-radius:20px;background:rgba(255,255,255,.98);
+    box-shadow:0 14px 38px rgba(13,32,54,.18);backdrop-filter:blur(18px);
+  }
+  .private-app-item{
+    min-width:0;min-height:54px;padding:5px 2px;border-radius:12px;color:#6e8197;text-decoration:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.66rem;font-weight:800;line-height:1.1;
+  }
+  .private-app-item svg{width:21px;height:21px;flex:0 0 21px}
+  .private-app-item span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .private-app-item.active{color:#1767d4;background:#edf4ff}
+  .private-app-item[href="/admin/warranties"].active{color:#c85a10;background:#fff1e7}
+  .private-app-item:active{transform:scale(.96)}
+}
+@media(max-width:600px){
+  .private-app-dock{left:0;right:0;bottom:0;transform:none;width:100%;min-height:72px;border-width:1px 0 0;border-radius:0;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+  .private-app-item{font-size:.61rem;padding-inline:0}
+  .private-app-item svg{width:20px;height:20px}
+}
