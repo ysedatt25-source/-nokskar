@@ -3070,3 +3070,18 @@ body[data-ui-page^="admin-"] .admin-direct-save{
   border-color:#b9d5f6!important;background:#eef6ff!important;color:#175caf!important
 }
 body[data-ui-page^="admin-"] .admin-direct-save:hover{background:#e1efff!important}
+
+
+/* R18 admin drawer backdrop / click-through protection */
+.admin-drawer-backdrop{display:none}
+@media(max-width:1100px){
+  body.admin-drawer-open{overflow:hidden!important}
+  .admin-drawer-backdrop{
+    position:fixed!important;z-index:410!important;inset:0!important;display:block!important;width:100vw!important;height:100dvh!important;
+    margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:rgba(7,18,31,.52)!important;
+    backdrop-filter:blur(4px)!important;cursor:default!important;touch-action:none!important
+  }
+  .admin-drawer-backdrop[hidden]{display:none!important}
+  body.admin-drawer-open .admin-sidebar{z-index:420!important}
+  body.admin-drawer-open .admin-sidebar.menu-open>nav{z-index:430!important}
+}
