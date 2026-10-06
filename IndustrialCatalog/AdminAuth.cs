@@ -60,21 +60,6 @@ public static class AdminAuth
         }
     }
 
-    public static void ResetWithRecoveryCode(string dataPath, IConfiguration config, string suppliedEmail, string recoveryCode, string newPassword)
-    {
-        lock (Gate)
-        {
-            var auth = Load(dataPath, config);
-            if (!string.Equals((suppliedEmail ?? "").Trim(), auth.Email, StringComparison.OrdinalIgnoreCase)
-                || string.IsNullOrWhiteSpace(auth.RecoveryCodeHash)
-                || !Passwords.Verify(recoveryCode ?? "", auth.RecoveryCodeHash))
-                throw new ArgumentException("E-posta veya kurtarma kodu hatalı.");
-            ValidateNewPassword(newPassword);
-            auth.PasswordHash = Passwords.Hash(newPassword);
-            Persist(dataPath, auth);
-        }
-    }
-
     public static void ResetPasswordByVerifiedEmail(string dataPath, IConfiguration config, string email, string newPassword)
     {
         lock (Gate)
