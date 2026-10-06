@@ -1,0 +1,211 @@
+name: Live Visual Audit
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-visual-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      LIVE_URL: https://inokskar-web-preview.up.railway.app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          mkdir -p /tmp/inokskar-live-audit
+          cd /tmp/inokskar-live-audit
+          npm init -y
+          npm install playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Wait for live deployment
+        run: |
+          set -euo pipefail
+          for i in {1..60}; do
+            code="$(curl -L --silent --output /tmp/live-home --write-out '%{http_code}' "$LIVE_URL/")"
+            if [ "$code" = "200" ]; then
+              echo "Live site is responding with 200"
+              exit 0
+            fi
+            echo "Waiting for live site, current HTTP $code"
+            sleep 5
+          done
+          echo "Live site did not become ready"
+          exit 1
+
+      - name: Run live Chromium visual and interaction audit
+        run: |
+          cd /tmp/inokskar-live-audit
+          cat > audit.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const base = process.env.LIVE_URL;
+          const out = process.env.GITHUB_WORKSPACE + '/live-visual-audit';
+          fs.mkdirSync(out, { recursive: true });
+
+          const browser = await chromium.launch({ headless: true });
+          const report = {
+            base,
+            checkedAt: new Date().toISOString(),
+            pages: [],
+            interaction: {}
+          };
+
+          const devices = [
+            { name: 'desktop', width: 1440, height: 1000 },
+            { name: 'tablet', width: 820, height: 1180 },
+            { name: 'mobile', width: 390, height: 844 }
+          ];
+          const paths = [
+            ['home', '/'],
+            ['products', '/urunler'],
+            ['login', '/login'],
+            ['register', '/kayit'],
+            ['forgot', '/forgot-password'],
+            ['warranty', '/garanti-sorgulama'],
+            ['service', '/servis-talebi'],
+            ['contact', '/iletisim'],
+            ['about', '/hakkimizda']
+          ];
+
+          for (const device of devices) {
+            const context = await browser.newContext({
+              viewport: { width: device.width, height: device.height },
+              deviceScaleFactor: 1,
+              isMobile: device.name === 'mobile',
+              hasTouch: device.name !== 'desktop'
+            });
+            const page = await context.newPage();
+
+            for (const [name, path] of paths) {
+              const response = await page.goto(base + path, { waitUntil: 'networkidle', timeout: 45000 });
+              await page.waitForTimeout(350);
+              const status = response?.status() ?? 0;
+              const bodyWidth = await page.evaluate(() => ({
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                bodyScrollWidth: document.body?.scrollWidth || 0
+              }));
+              const overflow = Math.max(bodyWidth.scrollWidth, bodyWidth.bodyScrollWidth) > bodyWidth.innerWidth + 2;
+              const title = await page.title();
+              report.pages.push({ device: device.name, name, path, status, title, horizontalOverflow: overflow, widths: bodyWidth });
+              await page.screenshot({
+                path: out + '/' + name + '-' + device.name + '.png',
+                fullPage: true,
+                animations: 'disabled'
+              });
+            }
+
+            await context.close();
+          }
+
+          // Mobile public menu: visual state, click-through, inert and focus containment.
+          {
+            const context = await browser.newContext({
+              viewport: { width: 390, height: 844 },
+              deviceScaleFactor: 1,
+              isMobile: true,
+              hasTouch: true
+            });
+            const page = await context.newPage();
+            await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 45000 });
+            const toggle = page.locator('.mobile-menu').first();
+            await toggle.waitFor({ state: 'visible', timeout: 10000 });
+            await toggle.click();
+            await page.waitForTimeout(250);
+
+            const menu = page.locator('.main-nav.open').first();
+            const backdrop = page.locator('.site-layer-backdrop').first();
+            const menuVisible = await menu.isVisible().catch(() => false);
+            const backdropVisible = await backdrop.isVisible().catch(() => false);
+            const mainInert = await page.locator('main').evaluate(el => el.hasAttribute('inert')).catch(() => false);
+            const urlBefore = page.url();
+
+            await page.screenshot({
+              path: out + '/home-mobile-menu-open.png',
+              fullPage: false,
+              animations: 'disabled'
+            });
+
+            const target = page.locator('main a, main button').filter({ visible: true }).first();
+            const box = await target.boundingBox().catch(() => null);
+            let elementAtPoint = null;
+            let urlAfter = urlBefore;
+            if (box) {
+              const x = Math.max(1, Math.min(389, box.x + box.width / 2));
+              const y = Math.max(1, Math.min(843, box.y + box.height / 2));
+              elementAtPoint = await page.evaluate(({x,y}) => {
+                const el = document.elementFromPoint(x,y);
+                return el ? { tag: el.tagName, cls: el.className, aria: el.getAttribute('aria-label') } : null;
+              }, {x,y});
+              await page.mouse.click(x,y);
+              await page.waitForTimeout(500);
+              urlAfter = page.url();
+            }
+
+            // Reopen and check focus doesn't escape the drawer with repeated Tabs.
+            if (!(await menu.isVisible().catch(() => false))) {
+              await toggle.click();
+              await page.waitForTimeout(150);
+            }
+            let focusEscaped = false;
+            for (let i=0;i<12;i++) {
+              await page.keyboard.press('Tab');
+              const inside = await page.evaluate(() => {
+                const nav = document.querySelector('.main-nav.open');
+                return !!nav && nav.contains(document.activeElement);
+              });
+              if (!inside) { focusEscaped = true; break; }
+            }
+
+            report.interaction.publicMobileMenu = {
+              menuVisible,
+              backdropVisible,
+              mainInert,
+              elementAtPoint,
+              urlBefore,
+              urlAfter,
+              clickThroughBlocked: urlBefore === urlAfter,
+              focusContained: !focusEscaped
+            };
+            await context.close();
+          }
+
+          await browser.close();
+          fs.writeFileSync(out + '/report.json', JSON.stringify(report, null, 2));
+
+          const failedPages = report.pages.filter(p => p.status !== 200 || p.horizontalOverflow);
+          const m = report.interaction.publicMobileMenu;
+          const interactionOk = m.menuVisible && m.backdropVisible && m.mainInert && m.clickThroughBlocked && m.focusContained;
+          console.log(JSON.stringify(report, null, 2));
+
+          if (failedPages.length || !interactionOk) {
+            console.error('Live visual audit failed', { failedPages, interaction: m });
+            process.exit(1);
+          }
+          EOF
+          node audit.mjs
+
+      - name: Upload live visual audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: INOKSKAR-Live-Visual-Audit
+          path: live-visual-audit
+          if-no-files-found: error
+          retention-days: 14
