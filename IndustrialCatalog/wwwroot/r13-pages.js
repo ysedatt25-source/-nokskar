@@ -175,7 +175,7 @@ document.addEventListener('submit',event=>{
     const side=document.querySelector('.admin-sidebar');
     const sideBrand=side?.querySelector(':scope>.brand');
     if(sideBrand&&!sideBrand.dataset.r158Brand){sideBrand.dataset.r158Brand='1';sideBrand.classList.add('private-brand-link');sideBrand.innerHTML=brandHtml;}
-    document.querySelectorAll('header.top,header.access-top,header.tech-top,header.warranty-admin-top,header.mail-top,header.inquiry-top,.security-top').forEach(setupHeader);
+    document.querySelectorAll('.private-brand-header').forEach(setupHeader);
   };
   const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),30000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
