@@ -225,3 +225,37 @@ document.addEventListener('submit',event=>{
   const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),30000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
+
+/* R15.14 — admin subpage mobile/tablet dock */
+(()=>{
+  const p=location.pathname.replace(/\/$/,'')||'/';
+  if(!p.startsWith('/admin/')||p==='/admin/security'&&document.body.classList.contains('r126-auth'))return;
+  const icon=name=>({
+    panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+    warranty:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v5c0 4.5 2.9 8 7 10 4.1-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg>',
+    technical:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.2 2.2-3-3z"/></svg>',
+    users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20a6 6 0 0 1 12 0M14 20a5 5 0 0 1 7-4.6"/></svg>',
+    system:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21h-4v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H3v-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.6V3h4v.1a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.1v4H21a1.7 1.7 0 0 0-1.6 1z"/></svg>'
+  }[name]||'');
+  const rows=[
+    ['panel','/admin','Panel'],
+    ['warranty','/admin/warranties','Garanti'],
+    ['technical','/teknik','Teknik'],
+    ['users','/admin/users','Kullanıcı'],
+    ['system','/admin/system','Sistem']
+  ];
+  const active=key=>{
+    if(key==='warranty')return p.startsWith('/admin/warranties');
+    if(key==='users')return p==='/admin/users';
+    if(key==='system')return ['/admin/system','/admin/mail','/admin/header-brand'].some(x=>p===x);
+    return false;
+  };
+  const mount=()=>{
+    if(document.querySelector('.private-app-dock'))return;
+    const dock=document.createElement('nav');dock.className='private-app-dock';dock.setAttribute('aria-label','Yönetim hızlı erişim');
+    dock.innerHTML=rows.map(([key,href,label])=>'<a class="private-app-item '+(active(key)?'active':'')+'" href="'+href+'">'+icon(key)+'<span>'+label+'</span></a>').join('');
+    document.body.append(dock);document.body.classList.add('has-private-app-dock');
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+})();
