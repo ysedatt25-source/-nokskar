@@ -2118,3 +2118,69 @@ body.storefront-layer-open .site-header .header-search{pointer-events:none!impor
  body.storefront-layer-open .site-header .main-nav.open,
  body.ui-layer-locked .site-header .main-nav.open{z-index:232!important}
 }
+
+
+/* R16.3 — live visual audit fixes */
+@media(min-width:1101px){
+  body:not([data-ui-page^="admin-"]) .site-header{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    grid-template-rows:44px 34px!important;
+    column-gap:18px!important;
+    row-gap:4px!important;
+    align-items:center!important;
+    padding:6px 20px 7px!important;
+    min-height:91px!important;
+  }
+  body:not([data-ui-page^="admin-"]) .site-header>.brand{
+    grid-column:1!important;
+    grid-row:1!important;
+    align-self:center!important;
+  }
+  body:not([data-ui-page^="admin-"]) .site-header>.header-actions{
+    grid-column:2!important;
+    grid-row:1!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    justify-content:flex-end!important;
+    gap:10px!important;
+    flex-wrap:nowrap!important;
+  }
+  body:not([data-ui-page^="admin-"]) .site-header .header-search{
+    width:min(520px,42vw)!important;
+    min-width:260px!important;
+    flex:0 1 520px!important;
+  }
+  body:not([data-ui-page^="admin-"]) .site-header>.main-nav{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    width:100%!important;
+    min-width:0!important;
+    justify-content:center!important;
+    gap:22px!important;
+    padding:3px 0 0!important;
+    border-top:1px solid #e7edf4!important;
+    overflow:visible!important;
+  }
+  body:not([data-ui-page^="admin-"]) .site-header>.main-nav>a,
+  body:not([data-ui-page^="admin-"]) .site-header>.main-nav .nav-category-link{
+    min-height:28px!important;
+    padding:1px 0!important;
+    white-space:nowrap!important;
+  }
+}
+@media(max-width:600px){
+  .contact-pro .contact-info{
+    background:linear-gradient(145deg,#102f56,#163c69)!important;
+    color:#fff!important;
+    border-color:#1d4b7e!important;
+  }
+  .contact-pro .contact-info h2,
+  .contact-pro .contact-info>p{
+    color:#fff!important;
+  }
+  .contact-pro .contact-info>p{
+    opacity:.9!important;
+  }
+}
