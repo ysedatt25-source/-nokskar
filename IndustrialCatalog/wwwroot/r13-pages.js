@@ -47,6 +47,10 @@ document.addEventListener('submit',event=>{
     toggle.type='button';toggle.className='admin-mobile-toggle';toggle.setAttribute('aria-label','Yönetim menüsünü aç');toggle.setAttribute('aria-expanded','false');
     toggle.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
     side.insertBefore(toggle,nav);
+    const sheetHead=document.createElement('div');
+    sheetHead.className='admin-menu-sheet-head';
+    sheetHead.innerHTML='<div><span>İNOKSKAR</span><strong>Yönetim Menüsü</strong></div><button type="button" class="admin-menu-sheet-close" aria-label="Yönetim menüsünü kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
+    nav.prepend(sheetHead);
     const backdrop=document.createElement('button');
     backdrop.type='button';backdrop.className='admin-drawer-backdrop';backdrop.setAttribute('aria-label','Yönetim menüsünü kapat');backdrop.hidden=true;
     document.body.append(backdrop);
@@ -55,6 +59,7 @@ document.addEventListener('submit',event=>{
     const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');previousFocus?.focus?.({preventScroll:true});};
     const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
     toggle.addEventListener('click',()=>side.classList.contains('menu-open')?close():open());
+    sheetHead.querySelector('.admin-menu-sheet-close')?.addEventListener('click',close);
     backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});
     nav.addEventListener('click',e=>{if(innerWidth<=1100&&e.target.closest('button,a'))close()});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&side.classList.contains('menu-open'))close();if(e.key==='Tab'&&side.classList.contains('menu-open')){const list=focusables();if(!list.length)return;const first=list[0],last=list[list.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
@@ -273,7 +278,6 @@ document.addEventListener('submit',event=>{
   let shield=null,lastFocus=null,inerted=[];
   const focusables=root=>root?[...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x=>!x.hidden&&x.getClientRects().length):[];
   const activeLayer=()=>{
-    const admin=document.querySelector('.admin-sidebar.menu-open nav');if(admin)return {panel:admin,kind:'admin',close:()=>document.querySelector('.admin-sidebar .admin-mobile-toggle')?.click()};
     const priv=document.querySelector('.private-brand-header.menu-open>nav');if(priv)return {panel:priv,kind:'private',close:()=>document.querySelector('.private-brand-header>.private-header-toggle')?.click()};
     const pub=[...document.querySelectorAll('.site-header .main-nav.open')].find(x=>!x.closest('#root'));if(pub)return {panel:pub,kind:'public',close:()=>document.querySelector('.site-header .mobile-menu')?.click()};
     return null;
