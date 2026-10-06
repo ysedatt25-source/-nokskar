@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r18-6"
+          expected="r18-7"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
