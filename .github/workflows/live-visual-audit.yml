@@ -24,6 +24,11 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
       - name: Install Playwright
         run: |
           mkdir -p /tmp/inokskar-live-audit
@@ -523,6 +528,221 @@ jobs:
           }
           EOF
           node audit.mjs
+
+      - name: Start isolated authenticated admin audit app
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/inokskar-admin-audit-data
+          mkdir -p /tmp/inokskar-admin-audit-data
+          AUDIT_PASSWORD='UiAudit-2026-safe'
+          AUDIT_HASH="$(python - <<'PY'
+          import os,hashlib,base64
+          password=b'UiAudit-2026-safe'
+          salt=b'INOKSKAR-UI-AUD'
+          value=hashlib.pbkdf2_hmac('sha256',password,salt,210000,dklen=32)
+          print('210000:'+base64.b64encode(salt).decode()+':'+base64.b64encode(value).decode())
+          PY
+          )"
+          ASPNETCORE_ENVIRONMENT=Production \
+          RAILWAY_ENVIRONMENT=ci \
+          Storage__Path=/tmp/inokskar-admin-audit-data \
+          Site__PublicBaseUrl=http://127.0.0.1:5101 \
+          Admin__Email=ui-audit@invalid.local \
+          Admin__PasswordHash="$AUDIT_HASH" \
+          dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-launch-profile --urls http://127.0.0.1:5101 > /tmp/inokskar-admin-audit.log 2>&1 &
+          echo $! > /tmp/inokskar-admin-audit.pid
+          for i in {1..45}; do
+            if curl --fail --silent http://127.0.0.1:5101/healthz >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/inokskar-admin-audit.log
+          exit 1
+
+      - name: Run authenticated admin and customer Chromium audit
+        run: |
+          cd /tmp/inokskar-live-audit
+          cat > admin-audit.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const base='http://127.0.0.1:5101';
+          const out=process.env.GITHUB_WORKSPACE+'/live-visual-audit/authenticated';
+          fs.mkdirSync(out,{recursive:true});
+          const browser=await chromium.launch({headless:true});
+          const report={pages:[],dialog:{},drawer:{},customer:[]};
+          const devices=[
+            {name:'desktop',width:1440,height:1000,isMobile:false},
+            {name:'tablet',width:820,height:1180,isMobile:false},
+            {name:'mobile',width:390,height:844,isMobile:true}
+          ];
+          const adminTabs=['Genel bakış','Ürünler','Kategoriler','Fiyat yönetimi','Site ayarları','Güvenlik','İstatistikler','Geçmiş & yedek','Müşteri talepleri'];
+          const privatePages=[
+            ['warranties','/admin/warranties'],
+            ['warranty-list','/admin/warranties/list'],
+            ['technical','/teknik'],
+            ['users','/admin/users'],
+            ['system','/admin/system'],
+            ['mail','/admin/mail'],
+            ['header-brand','/admin/header-brand'],
+            ['account-security','/account/security']
+          ];
+          const selectors=[
+            '.admin-main','.admin-header','.admin-box','.admin-toolbar','.metrics','.settings-grid','.table-box',
+            '.warranty-admin-wrap','.warranty-admin-form-card','.warranty-list-card','.tech-wrap','.tech-panel',
+            '.access-wrap','.access-card','.mail-wrap','.mail-card','.brand-admin-main','.brand-admin-card',
+            '.inquiry-wrap','.inquiry-card'
+          ];
+
+          const layout=async page=>{
+            return await page.evaluate((selectors)=>{
+              const leaks=[];
+              for(const selector of selectors){
+                for(const el of document.querySelectorAll(selector)){
+                  const style=getComputedStyle(el),r=el.getBoundingClientRect();
+                  if(style.display==='none'||style.visibility==='hidden'||r.width<1||r.height<1)continue;
+                  if(style.position==='fixed')continue;
+                  if(r.left<-2||r.right>innerWidth+2){
+                    leaks.push({selector,left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width)});
+                    if(leaks.length>=20)return leaks;
+                  }
+                }
+              }
+              return leaks;
+            },selectors);
+          };
+
+          async function login(context){
+            const page=await context.newPage();
+            await page.goto(base+'/login',{waitUntil:'networkidle'});
+            await page.locator('input[name="email"]').fill('ui-audit@invalid.local');
+            await page.locator('input[name="password"]').fill('UiAudit-2026-safe');
+            await Promise.all([
+              page.waitForURL(url=>!url.pathname.endsWith('/login'),{timeout:10000}),
+              page.locator('button[type="submit"]').click()
+            ]);
+            await page.close();
+          }
+
+          // Seed one support request so inquiries and delete confirmation are visible.
+          {
+            const context=await browser.newContext();
+            await context.request.post(base+'/api/inquiry',{
+              headers:{Origin:base},
+              data:{name:'UI Audit Talebi',email:'ui.audit.request@example.com',phone:'+90 555 111 22 33',purpose:'teklif',message:'Görsel denetim talebi'}
+            });
+            await context.close();
+          }
+
+          for(const device of devices){
+            const context=await browser.newContext({viewport:{width:device.width,height:device.height},deviceScaleFactor:1,isMobile:device.isMobile,hasTouch:device.name!=='desktop'});
+            await login(context);
+            const page=await context.newPage();
+            await page.goto(base+'/admin',{waitUntil:'networkidle',timeout:30000});
+            await page.locator('.admin-main').waitFor({state:'visible',timeout:10000});
+
+            for(const label of adminTabs){
+              const navButton=page.locator('.admin-sidebar nav button').filter({hasText:label}).first();
+              if(await navButton.count()) await navButton.evaluate(el=>el.click());
+              await page.waitForTimeout(250);
+              const uiPage=await page.evaluate(()=>document.body.dataset.uiPage||'admin');
+              const leaks=await layout(page);
+              report.pages.push({device:device.name,name:'admin-'+label,path:page.url(),uiPage,leaks});
+              await page.screenshot({path:out+'/admin-'+label.replace(/[^a-zA-Z0-9ğüşöçıİĞÜŞÖÇ]+/g,'-')+'-'+device.name+'.png',fullPage:true,animations:'disabled'});
+            }
+
+            // Mobile/tablet drawer must open without freezing the main page.
+            if(device.name!=='desktop'){
+              await page.goto(base+'/admin',{waitUntil:'networkidle'});
+              const toggle=page.locator('.admin-mobile-toggle').first();
+              if(await toggle.isVisible()){
+                await toggle.tap();
+                await page.waitForTimeout(200);
+                const drawer=await page.evaluate(()=>{
+                  const side=document.querySelector('.admin-sidebar'),nav=document.querySelector('.admin-sidebar nav'),main=document.querySelector('.admin-main');
+                  return {open:side?.classList.contains('menu-open')||false,navVisible:!!nav&&getComputedStyle(nav).display!=='none'&&nav.getBoundingClientRect().height>0,mainInert:main?.hasAttribute('inert')||false};
+                });
+                report.drawer[device.name]=drawer;
+                await page.screenshot({path:out+'/admin-drawer-'+device.name+'.png',fullPage:false,animations:'disabled'});
+                await page.locator('.admin-menu-sheet-close').first().tap().catch(()=>{});
+              }
+            }
+
+            // Delete confirmation geometry on phone reproduces the user's reported case.
+            if(device.name==='mobile'){
+              await page.goto(base+'/admin?tab=inquiries',{waitUntil:'networkidle'});
+              const del=page.locator('[data-r95-inquiry-delete="source"]').first();
+              if(await del.count()){
+                await del.tap();
+                const dialog=page.locator('[data-slot="alert-dialog-content"]').first();
+                await dialog.waitFor({state:'visible',timeout:5000});
+                const box=await dialog.boundingBox();
+                report.dialog={
+                  visible:await dialog.isVisible(),
+                  box,
+                  insideViewport:!!box&&box.x>=0&&box.x+box.width<=device.width+1&&box.y>=0&&box.y+box.height<=device.height+1
+                };
+                await page.screenshot({path:out+'/admin-inquiry-delete-dialog-mobile.png',fullPage:false,animations:'disabled'});
+                await page.locator('[data-slot="alert-dialog-cancel"]').first().tap();
+              }
+            }
+
+            for(const [name,path] of privatePages){
+              const response=await page.goto(base+path,{waitUntil:'networkidle',timeout:30000});
+              await page.waitForTimeout(250);
+              const leaks=await layout(page);
+              report.pages.push({device:device.name,name,path,status:response?.status()||0,uiPage:await page.evaluate(()=>document.body.dataset.uiPage||''),leaks});
+              await page.screenshot({path:out+'/'+name+'-'+device.name+'.png',fullPage:true,animations:'disabled'});
+            }
+            await context.close();
+          }
+
+          // Customer signed-in pages.
+          for(const device of devices){
+            const context=await browser.newContext({viewport:{width:device.width,height:device.height},deviceScaleFactor:1,isMobile:device.isMobile,hasTouch:device.name!=='desktop'});
+            const page=await context.newPage();
+            await page.goto(base+'/kayit',{waitUntil:'networkidle'});
+            const suffix=device.name+'-'+Date.now();
+            await page.locator('input[name="name"]').fill('UI Audit Müşteri');
+            await page.locator('input[name="email"]').fill('ui-audit-'+suffix+'@example.com');
+            await page.locator('input[name="password"]').fill('Customer-2026-safe');
+            await page.locator('input[name="confirm"]').fill('Customer-2026-safe');
+            await Promise.all([
+              page.waitForURL('**/hesabim/profil',{timeout:10000}),
+              page.locator('button[type="submit"]').click()
+            ]);
+            for(const [name,path] of [['customer-profile','/hesabim/profil'],['customer-security','/account/security']]){
+              const response=await page.goto(base+path,{waitUntil:'networkidle'});
+              await page.waitForTimeout(250);
+              const leaks=await layout(page);
+              report.customer.push({device:device.name,name,path,status:response?.status()||0,leaks});
+              await page.screenshot({path:out+'/'+name+'-'+device.name+'.png',fullPage:true,animations:'disabled'});
+            }
+            await context.close();
+          }
+
+          await browser.close();
+          fs.writeFileSync(out+'/report.json',JSON.stringify(report,null,2));
+          const failed=[
+            ...report.pages.filter(x=>(x.status&&x.status!==200)||(x.leaks?.length||0)>0),
+            ...report.customer.filter(x=>x.status!==200||(x.leaks?.length||0)>0)
+          ];
+          const drawersOk=['mobile','tablet'].every(k=>report.drawer[k]?.open&&report.drawer[k]?.navVisible&&report.drawer[k]?.mainInert);
+          if(failed.length||!report.dialog.insideViewport||!drawersOk){
+            console.error(JSON.stringify({failed,dialog:report.dialog,drawer:report.drawer},null,2));
+            process.exit(1);
+          }
+          EOF
+          node admin-audit.mjs
+
+      - name: Stop isolated admin audit app
+        if: always()
+        run: |
+          if [ -f /tmp/inokskar-admin-audit.pid ]; then
+            kill "$(cat /tmp/inokskar-admin-audit.pid)" 2>/dev/null || true
+          fi
+          if [ -f /tmp/inokskar-admin-audit.log ]; then
+            tail -n 80 /tmp/inokskar-admin-audit.log || true
+          fi
 
       - name: Upload live visual audit
         if: always()
