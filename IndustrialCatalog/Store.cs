@@ -304,7 +304,9 @@ public sealed class Store
                 ["data"] = data.ToJsonString(),
                 ["created"] = now.ToString("O"),
                 ["status"] = "new",
-                ["updated"] = now.ToString("O")
+                ["updated"] = now.ToString("O"),
+                ["readAt"] = "",
+                ["readBy"] = ""
             };
             list.Insert(0, row);
             AddAudit(next, "Talep oluşturuldu", row["id"]!.ToString(), data["type"]?.ToString() ?? "support", actor);
@@ -351,6 +353,41 @@ public sealed class Store
     public int InquiryCount()
     {
         lock (gate) return state["inquiries"]!.AsArray().Count;
+    }
+
+    public int UnreadInquiryCount(bool includeSupport = true, bool includeService = true)
+    {
+        lock (gate)
+        {
+            var count = 0;
+            foreach (var node in state["inquiries"]!.AsArray())
+            {
+                if (node is not JsonObject row || !row.ContainsKey("readAt") || !string.IsNullOrWhiteSpace(row["readAt"]?.ToString())) continue;
+                var parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject();
+                var service = string.Equals(parsed?["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
+                if (service ? !includeService : !includeSupport) continue;
+                count++;
+            }
+            return count;
+        }
+    }
+
+    public JsonObject? MarkInquiryRead(string id, string actor = "admin")
+    {
+        if (string.IsNullOrWhiteSpace(id) || id.Length > 64) return null;
+        lock (gate)
+        {
+            var next = state.DeepClone().AsObject();
+            var row = next["inquiries"]!.AsArray().FirstOrDefault(x => x?["id"]?.ToString() == id)?.AsObject();
+            if (row == null) return null;
+            if (!row.ContainsKey("readAt") || string.IsNullOrWhiteSpace(row["readAt"]?.ToString()))
+            {
+                row["readAt"] = DateTimeOffset.UtcNow.ToString("O");
+                row["readBy"] = actor;
+                Persist(next);
+            }
+            return row.DeepClone().AsObject();
+        }
     }
 
     public JsonArray AuditLog(int max = 200)
