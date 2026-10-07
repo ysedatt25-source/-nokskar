@@ -118,7 +118,7 @@ body[data-scroll-locked] { overflow: hidden; overscroll-behavior: contain; }
 /* R16 — unified professional storefront interaction and layout system */
 :root{--r16-blue:#1767d4;--r16-blue-dark:#0d4ca6;--r16-orange:#ef751f;--r16-red:#c93243;--r16-ink:#102a51;--r16-line:#d7e2ef;--r16-surface:#f5f8fc;--r16-shadow:0 14px 38px rgba(16,42,81,.10)}
 .site-layer-backdrop{position:fixed;inset:0;z-index:29;margin:0;padding:0;border:0;background:rgba(7,20,36,.34);backdrop-filter:blur(1.5px);cursor:default;touch-action:none}
-@media(max-width:1100px){.site-layer-backdrop{z-index:205;background:rgba(7,20,36,.48);backdrop-filter:blur(3px)}body.storefront-layer-open{overflow:hidden;overscroll-behavior:none}}
+@media(max-width:1100px){.site-layer-backdrop{z-index:205;background:rgba(7,20,36,.48);backdrop-filter:blur(3px)}body.storefront-layer-open{overscroll-behavior:contain}}
 @media(min-width:1101px){
  .site-header{display:grid;grid-template-columns:auto minmax(300px,1fr) auto;grid-template-rows:auto auto;gap:7px 24px;padding:8px 32px 7px;align-items:center}
  .site-header>.brand{grid-column:1;grid-row:1}
@@ -156,7 +156,7 @@ body[data-scroll-locked] { overflow: hidden; overscroll-behavior: contain; }
  body.page-home.app-shell-enabled .hero h1{font-size:1.9rem;line-height:1.06;max-width:12ch}
  body.page-home.app-shell-enabled .hero-content>p{font-size:.86rem;line-height:1.5;margin:11px 0 15px}
  body.page-home.app-shell-enabled .hero-actions{display:grid;grid-template-columns:1fr 1fr}.hero-actions .button{min-height:46px;padding:9px 10px;font-size:.8rem}
- body.page-home.app-shell-enabled .category-grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,78vw);grid-template-columns:none;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:2px 2px 8px}.category-grid::-webkit-scrollbar{display:none}.category-card{scroll-snap-align:start}
+ 
  .catalog-mobile-toolbar{grid-template-columns:1fr 1fr auto}.catalog-mobile-toolbar button{justify-content:center;min-height:46px}
  .catalog-filter-layer{padding:10px 8px calc(var(--app-dock-h,72px) + var(--app-safe-bottom,0px) + 6px)}.catalog-filter-sheet{border-radius:20px 20px 14px 14px;padding:14px 12px}.catalog-filter-actions{grid-template-columns:1fr 1.4fr}
  .related-products .product-grid{grid-template-columns:1fr}.detail-mobile-cta{left:8px;right:8px;padding:7px;bottom:calc(var(--app-dock-h,72px) + var(--app-safe-bottom,0px) + 6px)}

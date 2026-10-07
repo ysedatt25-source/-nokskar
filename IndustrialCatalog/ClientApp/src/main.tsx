@@ -2,6 +2,7 @@ import React,{Suspense} from 'react';
 import {createRoot} from 'react-dom/client';
 import Storefront from './app/storefront';
 import './app/globals.css';
+import './app/spa-shell.css';
 const Admin=React.lazy(()=>import('./app/admin/panel'));
 class AppErrorBoundary extends React.Component<React.PropsWithChildren,{failed:boolean}>{
  state={failed:false};static getDerivedStateFromError(){return {failed:true};}
