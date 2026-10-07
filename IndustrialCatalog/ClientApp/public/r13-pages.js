@@ -101,25 +101,40 @@ document.addEventListener('submit',event=>{
     });
     return rows.slice(0,18);
   };
+  const fetchCategories=async()=>{
+    const fromDom=uniqueCategories();if(fromDom.length)return fromDom;
+    try{
+      const r=await fetch('/api/catalog',{cache:'no-store'}),b=await r.json();
+      const cats=Array.isArray(b?.data?.categories)?b.data.categories:[];
+      const roots=cats.filter(c=>!c.parent),ordered=[...roots,...cats.filter(c=>c.parent)];
+      return ordered.slice(0,18).map(c=>({href:'/kategori/'+encodeURIComponent(c.id),label:String(c.name||'Kategori')}));
+    }catch{return[]}
+  };
   const mountSheet=()=>{
     let overlay=document.querySelector('.app-category-overlay');
     if(overlay)return overlay;
     overlay=document.createElement('div');overlay.className='app-category-overlay';overlay.hidden=true;
     overlay.innerHTML='<div class="app-category-sheet" role="dialog" aria-modal="true" aria-label="Ürün kategorileri"><div class="app-sheet-handle"></div><div class="app-sheet-head"><div><small>ÜRÜN KATALOĞU</small><strong>Kategoriler</strong></div><button class="app-sheet-close" type="button" aria-label="Kapat">'+icon('close')+'</button></div><div class="app-category-list"></div><a class="app-all-products" href="/urunler">Tüm ürünleri görüntüle <span>→</span></a></div>';
     document.body.append(overlay);
-    const close=()=>{overlay.hidden=true;document.body.classList.remove('app-sheet-open')};
+    const close=()=>{overlay.classList.remove('is-ready');overlay.hidden=true;document.body.classList.remove('app-sheet-open')};
     overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
     overlay.querySelector('.app-sheet-close').addEventListener('click',close);
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
-    overlay._open=()=>{
-      const list=overlay.querySelector('.app-category-list'),cats=uniqueCategories();
-      list.innerHTML=cats.length?cats.map(x=>'<a href="'+x.href+'"><span>'+x.label+'</span><b>›</b></a>').join(''):'<p class="app-sheet-empty">Kategoriler yükleniyor…</p>';
+    overlay._close=close;
+    overlay._open=async()=>{
+      const list=overlay.querySelector('.app-category-list');
+      list.innerHTML='<div class="app-sheet-loading" aria-live="polite"><span></span><span></span><span></span></div>';
       overlay.hidden=false;document.body.classList.add('app-sheet-open');
+      requestAnimationFrame(()=>overlay.classList.add('is-ready'));
+      const cats=await fetchCategories();
+      if(overlay.hidden)return;
+      list.innerHTML=cats.length?cats.map(x=>'<a href="'+x.href+'"><span>'+x.label+'</span><b>›</b></a>').join(''):'<p class="app-sheet-empty">Henüz yayınlanmış kategori bulunmuyor.</p>';
     };
     return overlay;
   };
+  const syncNav=()=>{const active=activeKey();document.querySelectorAll('.app-bottom-nav [data-app-key]').forEach(el=>el.classList.toggle('active',el.getAttribute('data-app-key')===active));};
   const mountNav=()=>{
-    if(document.querySelector('.app-bottom-nav'))return;
+    if(document.querySelector('.app-bottom-nav')){syncNav();return;}
     const active=activeKey(),nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Mobil uygulama navigasyonu');
     const items=[
       ['home','/','Ana Sayfa','home'],
@@ -129,8 +144,8 @@ document.addEventListener('submit',event=>{
       ['account','/hesabim','Hesabım','account']
     ];
     nav.innerHTML=items.map(([key,href,label,ic])=>key==='categories'
-      ?'<button type="button" class="app-bottom-item '+(active===key?'active':'')+'" data-app-categories>'+icon(ic)+'<span>'+label+'</span></button>'
-      :'<a class="app-bottom-item '+(active===key?'active':'')+'" href="'+href+'">'+icon(ic)+'<span>'+label+'</span></a>').join('');
+      ?'<button type="button" class="app-bottom-item '+(active===key?'active':'')+'" data-app-key="'+key+'" data-app-categories>'+icon(ic)+'<span>'+label+'</span></button>'
+      :'<a class="app-bottom-item '+(active===key?'active':'')+'" data-app-key="'+key+'" href="'+href+'">'+icon(ic)+'<span>'+label+'</span></a>').join('');
     document.body.append(nav);
     nav.querySelector('[data-app-categories]').addEventListener('click',()=>mountSheet()._open());
   };
@@ -150,7 +165,7 @@ document.addEventListener('submit',event=>{
     document.body.classList.add('app-shell-enabled');
     mountNav();mountSearch();
   };
-  const start=()=>{mount();if(!document.querySelector('.site-header')&&!excluded()){const o=new MutationObserver(()=>{mount();if(document.querySelector('.site-header'))o.disconnect();});o.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000);}window.addEventListener('popstate',mount);window.addEventListener('pageshow',mount);window.addEventListener('inokskar:navigation',mount)};
+  const start=()=>{mount();if(!document.querySelector('.site-header')&&!excluded()){const o=new MutationObserver(()=>{mount();if(document.querySelector('.site-header'))o.disconnect();});o.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000);}const refresh=()=>{mount();syncNav();document.querySelector('.app-category-overlay')?._close?.();};window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('inokskar:navigation',refresh)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
