@@ -533,6 +533,9 @@ jobs:
           EOF
           node audit.mjs
 
+      - name: Build isolated authenticated audit app
+        run: dotnet build INOKSKAR.sln -c Release
+
       - name: Start isolated authenticated admin audit app
         run: |
           set -euo pipefail
@@ -553,7 +556,7 @@ jobs:
           Site__PublicBaseUrl=http://127.0.0.1:5101 \
           Admin__Email=ui-audit@invalid.local \
           Admin__PasswordHash="$AUDIT_HASH" \
-          dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-launch-profile --urls http://127.0.0.1:5101 > /tmp/inokskar-admin-audit.log 2>&1 &
+          dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --no-launch-profile --urls http://127.0.0.1:5101 > /tmp/inokskar-admin-audit.log 2>&1 &
           echo $! > /tmp/inokskar-admin-audit.pid
           for i in {1..45}; do
             if curl --fail --silent http://127.0.0.1:5101/healthz >/dev/null; then exit 0; fi
