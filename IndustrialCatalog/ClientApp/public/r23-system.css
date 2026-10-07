@@ -50,3 +50,16 @@ body[data-ui-page] :is(.button,.card-link,.small-btn,.primary-button,.submit,.he
 body :is(.muted,.helper,.note){color:#566e86}
 body[data-ui-page] :is(input,select,textarea){color:#173653;background:#fff;border-color:#cbd9e7}
 body[data-ui-page] :is(input,select,textarea)::placeholder{color:#7d8fa2;opacity:1}
+
+/* R23.4 — keyboard, communication and overlay stability */
+@media(max-width:1100px){
+ body.r23-keyboard-open.app-shell-enabled,body.r23-keyboard-open[data-ui-page^="admin-"]{padding-bottom:var(--r23-safe-bottom)}
+ body.r23-keyboard-open :is(.app-bottom-nav,.admin-app-dock,.private-app-dock){transform:translateY(calc(110% + env(safe-area-inset-bottom,0px)));opacity:0;pointer-events:none}
+ body.r23-keyboard-open .floating-wa{opacity:0;pointer-events:none}
+ body :is([data-slot="dialog-content"],[data-slot="alert-dialog-content"],.editor-dialog,.app-category-sheet,.main-nav.open,.admin-sidebar.menu-open>nav){overscroll-behavior:contain}
+}
+body.page-contact :is(.contact-grid,.contact-info,.inquiry-form),body .contact-pro :is(.contact-grid,.contact-info,.inquiry-form){overflow-anchor:none}
+@media(max-width:700px){
+ body.page-contact .contact-grid,body .contact-pro .contact-grid{grid-template-columns:1fr;gap:12px}
+ body.page-contact .inquiry-form,body .contact-pro .inquiry-form{min-width:0}
+}
