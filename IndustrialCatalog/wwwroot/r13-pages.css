@@ -4710,3 +4710,44 @@ body .tech-empty span{font-size:.7rem!important;color:#73859a!important}
     border-radius:20px 20px 13px 13px!important;
   }
 }
+
+
+/* R18.11 — final non-freezing management interactions */
+body[data-ui-page^="admin-"] :is(.admin-mobile-toggle,.admin-menu-sheet-close,.admin-sidebar nav button,.admin-sidebar nav a,.admin-header-actions button,.admin-quick-actions button,.admin-quick-actions a){
+  animation:none!important;
+  transform:none!important;
+  will-change:auto!important;
+}
+body[data-ui-page^="admin-"] :is(.admin-mobile-toggle,.admin-menu-sheet-close,.admin-sidebar nav button,.admin-sidebar nav a){
+  transition:background-color .14s ease,border-color .14s ease,color .14s ease,box-shadow .14s ease!important;
+}
+body[data-ui-page^="admin-"] .admin-shell.is-busy :is(.admin-mobile-toggle,.admin-menu-sheet-close,.admin-sidebar nav button,.admin-sidebar nav a){
+  pointer-events:auto!important;
+  cursor:pointer!important;
+  opacity:1!important;
+}
+body[data-ui-page^="admin-"] .admin-shell.is-busy .admin-sidebar{
+  pointer-events:auto!important;
+}
+body[data-ui-page^="admin-"] .admin-shell.is-busy .admin-main{
+  pointer-events:auto!important;
+}
+body[data-ui-page^="admin-"] .admin-shell.is-busy::after{
+  display:none!important;
+  pointer-events:none!important;
+}
+@media(max-width:1100px){
+  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav{
+    transform:none!important;
+    animation:none!important;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav :is(button,a):active{
+    transform:none!important;
+  }
+  body.admin-drawer-open .admin-drawer-backdrop{
+    pointer-events:auto!important;
+  }
+  body.admin-drawer-open .admin-sidebar.menu-open>nav{
+    pointer-events:auto!important;
+  }
+}
