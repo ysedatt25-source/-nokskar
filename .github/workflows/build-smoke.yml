@@ -84,6 +84,15 @@ jobs:
           code="$(curl --silent --show-error --output /tmp/admin-api --write-out '%{http_code}' 'http://127.0.0.1:5099/api/catalog?admin=1')"
           test "$code" = "401" || { echo "Expected admin catalog API to return 401, got $code"; cat /tmp/admin-api; exit 1; }
 
+          code="$(curl --silent --show-error --output /tmp/warranty-admin --write-out '%{http_code}' http://127.0.0.1:5099/admin/warranties)"
+          test "$code" = "302" || { echo "Expected /admin/warranties to redirect unauthenticated users, got $code"; cat /tmp/warranty-admin; exit 1; }
+
+          code="$(curl --silent --show-error --output /tmp/technical-admin --write-out '%{http_code}' http://127.0.0.1:5099/teknik)"
+          test "$code" = "302" || { echo "Expected /teknik to redirect unauthenticated users, got $code"; cat /tmp/technical-admin; exit 1; }
+
+          code="$(curl --silent --show-error --output /tmp/technical-service-api --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"message":"test"}' http://127.0.0.1:5099/api/technical/device/test/services)"
+          test "$code" = "401" || { echo "Expected technical service creation API to return 401 unauthenticated, got $code"; cat /tmp/technical-service-api; exit 1; }
+
       - name: Check key page markers
         run: |
           set -euo pipefail
