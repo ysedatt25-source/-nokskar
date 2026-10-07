@@ -63,54 +63,6 @@ function refine(){
 function start(){refine();window.addEventListener('pageshow',refine);window.addEventListener('inokskar:navigation',refine);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
-/* Legacy visual scripts change React-owned nodes. Use a clean document for
-   global search navigation so those changes cannot break reconciliation. */
-document.addEventListener('submit',event=>{
- const form=event.target;if(!(form instanceof HTMLFormElement)||!form.matches('.site-header .header-search')||!form.closest('#root'))return;
- const input=form.querySelector('input');if(!input)return;
- event.preventDefault();event.stopImmediatePropagation();const q=input.value.trim();location.assign('/urunler'+(q?'?q='+encodeURIComponent(q):''));
-},true);
-
-
-/* R14.8 / R18 — compact, interaction-safe admin mobile drawer */
-(()=>{
-  if(!location.pathname.startsWith('/admin'))return;
-  const mount=()=>{
-    if(location.pathname==='/admin/security'){
-      const bar=document.querySelector('.bar');if(bar){bar.classList.add('security-top');}
-    }
-    const side=document.querySelector('.admin-sidebar');
-    const nav=side?.querySelector('nav');
-    if(!side||!nav||side.dataset.r148Drawer)return;
-    side.dataset.r148Drawer='1';
-    const toggle=document.createElement('button');
-    toggle.type='button';toggle.className='admin-mobile-toggle';toggle.setAttribute('aria-label','Yönetim menüsünü aç');toggle.setAttribute('aria-expanded','false');
-    toggle.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
-    side.insertBefore(toggle,nav);
-    const sheetHead=document.createElement('div');
-    sheetHead.className='admin-menu-sheet-head';
-    sheetHead.innerHTML='<div><span>İNOKSKAR</span><strong>Yönetim Menüsü</strong></div><button type="button" class="admin-menu-sheet-close" aria-label="Yönetim menüsünü kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
-    nav.prepend(sheetHead);
-    const backdrop=document.createElement('button');
-    backdrop.type='button';backdrop.className='admin-drawer-backdrop';backdrop.setAttribute('aria-label','Yönetim menüsünü kapat');backdrop.hidden=true;
-    document.body.append(backdrop);
-    let previousFocus=null;
-    const focusables=()=>[...nav.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>x.getClientRects().length);
-    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');globalThis.__inokskarSetScrollLock?.('admin-drawer',false);backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');try{previousFocus?.focus?.({preventScroll:true});}catch{}previousFocus=null;};
-    const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');globalThis.__inokskarSetScrollLock?.('admin-drawer',true);backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
-    toggle.addEventListener('click',()=>side.classList.contains('menu-open')?close():open());
-    sheetHead.querySelector('.admin-menu-sheet-close')?.addEventListener('click',close);
-    backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});
-    nav.addEventListener('click',e=>{if(innerWidth<=1100&&e.target.closest('button,a'))close()});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&side.classList.contains('menu-open'))close();if(e.key==='Tab'&&side.classList.contains('menu-open')){const list=focusables();if(!list.length)return;const first=list[0],last=list[list.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
-    window.addEventListener('resize',()=>{if(innerWidth>1100&&side.classList.contains('menu-open'))close()},{passive:true});
-    window.addEventListener('pageshow',()=>{if(!side.classList.contains('menu-open')){document.body.classList.remove('admin-drawer-open');globalThis.__inokskarSetScrollLock?.('admin-drawer',false);backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');}});
-  };
-  const start=()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))return;const observer=new MutationObserver(()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))observer.disconnect();});observer.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),5000)};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
-
-
 /* R15.1 — public mobile/tablet application shell */
 (()=>{
   const path=()=>location.pathname.replace(/\/$/,'')||'/';
@@ -205,7 +157,7 @@ document.addEventListener('submit',event=>{
     document.body.classList.add('app-shell-enabled');
     mountNav();mountSearch();
   };
-  const start=()=>{mount();if(!document.querySelector('.site-header')&&!excluded()){const o=new MutationObserver(()=>{mount();if(document.querySelector('.site-header'))o.disconnect();});o.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000);}const refresh=()=>{mount();syncNav();document.querySelector('.app-category-overlay')?._close?.();};window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('inokskar:navigation',refresh)};
+  const start=()=>{mount();const refresh=()=>{mount();syncNav();document.querySelector('.app-category-overlay')?._close?.();};window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('inokskar:navigation',refresh)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -246,84 +198,7 @@ document.addEventListener('submit',event=>{
     if(sideBrand&&!sideBrand.dataset.r158Brand){sideBrand.dataset.r158Brand='1';sideBrand.classList.add('private-brand-link');sideBrand.innerHTML=brandHtml;}
     document.querySelectorAll('.private-brand-header').forEach(setupHeader);
   };
-  const start=()=>{mount();const root=document.getElementById('root')||document.body;const o=new MutationObserver(()=>{mount();if(document.querySelector('.private-brand-header[data-r158-brand],.private-app-dock'))o.disconnect();});o.observe(root,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000)};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
-
-
-/* R15.13 — admin phone/tablet application dock */
-(()=>{
-  if(location.pathname!=='/admin')return;
-  const icon=name=>({
-    overview:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-    products:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>',
-    prices:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.7-.5-1.5-.8-2.5-.8-1.4 0-2.5.7-2.5 1.8 0 2.8 5.5 1.2 5.5 4 0 1.2-1.1 2-2.7 2-.9 0-1.9-.3-2.8-.9M12.5 6v12"/></svg>',
-    inquiries:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>',
-    menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>'
-  }[name]||'');
-  const mount=()=>{
-    const side=document.querySelector('.admin-sidebar'),nav=side?.querySelector('nav');
-    if(!side||!nav||document.querySelector('.admin-app-dock'))return;
-    const find=label=>[...nav.querySelectorAll('button')].find(b=>(b.textContent||'').trim()===label);
-    const refs={
-      overview:find('Genel bakış'),
-      products:find('Ürünler'),
-      prices:find('Fiyat yönetimi'),
-      inquiries:find('Müşteri talepleri')
-    };
-    if(Object.values(refs).some(x=>!x))return;
-    const dock=document.createElement('nav');dock.className='admin-app-dock';dock.setAttribute('aria-label','Yönetim uygulama navigasyonu');
-    const rows=[['overview','Genel'],['products','Ürünler'],['prices','Fiyatlar'],['inquiries','Talepler'],['menu','Menü']];
-    dock.innerHTML=rows.map(([key,label])=>'<button type="button" class="admin-app-item" data-admin-dock="'+key+'">'+icon(key)+'<span>'+label+'</span>'+(key==='inquiries'?'<b class="admin-inquiry-badge" hidden aria-hidden="true">0</b>':'')+'</button>').join('');
-    document.body.append(dock);
-    const badge=dock.querySelector('.admin-inquiry-badge');
-    let lastInquiryActive=false,marking=false;
-    const setUnread=value=>{
-      if(!badge)return;
-      const count=Math.max(0,Number(value)||0);
-      badge.textContent=count>99?'99+':String(count);
-      badge.hidden=count===0;
-      badge.setAttribute('aria-hidden',count===0?'true':'false');
-      const btn=dock.querySelector('[data-admin-dock="inquiries"]');
-      if(btn)btn.setAttribute('aria-label',count>0?'Talepler, '+count+' okunmamış talep':'Talepler');
-    };
-    const markRead=async()=>{
-      if(marking)return;
-      marking=true;setUnread(0);
-      try{
-        const r=await fetch('/api/inquiries/mark-read',{method:'POST',headers:{'Accept':'application/json'}});
-        if(r.ok){const b=await r.json().catch(()=>({}));setUnread(b.count||0);}
-      }catch{}finally{marking=false;}
-    };
-    const refreshUnread=async()=>{
-      try{
-        const r=await fetch('/api/inquiries/unread-count',{cache:'no-store',headers:{'Accept':'application/json'}});
-        if(!r.ok)return;
-        const b=await r.json().catch(()=>({}));
-        const active=!!refs.inquiries?.classList.contains('active');
-        if(active&&(Number(b.count)||0)>0){await markRead();return;}
-        setUnread(b.count||0);
-      }catch{}
-    };
-    const sync=()=>{
-      for(const [key,ref] of Object.entries(refs)){
-        dock.querySelector('[data-admin-dock="'+key+'"]')?.classList.toggle('active',ref.classList.contains('active'));
-      }
-      dock.querySelector('[data-admin-dock="menu"]')?.classList.toggle('active',side.classList.contains('menu-open'));
-      const inquiryActive=!!refs.inquiries?.classList.contains('active');
-      if(inquiryActive&&!lastInquiryActive)void markRead();
-      lastInquiryActive=inquiryActive;
-    };
-    dock.addEventListener('click',e=>{
-      const btn=e.target.closest('[data-admin-dock]');if(!btn)return;
-      const key=btn.dataset.adminDock;
-      if(key==='menu'){side.querySelector('.admin-mobile-toggle')?.click();sync();return;}
-      refs[key]?.click();if(side.classList.contains('menu-open'))side.querySelector('.admin-mobile-toggle')?.click();window.scrollTo({top:0,behavior:'smooth'});requestAnimationFrame(sync);
-    });
-    new MutationObserver(sync).observe(side,{subtree:true,attributes:true,attributeFilter:['class']});
-    sync();void refreshUnread();setInterval(refreshUnread,30000);
-  };
-  const start=()=>{mount();if(document.querySelector('.admin-app-dock'))return;const root=document.getElementById('root')||document.body;const o=new MutationObserver(()=>{mount();if(document.querySelector('.admin-app-dock'))o.disconnect();});o.observe(root,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),5000)};
+  const start=()=>{mount();};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -466,6 +341,3 @@ document.addEventListener('submit',event=>{
   const mount=()=>{const card=document.querySelector('.brand-admin-card'),preview=document.getElementById('brand-preview');if(!card||!preview||card.dataset.r16Preview)return;card.dataset.r16Preview='1';const meta=document.createElement('div');meta.className='brand-preview-meta';meta.innerHTML='<span>PNG / WebP önerilir</span><span>Yatay logo oranı</span><span>Şeffaf zemin uygundur</span>';const devices=document.createElement('div');devices.className='brand-live-devices';devices.innerHTML='<div class="brand-device"><small>Masaüstü üst başlık</small><img alt="Masaüstü logo önizleme"></div><div class="brand-device"><small>Mobil üst başlık</small><img alt="Mobil logo önizleme"></div>';card.append(meta,devices);const sync=()=>devices.querySelectorAll('img').forEach(i=>i.src=preview.src);new MutationObserver(sync).observe(preview,{attributes:true,attributeFilter:['src']});preview.addEventListener('load',sync);sync();};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
-
-/* R16.5 — eliminate duplicate page-size controls regardless of legacy wrapper/class. */
-(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;const o=new MutationObserver(clean);o.observe(root,{subtree:true,childList:true,characterData:true});setTimeout(()=>o.disconnect(),2200);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
