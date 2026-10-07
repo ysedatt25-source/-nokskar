@@ -5,8 +5,6 @@ RUN npm install --no-audit --no-fund
 COPY IndustrialCatalog/ClientApp/ ./
 COPY IndustrialCatalog/Program.cs /src/IndustrialCatalog/Program.cs
 COPY IndustrialCatalog/InquiryPages.cs /src/IndustrialCatalog/InquiryPages.cs
-COPY IndustrialCatalog/UserAccess.cs /src/IndustrialCatalog/UserAccess.cs
-COPY IndustrialCatalog/CustomerPages.cs /src/IndustrialCatalog/CustomerPages.cs
 RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build

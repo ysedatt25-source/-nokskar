@@ -7,7 +7,7 @@
     background:#f3f6fa;
     padding-bottom:calc(var(--app-dock-h) + var(--app-safe-bottom) + 12px);
   }
-  body.app-shell-enabled.app-sheet-open{overscroll-behavior:contain}
+  body.app-shell-enabled.app-sheet-open{overflow:hidden}
   body.app-shell-enabled .site-header{
     position:sticky;top:0;z-index:210;
     min-height:58px;height:auto;

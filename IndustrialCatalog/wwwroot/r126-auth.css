@@ -39,7 +39,3 @@ body.r126-auth.register-page .brand-copy p{display:none}
  body.r126-auth.register-page .brand-side{min-height:118px;padding:16px 18px}
  body.r126-auth.register-page .panel{padding:22px 18px calc(24px + env(safe-area-inset-bottom))}
 }
-
-/* R24.5 — auth color alignment */
-body.r126-auth .submit{background:linear-gradient(180deg,#2e83ea,#1767d4);border-color:#155ab8;box-shadow:0 12px 26px rgba(23,103,212,.22)}
-body.r126-auth .field input:focus{border-color:#4f83c5;box-shadow:0 0 0 4px rgba(23,103,212,.12)}

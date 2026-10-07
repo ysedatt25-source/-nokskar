@@ -6,11 +6,11 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "npm run check:no-important && npm run check:features && npm run check:ui-architecture && npm run build:app-css && node scripts/clean-output.mjs && vite build",
+    "build": "npm run check:no-important && npm run check:features && npm run build:app-css && npm run build:app-runtime && node scripts/clean-output.mjs && vite build",
     "check:no-important": "node scripts/assert-no-important.mjs",
     "check:features": "node scripts/assert-feature-contract.mjs",
     "build:app-css": "node scripts/build-app-css.mjs",
-    "check:ui-architecture": "node scripts/assert-ui-architecture.mjs"
+    "build:app-runtime": "node scripts/build-app-runtime.mjs"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
