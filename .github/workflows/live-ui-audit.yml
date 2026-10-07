@@ -16,10 +16,7 @@ jobs:
           node-version: 22
       - name: Install audit browser
         run: |
-          mkdir -p .qa-runtime
-          cd .qa-runtime
-          npm init -y
-          npm install playwright@1.55.0 axe-core@4.10.3
+          npm install --no-save --no-package-lock playwright@1.55.0 axe-core@4.10.3
           npx playwright install --with-deps chromium
       - name: Wait for Railway deployment
         run: |
@@ -31,7 +28,6 @@ jobs:
           exit 1
       - name: Audit live site at 3 viewports
         env:
-          NODE_PATH: ${{ github.workspace }}/.qa-runtime/node_modules
           QA_BASE_URL: https://inokskar-web-preview.up.railway.app
           QA_OUTPUT: qa-output
         run: node .github/qa/live-ui-audit.mjs
