@@ -2655,14 +2655,15 @@ body.storefront-layer-open .site-header .header-search{pointer-events:none!impor
     display:block!important;
     position:fixed!important;
     z-index:430!important;
-    top:auto!important;
-    left:12px!important;
-    right:12px!important;
-    bottom:calc(var(--app-dock-h,72px) + var(--app-safe-bottom,0px) + 8px)!important;
-    width:auto!important;
-    max-width:760px!important;
-    max-height:calc(100dvh - var(--app-dock-h,72px) - 82px)!important;
-    margin:0 auto!important;
+    top:50%!important;
+ left:50%!important;
+ right:auto!important;
+ bottom:auto!important;
+ width:min(760px,calc(100vw - 24px))!important;
+ max-width:760px!important;
+ max-height:min(76dvh,720px)!important;
+ margin:0!important;
+ transform:translate(-50%,-50%)!important;
     padding:8px 12px 14px!important;
     overflow:auto!important;
     overscroll-behavior:contain!important;
@@ -4900,4 +4901,33 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   min-width:19px;height:19px;padding:0 5px;border:2px solid #fff;border-radius:999px;
   display:grid;place-items:center;background:#d9364c;color:#fff;
   font-size:.6rem;font-weight:900;line-height:1;box-shadow:0 3px 9px rgba(142,23,42,.28);
+}
+
+/* R20.3 — one viewport-centered hamburger geometry on every public page. */
+@media(max-width:1100px){
+ body.storefront-layer-open .site-header,
+ body.ui-layer-locked .site-header{
+  transform:none!important;
+  filter:none!important;
+  backdrop-filter:none!important;
+ }
+ body.app-shell-enabled .site-header .main-nav.open{
+  top:50%!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:min(760px,calc(100vw - 24px))!important;
+  max-width:760px!important;
+  max-height:min(76dvh,720px)!important;
+  margin:0!important;
+  transform:translate(-50%,-50%)!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+ }
+}
+@media(max-width:600px){
+ body.app-shell-enabled .site-header .main-nav.open{
+  width:calc(100vw - 24px)!important;
+  max-height:min(74dvh,660px)!important;
+ }
 }

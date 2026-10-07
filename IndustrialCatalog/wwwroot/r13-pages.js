@@ -431,3 +431,44 @@ document.addEventListener('submit',event=>{
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
+/* R20.3 — canonical public mobile menu structure for SPA and server-rendered pages. */
+(()=>{
+ const closeIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+ const closeServerMenu=(nav)=>{
+  nav.classList.remove('open','category-layer-open');
+  nav.querySelectorAll('.nav-category.open').forEach(x=>x.classList.remove('open'));
+  nav.querySelectorAll('.nav-category-toggle[aria-expanded="true"]').forEach(x=>x.setAttribute('aria-expanded','false'));
+  const header=nav.closest('.site-header'),toggle=header?.querySelector('.mobile-menu');
+  toggle?.setAttribute('aria-expanded','false');
+  toggle?.setAttribute('aria-label','Menüyü aç');
+ };
+ const ensure=(nav)=>{
+  if(!(nav instanceof HTMLElement))return;
+  nav.classList.add('public-mobile-menu-sheet');
+  if(nav.querySelector(':scope>.mobile-menu-sheet-head'))return;
+  const head=document.createElement('div');
+  head.className='mobile-menu-sheet-head';
+  head.innerHTML='<div><span>İNOKSKAR</span><strong>Menü</strong></div><button type="button" class="mobile-menu-sheet-close" aria-label="Menüyü kapat">'+closeIcon+'</button>';
+  nav.prepend(head);
+  head.querySelector('.mobile-menu-sheet-close')?.addEventListener('click',()=>closeServerMenu(nav));
+ };
+ const mount=()=>{
+  document.querySelectorAll('.site-header .main-nav').forEach(nav=>{
+   ensure(nav);
+   if(nav.closest('#root'))return;
+   if(nav.dataset.r203Menu)return;
+   nav.dataset.r203Menu='1';
+   nav.addEventListener('click',e=>{
+    if(innerWidth<=1100&&e.target.closest('a[href]'))closeServerMenu(nav);
+   });
+  });
+ };
+ const start=()=>{
+  mount();
+  window.addEventListener('pageshow',mount);
+  window.addEventListener('inokskar:navigation',mount);
+  window.addEventListener('resize',()=>{if(innerWidth>1100)document.querySelectorAll('.site-header .main-nav.open').forEach(closeServerMenu);},{passive:true});
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
