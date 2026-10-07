@@ -234,22 +234,54 @@ document.addEventListener('submit',event=>{
     if(Object.values(refs).some(x=>!x))return;
     const dock=document.createElement('nav');dock.className='admin-app-dock';dock.setAttribute('aria-label','Yönetim uygulama navigasyonu');
     const rows=[['overview','Genel'],['products','Ürünler'],['prices','Fiyatlar'],['inquiries','Talepler'],['menu','Menü']];
-    dock.innerHTML=rows.map(([key,label])=>'<button type="button" class="admin-app-item" data-admin-dock="'+key+'">'+icon(key)+'<span>'+label+'</span></button>').join('');
+    dock.innerHTML=rows.map(([key,label])=>'<button type="button" class="admin-app-item" data-admin-dock="'+key+'">'+icon(key)+'<span>'+label+'</span>'+(key==='inquiries'?'<b class="admin-inquiry-badge" hidden aria-hidden="true">0</b>':'')+'</button>').join('');
     document.body.append(dock);
+    const badge=dock.querySelector('.admin-inquiry-badge');
+    let lastInquiryActive=false,marking=false;
+    const setUnread=value=>{
+      if(!badge)return;
+      const count=Math.max(0,Number(value)||0);
+      badge.textContent=count>99?'99+':String(count);
+      badge.hidden=count===0;
+      badge.setAttribute('aria-hidden',count===0?'true':'false');
+      const btn=dock.querySelector('[data-admin-dock="inquiries"]');
+      if(btn)btn.setAttribute('aria-label',count>0?'Talepler, '+count+' okunmamış talep':'Talepler');
+    };
+    const markRead=async()=>{
+      if(marking)return;
+      marking=true;setUnread(0);
+      try{
+        const r=await fetch('/api/inquiries/mark-read',{method:'POST',headers:{'Accept':'application/json'}});
+        if(r.ok){const b=await r.json().catch(()=>({}));setUnread(b.count||0);}
+      }catch{}finally{marking=false;}
+    };
+    const refreshUnread=async()=>{
+      try{
+        const r=await fetch('/api/inquiries/unread-count',{cache:'no-store',headers:{'Accept':'application/json'}});
+        if(!r.ok)return;
+        const b=await r.json().catch(()=>({}));
+        const active=!!refs.inquiries?.classList.contains('active');
+        if(active&&(Number(b.count)||0)>0){await markRead();return;}
+        setUnread(b.count||0);
+      }catch{}
+    };
     const sync=()=>{
       for(const [key,ref] of Object.entries(refs)){
         dock.querySelector('[data-admin-dock="'+key+'"]')?.classList.toggle('active',ref.classList.contains('active'));
       }
       dock.querySelector('[data-admin-dock="menu"]')?.classList.toggle('active',side.classList.contains('menu-open'));
+      const inquiryActive=!!refs.inquiries?.classList.contains('active');
+      if(inquiryActive&&!lastInquiryActive)void markRead();
+      lastInquiryActive=inquiryActive;
     };
     dock.addEventListener('click',e=>{
       const btn=e.target.closest('[data-admin-dock]');if(!btn)return;
       const key=btn.dataset.adminDock;
       if(key==='menu'){side.querySelector('.admin-mobile-toggle')?.click();sync();return;}
-      refs[key]?.click();if(side.classList.contains('menu-open'))side.querySelector('.admin-mobile-toggle')?.click();window.scrollTo({top:0,behavior:'smooth'});sync();
+      refs[key]?.click();if(side.classList.contains('menu-open'))side.querySelector('.admin-mobile-toggle')?.click();window.scrollTo({top:0,behavior:'smooth'});requestAnimationFrame(sync);
     });
     new MutationObserver(sync).observe(side,{subtree:true,attributes:true,attributeFilter:['class']});
-    sync();
+    sync();void refreshUnread();setInterval(refreshUnread,30000);
   };
   const start=()=>{mount();if(document.querySelector('.admin-app-dock'))return;const root=document.getElementById('root')||document.body;const o=new MutationObserver(()=>{mount();if(document.querySelector('.admin-app-dock'))o.disconnect();});o.observe(root,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

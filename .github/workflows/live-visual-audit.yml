@@ -40,7 +40,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r22-3"
+          expected="r22-4"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -820,6 +820,27 @@ jobs:
               }
             }
 
+            // New inquiries show a bottom-dock badge; opening "Talepler" clears it automatically.
+            if(device.name==='mobile'){
+              await context.request.post(base+'/api/inquiry',{
+                headers:{Origin:base},
+                data:{name:'UI Audit Okunmamış',email:'unread.audit@example.com',phone:'555 333 44 55',purpose:'genel',message:'Okunmamış talep rozeti denetimi'}
+              });
+              await page.goto(base+'/admin',{waitUntil:'networkidle'});
+              const badge=page.locator('.admin-inquiry-badge').first();
+              await badge.waitFor({state:'visible',timeout:5000});
+              const beforeText=(await badge.textContent()||'').trim();
+              const beforeCount=beforeText==='99+'?99:Number(beforeText||0);
+              const inquiriesDock=page.locator('[data-admin-dock="inquiries"]').first();
+              await inquiriesDock.tap();
+              await page.waitForTimeout(650);
+              const hiddenAfter=await badge.isHidden().catch(()=>true);
+              const unreadResponse=await context.request.get(base+'/api/inquiries/unread-count');
+              const unreadBody=await unreadResponse.json().catch(()=>({}));
+              report.unreadInquiryBadge={beforeCount,hiddenAfter,serverCount:Number(unreadBody.count||0)};
+              await page.screenshot({path:out+'/admin-inquiry-badge-mobile.png',fullPage:false,animations:'disabled'});
+            }
+
             // Product add/edit must be a true mobile workspace, not a shifted half-width sheet.
             if(device.name==='mobile'){
               await page.goto(base+'/admin',{waitUntil:'networkidle'});
@@ -948,8 +969,9 @@ jobs:
             report.productEditor.closeBox?.y<70&&report.productEditor.closeBox?.x>320&&
             report.productEditor.saveBox?.y>700&&report.productEditor.saveBox?.y+report.productEditor.saveBox?.height<=845;
           const workflowOk=report.workflow.dialogInside&&report.workflow.persistedStatus==='contacted'&&String(report.workflow.persistedReply||'').length>10;
-          if(failed.length||!report.dialog.insideViewport||!drawersOk||!dynamicRoutesOk||!productEditorOk||!workflowOk){
-            console.error(JSON.stringify({failed,dialog:report.dialog,drawer:report.drawer,productEditor:report.productEditor,workflow:report.workflow},null,2));
+          const unreadInquiryBadgeOk=report.unreadInquiryBadge?.beforeCount>=1&&report.unreadInquiryBadge?.hiddenAfter&&report.unreadInquiryBadge?.serverCount===0;
+          if(failed.length||!report.dialog.insideViewport||!drawersOk||!dynamicRoutesOk||!productEditorOk||!workflowOk||!unreadInquiryBadgeOk){
+            console.error(JSON.stringify({failed,dialog:report.dialog,drawer:report.drawer,productEditor:report.productEditor,workflow:report.workflow,unreadInquiryBadge:report.unreadInquiryBadge},null,2));
             process.exit(1);
           }
           EOF

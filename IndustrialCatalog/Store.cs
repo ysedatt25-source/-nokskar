@@ -35,6 +35,14 @@ public sealed class Store
         root["history"] ??= new JsonArray();
         root["events"] ??= new JsonArray();
         root["inquiries"] ??= new JsonArray();
+        if (root["inquiries"] is JsonArray inquiries)
+        {
+            foreach (var node in inquiries)
+            {
+                if (node is not JsonObject inquiry) continue;
+                inquiry["readAt"] ??= inquiry["updated"]?.ToString() ?? inquiry["created"]?.ToString() ?? DateTimeOffset.UtcNow.ToString("O");
+            }
+        }
         root["warranties"] ??= new JsonArray();
         root["warrantyHistory"] ??= new JsonArray();
         root["auditLog"] ??= new JsonArray();
@@ -280,6 +288,48 @@ public sealed class Store
         }
     }
 
+    static bool InquiryVisibleTo(JsonObject row, bool canSupport, bool canService)
+    {
+        JsonObject parsed;
+        try { parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject(); }
+        catch { parsed = new JsonObject(); }
+        var service = string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
+        return service ? canService : canSupport;
+    }
+
+    public int UnreadInquiryCount(bool canSupport, bool canService)
+    {
+        lock (gate)
+        {
+            return state["inquiries"]!.AsArray()
+                .OfType<JsonObject>()
+                .Count(row => InquiryVisibleTo(row, canSupport, canService) && string.IsNullOrWhiteSpace(row["readAt"]?.ToString()));
+        }
+    }
+
+    public int MarkVisibleInquiriesRead(bool canSupport, bool canService, string actor = "admin")
+    {
+        lock (gate)
+        {
+            var next = state.DeepClone().AsObject();
+            var now = DateTimeOffset.UtcNow.ToString("O");
+            var changed = 0;
+            foreach (var node in next["inquiries"]!.AsArray())
+            {
+                if (node is not JsonObject row) continue;
+                if (!InquiryVisibleTo(row, canSupport, canService) || !string.IsNullOrWhiteSpace(row["readAt"]?.ToString())) continue;
+                row["readAt"] = now;
+                changed++;
+            }
+            if (changed > 0)
+            {
+                AddAudit(next, "Müşteri talepleri okundu", "inquiries", changed.ToString(), actor);
+                Persist(next);
+            }
+            return changed;
+        }
+    }
+
     public JsonObject? InquiryById(string id)
     {
         if (string.IsNullOrWhiteSpace(id) || id.Length > 64) return null;
@@ -304,7 +354,8 @@ public sealed class Store
                 ["data"] = data.ToJsonString(),
                 ["created"] = now.ToString("O"),
                 ["status"] = "new",
-                ["updated"] = now.ToString("O")
+                ["updated"] = now.ToString("O"),
+                ["readAt"] = null
             };
             list.Insert(0, row);
             AddAudit(next, "Talep oluşturuldu", row["id"]!.ToString(), data["type"]?.ToString() ?? "support", actor);

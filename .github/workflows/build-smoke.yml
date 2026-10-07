@@ -112,6 +112,8 @@ jobs:
               root=json.load(f)
           decoded=[json.loads(row.get('data','{}')) for row in root.get('inquiries',[])]
           assert any(row.get('purpose')=='yedek' and row.get('email')=='preference.test@hotmail.com' for row in decoded), decoded
+          matching=[row for row in root.get('inquiries',[]) if json.loads(row.get('data','{}')).get('email')=='preference.test@hotmail.com']
+          assert matching and matching[0].get('readAt') is None, matching
           PY
           for phone in "5426156525" "05426156525" "905426156525" "+905426156525"; do
             code="$(curl --silent --show-error --output /tmp/inquiry-track --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d "{\"phone\":\"$phone\"}" http://127.0.0.1:5099/api/inquiry/track)"

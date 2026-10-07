@@ -5290,3 +5290,24 @@ body[data-ui-page^="admin-"] [data-slot="select-content"]{z-index:770;pointer-ev
   font-weight:600;
   line-height:1.4;
 }
+
+
+/* R22.4 — unread inquiry badge */
+.admin-app-item[data-admin-dock="inquiries"]{position:relative}
+.admin-inquiry-badge{
+  position:absolute;top:3px;right:max(7px,calc(50% - 24px));z-index:4;
+  min-width:18px;height:18px;padding:0 5px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:2px solid #fff;border-radius:999px;
+  background:linear-gradient(180deg,#ef4458,#c91f38);color:#fff;
+  font-size:.58rem;font-weight:950;line-height:1;letter-spacing:-.02em;
+  box-shadow:0 4px 10px rgba(169,25,48,.28);
+  pointer-events:none;
+  animation:inquiry-badge-in .2s ease-out both
+}
+.admin-inquiry-badge[hidden]{display:none}
+@keyframes inquiry-badge-in{from{opacity:0;transform:scale(.65)}to{opacity:1;transform:scale(1)}}
+@media(max-width:600px){
+  .admin-inquiry-badge{top:2px;right:max(5px,calc(50% - 23px));min-width:18px;height:18px;font-size:.56rem}
+}
+@media(prefers-reduced-motion:reduce){.admin-inquiry-badge{animation:none}}
