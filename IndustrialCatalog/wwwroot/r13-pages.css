@@ -4771,3 +4771,24 @@ body.ui-layer-locked .ui-interaction-shield.public-shield{
     opacity:1!important;
   }
 }
+
+
+/* R18.14 — guarantee drawer paints above the dim layer */
+@media(max-width:1100px){
+  body.app-shell-enabled.storefront-layer-open .site-layer-backdrop{
+    z-index:400!important;
+  }
+  body.app-shell-enabled.storefront-layer-open .site-header,
+  body.page-home.app-shell-enabled.storefront-layer-open .site-header,
+  body.page-internal.app-shell-enabled.storefront-layer-open .site-header{
+    z-index:520!important;
+    isolation:isolate!important;
+  }
+  body.app-shell-enabled.storefront-layer-open .site-header .main-nav.open,
+  body.page-home.app-shell-enabled.storefront-layer-open .site-header .main-nav.open,
+  body.page-internal.app-shell-enabled.storefront-layer-open .site-header .main-nav.open{
+    z-index:540!important;
+    opacity:1!important;
+    filter:none!important;
+  }
+}
