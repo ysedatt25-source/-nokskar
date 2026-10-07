@@ -144,9 +144,9 @@ for(const r of report.results){
 }
 report.summary={tested:report.results.length,routeCount:routes.length,issuePages:issueRows.length,issues:issueRows};
 fs.writeFileSync(path.join(OUT,'report.json'),JSON.stringify(report,null,2));
-const md=['# Inokskar Live UI Audit','',\`Base: \${BASE}\`,\`Routes: \${routes.length}\`,\`Checks: \${report.results.length}\`,\`Pages/viewports with findings: \${issueRows.length}\`,'','## Routes','',...routes.map(r=>'- '+r),'','## Findings',''];
+const md=['# Inokskar Live UI Audit','',`Base: ${BASE}`,`Routes: ${routes.length}`,`Checks: ${report.results.length}`,`Pages/viewports with findings: ${issueRows.length}`,'','## Routes','',...routes.map(r=>'- '+r),'','## Findings',''];
 if(!issueRows.length) md.push('No automated blocking findings.');
-else for(const row of issueRows) md.push(\`- **\${row.device} \${row.path}** — \${row.issues.join(', ')}\`);
+else for(const row of issueRows) md.push(`- **${row.device} ${row.path}** — ${row.issues.join(', ')}`);
 md.push('','## Notes','- Full-page screenshots are captured for mobile, tablet and desktop.','- Authentication-protected pages are audited in their logged-out/redirect state.','- Tiny touch targets are recorded in report.json as informational diagnostics.');
 fs.writeFileSync(path.join(OUT,'REPORT.md'),md.join('\n'));
 console.log('QA_REPORT_SUMMARY '+JSON.stringify(report.summary));
