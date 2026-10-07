@@ -179,6 +179,36 @@ app.MapGet("/api/warranty-products",(HttpContext c,Store store)=>{if(!AccessCont
 app.MapGet("/api/technical/warranties",(HttpContext c,Store store)=>AccessControl.Has(c.User,AccessPermissions.Technical,"view")?Results.Json(new{records=store.TechnicalWarrantyList()}):Results.Forbid()).RequireAuthorization();
 app.MapGet("/api/technical/device/{id}",(string id,HttpContext c,Store store)=>!AccessControl.Has(c.User,AccessPermissions.Technical,"view")?Results.Forbid():store.TechnicalDevice(id) is JsonObject device?Results.Json(device):Results.NotFound(new{error="Cihaz bulunamadı."})).RequireAuthorization();
 app.MapPost("/api/technical/device/{id}",async(string id,HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Technical,"edit"))return Results.Forbid();var body=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Teknik cihaz dosyası gerekli.");var profile=store.SaveTechnicalProfile(id,body,AccessControl.DisplayName(c.User));return Results.Json(new{profile});}).RequireAuthorization();
+app.MapPost("/api/technical/device/{id}/services",async(string id,HttpContext c,Store store)=>{
+    if(!AccessControl.Has(c.User,AccessPermissions.Technical,"edit")&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();
+    var device=store.TechnicalDevice(id);if(device?["warranty"] is not JsonObject warranty)return Results.NotFound(new{error="Cihaz bulunamadı."});
+    var body=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Servis kaydı gerekli.");
+    var message=(body["message"]?.ToString()??"").Trim();if(message.Length is <2 or >5000)throw new ArgumentException("Servis açıklaması 2-5000 karakter olmalıdır.");
+    var status=(body["status"]?.ToString()??"new").Trim();var allowed=new[]{"new","review","scheduled","parts","completed","cancelled"};if(!allowed.Contains(status,StringComparer.Ordinal))throw new ArgumentException("Servis durumu geçersiz.");
+    static string Clean(JsonNode? node,int max,string label){var value=(node?.ToString()??"").Trim();if(value.Length>max)throw new ArgumentException(label+" çok uzun.");return value;}
+    var clean=new JsonObject{
+      ["type"]="service",
+      ["name"]=Clean(body["name"],100,"Yetkili adı"),
+      ["email"]=Clean(body["email"],160,"E-posta"),
+      ["phone"]=Clean(body["phone"],40,"Telefon"),
+      ["contact"]=Clean(body["email"],160,"E-posta"),
+      ["businessName"]=warranty["businessName"]?.ToString()??"",
+      ["address"]=Clean(body["address"],1200,"Adres"),
+      ["productName"]=warranty["productName"]?.ToString()??"",
+      ["productCode"]=warranty["productCode"]?.ToString()??"",
+      ["serialNumber"]=warranty["serialNumber"]?.ToString()??"",
+      ["message"]=message,
+      ["serviceStatus"]=status,
+      ["appointmentDate"]=Clean(body["appointmentDate"],30,"Servis tarihi"),
+      ["technician"]=Clean(body["technician"],120,"Teknisyen"),
+      ["internalNote"]=Clean(body["internalNote"],3000,"İç not"),
+      ["parts"]=Clean(body["parts"],2000,"Değişen parçalar"),
+      ["resolution"]=Clean(body["resolution"],3000,"Servis sonucu")
+    };
+    if(string.IsNullOrWhiteSpace(clean["name"]?.ToString()))clean["name"]=warranty["businessName"]?.ToString()??"Teknik servis";
+    var row=store.AddInquiry(clean,AccessControl.DisplayName(c.User));
+    return Results.Json(new{ok=true,record=row,requestCode=row["requestCode"]?.ToString()??""});
+}).RequireAuthorization();
 app.MapPost("/api/technical/device/{id}/attachments",async(string id,HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Technical,"edit"))return Results.Forbid();var form=await c.Request.ReadFormAsync();var file=form.Files.GetFile("file")??throw new ArgumentException("Resim veya PDF seçin.");if(file.Length is <=0 or >26214400)throw new ArgumentException("Teknik dosya en fazla 25 MB olabilir.");using var ms=new MemoryStream();await file.CopyToAsync(ms);var bytes=ms.ToArray();var detected=Uploads.Detect(bytes)??throw new ArgumentException("Desteklenen teknik dosyalar: PNG, JPEG, WebP, GIF veya PDF.");if(detected.Mime is not ("image/png" or "image/jpeg" or "image/webp" or "image/gif" or "application/pdf"))throw new ArgumentException("Teknik alana yalnız resim veya PDF yüklenebilir.");var directory=Path.Combine(dataPath,"technical-files");Directory.CreateDirectory(directory);var storedName=Guid.NewGuid().ToString("N")+detected.Extension;await File.WriteAllBytesAsync(Path.Combine(directory,storedName),bytes);var title=(form["title"].ToString()??"").Trim();if(title.Length is <1 or >140){File.Delete(Path.Combine(directory,storedName));throw new ArgumentException("Dosya başlığı 1-140 karakter olmalıdır.");}var description=(form["description"].ToString()??"").Trim();if(description.Length>500){File.Delete(Path.Combine(directory,storedName));throw new ArgumentException("Dosya açıklaması çok uzun.");}var meta=new JsonObject{["id"]=Guid.NewGuid().ToString("N"),["title"]=title,["description"]=description,["originalName"]=Path.GetFileName(file.FileName),["storedName"]=storedName,["mime"]=detected.Mime,["size"]=bytes.LongLength,["uploadedAt"]=DateTimeOffset.UtcNow.ToString("O"),["uploadedBy"]=AccessControl.DisplayName(c.User)};try{var saved=store.AddTechnicalAttachment(id,meta,AccessControl.DisplayName(c.User));return Results.Json(new{attachment=saved});}catch{try{File.Delete(Path.Combine(directory,storedName));}catch{}throw;}}).RequireAuthorization();
 app.MapGet("/api/technical/device/{id}/attachments/{attachmentId}/view",(string id,string attachmentId,HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Technical,"view"))return Results.Forbid();var a=store.TechnicalAttachment(id,attachmentId);if(a==null)return Results.NotFound();var name=a["storedName"]?.ToString()??"";if(!System.Text.RegularExpressions.Regex.IsMatch(name,@"^[a-f0-9]{32}\.(png|jpg|webp|gif|pdf)$"))return Results.NotFound();var path=Path.Combine(dataPath,"technical-files",name);if(!File.Exists(path))return Results.NotFound();return Results.File(path,a["mime"]?.ToString()??"application/octet-stream",enableRangeProcessing:true);}).RequireAuthorization();
 app.MapGet("/api/technical/device/{id}/attachments/{attachmentId}/download",(string id,string attachmentId,HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Technical,"download"))return Results.Forbid();var a=store.TechnicalAttachment(id,attachmentId);if(a==null)return Results.NotFound();var name=a["storedName"]?.ToString()??"";if(!System.Text.RegularExpressions.Regex.IsMatch(name,@"^[a-f0-9]{32}\.(png|jpg|webp|gif|pdf)$"))return Results.NotFound();var path=Path.Combine(dataPath,"technical-files",name);if(!File.Exists(path))return Results.NotFound();return Results.File(path,a["mime"]?.ToString()??"application/octet-stream",a["originalName"]?.ToString()??name);}).RequireAuthorization();
