@@ -5094,3 +5094,155 @@ body.page-detail .gallery-stage>.gallery-arrow{display:none!important}
 @media(min-width:601px) and (max-width:1100px){
   body.page-detail .thumbnails{justify-content:center!important}
 }
+
+
+/* R22 — professional product editor and request workflow */
+body.page-detail .detail-trust-row>:is(span,a){
+  min-width:0;max-width:100%;overflow:hidden;overflow-wrap:anywhere;
+}
+body.page-detail .detail-process-button{
+  width:100%;min-width:0;min-height:64px;padding:10px 8px;
+  display:grid;grid-template-columns:1fr;justify-items:center;align-content:center;gap:5px;
+  border:1px solid #a9c9ed;border-radius:12px;
+  background:linear-gradient(180deg,#f2f8ff,#e5f1ff);color:#1767ba;
+  text-align:center;text-decoration:none;font-size:.72rem;font-weight:900;line-height:1.18;
+  box-shadow:0 6px 14px rgba(20,88,157,.08);
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease;
+}
+body.page-detail .detail-process-button svg{color:#1673cf}
+@media(hover:hover) and (pointer:fine){
+  body.page-detail .detail-process-button:hover{
+    transform:translateY(-1px);border-color:#5f9ddd;background:linear-gradient(180deg,#fff,#deedff);
+    box-shadow:0 10px 20px rgba(20,88,157,.14)
+  }
+}
+body.page-detail .detail-process-button:focus-visible{outline:3px solid rgba(36,120,214,.22);outline-offset:2px}
+
+/* Inquiry management */
+body[data-ui-page="admin-inquiries"] .inquiry-admin-card{
+  border-left:4px solid #2b78cf!important;
+}
+body[data-ui-page="admin-inquiries"] .workflow-card-note,
+body[data-ui-page="admin-inquiries"] .workflow-card-reply{
+  margin:10px 0 0!important;padding:10px 12px!important;border-radius:10px!important;font-size:.82rem!important;line-height:1.48!important
+}
+body[data-ui-page="admin-inquiries"] .workflow-card-note{background:#fff7e8!important;color:#815714!important;border:1px solid #f0d7aa!important}
+body[data-ui-page="admin-inquiries"] .workflow-card-reply{background:#f1f7fd!important;color:#315f8c!important;border:1px solid #d7e5f3!important}
+body[data-ui-page="admin-inquiries"] .workflow-manage-btn{
+  background:linear-gradient(180deg,#267fe6,#1766c6)!important;border-color:#1761b9!important;color:#fff!important;
+  box-shadow:0 7px 15px rgba(23,102,198,.16)!important
+}
+.status-badge.status-contacted{background:#e9f7ef!important;color:#24744a!important;border-color:#c7e6d4!important}
+.status-badge.status-callback{background:#fff6e6!important;color:#90601b!important;border-color:#efd7aa!important}
+.status-badge.status-answered{background:#eef4ff!important;color:#305f9f!important;border-color:#ccdcf2!important}
+.status-badge.status-resolved{background:#e9f8f2!important;color:#1e7554!important;border-color:#bfe5d6!important}
+.status-badge.status-closed{background:#f1f3f5!important;color:#586879!important;border-color:#d8dee5!important}
+
+.workflow-editor-dialog{max-width:680px!important}
+.workflow-editor-form{gap:14px!important}
+.workflow-editor-form label>small{font-size:.76rem!important;color:#6b7d91!important;font-weight:500!important;line-height:1.45!important}
+.workflow-template-box{display:grid;gap:8px;padding:12px;border:1px solid #d8e4ef;border-radius:12px;background:#f7faff}
+.workflow-template-box>strong{font-size:.8rem;color:#395a7b}
+.workflow-template-box>div{display:flex;gap:7px;flex-wrap:wrap}
+.workflow-template-chip{
+  min-height:34px!important;padding:6px 10px!important;border:1px solid #c8daf0!important;border-radius:999px!important;
+  background:#fff!important;color:#2468ad!important;font-size:.72rem!important;font-weight:850!important
+}
+
+/* Product editor: desktop/tablet surface */
+.product-editor-dialog{
+  width:min(920px,calc(100% - 32px))!important;max-width:920px!important;max-height:min(92dvh,980px)!important;
+  padding:0!important;overflow:hidden!important;border-radius:20px!important;
+  box-shadow:0 24px 70px rgba(8,29,52,.24)!important
+}
+.product-editor-dialog>[data-slot="dialog-header"]{
+  position:sticky;top:0;z-index:5;padding:22px 24px 16px;background:rgba(255,255,255,.98);
+  border-bottom:1px solid #e2e9f0;backdrop-filter:blur(14px)
+}
+.product-editor-dialog>.error-banner{margin:16px 24px 0!important}
+.product-editor-dialog .product-editor-form{
+  overflow-y:auto;overscroll-behavior:contain;scroll-padding-bottom:100px;
+  padding:20px 24px 26px;gap:15px!important
+}
+.product-editor-form>label,
+.product-editor-form .three-col>label{padding:0!important}
+.product-editor-form :is(input,textarea,[data-slot="select-trigger"]){
+  border-color:#cbd8e6!important;background:#fff!important
+}
+.product-editor-form :is(input,textarea,[data-slot="select-trigger"]):focus,
+.product-editor-form input:focus-visible,
+.product-editor-form textarea:focus-visible{
+  outline:none!important;border-color:#4f8dcc!important;box-shadow:0 0 0 4px rgba(49,119,190,.11)!important
+}
+.product-editor-form .price-preview-box{border-radius:12px!important}
+.product-editor-form .spec-editor{border-radius:13px!important;background:#f6f9fc!important}
+.product-editor-form .uploaded-images{
+  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;gap:10px!important
+}
+.product-editor-form .uploaded-images>div{
+  width:auto!important;min-width:0!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important
+}
+.product-editor-form .uploaded-images img{grid-column:1/-1!important;width:100%!important;height:120px!important;object-fit:contain!important}
+
+/* Phone editor becomes a true full-screen workspace. This removes Radix translate conflicts and keyboard clipping. */
+@media(max-width:700px){
+  .product-editor-dialog[data-slot="dialog-content"]{
+    position:fixed!important;inset:0!important;top:0!important;right:0!important;bottom:0!important;left:0!important;
+    width:100%!important;height:100dvh!important;max-width:none!important;max-height:100dvh!important;
+    margin:0!important;padding:0!important;translate:none!important;transform:none!important;
+    border:0!important;border-radius:0!important;display:flex!important;flex-direction:column!important;
+    overflow:hidden!important;background:#f5f8fb!important
+  }
+  .product-editor-dialog[data-slot="dialog-content"]::before{display:none!important}
+  .product-editor-dialog>[data-slot="dialog-header"]{
+    flex:0 0 auto!important;padding:16px 56px 13px 16px!important;background:#fff!important
+  }
+  .product-editor-dialog>[data-slot="dialog-header"] [data-slot="dialog-title"]{font-size:1.12rem!important}
+  .product-editor-dialog>[data-slot="dialog-header"] [data-slot="dialog-description"]{font-size:.76rem!important;line-height:1.45!important}
+  .product-editor-dialog [data-slot="dialog-close"]{
+    position:fixed!important;top:max(10px,env(safe-area-inset-top,0px))!important;right:10px!important;left:auto!important;
+    width:40px!important;height:40px!important;z-index:30!important
+  }
+  .product-editor-dialog>.error-banner{flex:0 0 auto;margin:10px 12px 0!important}
+  .product-editor-dialog .product-editor-form{
+    flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;
+    padding:14px 12px calc(96px + env(safe-area-inset-bottom,0px))!important;gap:12px!important;
+    scroll-padding-top:16px!important;scroll-padding-bottom:120px!important
+  }
+  .product-editor-form>label,
+  .product-editor-form .three-col>label,
+  .product-editor-form .spec-editor,
+  .product-editor-form .price-preview-box,
+  .product-editor-form .seo-editor{
+    border:1px solid #dbe4ed!important;border-radius:12px!important;background:#fff!important;padding:11px!important
+  }
+  .product-editor-form .three-col{
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important
+  }
+  .product-editor-form .three-col>label:last-child{grid-column:1/-1!important}
+  .product-editor-form :is(input,textarea,[data-slot="select-trigger"]){
+    min-height:48px!important;font-size:16px!important;border-radius:10px!important
+  }
+  .product-editor-form textarea{min-height:94px!important}
+  .product-editor-form .spec-edit-row{grid-template-columns:1fr!important}
+  .product-editor-form .spec-edit-row .danger{justify-self:stretch!important;width:100%!important}
+  .product-editor-form .uploaded-images{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .product-editor-form .uploaded-images>div{padding:7px!important}
+  .product-editor-form .uploaded-images img{height:94px!important}
+  .product-editor-form>.button:last-child{
+    position:sticky!important;bottom:calc(-96px - env(safe-area-inset-bottom,0px))!important;z-index:20!important;
+    width:calc(100% + 24px)!important;min-height:58px!important;margin:12px -12px calc(-96px - env(safe-area-inset-bottom,0px))!important;
+    border-radius:0!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))!important;
+    box-shadow:0 -10px 28px rgba(12,36,60,.16)!important
+  }
+  .workflow-editor-dialog[data-slot="dialog-content"]{
+    left:8px!important;right:8px!important;inset-inline:8px!important;width:auto!important;translate:none!important;transform:none!important
+  }
+}
+@media(max-width:390px){
+  .product-editor-form .three-col{grid-template-columns:1fr!important}
+  .product-editor-form .three-col>label:last-child{grid-column:auto!important}
+  .product-editor-form .uploaded-images{grid-template-columns:1fr 1fr!important}
+}
+
+.service-success .service-track-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin-top:10px;padding:8px 12px;border:1px solid #b9d4ef;border-radius:9px;background:#fff;color:#1767ba;text-decoration:none;font-weight:850;font-size:.8rem}

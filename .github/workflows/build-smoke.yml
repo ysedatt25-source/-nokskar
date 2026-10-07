@@ -113,6 +113,16 @@ jobs:
           decoded=[json.loads(row.get('data','{}')) for row in root.get('inquiries',[])]
           assert any(row.get('purpose')=='yedek' for row in decoded), decoded
           PY
+          code="$(curl --silent --show-error --output /tmp/inquiry-track --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"phone":"+90 555 444 33 22"}' http://127.0.0.1:5099/api/inquiry/track)"
+          test "$code" = "200" || { echo "Expected inquiry tracking lookup to return 200, got $code"; cat /tmp/inquiry-track; exit 1; }
+          python - <<'PY'
+          import json
+          body=json.load(open('/tmp/inquiry-track',encoding='utf-8'))
+          assert body.get('found') is True, body
+          rows=body.get('records') or []
+          assert any(row.get('purpose')=='yedek' and row.get('status')=='new' for row in rows), rows
+          assert all('email' not in row and 'name' not in row and 'address' not in row for row in rows), rows
+          PY
 
       - name: Guard shared runtime observer budget
         run: |
@@ -143,6 +153,7 @@ jobs:
           curl --fail --silent http://127.0.0.1:5099/login | grep -Fq "Hesabınıza giriş yapın"
           curl --fail --silent http://127.0.0.1:5099/kayit | grep -Fq "Müşteri hesabı oluşturun"
           curl --fail --silent http://127.0.0.1:5099/urunler | grep -Fq "İNOKSKAR"
+          curl --fail --silent http://127.0.0.1:5099/talep-takip | grep -Fq "Süreci telefon numaranızla takip edin."
 
       - name: Print application log on failure
         if: failure()

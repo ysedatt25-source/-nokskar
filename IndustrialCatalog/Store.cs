@@ -348,6 +348,85 @@ public sealed class Store
         }
     }
 
+    public JsonObject? UpdateInquiryCustomerWorkflow(string id, JsonObject input, string actor = "admin")
+    {
+        lock (gate)
+        {
+            var next = state.DeepClone().AsObject();
+            var list = next["inquiries"]!.AsArray();
+            var index = list.ToList().FindIndex(x => x?["id"]?.ToString() == id);
+            if (index < 0) return null;
+            var row = list[index]!.AsObject();
+            var parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject();
+            var status = (input["status"]?.ToString() ?? "new").Trim().ToLowerInvariant();
+            var allowed = new[] { "new", "review", "contacted", "callback", "answered", "resolved", "closed" };
+            if (!allowed.Contains(status, StringComparer.Ordinal)) throw new ArgumentException("Talep süreç durumu geçersiz.");
+            static string CleanOptional(JsonNode? node, int max, string label)
+            {
+                var value = (node?.ToString() ?? "").Trim();
+                if (value.Length > max) throw new ArgumentException(label + " çok uzun.");
+                return value;
+            }
+            var callbackAt = CleanOptional(input["callbackAt"], 40, "Planlanan arama tarihi");
+            if (status == "callback" && string.IsNullOrWhiteSpace(callbackAt)) throw new ArgumentException("Aranacak durumu için planlanan arama tarihini seçin.");
+            parsed["customerStatus"] = status;
+            parsed["callbackAt"] = callbackAt;
+            parsed["publicReply"] = CleanOptional(input["publicReply"], 3000, "Müşteri cevabı");
+            parsed["workflowInternalNote"] = CleanOptional(input["internalNote"], 3000, "İç not");
+            parsed["customerStatusUpdatedAt"] = DateTimeOffset.UtcNow.ToString("O");
+            row["data"] = parsed.ToJsonString();
+            if (!string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase)) row["status"] = status;
+            row["updated"] = DateTimeOffset.UtcNow.ToString("O");
+            AddAudit(next, "Talep süreci güncellendi", id, status, actor);
+            Persist(next);
+            return row.DeepClone().AsObject();
+        }
+    }
+
+    static string InquiryPhoneKey(string? value)
+    {
+        var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
+        if (digits.Length == 11 && digits.StartsWith("0", StringComparison.Ordinal)) digits = digits[1..];
+        if (digits.Length == 12 && digits.StartsWith("90", StringComparison.Ordinal)) digits = digits[2..];
+        return digits.Length > 10 ? digits[^10..] : digits;
+    }
+
+    public JsonArray TrackInquiriesByPhone(string phone, int max = 20)
+    {
+        var key = InquiryPhoneKey(phone);
+        if (key.Length != 10) return new JsonArray();
+        lock (gate)
+        {
+            var rows = new JsonArray();
+            foreach (var node in state["inquiries"]!.AsArray())
+            {
+                if (rows.Count >= Math.Clamp(max, 1, 50)) break;
+                if (node is not JsonObject row) continue;
+                JsonObject parsed;
+                try { parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject(); }
+                catch { continue; }
+                if (!string.Equals(InquiryPhoneKey(parsed["phone"]?.ToString()), key, StringComparison.Ordinal)) continue;
+                var service = string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
+                var customerStatus = parsed["customerStatus"]?.ToString();
+                var operational = service ? parsed["serviceStatus"]?.ToString() : row["status"]?.ToString();
+                rows.Add(new JsonObject
+                {
+                    ["requestCode"] = row["requestCode"]?.ToString() ?? "",
+                    ["created"] = row["created"]?.ToString() ?? "",
+                    ["updated"] = row["updated"]?.ToString() ?? "",
+                    ["type"] = service ? "service" : "support",
+                    ["purpose"] = parsed["purpose"]?.ToString() ?? (service ? "servis" : "genel"),
+                    ["status"] = string.IsNullOrWhiteSpace(customerStatus) ? (operational ?? "new") : customerStatus,
+                    ["callbackAt"] = parsed["callbackAt"]?.ToString() ?? "",
+                    ["publicReply"] = parsed["publicReply"]?.ToString() ?? "",
+                    ["productName"] = parsed["productName"]?.ToString() ?? "",
+                    ["productCode"] = parsed["productCode"]?.ToString() ?? ""
+                });
+            }
+            return rows;
+        }
+    }
+
     public int InquiryCount()
     {
         lock (gate) return state["inquiries"]!.AsArray().Count;

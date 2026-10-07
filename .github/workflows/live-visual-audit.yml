@@ -40,7 +40,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r21-4"
+          expected="r22-0"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -94,6 +94,7 @@ jobs:
             ['privacy', '/gizlilik'],
             ['kvkk', '/kvkk'],
             ['cookies', '/cerez'],
+            ['tracking', '/talep-takip'],
             ['reset-invalid', '/reset-password?token=invalid-audit-token']
           ];
           const catalogResponse = await fetch(base + '/api/catalog');
@@ -133,7 +134,7 @@ jobs:
                 const selectors = [
                   '.wrap','.page-intro','.catalogue','.content-page','.detail','.detail-grid',
                   '.product-gallery','.detail-photo','.detail-summary','.detail-trust-row',
-                  '.detail-trust-row>span','.product-details','.contact-grid','.contact-info',
+                  '.detail-trust-row>*','.product-details','.contact-grid','.contact-info',
                   '.inquiry-form','.about-grid','.about-value-grid','.service-layout','.service-info',
                   '.service-form','.warranty-center','.warranty-query-card','.product-grid','.product-card'
                 ];
@@ -153,6 +154,13 @@ jobs:
               });
               const title = await page.title();
               report.pages.push({ device: device.name, name, path, status, title, horizontalOverflow: overflow, majorLeaks, widths: bodyWidth });
+              if(name==='tracking'&&device.name==='mobile'){
+                report.interaction.trackingPage=await page.evaluate(()=>{
+                  const form=document.querySelector('#track-form')?.getBoundingClientRect();
+                  const button=document.querySelector('#track-form button')?.getBoundingClientRect();
+                  return {formVisible:!!form&&form.width>0&&form.height>0,insideViewport:!!form&&form.left>=-1&&form.right<=innerWidth+1,buttonUsable:!!button&&button.width>120&&button.height>=44};
+                });
+              }
               if (name === 'home' && device.name !== 'desktop') {
                 const geometry = await page.evaluate(() => {
                   const header = document.querySelector('.site-header')?.getBoundingClientRect();
@@ -358,6 +366,7 @@ jobs:
               const sticky=document.querySelector('.detail-mobile-cta');
               const inline=document.querySelector('.detail-summary .detail-action-row');
               const trust=document.querySelector('.detail-trust-row');
+              const processButton=document.querySelector('.detail-process-button');
               const stickyBox=sticky?.getBoundingClientRect(),trustBox=trust?.getBoundingClientRect();
               const overlaps=(a,b)=>!!a&&!!b&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
               return {
@@ -365,6 +374,8 @@ jobs:
                 stickyVisible:visible(sticky),
                 inlineVisible:visible(inline),
                 trustVisible:visible(trust),
+                processButtonVisible:visible(processButton),
+                processButtonHref:processButton?.getAttribute('href')||'',
                 trustCoveredBySticky:visible(sticky)&&overlaps(stickyBox,trustBox),
                 homeCtaPresent:!!document.querySelector('.cta-banner'),
                 pageDetailClass:document.body.classList.contains('page-detail'),
@@ -420,7 +431,7 @@ jobs:
               const image=rect(document.querySelector('.detail-photo>img'));
               const summary=rect(document.querySelector('.detail-summary'));
               const trust=rect(document.querySelector('.detail-trust-row'));
-              const cards=[...document.querySelectorAll('.detail-trust-row>span')].map(rect).filter(Boolean);
+              const cards=[...document.querySelectorAll('.detail-trust-row>*')].map(rect).filter(Boolean);
               const thumbnails=rect(document.querySelector('.thumbnails'));
               return {
                 path:location.pathname,
@@ -562,6 +573,7 @@ jobs:
           const tabletProductDetail = report.interaction.tabletProductDetail || {};
           const imageProductGeometry = report.interaction.imageProductGeometry || {};
           const desktopGallery = report.interaction.desktopGallery || {};
+          const trackingPage = report.interaction.trackingPage || {};
           const desktopGalleryOk = !imageProductPath || (
             desktopGallery.present &&
             desktopGallery.imageCentered &&
@@ -586,6 +598,8 @@ jobs:
             !productDetail.initial?.stickyVisible &&
             productDetail.initial?.inlineVisible &&
             productDetail.initial?.trustVisible &&
+            productDetail.initial?.processButtonVisible &&
+            productDetail.initial?.processButtonHref === '/talep-takip' &&
             !productDetail.initial?.trustCoveredBySticky &&
             !productDetail.initial?.homeCtaPresent &&
             productDetail.initial?.pageDetailClass &&
@@ -608,7 +622,8 @@ jobs:
             cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.submenuInFlow && cat?.menuVisible && cat?.categoryUrlStayedHome &&
             tabletMenu?.visible && tabletMenu?.categoryDropdownVisible && tabletMenu?.submenuInFlow && tabletMenu?.urlStayedHome &&
             tabletMenu?.background === 'rgb(255, 255, 255)' &&
-            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk && imageProductOk && desktopGalleryOk;
+            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk && imageProductOk && desktopGalleryOk &&
+            trackingPage.formVisible && trackingPage.insideViewport && trackingPage.buttonUsable;
           console.log(JSON.stringify(report, null, 2));
 
           if (failedPages.length || !interactionOk) {
@@ -661,7 +676,7 @@ jobs:
           const out=process.env.GITHUB_WORKSPACE+'/live-visual-audit/authenticated';
           fs.mkdirSync(out,{recursive:true});
           const browser=await chromium.launch({headless:true});
-          const report={pages:[],dialog:{},drawer:{},customer:[]};
+          const report={pages:[],dialog:{},drawer:{},customer:[],productEditor:{},workflow:{}};
           const devices=[
             {name:'desktop',width:1440,height:1000,isMobile:false},
             {name:'tablet',width:820,height:1180,isMobile:false},
@@ -805,6 +820,59 @@ jobs:
               }
             }
 
+            // Product add/edit must be a true mobile workspace, not a shifted half-width sheet.
+            if(device.name==='mobile'){
+              await page.goto(base+'/admin',{waitUntil:'networkidle'});
+              const productsNav=page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first();
+              await productsNav.evaluate(el=>el.click());
+              await page.waitForTimeout(250);
+              await page.getByRole('button',{name:'Ürün ekle'}).click();
+              const editor=page.locator('.product-editor-dialog').first();
+              await editor.waitFor({state:'visible',timeout:5000});
+              const box=await editor.boundingBox();
+              const productName=editor.locator('input').first();
+              await productName.focus();
+              report.productEditor={
+                visible:await editor.isVisible(),
+                box,
+                fullWidth:!!box&&box.x>=-1&&box.x+box.width<=device.width+1&&box.width>=device.width-2,
+                insideViewport:!!box&&box.y>=-1&&box.y+box.height<=device.height+1,
+                inputFontSize:await productName.evaluate(el=>getComputedStyle(el).fontSize)
+              };
+              await page.screenshot({path:out+'/admin-product-editor-mobile.png',fullPage:false,animations:'disabled'});
+              await editor.locator('[data-slot="dialog-close"]').click();
+            }
+
+            // Request workflow dialog must save a customer-visible response that the phone tracker can read.
+            if(device.name==='mobile'){
+              await page.goto(base+'/admin',{waitUntil:'networkidle'});
+              const inquiriesNav=page.locator('.admin-sidebar nav button').filter({hasText:'Müşteri talepleri'}).first();
+              await inquiriesNav.evaluate(el=>el.click());
+              await page.waitForTimeout(300);
+              const manage=page.locator('.workflow-manage-btn').first();
+              if(await manage.count()){
+                await manage.click();
+                const workflow=page.locator('.workflow-editor-dialog').first();
+                await workflow.waitFor({state:'visible',timeout:5000});
+                const wbox=await workflow.boundingBox();
+                const trigger=workflow.locator('[data-slot="select-trigger"]').first();
+                await trigger.click();
+                await page.getByRole('option',{name:'Arandı'}).click();
+                await workflow.getByRole('button',{name:'Arandı'}).click();
+                await workflow.getByRole('button',{name:'Süreci kaydet'}).click();
+                await page.waitForTimeout(450);
+                const tracked=await context.request.post(base+'/api/inquiry/track',{headers:{Origin:base},data:{phone:'+90 555 111 22 33'}});
+                const trackingBody=await tracked.json();
+                const matching=(trackingBody.records||[]).find(x=>x.requestCode);
+                report.workflow={
+                  dialogInside:!!wbox&&wbox.x>=0&&wbox.x+wbox.width<=device.width+1&&wbox.y>=0&&wbox.y+wbox.height<=device.height+1,
+                  persistedStatus:matching?.status||'',
+                  persistedReply:matching?.publicReply||''
+                };
+                await page.screenshot({path:out+'/admin-inquiry-workflow-mobile.png',fullPage:false,animations:'disabled'});
+              }
+            }
+
             // Delete confirmation geometry on phone reproduces the user's reported case.
             if(device.name==='mobile'){
               await page.goto(base+'/admin?tab=inquiries',{waitUntil:'networkidle'});
@@ -873,8 +941,10 @@ jobs:
           ];
           const drawersOk=['mobile','tablet'].every(k=>report.drawer[k]?.open&&report.drawer[k]?.navVisible&&report.drawer[k]?.mainInert);
           const dynamicRoutesOk=!!supportInquiryPath&&!!serviceInquiryPath&&!!technicalDevicePath&&!!certificatePath;
-          if(failed.length||!report.dialog.insideViewport||!drawersOk||!dynamicRoutesOk){
-            console.error(JSON.stringify({failed,dialog:report.dialog,drawer:report.drawer},null,2));
+          const productEditorOk=report.productEditor.visible&&report.productEditor.fullWidth&&report.productEditor.insideViewport&&report.productEditor.inputFontSize==='16px';
+          const workflowOk=report.workflow.dialogInside&&report.workflow.persistedStatus==='contacted'&&String(report.workflow.persistedReply||'').length>10;
+          if(failed.length||!report.dialog.insideViewport||!drawersOk||!dynamicRoutesOk||!productEditorOk||!workflowOk){
+            console.error(JSON.stringify({failed,dialog:report.dialog,drawer:report.drawer,productEditor:report.productEditor,workflow:report.workflow},null,2));
             process.exit(1);
           }
           EOF
