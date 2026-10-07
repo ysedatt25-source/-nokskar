@@ -181,7 +181,7 @@ document.addEventListener('submit',event=>{
       header.insertBefore(toggle,nav);
       const close=()=>{header.classList.remove('menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menüyü aç')};
       toggle.addEventListener('click',()=>{const open=header.classList.toggle('menu-open');toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menüyü kapat':'Menüyü aç')});
-      nav.addEventListener('click',e=>{if(innerWidth<=850&&e.target.closest('a,button'))close()});
+      nav.addEventListener('click',e=>{if(innerWidth<=1100&&e.target.closest('a,button'))close()});
       document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
     }
   };
@@ -306,7 +306,8 @@ document.addEventListener('submit',event=>{
     if(e.key!=='Tab')return;const items=focusables(layer.panel);if(!items.length)return;const first=items[0],last=items[items.length-1];
     if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   },true);
-  const start=()=>{sync();new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','hidden'],childList:true});};
+  const clearStale=()=>{if(activeLayer())return;if(shield){shield.remove();shield=null;}document.body.classList.remove('ui-layer-locked');setBackgroundInert(false,null);document.querySelectorAll('[inert]').forEach(el=>{if(el.matches('main,.site-footer,.public-home-return-wrap'))el.removeAttribute('inert');});};
+  const start=()=>{sync();new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','hidden'],childList:true});window.addEventListener('pageshow',()=>{sync();clearStale()});window.addEventListener('resize',()=>{if(innerWidth>1100){const layer=activeLayer();if(layer?.kind==='private')layer.close();setTimeout(clearStale,0);}},{passive:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
