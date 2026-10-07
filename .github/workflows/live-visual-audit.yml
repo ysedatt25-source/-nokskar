@@ -306,7 +306,7 @@ jobs:
             const productLink = page.locator('.featured a[href^="/urun/"]:visible').first();
             if(await productLink.count()){
               await productLink.click();
-              await page.waitForURL(/\\/urun\\//,{timeout:10000});
+              await page.waitForURL('**/urun/**',{timeout:10000});
             }else{
               await page.goto(base + productDetailPath, { waitUntil: 'domcontentloaded', timeout: 45000 });
             }
