@@ -1,4 +1,4 @@
-/* R22.6 — centered brand, product gallery and mobile detail cards. */
+/* R22.7 — clean brand and single-row touch thumbnail rail. */
 @media(max-width:1100px){
   body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link{
     position:relative;
@@ -24,26 +24,6 @@
     transform:none;
     transform-origin:center center;
   }
-  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link::after{
-    content:"™";
-    position:absolute;
-    top:5px;
-    right:2px;
-    z-index:2;
-    display:grid;
-    place-items:center;
-    min-width:13px;
-    height:12px;
-    padding:0 1px;
-    border-radius:2px;
-    background:linear-gradient(135deg,#eef1f3 0%,#d6dade 55%,#bec4c9 100%);
-    color:#1f2933;
-    font-size:9px;
-    font-weight:900;
-    line-height:1;
-    letter-spacing:-.03em;
-    pointer-events:none;
-  }
 }
 
 @media(max-width:600px){
@@ -61,11 +41,6 @@
     object-fit:contain;
     object-position:center center;
     transform:none;
-  }
-  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link::after{
-    top:5px;
-    right:0;
-    font-size:8px;
   }
 
   body.page-detail.app-shell-enabled .detail{
@@ -132,14 +107,27 @@
     min-width:0;
     max-width:100%;
     margin:10px auto 0;
-    padding:0 2px 2px;
+    padding:8px;
     display:flex;
-    flex-wrap:wrap;
+    flex-wrap:nowrap;
     align-items:center;
-    justify-content:center;
+    justify-content:flex-start;
     gap:8px;
-    overflow:visible;
-    scroll-snap-type:none;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:8px;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    touch-action:pan-x;
+    border:1px solid #e2e9f2;
+    border-radius:14px;
+    background:rgba(255,255,255,.78);
+    box-shadow:0 5px 16px rgba(16,42,81,.045);
+  }
+  body.page-detail.app-shell-enabled .thumbnails::-webkit-scrollbar{
+    display:none;
   }
   body.page-detail.app-shell-enabled .thumbnails button{
     flex:0 0 72px;
@@ -150,6 +138,15 @@
     padding:4px;
     border-radius:10px;
     box-sizing:border-box;
+    scroll-snap-align:start;
+    background:#fff;
+    transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+  }
+  body.page-detail.app-shell-enabled .thumbnails button:active{
+    transform:scale(.97);
+  }
+  body.page-detail.app-shell-enabled .thumbnails button.selected{
+    box-shadow:0 0 0 2px rgba(20,85,192,.10);
   }
   body.page-detail.app-shell-enabled .thumbnails img{
     display:block;
@@ -245,9 +242,21 @@
     margin-right:auto;
   }
   body.page-detail.app-shell-enabled .thumbnails{
+    width:100%;
+    max-width:720px;
+    margin-left:auto;
+    margin-right:auto;
     display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    overflow:visible;
+    flex-wrap:nowrap;
+    justify-content:flex-start;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  body.page-detail.app-shell-enabled .thumbnails::-webkit-scrollbar{
+    display:none;
   }
 }
