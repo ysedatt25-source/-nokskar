@@ -6,8 +6,7 @@ const checks=[
  ['IndustrialCatalog/ClientApp/public/r98-service-request.js',['normalizePhone','kişisel/iş e-posta','Ülke kodu isteğe bağlıdır']],
  ['IndustrialCatalog/InquiryPages.cs',['normalizePhone','+90 542','TALEP TAKİBİ']],
  ['IndustrialCatalog/Program.cs',['/api/inquiries/unread-count','/api/inquiries/mark-read','/api/service-request']],
- ['IndustrialCatalog/ClientApp/public/r13-pages.js',['/api/inquiries/unread-count']],
- ['IndustrialCatalog/ClientApp/src/app/admin/panel.tsx',['purposeMeta','Müşteri tercihi ·','admin-inquiry-badge','/api/inquiries/mark-read']],
+ ['IndustrialCatalog/ClientApp/src/app/admin/panel.tsx',['purposeMeta','Müşteri tercihi ·','admin-inquiry-badge','/api/inquiries/unread-count','/api/inquiries/mark-read']],
  ['IndustrialCatalog/ClientApp/public/styles/r13-modern.css',['[data-slot="alert-dialog-content"]','max-height:calc(100dvh']]
 ];
 const failures=[];
