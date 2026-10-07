@@ -1,3 +1,32 @@
+/* R24.5 — server page identity and keyboard-safe viewport state. */
+(()=>{
+ const key=()=>{
+  const p=(location.pathname.replace(/\/$/,'')||'/').toLocaleLowerCase('tr-TR');
+  if(p==='/login')return 'login';
+  if(p==='/kayit')return 'kayit';
+  if(p==='/forgot-password'||p==='/reset-password')return 'recovery';
+  if(p==='/servis-talebi')return 'servis-talebi';
+  if(p==='/garanti-sorgulama')return 'garanti-sorgulama';
+  if(p==='/talep-takip')return 'talep-takip';
+  if(p==='/hesabim'||p.startsWith('/hesabim/'))return 'customer';
+  if(p==='/teknik'||p.startsWith('/teknik/'))return 'teknik';
+  if(p.startsWith('/admin/inquiries'))return 'inquiry';
+  if(p.startsWith('/admin/warrant'))return 'admin-warranty';
+  if(p.startsWith('/admin/users'))return 'admin-users';
+  if(p.startsWith('/admin/mail'))return 'admin-mail';
+  if(p.startsWith('/admin/system'))return 'admin-system';
+  if(p.startsWith('/admin/'))return 'admin-private';
+  return document.body.dataset.uiPage||'server-public';
+ };
+ const apply=()=>{document.body.dataset.uiPage=key();};
+ const syncViewport=()=>{const vp=visualViewport;const height=vp?.height||innerHeight;document.documentElement.style.setProperty('--r24-vvh',height+'px');const keyboard=!!vp&&innerHeight-height>150;document.body.classList.toggle('r24-keyboard-open',keyboard);};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{apply();syncViewport();},{once:true});else{apply();syncViewport();}
+ visualViewport?.addEventListener('resize',syncViewport,{passive:true});
+ visualViewport?.addEventListener('scroll',syncViewport,{passive:true});
+ window.addEventListener('pageshow',()=>{apply();syncViewport();});
+ window.addEventListener('orientationchange',syncViewport,{passive:true});
+})();
+
 /* R24.2 — shared scroll-lock registry for server-rendered overlays. */
 (()=>{
  const locks=globalThis.__inokskarScrollLocks instanceof Set?globalThis.__inokskarScrollLocks:new Set();
