@@ -40,7 +40,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r22-1"
+          expected="r22-2"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -837,7 +837,9 @@ jobs:
                 box,
                 fullWidth:!!box&&box.x>=-1&&box.x+box.width<=device.width+1&&box.width>=device.width-2,
                 insideViewport:!!box&&box.y>=-1&&box.y+box.height<=device.height+1,
-                inputFontSize:await productName.evaluate(el=>getComputedStyle(el).fontSize)
+                inputFontSize:await productName.evaluate(el=>getComputedStyle(el).fontSize),
+                closeBox:await editor.locator('[data-slot="dialog-close"]').boundingBox(),
+                saveBox:await editor.getByRole('button',{name:/Ürünü kaydet ve yayınla/}).boundingBox()
               };
               await page.screenshot({path:out+'/admin-product-editor-mobile.png',fullPage:false,animations:'disabled'});
               await editor.locator('[data-slot="dialog-close"]').click();
@@ -849,7 +851,8 @@ jobs:
               const inquiriesNav=page.locator('.admin-sidebar nav button').filter({hasText:'Müşteri talepleri'}).first();
               await inquiriesNav.evaluate(el=>el.click());
               await page.waitForTimeout(300);
-              const manage=page.locator('.workflow-manage-btn').first();
+              const supportCard=page.locator('.inquiry-admin-card').filter({hasText:'Destek Talebi'}).first();
+              const manage=supportCard.locator('.workflow-manage-btn').first();
               if(await manage.count()){
                 await manage.click();
                 const workflow=page.locator('.workflow-editor-dialog').first();
@@ -860,7 +863,7 @@ jobs:
                 await page.getByRole('option',{name:'Arandı'}).click();
                 await workflow.getByRole('button',{name:'Arandı'}).click();
                 await workflow.getByRole('button',{name:'Süreci kaydet'}).click();
-                await page.waitForTimeout(450);
+                await workflow.waitFor({state:'hidden',timeout:10000});
                 const tracked=await context.request.post(base+'/api/inquiry/track',{headers:{Origin:base},data:{phone:'+90 555 111 22 33'}});
                 const trackingBody=await tracked.json();
                 const matching=(trackingBody.records||[]).find(x=>x.requestCode);
@@ -941,7 +944,9 @@ jobs:
           ];
           const drawersOk=['mobile','tablet'].every(k=>report.drawer[k]?.open&&report.drawer[k]?.navVisible&&report.drawer[k]?.mainInert);
           const dynamicRoutesOk=!!supportInquiryPath&&!!serviceInquiryPath&&!!technicalDevicePath&&!!certificatePath;
-          const productEditorOk=report.productEditor.visible&&report.productEditor.fullWidth&&report.productEditor.insideViewport&&report.productEditor.inputFontSize==='16px';
+          const productEditorOk=report.productEditor.visible&&report.productEditor.fullWidth&&report.productEditor.insideViewport&&report.productEditor.inputFontSize==='16px'&&
+            report.productEditor.closeBox?.y<70&&report.productEditor.closeBox?.x>320&&
+            report.productEditor.saveBox?.y>700&&report.productEditor.saveBox?.y+report.productEditor.saveBox?.height<=845;
           const workflowOk=report.workflow.dialogInside&&report.workflow.persistedStatus==='contacted'&&String(report.workflow.persistedReply||'').length>10;
           if(failed.length||!report.dialog.insideViewport||!drawersOk||!dynamicRoutesOk||!productEditorOk||!workflowOk){
             console.error(JSON.stringify({failed,dialog:report.dialog,drawer:report.drawer,productEditor:report.productEditor,workflow:report.workflow},null,2));
