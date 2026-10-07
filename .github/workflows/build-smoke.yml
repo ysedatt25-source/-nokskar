@@ -121,7 +121,11 @@ jobs:
             echo "Long-running full DOM observer returned to shared runtime."
             exit 1
           fi
-          grep -Fq "Single late source of truth for product-detail width, centering and shrink behavior." IndustrialCatalog/ClientApp/public/r13-pages.css
+          if grep -Fq "body.app-shell-enabled.page-detail .detail-grid{grid-template-columns:1fr!important;gap:9px!important}" IndustrialCatalog/ClientApp/public/r13-pages.css; then
+            echo "Obsolete product-detail grid override returned."
+            exit 1
+          fi
+          grep -Fq "body.page-detail .gallery-stage>img{" IndustrialCatalog/ClientApp/public/r13-pages.css
 
       - name: Check key page markers
         run: |
