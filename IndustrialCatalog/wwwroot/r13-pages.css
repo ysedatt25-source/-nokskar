@@ -4574,6 +4574,14 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   font-size:.6rem;font-weight:900;line-height:1;box-shadow:0 3px 9px rgba(142,23,42,.28);
 }
 
+/* R20.4 — canonical public layer backdrop. */
+.site-layer-backdrop{
+  position:fixed;inset:0;z-index:29;margin:0;padding:0;border:0;
+  background:rgba(7,20,36,.34);backdrop-filter:blur(1.5px);cursor:default;touch-action:none;
+}
+@media(max-width:1100px){
+  .site-layer-backdrop{z-index:500;background:rgba(7,18,31,.52);backdrop-filter:blur(4px)}
+}
 /* R20.4 — canonical public mobile hamburger menu. One geometry, one source. */
 @media(max-width:1100px){
   body.app-shell-enabled{--public-dock-h:72px}
@@ -4655,10 +4663,6 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   body.app-shell-enabled .site-header .mobile-menu{
     display:grid;width:46px;height:46px;min-height:46px;place-items:center;padding:0;border:1px solid #26313d;
     border-radius:13px;background:linear-gradient(180deg,#334151,#242d38);color:#fff;
-  }
-  .site-layer-backdrop{
-    position:fixed;inset:0;z-index:500;margin:0;padding:0;border:0;background:rgba(7,18,31,.52);
-    backdrop-filter:blur(4px);touch-action:none;
   }
 }
 @media(max-width:600px){
