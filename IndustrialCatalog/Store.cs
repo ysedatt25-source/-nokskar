@@ -15,12 +15,6 @@ public sealed class Store
         state = File.Exists(file) ? JsonNode.Parse(File.ReadAllText(file))!.AsObject() : new JsonObject { ["revision"] = 0, ["data"] = JsonNode.Parse(File.ReadAllText(Path.Combine(env.ContentRootPath, "seed.json"))), ["history"] = new JsonArray(), ["events"] = new JsonArray(), ["inquiries"] = new JsonArray(), ["warranties"] = new JsonArray(), ["warrantyHistory"] = new JsonArray(), ["auditLog"] = new JsonArray() };
         NormalizeState(state);
         ApplyStoredPricePolicy(state["data"]!.AsObject());
-        var rootSummary = state["data"]?["categories"]?.AsArray()
-            .OfType<JsonObject>()
-            .Where(x => string.IsNullOrWhiteSpace(x["parent"]?.ToString()))
-            .Select(x => $"{x["id"]}:{x["visible"]}:{x["menu"]}")
-            .ToArray() ?? Array.Empty<string>();
-        Console.WriteLine("[R23-CATALOG] roots=" + string.Join(",", rootSummary));
         Persist(state);
     }
     static void ApplyStoredPricePolicy(JsonObject data)
@@ -41,14 +35,6 @@ public sealed class Store
         root["history"] ??= new JsonArray();
         root["events"] ??= new JsonArray();
         root["inquiries"] ??= new JsonArray();
-        if (root["inquiries"] is JsonArray inquiries)
-        {
-            foreach (var node in inquiries)
-            {
-                if (node is not JsonObject inquiry) continue;
-                inquiry["readAt"] ??= inquiry["updated"]?.ToString() ?? inquiry["created"]?.ToString() ?? DateTimeOffset.UtcNow.ToString("O");
-            }
-        }
         root["warranties"] ??= new JsonArray();
         root["warrantyHistory"] ??= new JsonArray();
         root["auditLog"] ??= new JsonArray();
@@ -85,26 +71,8 @@ public sealed class Store
             foreach (var node in categories)
             {
                 if (node is not JsonObject category) continue;
-                category["parent"] ??= "";
-                category["description"] ??= "";
-                category["image"] ??= "";
-                category["visible"] ??= true;
-                category["menu"] ??= string.IsNullOrWhiteSpace(category["parent"]?.ToString());
                 category["seoTitle"] ??= "";
                 category["seoDescription"] ??= "";
-            }
-            var ids = categories.OfType<JsonObject>().Select(c => c["id"]?.ToString() ?? "").ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var furnitureEvidence = categories.OfType<JsonObject>().Any(c =>
-                string.Equals(c["id"]?.ToString(), "tezgah", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(c["parent"]?.ToString(), "mobilya", StringComparison.OrdinalIgnoreCase));
-            if (!ids.Contains("mobilya") && ids.Contains("sogutma") && ids.Contains("mutfak") && furnitureEvidence)
-            {
-                categories.Add(new JsonObject
-                {
-                    ["id"]="mobilya",["name"]="Ticari Mobilya",["parent"]="",
-                    ["description"]="Çalışma alanınıza sağlam bir temel.",["image"]="",
-                    ["menu"]=true,["visible"]=true,["seoTitle"]="",["seoDescription"]=""
-                });
             }
         }
         if (data["products"] is JsonArray products)
@@ -312,48 +280,6 @@ public sealed class Store
         }
     }
 
-    static bool InquiryVisibleTo(JsonObject row, bool canSupport, bool canService)
-    {
-        JsonObject parsed;
-        try { parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject(); }
-        catch { parsed = new JsonObject(); }
-        var service = string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
-        return service ? canService : canSupport;
-    }
-
-    public int UnreadInquiryCount(bool canSupport, bool canService)
-    {
-        lock (gate)
-        {
-            return state["inquiries"]!.AsArray()
-                .OfType<JsonObject>()
-                .Count(row => InquiryVisibleTo(row, canSupport, canService) && string.IsNullOrWhiteSpace(row["readAt"]?.ToString()));
-        }
-    }
-
-    public int MarkVisibleInquiriesRead(bool canSupport, bool canService, string actor = "admin")
-    {
-        lock (gate)
-        {
-            var next = state.DeepClone().AsObject();
-            var now = DateTimeOffset.UtcNow.ToString("O");
-            var changed = 0;
-            foreach (var node in next["inquiries"]!.AsArray())
-            {
-                if (node is not JsonObject row) continue;
-                if (!InquiryVisibleTo(row, canSupport, canService) || !string.IsNullOrWhiteSpace(row["readAt"]?.ToString())) continue;
-                row["readAt"] = now;
-                changed++;
-            }
-            if (changed > 0)
-            {
-                AddAudit(next, "Müşteri talepleri okundu", "inquiries", changed.ToString(), actor);
-                Persist(next);
-            }
-            return changed;
-        }
-    }
-
     public JsonObject? InquiryById(string id)
     {
         if (string.IsNullOrWhiteSpace(id) || id.Length > 64) return null;
@@ -378,8 +304,7 @@ public sealed class Store
                 ["data"] = data.ToJsonString(),
                 ["created"] = now.ToString("O"),
                 ["status"] = "new",
-                ["updated"] = now.ToString("O"),
-                ["readAt"] = null
+                ["updated"] = now.ToString("O")
             };
             list.Insert(0, row);
             AddAudit(next, "Talep oluşturuldu", row["id"]!.ToString(), data["type"]?.ToString() ?? "support", actor);
@@ -420,79 +345,6 @@ public sealed class Store
             AddAudit(next, "Servis talebi güncellendi", id, status, actor);
             Persist(next);
             return row.DeepClone().AsObject();
-        }
-    }
-
-    public JsonObject? UpdateInquiryCustomerWorkflow(string id, JsonObject input, string actor = "admin")
-    {
-        lock (gate)
-        {
-            var next = state.DeepClone().AsObject();
-            var list = next["inquiries"]!.AsArray();
-            var index = list.ToList().FindIndex(x => x?["id"]?.ToString() == id);
-            if (index < 0) return null;
-            var row = list[index]!.AsObject();
-            var parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject();
-            var status = (input["status"]?.ToString() ?? "new").Trim().ToLowerInvariant();
-            var allowed = new[] { "new", "review", "contacted", "callback", "answered", "resolved", "closed" };
-            if (!allowed.Contains(status, StringComparer.Ordinal)) throw new ArgumentException("Talep süreç durumu geçersiz.");
-            static string CleanOptional(JsonNode? node, int max, string label)
-            {
-                var value = (node?.ToString() ?? "").Trim();
-                if (value.Length > max) throw new ArgumentException(label + " çok uzun.");
-                return value;
-            }
-            var callbackAt = CleanOptional(input["callbackAt"], 40, "Planlanan arama tarihi");
-            if (status == "callback" && string.IsNullOrWhiteSpace(callbackAt)) throw new ArgumentException("Aranacak durumu için planlanan arama tarihini seçin.");
-            parsed["customerStatus"] = status;
-            parsed["callbackAt"] = callbackAt;
-            parsed["publicReply"] = CleanOptional(input["publicReply"], 3000, "Müşteri cevabı");
-            parsed["workflowInternalNote"] = CleanOptional(input["internalNote"], 3000, "İç not");
-            parsed["customerStatusUpdatedAt"] = DateTimeOffset.UtcNow.ToString("O");
-            row["data"] = parsed.ToJsonString();
-            if (!string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase)) row["status"] = status;
-            row["updated"] = DateTimeOffset.UtcNow.ToString("O");
-            AddAudit(next, "Talep süreci güncellendi", id, status, actor);
-            Persist(next);
-            return row.DeepClone().AsObject();
-        }
-    }
-
-    static string InquiryPhoneKey(string? value) => ContactRules.TurkeyPhoneKey(value);
-
-    public JsonArray TrackInquiriesByPhone(string phone, int max = 20)
-    {
-        var key = InquiryPhoneKey(phone);
-        if (key.Length != 10) return new JsonArray();
-        lock (gate)
-        {
-            var rows = new JsonArray();
-            foreach (var node in state["inquiries"]!.AsArray())
-            {
-                if (rows.Count >= Math.Clamp(max, 1, 50)) break;
-                if (node is not JsonObject row) continue;
-                JsonObject parsed;
-                try { parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject(); }
-                catch { continue; }
-                if (!string.Equals(InquiryPhoneKey(parsed["phone"]?.ToString()), key, StringComparison.Ordinal)) continue;
-                var service = string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
-                var customerStatus = parsed["customerStatus"]?.ToString();
-                var operational = service ? parsed["serviceStatus"]?.ToString() : row["status"]?.ToString();
-                rows.Add(new JsonObject
-                {
-                    ["requestCode"] = row["requestCode"]?.ToString() ?? "",
-                    ["created"] = row["created"]?.ToString() ?? "",
-                    ["updated"] = row["updated"]?.ToString() ?? "",
-                    ["type"] = service ? "service" : "support",
-                    ["purpose"] = parsed["purpose"]?.ToString() ?? (service ? "servis" : "genel"),
-                    ["status"] = string.IsNullOrWhiteSpace(customerStatus) ? (operational ?? "new") : customerStatus,
-                    ["callbackAt"] = parsed["callbackAt"]?.ToString() ?? "",
-                    ["publicReply"] = parsed["publicReply"]?.ToString() ?? "",
-                    ["productName"] = parsed["productName"]?.ToString() ?? "",
-                    ["productCode"] = parsed["productCode"]?.ToString() ?? ""
-                });
-            }
-            return rows;
         }
     }
 

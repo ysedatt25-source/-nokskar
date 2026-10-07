@@ -75,19 +75,3 @@ html{overflow-x:hidden;text-size-adjust:100%;-webkit-text-size-adjust:100%;scrol
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto;animation-duration:.001ms;animation-iteration-count:1;transition-duration:.001ms}
 }
-
-/* R23.4 — shared server-rendered workflow form geometry */
-:root{--r23-blue:#1767d4;--r23-orange:#ef751f;--r23-red:#c93243;--r23-form-ink:#173653;--r23-form-line:#d8e3ee}
-:is(.service-form,.warranty-form,.technical-service-form,.customer-workflow form,.service-workflow form,.mail-card form,.access-card form) :is(input,select,textarea){
- width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--r23-form-line);border-radius:11px;background:#fff;color:var(--r23-form-ink);font:inherit
-}
-:is(.service-form,.warranty-form,.technical-service-form,.customer-workflow form,.service-workflow form,.mail-card form,.access-card form) textarea{min-height:96px;resize:vertical;line-height:1.5}
-:is(.service-form,.warranty-form,.technical-service-form,.customer-workflow form,.service-workflow form) label{display:grid;gap:7px;color:#294864;font-weight:760}
-:is(.service-form,.warranty-form,.technical-service-form,.customer-workflow,.service-workflow,.inquiry-card,.track-results){overflow-anchor:none}
-:is(.primary-button,.button,button[type="submit"]){position:relative;overflow:hidden}
-@media(max-width:700px){
- :is(.service-two-col,.warranty-two-col,.warranty-three-col,.service-form-grid,.service-form-grid-wide,.workflow-grid,.two,.three-col){grid-template-columns:1fr}
- :is(.service-form,.warranty-form,.technical-service-form,.customer-workflow form,.service-workflow form){gap:11px}
- :is(.service-form,.warranty-form,.technical-service-form,.customer-workflow form,.service-workflow form) :is(input,select,button){min-height:48px}
- :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){font-size:16px}
-}

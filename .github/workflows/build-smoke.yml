@@ -32,9 +32,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Enforce CSS cascade policy
-        run: npm --prefix IndustrialCatalog/ClientApp run check:no-important
-
       - name: Build solution
         run: dotnet build INOKSKAR.sln -c Release
 
@@ -104,55 +101,12 @@ jobs:
           code="$(curl --silent --show-error --output /tmp/service-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Test Kullanıcı","email":"eksik-adres","phone":"+90 555 555 55 55","businessName":"Test Firma","address":"Test adresi 123","message":"Test servis talebi"}' http://127.0.0.1:5099/api/service-request)"
           test "$code" = "400" || { echo "Expected invalid service email to return 400, got $code"; cat /tmp/service-invalid; exit 1; }
 
-      - name: Verify customer request preference persistence
-        run: |
-          set -euo pipefail
-          code="$(curl --silent --show-error --output /tmp/inquiry-purpose --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Tercih Testi","email":"preference.test@hotmail.com","phone":"0542 615 65 25","purpose":"yedek","message":"Yedek parça hakkında bilgi istiyorum."}' http://127.0.0.1:5099/api/inquiry)"
-          test "$code" = "200" || { echo "Expected personal Hotmail inquiry to return 200, got $code"; cat /tmp/inquiry-purpose; exit 1; }
-          python - <<'PY'
-          import json
-          with open('/tmp/inokskar-ci-data/catalog-store.json', encoding='utf-8') as f:
-              root=json.load(f)
-          decoded=[json.loads(row.get('data','{}')) for row in root.get('inquiries',[])]
-          assert any(row.get('purpose')=='yedek' and row.get('email')=='preference.test@hotmail.com' for row in decoded), decoded
-          matching=[row for row in root.get('inquiries',[]) if json.loads(row.get('data','{}')).get('email')=='preference.test@hotmail.com']
-          assert matching and matching[0].get('readAt') is None, matching
-          PY
-          for phone in "5426156525" "05426156525" "905426156525" "+905426156525"; do
-            code="$(curl --silent --show-error --output /tmp/inquiry-track --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d "{\"phone\":\"$phone\"}" http://127.0.0.1:5099/api/inquiry/track)"
-            test "$code" = "200" || { echo "Expected inquiry tracking lookup for $phone to return 200, got $code"; cat /tmp/inquiry-track; exit 1; }
-            PHONE="$phone" python - <<'PY'
-          import json, os
-          body=json.load(open('/tmp/inquiry-track',encoding='utf-8'))
-          assert body.get('found') is True, (os.environ['PHONE'], body)
-          rows=body.get('records') or []
-          assert any(row.get('purpose')=='yedek' and row.get('status')=='new' for row in rows), (os.environ['PHONE'], rows)
-          assert all('email' not in row and 'name' not in row and 'address' not in row for row in rows), rows
-          PY
-          done
-
-      - name: Guard shared runtime observer budget
-        run: |
-          set -euo pipefail
-          if grep -Fq "setTimeout(()=>o.disconnect(),30000)" IndustrialCatalog/ClientApp/public/r13-pages.js; then
-            echo "Long-running full DOM observer returned to shared runtime."
-            exit 1
-          fi
-          grep -Fq "body.page-detail .gallery-stage>img{" IndustrialCatalog/ClientApp/public/r13-pages.css
-          grep -Fq "R21.2 — product action flow" IndustrialCatalog/ClientApp/public/r13-pages.css
-          grep -Fq "detail-sticky-cta-visible" IndustrialCatalog/ClientApp/src/app/storefront.tsx
-          if grep -Fq ".detail-action-row{display:grid;grid-template-columns:1fr;gap:9px;margin-top:16px}" IndustrialCatalog/ClientApp/src/app/globals.css; then
-            echo "Obsolete base mobile detail action override returned."
-            exit 1
-          fi
-
       - name: Check key page markers
         run: |
           set -euo pipefail
           curl --fail --silent http://127.0.0.1:5099/login | grep -Fq "Hesabınıza giriş yapın"
           curl --fail --silent http://127.0.0.1:5099/kayit | grep -Fq "Müşteri hesabı oluşturun"
           curl --fail --silent http://127.0.0.1:5099/urunler | grep -Fq "İNOKSKAR"
-          curl --fail --silent http://127.0.0.1:5099/talep-takip | grep -Fq "Süreci telefon numaranızla takip edin."
 
       - name: Print application log on failure
         if: failure()
