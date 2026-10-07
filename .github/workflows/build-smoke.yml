@@ -37,6 +37,7 @@ jobs:
           cd IndustrialCatalog/ClientApp
           npm install --no-audit --no-fund
           npm run build
+          npx tsc --noEmit
 
       - name: Static release guards
         run: |

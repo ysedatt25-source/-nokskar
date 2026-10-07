@@ -2,7 +2,7 @@
   async function profile(){
     try{
       const r=await fetch('/api/customer/profile',{cache:'no-store',credentials:'same-origin'});
-      if(!r.ok)return null;
+      if(r.status===204||!r.ok)return null;
       return await r.json();
     }catch{return null;}
   }

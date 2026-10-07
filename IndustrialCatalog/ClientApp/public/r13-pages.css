@@ -134,7 +134,7 @@ body.page-listing .product-grid{grid-template-columns:repeat(4,minmax(0,1fr));ga
 body.page-home .product-card,body.page-listing .product-card{border:1px solid #dbe4f0;box-shadow:0 8px 24px #1c3d6510;border-radius:16px}
 body.page-home .card-link,body.page-listing .card-link{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:8px;background:#1762d6;color:#fff;border:1px solid #1762d6}
 body.page-listing .page-intro{display:block;background:#eef4ff;color:#1b334e;border:1px solid #d9e6fa;box-shadow:none;margin:28px auto 20px}
-body.page-listing .page-intro h1{color:#1b334e}body.page-listing .page-intro p{color:#56708e}body.page-listing .page-intro .breadcrumb{color:#60738a}body.page-listing .page-intro .breadcrumb a{color:#1762d6}
+body.page-listing .page-intro h1{color:#1b334e}body.page-listing .page-intro p{color:#56708e}body.page-listing .page-intro .breadcrumb{color:#50657b}body.page-listing .page-intro .breadcrumb a{color:#1762d6}
 body.page-listing .filterbar{position:static;margin-bottom:24px}
 body.page-detail .detail-summary{position:static}body.page-detail .detail-action-row{display:flex;flex-wrap:wrap;gap:12px}body.page-detail .detail-action-row .button{display:inline-flex}
 body.page-content .content-page{min-height:0;padding:34px;margin:28px auto 48px}
@@ -471,7 +471,7 @@ body.brand-admin-body .brand-admin-actions>a{
     background:rgba(255,255,255,.97);box-shadow:0 -10px 28px rgba(13,32,54,.10);backdrop-filter:blur(18px);
   }
   .app-bottom-item{
-    appearance:none;border:0;background:transparent;color:#6e8197;text-decoration:none;
+    appearance:none;border:0;background:transparent;color:#536a82;text-decoration:none;
     min-width:0;min-height:58px;padding:5px 2px;border-radius:12px;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
     font:inherit;font-size:.66rem;font-weight:780;line-height:1.1;cursor:pointer;touch-action:manipulation;
@@ -698,7 +698,7 @@ body.brand-admin-body .brand-admin-actions>a{
     display:grid;gap:3px;padding:11px 12px;border:1px solid #e0e8f2;
     border-radius:11px;background:#f8fafc;
   }
-  body.app-shell-enabled.page-detail .specs dt{font-size:.7rem;color:#71849a}
+  body.app-shell-enabled.page-detail .specs dt{font-size:.7rem;color:#526a83}
   body.app-shell-enabled.page-detail .specs dd{margin:0;font-size:.86rem;font-weight:750;color:#244361}
 }
 @media(max-width:600px){

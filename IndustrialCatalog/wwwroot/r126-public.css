@@ -54,8 +54,8 @@ body.page-listing .card-link{position:relative;overflow:hidden;min-height:38px;p
 body.page-listing .availability{border-color:#d4e1ef;border-radius:999px;color:#173e74;box-shadow:0 4px 12px rgba(7,27,52,.06)}
 body.page-listing .catalog-pagination{border-radius:16px;box-shadow:0 12px 28px rgba(7,27,52,.05)}
 body.page-detail .detail{padding-top:30px}
-body.page-detail .detail>.breadcrumb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;color:#6b7f95;font-size:.83rem}
-body.page-detail .detail>.breadcrumb a{color:#9b6b1f;font-weight:780}
+body.page-detail .detail>.breadcrumb{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;color:#506984;font-size:.83rem}
+body.page-detail .detail>.breadcrumb a{color:#7a5215;font-weight:780}
 body.page-detail .detail-grid{gap:24px}
 body.page-detail .detail-photo{border-radius:22px;border-color:#dce6f0;background:linear-gradient(180deg,#fff,#f1f5f9);box-shadow:var(--r126-shadow)}
 body.page-detail .detail-summary{position:sticky;top:146px;padding:30px;border:1px solid #dce6f0;border-radius:22px;background:#fff;box-shadow:var(--r126-shadow)}

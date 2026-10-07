@@ -93,7 +93,7 @@ for(const device of devices){
           const id=el.id;
           return !(el.getAttribute('aria-label')||el.getAttribute('aria-labelledby')||(id&&document.querySelector('label[for="'+CSS.escape(id)+'"]'))||el.closest('label'));
         }).map(el=>({tag:el.tagName,type:el.getAttribute('type')||'',name:el.getAttribute('name')||''})).slice(0,20);
-        const unnamedActions=[...document.querySelectorAll('button,a[href]')].filter(el=>visible(el)&&!(el.innerText?.trim()||el.getAttribute('aria-label')||el.getAttribute('title'))).map(el=>el.outerHTML.slice(0,180)).slice(0,20);
+        const unnamedActions=[...document.querySelectorAll('button,a[href]')].filter(el=>{if(!visible(el))return false;const nestedAlt=[...el.querySelectorAll('img[alt]')].map(img=>img.getAttribute('alt')?.trim()).find(Boolean);return !(el.innerText?.trim()||el.getAttribute('aria-label')||el.getAttribute('title')||nestedAlt);}).map(el=>el.outerHTML.slice(0,180)).slice(0,20);
         const tinyTargets=[...document.querySelectorAll('button,a[href],input[type=checkbox],input[type=radio]')].filter(el=>{
           if(!visible(el))return false;
           const r=el.getBoundingClientRect(); return r.width<36||r.height<36;
@@ -102,6 +102,9 @@ for(const device of devices){
           if(!visible(el))return false;
           const r=el.getBoundingClientRect(),s=getComputedStyle(el);
           if(['fixed','sticky'].includes(s.position))return false;
+          let parent=el.parentElement,horizontalScroller=false;
+          while(parent&&parent!==document.body){const ps=getComputedStyle(parent);if(['auto','scroll'].includes(ps.overflowX)){horizontalScroller=true;break;}parent=parent.parentElement;}
+          if(horizontalScroller)return false;
           return r.right>vw+3 && r.left<vw && r.width>12;
         }).map(el=>({tag:el.tagName,cls:String(el.className||'').slice(0,100),right:Math.round(el.getBoundingClientRect().right)})).slice(0,30);
         return {overflowX,brokenImages,dupIds,unlabeledInputs,unnamedActions,tinyTargets,clippedRight,bodyText:(document.body?.innerText||'').slice(0,300)};
@@ -112,7 +115,7 @@ for(const device of devices){
     try{
       await page.addScriptTag({path:axePath});
       const axe=await page.evaluate(async()=>await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']},resultTypes:['violations']}));
-      a11y=(axe.violations||[]).map(v=>({id:v.id,impact:v.impact,help:v.help,nodes:v.nodes.slice(0,5).map(n=>n.target)}));
+      a11y=(axe.violations||[]).map(v=>({id:v.id,impact:v.impact,help:v.help,nodes:v.nodes.slice(0,5).map(n=>({target:n.target,html:n.html,failureSummary:n.failureSummary}))}));
     }catch{}
 
     const shot=path.join(OUT,'screenshots',device.name+'__'+sanitize(rel)+'.png');
@@ -150,3 +153,4 @@ else for(const row of issueRows) md.push(`- **${row.device} ${row.path}** — ${
 md.push('','## Notes','- Full-page screenshots are captured for mobile, tablet and desktop.','- Authentication-protected pages are audited in their logged-out/redirect state.','- Tiny touch targets are recorded in report.json as informational diagnostics.');
 fs.writeFileSync(path.join(OUT,'REPORT.md'),md.join('\n'));
 console.log('QA_REPORT_SUMMARY '+JSON.stringify(report.summary));
+if(issueRows.length) process.exitCode=2;
