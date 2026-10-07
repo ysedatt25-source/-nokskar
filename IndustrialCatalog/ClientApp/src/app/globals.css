@@ -167,3 +167,11 @@ body[data-scroll-locked] { overflow: hidden; overscroll-behavior: contain; }
 /* R16 — grouped admin navigation */
 .admin-sidebar nav{align-content:start}.admin-nav-group{display:grid;gap:5px}.admin-nav-group+.admin-nav-group{margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.09)}.admin-nav-group-title{padding:0 10px;color:#9fb0c2;font-size:.62rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.admin-nav-group>button,.admin-nav-group>a{width:100%}
 @media(max-width:1100px){body[data-ui-page^="admin-"] .admin-sidebar nav .admin-nav-group{display:grid;gap:6px}body[data-ui-page^="admin-"] .admin-sidebar nav .admin-nav-group+.admin-nav-group{margin-top:4px;padding-top:8px}body[data-ui-page^="admin-"] .admin-nav-group-title{padding:3px 8px;color:#9fb0c2;font-size:.61rem}}
+
+/* R24.8 — admin keyboard-safe application dock */
+@media(max-width:1100px){
+ body.admin-keyboard-open{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+ body.admin-keyboard-open .admin-app-dock{transform:translateY(calc(115% + env(safe-area-inset-bottom,0px)));opacity:0;pointer-events:none}
+ body.admin-keyboard-open [data-slot="dialog-content"],
+ body.admin-keyboard-open [data-slot="alert-dialog-content"]{max-height:calc(var(--admin-vvh,100dvh) - 16px);overflow:auto}
+}

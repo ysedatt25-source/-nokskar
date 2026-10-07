@@ -11,7 +11,9 @@ const checks=[
  ['IndustrialCatalog/ClientApp/public/r13-pages.js',text=>text.includes('__inokskarSetScrollLock'),'Server-rendered overlays must use the shared scroll-lock registry.'],
  ['IndustrialCatalog/ClientApp/public/r13-pages.js',text=>(text.match(/MutationObserver/g)||[]).length<=2,'Server runtime must not restore broad DOM observers.'],
  ['IndustrialCatalog/ClientApp/public/r13-pages.js',text=>!text.includes('setInterval('),'Server runtime must not restore background polling.'],
- ['IndustrialCatalog/ClientApp/public/r23-system.css',text=>!text.includes('body{overscroll-behavior-y:none}'),'Natural server page overscroll must remain enabled.']
+ ['IndustrialCatalog/ClientApp/public/r23-system.css',text=>!text.includes('body{overscroll-behavior-y:none}'),'Natural server page overscroll must remain enabled.'],
+ ['IndustrialCatalog/ClientApp/public/r23-system.css',text=>!text.includes('page-home.app-shell-enabled .category-grid'),'Server/admin CSS must not own public home category cards.'],
+ ['IndustrialCatalog/ClientApp/src/app/admin/panel.tsx',text=>text.includes('admin-keyboard-open'),'Admin keyboard state must stay React-owned.']
 ];
 const failures=[];
 for(const [path,test,message] of checks){const text=read(path);if(!test(text))failures.push(path+' :: '+message);}
