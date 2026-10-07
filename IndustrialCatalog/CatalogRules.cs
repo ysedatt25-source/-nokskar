@@ -11,7 +11,7 @@ public static class CatalogRules
         var settings=d["settings"]?.AsObject() ?? throw new ArgumentException("Ayarlar gerekli.");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
         foreach(var key in new[]{"name","tagline","heroTitle","heroText","hero","headerImage","phone","whatsapp","email","address","hours","social","waMessage","lastRate","rateSource","rateDate","about"}) Text(settings,key);
-        var siteName=Text(settings,"name").Trim();if(siteName.Length<2||!Regex.IsMatch(siteName,@"[\\p{L}\\p{N}]"))throw new ArgumentException("Site adı en az iki karakter olmalı ve en az bir harf veya rakam içermelidir.");settings["name"]=siteName;
+        var siteName=Text(settings,"name").Trim();if(siteName.Length<2||!Regex.IsMatch(siteName,@"[\\p{L}\\p{N}]"))siteName="İNOKSKAR";settings["name"]=siteName;
         foreach(var key in new[]{"hero","headerImage","social"})if(!Safe(Text(settings,key)))throw new ArgumentException("Geçersiz bağlantı.");
         var rate=settings["rate"]!.GetValue<decimal>();if(rate<0)throw new ArgumentException("Kur negatif olamaz.");
         foreach(var key in new[]{"waEnabled","autoRate"})settings[key]!.GetValue<bool>();
