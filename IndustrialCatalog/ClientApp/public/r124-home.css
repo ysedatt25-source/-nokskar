@@ -210,9 +210,12 @@ body.page-home .mobile-account-link{display:none}
   body.page-home .category-action{padding-inline:12px;padding-bottom:12px;font-size:.75rem}
   body.page-home .confidence-copy{padding:22px 18px;border-radius:18px}
   body.page-home .confidence-copy h2{font-size:1.55rem}
-  body.page-home .confidence-grid{grid-template-columns:1fr;gap:10px}
-  body.page-home .confidence-grid article{grid-template-columns:auto 1fr;gap:12px;padding:17px 15px;border-radius:16px}
-  body.page-home .confidence-icon{width:42px;height:42px;border-radius:12px}
+  body.page-home .confidence-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+  body.page-home .confidence-grid article{min-width:0!important;grid-template-columns:1fr!important;justify-items:center!important;align-content:start!important;gap:7px!important;padding:10px 6px!important;border-radius:13px!important;text-align:center!important}
+  body.page-home .confidence-icon{width:34px!important;height:34px!important;border-radius:10px!important}
+  body.page-home .confidence-icon svg{width:17px!important;height:17px!important}
+  body.page-home .confidence-grid strong{min-height:2.5em!important;margin:0!important;font-size:.67rem!important;line-height:1.22!important}
+  body.page-home .confidence-grid p{display:none!important}
   body.page-home .featured{padding-top:4px}
   body.page-home .featured .section-heading{display:grid;gap:8px;margin-bottom:14px}
   body.page-home .product-grid{display:flex;overflow:auto;gap:12px;padding-bottom:6px;scroll-snap-type:x proximity}

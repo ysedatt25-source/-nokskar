@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r20-0"
+          expected="r20-1"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -287,12 +287,14 @@ jobs:
             await page.waitForTimeout(350);
             const categoryLinks = await page.locator('.app-category-list a').count();
             const sheetBox = await sheet.boundingBox();
-            const confidenceColumns = await page.evaluate(() => {
-              const grid=document.querySelector('.confidence-grid');if(!grid)return 0;
-              const cols=getComputedStyle(grid).gridTemplateColumns.trim().split(/\\s+/).filter(Boolean);
-              return cols.length;
+            const mobileCardGeometry = await page.evaluate(() => {
+              const cards=[...document.querySelectorAll('.confidence-grid>article')].slice(0,3).map(el=>el.getBoundingClientRect());
+              const products=[...document.querySelectorAll('.featured .product-card')].slice(0,2).map(el=>el.getBoundingClientRect());
+              const sameRow=cards.length===3 && Math.max(...cards.map(x=>x.top))-Math.min(...cards.map(x=>x.top))<=2 && cards.every(x=>x.width>80);
+              const productSameRow=products.length<2 || (Math.abs(products[0].top-products[1].top)<=2 && products.every(x=>x.width>140));
+              return {sameRow,productSameRow,cardWidths:cards.map(x=>Math.round(x.width)),productWidths:products.map(x=>Math.round(x.width))};
             });
-            report.interaction.firstOpenCategories={visible:await sheet.isVisible(),categoryLinks,hasUsableBox:!!sheetBox&&sheetBox.width>250&&sheetBox.height>120,confidenceColumns};
+            report.interaction.firstOpenCategories={visible:await sheet.isVisible(),categoryLinks,hasUsableBox:!!sheetBox&&sheetBox.width>250&&sheetBox.height>120,...mobileCardGeometry};
             await page.screenshot({path:out+'/home-mobile-bottom-categories-first-open.png',fullPage:false,animations:'disabled'});
             await context.close();
           }
@@ -417,7 +419,7 @@ jobs:
           const requiredContacts = report.interaction.requiredContacts || {};
           const firstOpenCategories = report.interaction.firstOpenCategories || {};
           const productDetail = report.interaction.productDetail || {};
-          const firstOpenCategoriesOk = firstOpenCategories.visible && firstOpenCategories.categoryLinks > 0 && firstOpenCategories.hasUsableBox && Number(firstOpenCategories.confidenceColumns) === 3;
+          const firstOpenCategoriesOk = firstOpenCategories.visible && firstOpenCategories.categoryLinks > 0 && firstOpenCategories.hasUsableBox && firstOpenCategories.sameRow && firstOpenCategories.productSameRow;
           const productDetailOk = !productDetailPath || (productDetail.ctaVisible && !productDetail.floatingVisible && productDetail.ctaAboveDock && !productDetail.homeCtaPresent && productDetail.pageDetailClass && !productDetail.pageHomeClass);
           const requiredContactsOk = requiredContacts.contact?.emailRequired && requiredContacts.contact?.emailType === 'email' && requiredContacts.contact?.phoneRequired && requiredContacts.service?.emailRequired && requiredContacts.service?.emailType === 'email' && requiredContacts.service?.phoneRequired;
           const geometryOk =
