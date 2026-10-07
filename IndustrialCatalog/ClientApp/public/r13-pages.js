@@ -56,13 +56,15 @@ document.addEventListener('submit',event=>{
     document.body.append(backdrop);
     let previousFocus=null;
     const focusables=()=>[...nav.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>x.getClientRects().length);
-    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');previousFocus?.focus?.({preventScroll:true});};
+    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');try{previousFocus?.focus?.({preventScroll:true});}catch{}previousFocus=null;};
     const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
     toggle.addEventListener('click',()=>side.classList.contains('menu-open')?close():open());
     sheetHead.querySelector('.admin-menu-sheet-close')?.addEventListener('click',close);
     backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});
     nav.addEventListener('click',e=>{if(innerWidth<=1100&&e.target.closest('button,a'))close()});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&side.classList.contains('menu-open'))close();if(e.key==='Tab'&&side.classList.contains('menu-open')){const list=focusables();if(!list.length)return;const first=list[0],last=list[list.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+    window.addEventListener('resize',()=>{if(innerWidth>1100&&side.classList.contains('menu-open'))close()},{passive:true});
+    window.addEventListener('pageshow',()=>{if(!side.classList.contains('menu-open')){document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');}});
   };
   const start=()=>{mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),30000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
@@ -229,7 +231,7 @@ document.addEventListener('submit',event=>{
       const btn=e.target.closest('[data-admin-dock]');if(!btn)return;
       const key=btn.dataset.adminDock;
       if(key==='menu'){side.querySelector('.admin-mobile-toggle')?.click();sync();return;}
-      refs[key]?.click();side.classList.remove('menu-open');window.scrollTo({top:0,behavior:'smooth'});sync();
+      refs[key]?.click();if(side.classList.contains('menu-open'))side.querySelector('.admin-mobile-toggle')?.click();window.scrollTo({top:0,behavior:'smooth'});sync();
     });
     new MutationObserver(sync).observe(side,{subtree:true,attributes:true,attributeFilter:['class']});
     sync();
