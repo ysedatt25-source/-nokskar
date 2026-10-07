@@ -401,7 +401,6 @@ document.addEventListener('submit',event=>{
 /* R20.2 — unread inquiry counter for the admin mobile dock. */
 (()=>{
   if((location.pathname.replace(/\/$/,'')||'/')!=='/admin')return;
-  let last=-1;
   const render=(count,attempt=0)=>{
     const btn=document.querySelector('.admin-app-dock [data-admin-dock="inquiries"]');
     if(!btn){if(attempt<24)setTimeout(()=>render(count,attempt+1),125);return;}
@@ -417,7 +416,7 @@ document.addEventListener('submit',event=>{
       if(!response.ok)return;
       const body=await response.json();
       const count=Math.max(0,Number(body.count)||0);
-      last=count;render(count);
+      render(count);
     }catch{}
   };
   const start=()=>{

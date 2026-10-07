@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
-import {Snowflake,Flame,Layers,Menu,Search,Phone,Mail,MapPin,MessageCircle,Download,Check,ChevronRight,ChevronLeft,ChevronDown,X,Box,ShieldCheck,Wrench,ClipboardCheck,SlidersHorizontal,ArrowUpDown,Copy,Building2,Clock3,Headphones} from 'lucide-react';
+import {Snowflake,Flame,Layers,Menu,Search,Phone,Mail,MapPin,MessageCircle,Download,Check,ChevronRight,ChevronLeft,ChevronDown,X,ShieldCheck,Wrench,ClipboardCheck,SlidersHorizontal,ArrowUpDown,Copy,Building2,Clock3,Headphones} from 'lucide-react';
 import {Catalog,Category,Product,descendants,productCode,matchesProduct,matchesProductCode,normalizeCatalog} from '../lib/model';
 import {Select,SelectTrigger,SelectValue,SelectContent,SelectItem} from '@/components/ui/select';
 
