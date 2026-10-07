@@ -40,7 +40,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r21-3"
+          expected="r21-4"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -446,30 +446,31 @@ jobs:
             await context.close();
           }
 
-          // Desktop product gallery controls must sit on the image edges, never stack in the center.
+          // Desktop product gallery uses one centered image plus thumbnails.
+          // Obsolete previous/next absolute controls must not remain visible.
           if (imageProductPath) {
             const context = await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
             const page = await context.newPage();
             await page.goto(base + imageProductPath, { waitUntil: 'domcontentloaded', timeout: 45000 });
             await page.locator('.detail-photo').first().waitFor({state:'visible',timeout:10000});
             await page.waitForTimeout(450);
-            const galleryControls = await page.evaluate(() => {
+            const desktopGallery = await page.evaluate(() => {
               const stage=document.querySelector('.gallery-stage')?.getBoundingClientRect();
-              const prev=document.querySelector('.gallery-stage .gallery-arrow.prev')?.getBoundingClientRect();
-              const next=document.querySelector('.gallery-stage .gallery-arrow.next')?.getBoundingClientRect();
-              if(!stage||!prev||!next)return {present:false};
-              const cy=r=>(r.top+r.bottom)/2;
+              const image=document.querySelector('.gallery-stage>img')?.getBoundingClientRect();
+              const rail=document.querySelector('.thumbnails')?.getBoundingClientRect();
+              const visible=e=>!!e&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0;
+              const arrows=[...document.querySelectorAll('.gallery-stage .gallery-arrow')].filter(visible);
+              const center=r=>(r.left+r.right)/2;
               return {
-                present:true,
-                prevNearLeft:prev.left-stage.left<=28,
-                nextNearRight:stage.right-next.right<=28,
-                verticallyCentered:Math.abs(cy(prev)-cy(stage))<=3&&Math.abs(cy(next)-cy(stage))<=3,
-                separated:next.left-prev.right>Math.max(120,stage.width*.45),
-                stageRatio:Number((stage.width/stage.height).toFixed(3))
+                present:!!stage&&!!image,
+                imageCentered:!!stage&&!!image&&Math.abs(center(stage)-center(image))<=2,
+                stageRatio:stage?Number((stage.width/stage.height).toFixed(3)):0,
+                thumbnailsInside:!rail||!!stage&&(rail.left>=stage.left-2&&rail.right<=stage.right+2),
+                visibleArrowCount:arrows.length
               };
             });
-            report.interaction.desktopGalleryControls=galleryControls;
-            await page.screenshot({path:out+'/product-detail-images-desktop-controls.png',fullPage:false,animations:'disabled'});
+            report.interaction.desktopGallery=desktopGallery;
+            await page.screenshot({path:out+'/product-detail-images-desktop-gallery.png',fullPage:false,animations:'disabled'});
             await context.close();
           }
 
@@ -560,13 +561,13 @@ jobs:
           const productDetail = report.interaction.productDetail || {};
           const tabletProductDetail = report.interaction.tabletProductDetail || {};
           const imageProductGeometry = report.interaction.imageProductGeometry || {};
-          const desktopGalleryControls = report.interaction.desktopGalleryControls || {};
-          const desktopGalleryControlsOk = !imageProductPath || (
-            desktopGalleryControls.present &&
-            desktopGalleryControls.prevNearLeft &&
-            desktopGalleryControls.nextNearRight &&
-            desktopGalleryControls.verticallyCentered &&
-            desktopGalleryControls.separated
+          const desktopGallery = report.interaction.desktopGallery || {};
+          const desktopGalleryOk = !imageProductPath || (
+            desktopGallery.present &&
+            desktopGallery.imageCentered &&
+            desktopGallery.stageRatio >= 1.3 &&
+            desktopGallery.thumbnailsInside &&
+            Number(desktopGallery.visibleArrowCount) === 0
           );
           const imageProductOk = !imageProductPath || (
             imageProductGeometry.galleryInsideViewport &&
@@ -607,7 +608,7 @@ jobs:
             cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.submenuInFlow && cat?.menuVisible && cat?.categoryUrlStayedHome &&
             tabletMenu?.visible && tabletMenu?.categoryDropdownVisible && tabletMenu?.submenuInFlow && tabletMenu?.urlStayedHome &&
             tabletMenu?.background === 'rgb(255, 255, 255)' &&
-            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk && imageProductOk && desktopGalleryControlsOk;
+            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk && imageProductOk && desktopGalleryOk;
           console.log(JSON.stringify(report, null, 2));
 
           if (failedPages.length || !interactionOk) {
