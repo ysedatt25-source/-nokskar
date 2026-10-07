@@ -185,25 +185,25 @@ app.MapPost("/api/technical/device/{id}/services",async(string id,HttpContext c,
     var body=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Servis kaydı gerekli.");
     var message=(body["message"]?.ToString()??"").Trim();if(message.Length is <2 or >5000)throw new ArgumentException("Servis açıklaması 2-5000 karakter olmalıdır.");
     var status=(body["status"]?.ToString()??"new").Trim();var allowed=new[]{"new","review","scheduled","parts","completed","cancelled"};if(!allowed.Contains(status,StringComparer.Ordinal))throw new ArgumentException("Servis durumu geçersiz.");
-    static string Clean(JsonNode? node,int max,string label){var value=(node?.ToString()??"").Trim();if(value.Length>max)throw new ArgumentException(label+" çok uzun.");return value;}
+    Func<JsonNode?,int,string,string> cleanText=(node,max,label)=>{var value=(node?.ToString()??"").Trim();if(value.Length>max)throw new ArgumentException(label+" çok uzun.");return value;};
     var clean=new JsonObject{
       ["type"]="service",
-      ["name"]=Clean(body["name"],100,"Yetkili adı"),
-      ["email"]=Clean(body["email"],160,"E-posta"),
-      ["phone"]=Clean(body["phone"],40,"Telefon"),
-      ["contact"]=Clean(body["email"],160,"E-posta"),
+      ["name"]=cleanText(body["name"],100,"Yetkili adı"),
+      ["email"]=cleanText(body["email"],160,"E-posta"),
+      ["phone"]=cleanText(body["phone"],40,"Telefon"),
+      ["contact"]=cleanText(body["email"],160,"E-posta"),
       ["businessName"]=warranty["businessName"]?.ToString()??"",
-      ["address"]=Clean(body["address"],1200,"Adres"),
+      ["address"]=cleanText(body["address"],1200,"Adres"),
       ["productName"]=warranty["productName"]?.ToString()??"",
       ["productCode"]=warranty["productCode"]?.ToString()??"",
       ["serialNumber"]=warranty["serialNumber"]?.ToString()??"",
       ["message"]=message,
       ["serviceStatus"]=status,
-      ["appointmentDate"]=Clean(body["appointmentDate"],30,"Servis tarihi"),
-      ["technician"]=Clean(body["technician"],120,"Teknisyen"),
-      ["internalNote"]=Clean(body["internalNote"],3000,"İç not"),
-      ["parts"]=Clean(body["parts"],2000,"Değişen parçalar"),
-      ["resolution"]=Clean(body["resolution"],3000,"Servis sonucu")
+      ["appointmentDate"]=cleanText(body["appointmentDate"],30,"Servis tarihi"),
+      ["technician"]=cleanText(body["technician"],120,"Teknisyen"),
+      ["internalNote"]=cleanText(body["internalNote"],3000,"İç not"),
+      ["parts"]=cleanText(body["parts"],2000,"Değişen parçalar"),
+      ["resolution"]=cleanText(body["resolution"],3000,"Servis sonucu")
     };
     if(string.IsNullOrWhiteSpace(clean["name"]?.ToString()))clean["name"]=warranty["businessName"]?.ToString()??"Teknik servis";
     var row=store.AddInquiry(clean,AccessControl.DisplayName(c.User));
