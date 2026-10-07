@@ -746,9 +746,9 @@ body.brand-admin-body .brand-admin-actions>a{
   body.app-shell-enabled.page-listing .card-link{width:100%!important;min-height:42px!important;padding:8px!important;font-size:.72rem!important}
   body.app-shell-enabled.page-listing .gallery-arrow{display:none!important}
   body.app-shell-enabled.page-detail .page-home-return-wrap{display:none!important}
-  body.app-shell-enabled.page-detail .detail{width:calc(100% - 20px)!important;margin-top:10px!important}
+  body.app-shell-enabled.page-detail .detail{margin-top:10px!important}
   body.app-shell-enabled.page-detail .breadcrumb{margin:0 2px 8px!important}
-  body.app-shell-enabled.page-detail .detail-grid{grid-template-columns:1fr!important;gap:9px!important}
+  
   body.app-shell-enabled.page-detail .pdf-link{width:100%!important;display:flex!important;justify-content:center!important;min-height:46px!important;border-radius:11px!important;background:#f5f8fc!important}
   body.app-shell-enabled.page-detail .product-details{padding:17px 14px!important;border-radius:16px!important}
   body.app-shell-enabled.page-detail .product-details h2{font-size:1.28rem!important}
@@ -4842,7 +4842,7 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   body.page-home.app-shell-enabled .confidence-grid p{display:none!important}
   body.page-listing.app-shell-enabled .product-grid,body.page-home.app-shell-enabled .featured .product-grid,body.page-detail.app-shell-enabled .related-products .product-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;overflow:visible!important;padding-bottom:0!important;scroll-snap-type:none!important}
   body.page-home.app-shell-enabled .featured .product-card,body.page-detail.app-shell-enabled .related-products .product-card{min-width:0!important;scroll-snap-align:none!important}
-  body.page-detail.app-shell-enabled .detail{width:calc(100% - 18px)!important;padding-top:10px!important}
+  body.page-detail.app-shell-enabled .detail{padding-top:10px!important}
   body.page-detail.app-shell-enabled .page-home-return-wrap{margin-bottom:6px!important}
   body.page-detail.app-shell-enabled .detail>.breadcrumb{margin:0 2px 9px!important;font-size:.72rem!important}
   body.page-detail.app-shell-enabled .detail-photo .product-photo-fallback{padding:18px 12px!important}

@@ -114,6 +114,15 @@ jobs:
           assert any(row.get('purpose')=='yedek' for row in decoded), decoded
           PY
 
+      - name: Guard shared runtime observer budget
+        run: |
+          set -euo pipefail
+          if grep -Fq "setTimeout(()=>o.disconnect(),30000)" IndustrialCatalog/ClientApp/public/r13-pages.js; then
+            echo "Long-running full DOM observer returned to shared runtime."
+            exit 1
+          fi
+          grep -Fq "Single late source of truth for product-detail width, centering and shrink behavior." IndustrialCatalog/ClientApp/public/r13-pages.css
+
       - name: Check key page markers
         run: |
           set -euo pipefail

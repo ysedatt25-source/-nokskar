@@ -57,7 +57,7 @@
       if(document.body.dataset.r126Public==='1')obs.disconnect();
     });
     obs.observe(document.body,{childList:true,subtree:true});
-    window.setTimeout(()=>obs.disconnect(),8000);
+    window.setTimeout(()=>obs.disconnect(),5000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
   const rerun=()=>requestAnimationFrame(()=>{document.body.dataset.r126Public='';run();});

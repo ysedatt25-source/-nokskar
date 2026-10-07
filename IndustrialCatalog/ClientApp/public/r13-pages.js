@@ -251,7 +251,7 @@ document.addEventListener('submit',event=>{
     new MutationObserver(sync).observe(side,{subtree:true,attributes:true,attributeFilter:['class']});
     sync();
   };
-  const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),30000)};
+  const start=()=>{mount();if(document.querySelector('.admin-app-dock'))return;const root=document.getElementById('root')||document.body;const o=new MutationObserver(()=>{mount();if(document.querySelector('.admin-app-dock'))o.disconnect();});o.observe(root,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
