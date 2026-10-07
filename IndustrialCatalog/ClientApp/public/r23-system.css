@@ -63,3 +63,6 @@ body.page-contact :is(.contact-grid,.contact-info,.inquiry-form),body .contact-p
  body.page-contact .contact-grid,body .contact-pro .contact-grid{grid-template-columns:1fr;gap:12px}
  body.page-contact .inquiry-form,body .contact-pro .inquiry-form{min-width:0}
 }
+
+/* R24.2 — one scroll lock for all server-rendered overlays. */
+html.inokskar-scroll-locked,html.inokskar-scroll-locked body{overflow:hidden;overscroll-behavior:none}

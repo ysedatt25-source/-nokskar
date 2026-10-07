@@ -1,6 +1,6 @@
 /* R16 — shared usability, overlay shielding, compact app navigation and task-focused forms */
 :root{--r16-blue:#1767d4;--r16-orange:#ef751f;--r16-red:#c93243;--r16-ink:#102a51;--r16-line:#d7e2ef;--r16-surface:#f5f8fc;--r16-shadow:0 14px 38px rgba(16,42,81,.10)}
-.ui-interaction-shield{position:fixed;inset:0;z-index:214;border:0;margin:0;padding:0;background:rgba(7,19,34,.46);backdrop-filter:blur(3px);touch-action:none;cursor:default}.ui-interaction-shield.admin-shield{z-index:218}.ui-interaction-shield.private-shield{z-index:218}.ui-interaction-shield.public-shield{z-index:208}body.ui-layer-locked{overflow:hidden;overscroll-behavior:none}
+.ui-interaction-shield{position:fixed;inset:0;z-index:214;border:0;margin:0;padding:0;background:rgba(7,19,34,.46);backdrop-filter:blur(3px);touch-action:none;cursor:default}.ui-interaction-shield.admin-shield{z-index:218}.ui-interaction-shield.private-shield{z-index:218}.ui-interaction-shield.public-shield{z-index:208}body.ui-layer-locked{overscroll-behavior:none}
 dialog::backdrop{background:rgba(7,19,34,.52);backdrop-filter:blur(4px)}
 body[data-ui-page] :is(button,a,.button,.small-btn,.filter,.warranty-filter){touch-action:manipulation}
 body[data-ui-page] :is(.button,.submit,.primary-button,.header-cta):not(.secondary):not(.danger):not(.danger-button){background:linear-gradient(180deg,#287ce2,#1767d4);border-color:#155ab8;color:#fff}

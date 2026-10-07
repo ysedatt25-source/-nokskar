@@ -1,3 +1,14 @@
+/* R24.2 — shared scroll-lock registry for server-rendered overlays. */
+(()=>{
+ const locks=globalThis.__inokskarScrollLocks instanceof Set?globalThis.__inokskarScrollLocks:new Set();
+ globalThis.__inokskarScrollLocks=locks;
+ globalThis.__inokskarSetScrollLock=(owner,on)=>{
+   if(on)locks.add(owner);else locks.delete(owner);
+   document.documentElement.classList.toggle('inokskar-scroll-locked',locks.size>0);
+ };
+ window.addEventListener('pageshow',()=>{locks.clear();document.documentElement.classList.remove('inokskar-scroll-locked');});
+})();
+
 /* Page-specific visual scopes; does not alter forms, navigation or requests. */
 (()=>{const tabs={'Genel bakış':'overview','Ürünler':'products','Kategoriler':'categories','Fiyat yönetimi':'prices','Site ayarları':'settings','Güvenlik':'security','İstatistikler':'stats','Geçmiş & yedek':'history','Müşteri talepleri':'inquiries'};
 function scope(){const p=location.pathname.replace(/\/$/,'')||'/';let key=p==='/'?'home':p.replace(/^\//,'').replace(/\//g,'-');if(p.startsWith('/kategori/'))key='category';if(p.startsWith('/urun/'))key='product';if(p.startsWith('/hesabim'))key='hesabim';if(p.startsWith('/admin/inquiries/'))key='inquiry';if(p.startsWith('/teknik/cihaz/'))key='device';if(/\/admin\/warranties\/.*\/certificate$/.test(p))key='certificate';if(p==='/admin'){const active=document.querySelector('.admin-sidebar nav button.active');key='admin-'+(tabs[active?.textContent.trim()]||'overview');}if(document.body.dataset.uiPage!==key)document.body.dataset.uiPage=key;}
@@ -56,15 +67,15 @@ document.addEventListener('submit',event=>{
     document.body.append(backdrop);
     let previousFocus=null;
     const focusables=()=>[...nav.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>x.getClientRects().length);
-    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');try{previousFocus?.focus?.({preventScroll:true});}catch{}previousFocus=null;};
-    const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
+    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');globalThis.__inokskarSetScrollLock?.('admin-drawer',false);backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');try{previousFocus?.focus?.({preventScroll:true});}catch{}previousFocus=null;};
+    const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');globalThis.__inokskarSetScrollLock?.('admin-drawer',true);backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
     toggle.addEventListener('click',()=>side.classList.contains('menu-open')?close():open());
     sheetHead.querySelector('.admin-menu-sheet-close')?.addEventListener('click',close);
     backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});
     nav.addEventListener('click',e=>{if(innerWidth<=1100&&e.target.closest('button,a'))close()});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&side.classList.contains('menu-open'))close();if(e.key==='Tab'&&side.classList.contains('menu-open')){const list=focusables();if(!list.length)return;const first=list[0],last=list[list.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
     window.addEventListener('resize',()=>{if(innerWidth>1100&&side.classList.contains('menu-open'))close()},{passive:true});
-    window.addEventListener('pageshow',()=>{if(!side.classList.contains('menu-open')){document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');}});
+    window.addEventListener('pageshow',()=>{if(!side.classList.contains('menu-open')){document.body.classList.remove('admin-drawer-open');globalThis.__inokskarSetScrollLock?.('admin-drawer',false);backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');}});
   };
   const start=()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))return;const observer=new MutationObserver(()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))observer.disconnect();});observer.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
@@ -116,7 +127,7 @@ document.addEventListener('submit',event=>{
     overlay=document.createElement('div');overlay.className='app-category-overlay';overlay.hidden=true;
     overlay.innerHTML='<div class="app-category-sheet" role="dialog" aria-modal="true" aria-label="Ürün kategorileri"><div class="app-sheet-handle"></div><div class="app-sheet-head"><div><small>ÜRÜN KATALOĞU</small><strong>Kategoriler</strong></div><button class="app-sheet-close" type="button" aria-label="Kapat">'+icon('close')+'</button></div><div class="app-category-list"></div><a class="app-all-products" href="/urunler">Tüm ürünleri görüntüle <span>→</span></a></div>';
     document.body.append(overlay);
-    const close=()=>{overlay.classList.remove('is-ready');overlay.hidden=true;document.body.classList.remove('app-sheet-open')};
+    const close=()=>{overlay.classList.remove('is-ready');overlay.hidden=true;document.body.classList.remove('app-sheet-open');globalThis.__inokskarSetScrollLock?.('app-category',false)};
     overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
     overlay.querySelector('.app-sheet-close').addEventListener('click',close);
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
@@ -124,7 +135,7 @@ document.addEventListener('submit',event=>{
     overlay._open=async()=>{
       const list=overlay.querySelector('.app-category-list');
       list.innerHTML='<div class="app-sheet-loading" aria-live="polite"><span></span><span></span><span></span></div>';
-      overlay.hidden=false;document.body.classList.add('app-sheet-open');
+      overlay.hidden=false;document.body.classList.add('app-sheet-open');globalThis.__inokskarSetScrollLock?.('app-category',true);
       requestAnimationFrame(()=>overlay.classList.add('is-ready'));
       const cats=await fetchCategories();
       if(overlay.hidden)return;
@@ -341,10 +352,10 @@ document.addEventListener('submit',event=>{
     if(layer&&!shield){
       lastFocus=document.activeElement;shield=document.createElement('button');shield.type='button';shield.className='ui-interaction-shield '+layer.kind+'-shield';shield.setAttribute('aria-label','Açık menüyü kapat');
       shield.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();activeLayer()?.close();},{capture:true});
-      document.body.append(shield);document.body.classList.add('ui-layer-locked');setBackgroundInert(true,layer);
+      document.body.append(shield);document.body.classList.add('ui-layer-locked');globalThis.__inokskarSetScrollLock?.('ui-layer',true);setBackgroundInert(true,layer);
       requestAnimationFrame(()=>focusables(layer.panel)[0]?.focus({preventScroll:true}));
     }else if(!layer&&shield){
-      shield.remove();shield=null;document.body.classList.remove('ui-layer-locked');setBackgroundInert(false,null);if(lastFocus instanceof HTMLElement)lastFocus.focus({preventScroll:true});lastFocus=null;
+      shield.remove();shield=null;document.body.classList.remove('ui-layer-locked');globalThis.__inokskarSetScrollLock?.('ui-layer',false);setBackgroundInert(false,null);if(lastFocus instanceof HTMLElement)lastFocus.focus({preventScroll:true});lastFocus=null;
     }else if(layer&&shield){shield.className='ui-interaction-shield '+layer.kind+'-shield';}
   };
   document.addEventListener('keydown',e=>{
@@ -353,7 +364,7 @@ document.addEventListener('submit',event=>{
     if(e.key!=='Tab')return;const items=focusables(layer.panel);if(!items.length)return;const first=items[0],last=items[items.length-1];
     if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   },true);
-  const clearStale=()=>{if(activeLayer())return;if(shield){shield.remove();shield=null;}document.body.classList.remove('ui-layer-locked');setBackgroundInert(false,null);};
+  const clearStale=()=>{if(activeLayer())return;if(shield){shield.remove();shield=null;}document.body.classList.remove('ui-layer-locked');globalThis.__inokskarSetScrollLock?.('ui-layer',false);setBackgroundInert(false,null);};
   const start=()=>{sync();const schedule=()=>requestAnimationFrame(()=>{sync();clearStale()});document.addEventListener('click',schedule,true);document.addEventListener('pointerup',schedule,true);window.addEventListener('popstate',schedule);window.addEventListener('inokskar:navigation',schedule);window.addEventListener('pageshow',()=>{sync();clearStale()});window.addEventListener('resize',()=>{if(innerWidth>1100){const layer=activeLayer();if(layer?.kind==='private')layer.close();setTimeout(clearStale,0);}},{passive:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();

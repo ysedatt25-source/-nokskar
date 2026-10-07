@@ -590,7 +590,7 @@ body[data-ui-page^="admin-"] .admin-direct-save:hover{background:#e1efff}
 /* R18 admin drawer backdrop / click-through protection */
 .admin-drawer-backdrop{display:none}
 @media(max-width:1100px){
-  body.admin-drawer-open{overflow:hidden}
+  body.admin-drawer-open{overscroll-behavior:none}
   .admin-drawer-backdrop{
     position:fixed;z-index:410;inset:0;display:block;width:100vw;height:100dvh;
     margin:0;padding:0;border:0;border-radius:0;background:rgba(7,18,31,.52);
