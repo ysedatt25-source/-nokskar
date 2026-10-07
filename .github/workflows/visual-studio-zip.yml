@@ -1,0 +1,65 @@
+name: Visual Studio ZIP
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build React client
+        working-directory: IndustrialCatalog/ClientApp
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Build Visual Studio solution
+        run: dotnet build INOKSKAR.sln -c Release -p:BuildClientApp=false
+
+      - name: Create clean Visual Studio package
+        run: |
+          mkdir -p package/INOKSKAR
+          rsync -a ./ package/INOKSKAR/ \
+            --exclude='.git' \
+            --exclude='package' \
+            --exclude='**/node_modules/**' \
+            --exclude='**/bin/**' \
+            --exclude='**/obj/**'
+          printf '%s\n' \
+            'İNOKSKAR Visual Studio Projesi' \
+            '' \
+            '1. INOKSKAR.sln dosyasını Visual Studio 2022 ile açın.' \
+            '2. .NET 8 SDK gereklidir.' \
+            '3. Güncel React kaynaklarını yeniden derlemek için Node.js 22+ ve npm gereklidir.' \
+            '4. Normal Visual Studio Build/F5 sırasında istemci uygulaması otomatik derlenir.' \
+            '5. Railway canlı sürümü de aynı main dalından üretilir.' \
+            > package/INOKSKAR/VISUAL-STUDIO-KURULUM.txt
+          cd package
+          zip -qr ../INOKSKAR-Visual-Studio.zip INOKSKAR
+
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: INOKSKAR-Visual-Studio
+          path: INOKSKAR-Visual-Studio.zip
+          if-no-files-found: error
+          retention-days: 30

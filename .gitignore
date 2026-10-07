@@ -1,0 +1,8 @@
+bin/
+obj/
+App_Data/
+Data/
+ClientApp/node_modules/
+.vs/
+*.user
+appsettings.Development.json

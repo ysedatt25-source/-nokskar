@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "IndustrialCatalog": {
+      "commandName": "Executable",
+      "executablePath": "powershell.exe",
+      "commandLineArgs": "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File .\\tools\\vs-safe-launch.ps1 -Configuration Release",
+      "workingDirectory": ".",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Storage__Path": "C:\\Dev\\Inokskar\\Data",
+        "INOKSKAR_STARTUP_LOG_DIR": "C:\\Dev\\Inokskar\\Data\\logs"
+      },
+      "applicationUrl": "http://127.0.0.1:5093"
+    }
+  }
+}
