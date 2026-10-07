@@ -290,7 +290,7 @@ public sealed class Store
         }
     }
 
-    public JsonObject AddInquiry(JsonObject data)
+    public JsonObject AddInquiry(JsonObject data, string actor = "Müşteri")
     {
         lock (gate)
         {
@@ -307,7 +307,7 @@ public sealed class Store
                 ["updated"] = now.ToString("O")
             };
             list.Insert(0, row);
-            AddAudit(next, "Talep oluşturuldu", row["id"]!.ToString(), data["type"]?.ToString() ?? "support", "Müşteri");
+            AddAudit(next, "Talep oluşturuldu", row["id"]!.ToString(), data["type"]?.ToString() ?? "support", actor);
             Persist(next);
             return row.DeepClone().AsObject();
         }
