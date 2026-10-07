@@ -1,7 +1,6 @@
 /* R23.2 — scoped system layer */
 :root{--r23-blue:#1767d4;--r23-blue-dark:#0d4ca6;--r23-orange:#ef751f;--r23-red:#c93243;--r23-ink:#173653;--r23-muted:#64798f;--r23-line:#d8e3ee;--r23-touch:46px;--r23-safe-bottom:max(10px,env(safe-area-inset-bottom,0px));--r23-vvh:100dvh}
 html{scrollbar-gutter:stable;scroll-padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
-body{overscroll-behavior-y:none}
 body :is(input,select,textarea,button,a){-webkit-tap-highlight-color:transparent}
 body :is(input,select,textarea):focus-visible{outline:3px solid rgba(23,103,212,.18);outline-offset:1px;border-color:#5b91d9}
 

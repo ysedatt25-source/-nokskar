@@ -135,3 +135,12 @@ body.page-home .cta-banner .button{flex:0 0 auto;min-width:145px}
  body.page-home .cta-banner .button{width:100%}
 }
 @media(prefers-reduced-motion:reduce){.spa-category-sheet,.spa-bottom-nav,body.app-shell-enabled .main-nav.open{scroll-behavior:auto}}
+
+/* Keyboard-safe public app shell */
+@media(max-width:1100px){
+ body.spa-keyboard-open{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+ body.spa-keyboard-open .spa-bottom-nav{transform:translateY(calc(110% + env(safe-area-inset-bottom,0px)));opacity:0;pointer-events:none}
+ body.spa-keyboard-open .floating-wa{opacity:0;pointer-events:none}
+ body.spa-keyboard-open.page-detail .detail-mobile-cta{transform:translateY(calc(120% + env(safe-area-inset-bottom,0px)));opacity:0;pointer-events:none}
+ body.page-contact :is(.contact-grid,.contact-info,.inquiry-form){overflow-anchor:none}
+}
