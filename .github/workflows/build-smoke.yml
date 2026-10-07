@@ -32,8 +32,26 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Build frontend
+        run: |
+          cd IndustrialCatalog/ClientApp
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Static release guards
+        run: |
+          set -euo pipefail
+          if grep -R -n --include='*.css' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.cs' '!important' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public IndustrialCatalog/*.cs; then
+            echo "Forbidden !important usage detected."
+            exit 1
+          fi
+          if grep -R -n --include='*.js' --include='*.ts' --include='*.tsx' -E '(^|[^a-zA-Z])(debugger|console\.log)\b' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public; then
+            echo "Debug statement detected."
+            exit 1
+          fi
+
       - name: Build solution
-        run: dotnet build INOKSKAR.sln -c Release
+        run: dotnet build INOKSKAR.sln -c Release --no-restore
 
       - name: Start application
         run: |
@@ -69,8 +87,12 @@ jobs:
           check_200 "/forgot-password"
           check_200 "/garanti-sorgulama"
           check_200 "/servis-talebi"
+          check_200 "/talep-sorgula"
           check_200 "/iletisim"
           check_200 "/hakkimizda"
+          check_200 "/gizlilik"
+          check_200 "/kvkk"
+          check_200 "/cerez"
           check_200 "/robots.txt"
           check_200 "/sitemap.xml"
           check_200 "/api/catalog"
@@ -100,6 +122,26 @@ jobs:
           test "$code" = "400" || { echo "Expected invalid inquiry phone to return 400, got $code"; cat /tmp/inquiry-invalid; exit 1; }
           code="$(curl --silent --show-error --output /tmp/service-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Test Kullanıcı","email":"eksik-adres","phone":"+90 555 555 55 55","businessName":"Test Firma","address":"Test adresi 123","message":"Test servis talebi"}' http://127.0.0.1:5099/api/service-request)"
           test "$code" = "400" || { echo "Expected invalid service email to return 400, got $code"; cat /tmp/service-invalid; exit 1; }
+
+          code="$(curl --silent --show-error --output /tmp/inquiry-valid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"QA Kullanıcı","email":"qa.personal@gmail.com","phone":"0542 000 00 01","message":"Yayın öncesi doğrulama talebi"}' http://127.0.0.1:5099/api/inquiry)"
+          test "$code" = "200" || { echo "Expected personal Gmail inquiry to return 200, got $code"; cat /tmp/inquiry-valid; exit 1; }
+          for phone in '5420000001' '05420000001' '+905420000001'; do
+            code="$(curl --silent --show-error --output /tmp/inquiry-status --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d "{\"phone\":\"$phone\"}" http://127.0.0.1:5099/api/inquiry-status)"
+            test "$code" = "200" || { echo "Expected inquiry status lookup for $phone to return 200, got $code"; cat /tmp/inquiry-status; exit 1; }
+            grep -Eq '"count":[1-9][0-9]*' /tmp/inquiry-status || { echo "Expected inquiry lookup match for $phone"; cat /tmp/inquiry-status; exit 1; }
+          done
+          code="$(curl --silent --show-error --output /tmp/service-valid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"QA Kullanıcı","email":"qa.personal@gmail.com","phone":"+90 542 000 00 02","businessName":"QA İşletme","address":"QA adresi 123 İstanbul","message":"Yayın öncesi servis doğrulama talebi"}' http://127.0.0.1:5099/api/service-request)"
+          test "$code" = "200" || { echo "Expected personal Gmail service request to return 200, got $code"; cat /tmp/service-valid; exit 1; }
+
+      - name: Verify production security headers
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --dump-header /tmp/headers --output /dev/null http://127.0.0.1:5099/
+          grep -qi '^Content-Security-Policy:' /tmp/headers
+          grep -qi '^X-Content-Type-Options: nosniff' /tmp/headers
+          grep -qi '^Referrer-Policy: strict-origin-when-cross-origin' /tmp/headers
+          grep -qi '^Permissions-Policy:' /tmp/headers
+          curl --fail --silent http://127.0.0.1:5099/sitemap.xml | grep -Fq 'http://127.0.0.1:5099/talep-sorgula'
 
       - name: Check key page markers
         run: |

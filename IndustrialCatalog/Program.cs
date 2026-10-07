@@ -55,7 +55,10 @@ app.Use(async(ctx,next)=>{
     }
     try{await next();}catch(Exception e) when(e is ArgumentException or InvalidOperationException or InvalidDataException or System.Text.Json.JsonException or System.Xml.XmlException or FormatException or OverflowException or NullReferenceException){ctx.Response.StatusCode=400;await ctx.Response.WriteAsJsonAsync(new{error=e is ArgumentException?e.Message:"İçerik veya dosya biçimi geçersiz."});}
 });
-app.UseStaticFiles(new StaticFileOptions{OnPrepareResponse=ctx=>{var name=Path.GetFileName(ctx.File.Name);if(name.Contains("-",StringComparison.Ordinal)&&name.EndsWith(".js",StringComparison.OrdinalIgnoreCase)||name.EndsWith(".css",StringComparison.OrdinalIgnoreCase))ctx.Context.Response.Headers.CacheControl="public,max-age=604800";}});
+app.UseStaticFiles(new StaticFileOptions{OnPrepareResponse=ctx=>{
+    var versioned=ctx.Context.Request.Query.ContainsKey("v")||ctx.Context.Request.Path.StartsWithSegments("/assets");
+    ctx.Context.Response.Headers.CacheControl=versioned?"public,max-age=604800,immutable":"no-cache";
+}});
 app.UseAuthentication();
 app.Use(async(ctx,next)=>{
     var unsafeMethod=HttpMethods.IsPost(ctx.Request.Method)||HttpMethods.IsPut(ctx.Request.Method)||HttpMethods.IsPatch(ctx.Request.Method)||HttpMethods.IsDelete(ctx.Request.Method);
@@ -71,7 +74,11 @@ app.Use(async(ctx,next)=>{if(ctx.User.Identity?.IsAuthenticated==true&&ctx.User.
 app.UseAuthorization();app.UseRateLimiter();
 app.MapGet("/error",()=>Results.Problem("İşlem tamamlanamadı. Lütfen tekrar deneyin."));
 app.MapGet("/healthz",()=>Results.Json(new{status="ok",checkedAt=DateTimeOffset.UtcNow}));
-app.MapGet("/build-info",()=>Results.Json(new{release="r20-1",commit=Environment.GetEnvironmentVariable("RAILWAY_GIT_COMMIT_SHA")??"",deployment=Environment.GetEnvironmentVariable("RAILWAY_DEPLOYMENT_ID")??"",environment=Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT_NAME")??Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")??""}));
+app.MapGet("/build-info",()=>{
+    var commit=Environment.GetEnvironmentVariable("RAILWAY_GIT_COMMIT_SHA")??"";
+    var release=string.IsNullOrWhiteSpace(commit)?"development":commit[..Math.Min(8,commit.Length)];
+    return Results.Json(new{release,commit,deployment=Environment.GetEnvironmentVariable("RAILWAY_DEPLOYMENT_ID")??"",environment=Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT_NAME")??Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")??""});
+});
 app.MapGet("/api/security/csrf",(HttpContext c,IAntiforgery antiforgery)=>{var tokens=antiforgery.GetAndStoreTokens(c);return Results.Json(new{token=tokens.RequestToken??""});}).RequireAuthorization();
 app.MapGet("/robots.txt",(IConfiguration config)=>Results.Text("User-agent: *\nDisallow: /admin\nDisallow: /login\nDisallow: /forgot-password\nDisallow: /reset-password\nDisallow: /api/\n"+(SeoPages.Origin(config) is string origin?"Sitemap: "+origin+"/sitemap.xml\n":""),"text/plain"));
 app.MapGet("/sitemap.xml",(Store store,IConfiguration config)=>SeoPages.Origin(config) is string origin
