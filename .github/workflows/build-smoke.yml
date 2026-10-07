@@ -98,10 +98,10 @@ jobs:
           set -euo pipefail
           code="$(curl --silent --show-error --output /tmp/inquiry-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Test Kullanıcı","email":"test@example.com","phone":"abc","message":"Test talebi"}' http://127.0.0.1:5099/api/inquiry)"
           test "$code" = "400" || { echo "Expected invalid inquiry phone to return 400, got $code"; cat /tmp/inquiry-invalid; exit 1; }
-          grep -Fq "Telefon numarası" /tmp/inquiry-invalid
+          python -c 'import json; assert "Telefon" in json.load(open("/tmp/inquiry-invalid", encoding="utf-8"))["error"]'
           code="$(curl --silent --show-error --output /tmp/service-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Test Kullanıcı","email":"eksik-adres","phone":"+90 555 555 55 55","businessName":"Test Firma","address":"Test adresi 123","message":"Test servis talebi"}' http://127.0.0.1:5099/api/service-request)"
           test "$code" = "400" || { echo "Expected invalid service email to return 400, got $code"; cat /tmp/service-invalid; exit 1; }
-          grep -Fq "E-posta adresi" /tmp/service-invalid
+          python -c 'import json; assert "E-posta" in json.load(open("/tmp/service-invalid", encoding="utf-8"))["error"]'
 
       - name: Check key page markers
         run: |
