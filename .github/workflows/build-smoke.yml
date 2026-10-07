@@ -51,7 +51,7 @@ jobs:
           fi
 
       - name: Build solution
-        run: dotnet build INOKSKAR.sln -c Release --no-restore
+        run: dotnet build INOKSKAR.sln -c Release
 
       - name: Start application
         run: |
