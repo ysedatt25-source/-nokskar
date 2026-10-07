@@ -1,4 +1,4 @@
-/* R22.7 — clean brand and single-row touch thumbnail rail. */
+/* R22.8 — clean brand, single-row thumbnail rail and corrected gallery controls. */
 @media(max-width:1100px){
   body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link{
     position:relative;
@@ -260,3 +260,46 @@
     display:none;
   }
 }
+
+/* R22.8 — mobile gallery controls: fixed opposing arrows and detached counter. */
+@media(max-width:600px){
+  body.page-detail.app-shell-enabled .detail-photo.gallery-stage .gallery-arrow{
+    top:50%;
+    bottom:auto;
+    width:40px;
+    height:40px;
+    min-width:40px;
+    min-height:40px;
+    margin:0;
+    padding:0;
+    transform:translateY(-50%);
+    border:1px solid rgba(20,85,192,.20);
+    border-radius:999px;
+    background:rgba(255,255,255,.94);
+    color:#1455c0;
+    box-shadow:0 5px 16px rgba(16,42,81,.14);
+  }
+  body.page-detail.app-shell-enabled .detail-photo.gallery-stage .gallery-arrow.prev{
+    left:12px;
+    right:auto;
+  }
+  body.page-detail.app-shell-enabled .detail-photo.gallery-stage .gallery-arrow.next{
+    left:auto;
+    right:12px;
+  }
+  body.page-detail.app-shell-enabled .detail-photo.gallery-stage .gallery-count{
+    top:12px;
+    right:12px;
+    bottom:auto;
+    left:auto;
+    min-width:42px;
+    padding:5px 9px;
+    border:1px solid rgba(255,255,255,.48);
+    background:rgba(18,54,100,.86);
+    color:#fff;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(16,42,81,.12);
+    pointer-events:none;
+  }
+}
+
