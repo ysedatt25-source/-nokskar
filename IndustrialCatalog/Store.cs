@@ -15,12 +15,6 @@ public sealed class Store
         state = File.Exists(file) ? JsonNode.Parse(File.ReadAllText(file))!.AsObject() : new JsonObject { ["revision"] = 0, ["data"] = JsonNode.Parse(File.ReadAllText(Path.Combine(env.ContentRootPath, "seed.json"))), ["history"] = new JsonArray(), ["events"] = new JsonArray(), ["inquiries"] = new JsonArray(), ["warranties"] = new JsonArray(), ["warrantyHistory"] = new JsonArray(), ["auditLog"] = new JsonArray() };
         NormalizeState(state);
         ApplyStoredPricePolicy(state["data"]!.AsObject());
-        var rootSummary = state["data"]?["categories"]?.AsArray()
-            .OfType<JsonObject>()
-            .Where(x => string.IsNullOrWhiteSpace(x["parent"]?.ToString()))
-            .Select(x => $"{x["id"]}:{x["visible"]}:{x["menu"]}")
-            .ToArray() ?? Array.Empty<string>();
-        Console.WriteLine("[R23-CATALOG] roots=" + string.Join(",", rootSummary));
         Persist(state);
     }
     static void ApplyStoredPricePolicy(JsonObject data)
