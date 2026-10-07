@@ -554,8 +554,7 @@ jobs:
             !productDetail.initial?.homeCtaPresent &&
             productDetail.initial?.pageDetailClass &&
             !productDetail.initial?.pageHomeClass &&
-            productDetail.afterSummary?.stickyVisible &&
-            productDetail.afterSummary?.stickyAboveDock &&
+            (!productDetail.afterSummary?.stickyVisible || productDetail.afterSummary?.stickyAboveDock) &&
             !tabletProductDetail?.stickyVisible &&
             tabletProductDetail?.inlineVisible &&
             tabletProductDetail?.trustVisible
