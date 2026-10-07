@@ -172,12 +172,14 @@ public static class MailTemplates
     {
         var service = string.Equals(request["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
         var kind = service ? "servis" : "destek";
+        var purposeKey = (request["purpose"]?.ToString() ?? "").Trim().ToLowerInvariant();
+        var purpose = service ? "Teknik servis" : purposeKey switch { "teklif" => "Teklif", "servis" => "Teknik servis", "yedek" => "Yedek parça", "genel" => "Genel destek", _ => "Belirtilmedi" };
         var business = request["businessName"]?.ToString();
         var name = request["name"]?.ToString() ?? "Müşteri";
         var subject = $"{count} kişi servis veya destek talebinde bulundu";
         var link = !string.IsNullOrWhiteSpace(adminUrl) ? $"<p><a href='{E(adminUrl)}'>Yönetim panelinde talepleri görüntüleyin</a></p>" : "";
-        var html = $"<div style='font-family:Arial,sans-serif;line-height:1.6;color:#102a51'><h2>Yeni {kind} talebi</h2><p><strong>{E(name)}</strong>{(string.IsNullOrWhiteSpace(business) ? "" : " · " + E(business))} yeni bir {kind} talebi oluşturdu.</p><p>Toplam kayıtlı servis/destek talebi: <strong>{count}</strong></p><p>{E(request["message"]?.ToString())}</p>{link}</div>";
-        var text = $"Yeni {kind} talebi\n{name}\nToplam kayıt: {count}\n{request["message"]}";
+        var html = $"<div style='font-family:Arial,sans-serif;line-height:1.6;color:#102a51'><h2>Yeni {kind} talebi</h2><p><strong>{E(name)}</strong>{(string.IsNullOrWhiteSpace(business) ? "" : " · " + E(business))} yeni bir {kind} talebi oluşturdu.</p><p><strong>Müşteri tercihi:</strong> {E(purpose)}</p><p>Toplam kayıtlı servis/destek talebi: <strong>{count}</strong></p><p>{E(request["message"]?.ToString())}</p>{link}</div>";
+        var text = $"Yeni {kind} talebi\n{name}\nMüşteri tercihi: {purpose}\nToplam kayıt: {count}\n{request["message"]}";
         return (subject, html, text);
     }
 

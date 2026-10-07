@@ -4872,3 +4872,102 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   body.page-detail.app-shell-enabled .detail-mobile-contact{min-width:100px!important;min-height:46px!important;padding:6px 8px!important;border-radius:10px!important;font-size:.66rem!important}
 }
 @media(prefers-reduced-motion:reduce){.app-category-sheet,.app-sheet-loading span{transition:none!important;animation:none!important}}
+
+
+/* R20.3 — admin request preference, stable dialogs and mirror shine */
+body[data-ui-page="admin-inquiries"] .request-badges{
+  display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:7px!important
+}
+body[data-ui-page="admin-inquiries"] .request-purpose{
+  display:inline-flex!important;align-items:center!important;min-height:28px!important;padding:4px 9px!important;
+  border:1px solid #d6e0eb!important;border-radius:999px!important;background:#f5f8fc!important;
+  color:#3e5874!important;font-size:.68rem!important;font-weight:850!important;line-height:1.2!important;white-space:nowrap!important
+}
+body[data-ui-page="admin-inquiries"] .request-purpose.purpose-genel{background:#eef5ff!important;border-color:#c8dbf6!important;color:#1e5da8!important}
+body[data-ui-page="admin-inquiries"] .request-purpose.purpose-teklif{background:#fff4e8!important;border-color:#f0d1ad!important;color:#a34b0d!important}
+body[data-ui-page="admin-inquiries"] .request-purpose.purpose-servis{background:#eef8f2!important;border-color:#c7e2d2!important;color:#26724c!important}
+body[data-ui-page="admin-inquiries"] .request-purpose.purpose-yedek{background:#f4efff!important;border-color:#d9cef3!important;color:#63449b!important}
+body[data-ui-page="admin-inquiries"] .request-purpose.purpose-none{background:#f4f6f8!important;border-color:#dce2e8!important;color:#6e7d8e!important}
+
+@media(max-width:700px){
+  body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]{
+    position:fixed!important;
+    top:auto!important;bottom:max(10px,env(safe-area-inset-bottom,0px))!important;
+    left:10px!important;right:10px!important;inset-inline:10px!important;
+    width:auto!important;max-width:none!important;
+    margin:0!important;
+    translate:none!important;transform:none!important;
+    max-height:calc(100dvh - max(22px,env(safe-area-inset-top,0px)) - max(10px,env(safe-area-inset-bottom,0px)))!important;
+    overflow:auto!important;
+    border-radius:20px!important;border:1px solid #d5e0eb!important;
+    box-shadow:0 -12px 46px rgba(8,24,43,.28)!important
+  }
+  body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]::before{
+    margin:-8px auto 7px!important
+  }
+  body[data-ui-page^="admin-"] [data-slot="alert-dialog-footer"]{
+    position:sticky!important;bottom:-16px!important;z-index:2!important;
+    margin:10px -14px -16px!important;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))!important;
+    background:#fff!important;border-top:1px solid #e3e9f0!important
+  }
+}
+@media(max-width:430px){
+  body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]{left:8px!important;right:8px!important;inset-inline:8px!important}
+}
+
+/* Mirror-light sweep for management actions. */
+body[data-ui-page^="admin-"] :is(
+  .admin-main button,.admin-main .button,.admin-main .small-btn,.admin-main .upload-button,
+  .admin-sidebar button,.admin-sidebar a,.admin-app-dock button,
+  .brand-admin-actions button,.brand-admin-actions a,.brand-upload-button,
+  .access-actions button,.access-actions .button,
+  .mail-actions button,.mail-actions .button,
+  .warranty-form-actions button,.warranty-heading-actions .button,.warranty-list-card-actions button,.warranty-list-card-actions a
+),
+body[data-ui-page="inquiry"] :is(button,.button,.primary-button,.danger-button),
+body[data-ui-page="teknik"] :is(button,.button,.small-btn),
+body[data-ui-page="device"] :is(button,.button,.small-btn){
+  position:relative!important;overflow:hidden!important;isolation:isolate
+}
+body[data-ui-page^="admin-"] :is(
+  .admin-main button,.admin-main .button,.admin-main .small-btn,.admin-main .upload-button,
+  .admin-sidebar button,.admin-sidebar a,.admin-app-dock button,
+  .brand-admin-actions button,.brand-admin-actions a,.brand-upload-button,
+  .access-actions button,.access-actions .button,
+  .mail-actions button,.mail-actions .button,
+  .warranty-form-actions button,.warranty-heading-actions .button,.warranty-list-card-actions button,.warranty-list-card-actions a
+)::after,
+body[data-ui-page="inquiry"] :is(button,.button,.primary-button,.danger-button)::after,
+body[data-ui-page="teknik"] :is(button,.button,.small-btn)::after,
+body[data-ui-page="device"] :is(button,.button,.small-btn)::after{
+  content:""!important;position:absolute!important;z-index:3!important;pointer-events:none!important;
+  top:-35%!important;bottom:-35%!important;left:-42%!important;width:23%!important;
+  opacity:0!important;transform:skewX(-22deg) translateX(-260%)!important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),rgba(255,255,255,.78),rgba(255,255,255,.16),transparent)!important;
+  filter:blur(.2px);transition:transform .62s cubic-bezier(.2,.7,.2,1),opacity .12s ease!important
+}
+@media(hover:hover) and (pointer:fine){
+  body[data-ui-page^="admin-"] :is(
+    .admin-main button,.admin-main .button,.admin-main .small-btn,.admin-main .upload-button,
+    .admin-sidebar button,.admin-sidebar a,.admin-app-dock button,
+    .brand-admin-actions button,.brand-admin-actions a,.brand-upload-button,
+    .access-actions button,.access-actions .button,
+    .mail-actions button,.mail-actions .button,
+    .warranty-form-actions button,.warranty-heading-actions .button,.warranty-list-card-actions button,.warranty-list-card-actions a
+  ):hover::after,
+  body[data-ui-page="inquiry"] :is(button,.button,.primary-button,.danger-button):hover::after,
+  body[data-ui-page="teknik"] :is(button,.button,.small-btn):hover::after,
+  body[data-ui-page="device"] :is(button,.button,.small-btn):hover::after{
+    opacity:.92!important;transform:skewX(-22deg) translateX(720%)!important
+  }
+}
+body[data-ui-page^="admin-"] :is(.admin-main button,.admin-main .button,.admin-main .small-btn,.admin-main .upload-button):focus-visible::after,
+body[data-ui-page="inquiry"] :is(button,.button,.primary-button,.danger-button):focus-visible::after{
+  opacity:.88!important;transform:skewX(-22deg) translateX(720%)!important
+}
+@media(hover:none){
+  body[data-ui-page^="admin-"] :is(.admin-main button,.admin-main .button,.admin-main .small-btn,.admin-main .upload-button):active::after,
+  body[data-ui-page="inquiry"] :is(button,.button,.primary-button,.danger-button):active::after{
+    opacity:.86!important;transform:skewX(-22deg) translateX(720%)!important;transition-duration:.34s!important
+  }
+}

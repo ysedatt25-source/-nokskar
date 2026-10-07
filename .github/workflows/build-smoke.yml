@@ -101,6 +101,19 @@ jobs:
           code="$(curl --silent --show-error --output /tmp/service-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Test Kullanıcı","email":"eksik-adres","phone":"+90 555 555 55 55","businessName":"Test Firma","address":"Test adresi 123","message":"Test servis talebi"}' http://127.0.0.1:5099/api/service-request)"
           test "$code" = "400" || { echo "Expected invalid service email to return 400, got $code"; cat /tmp/service-invalid; exit 1; }
 
+      - name: Verify customer request preference persistence
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/inquiry-purpose --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Tercih Testi","email":"preference@example.com","phone":"+90 555 444 33 22","purpose":"yedek","message":"Yedek parça hakkında bilgi istiyorum."}' http://127.0.0.1:5099/api/inquiry)"
+          test "$code" = "200" || { echo "Expected valid inquiry to return 200, got $code"; cat /tmp/inquiry-purpose; exit 1; }
+          python - <<'PY'
+          import json
+          with open('/tmp/inokskar-ci-data/catalog-store.json', encoding='utf-8') as f:
+              root=json.load(f)
+          decoded=[json.loads(row.get('data','{}')) for row in root.get('inquiries',[])]
+          assert any(row.get('purpose')=='yedek' for row in decoded), decoded
+          PY
+
       - name: Check key page markers
         run: |
           set -euo pipefail
