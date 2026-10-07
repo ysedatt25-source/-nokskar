@@ -6,7 +6,8 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "node scripts/clean-output.mjs && vite build"
+    "build": "npm run check:no-important && node scripts/clean-output.mjs && vite build",
+    "check:no-important": "node scripts/assert-no-important.mjs"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
