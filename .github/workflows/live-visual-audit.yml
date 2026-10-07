@@ -90,7 +90,11 @@ jobs:
             ['warranty', '/garanti-sorgulama'],
             ['service', '/servis-talebi'],
             ['contact', '/iletisim'],
-            ['about', '/hakkimizda']
+            ['about', '/hakkimizda'],
+            ['privacy', '/gizlilik'],
+            ['kvkk', '/kvkk'],
+            ['cookies', '/cerez'],
+            ['reset-invalid', '/reset-password?token=invalid-audit-token']
           ];
           const catalogResponse = await fetch(base + '/api/catalog');
           const catalogPayload = await catalogResponse.json();
@@ -630,6 +634,52 @@ jobs:
               headers:{Origin:base},
               data:{name:'UI Audit Talebi',email:'ui.audit.request@example.com',phone:'+90 555 111 22 33',purpose:'teklif',message:'Görsel denetim talebi'}
             });
+            await context.request.post(base+'/api/service-request',{
+              headers:{Origin:base},
+              data:{name:'UI Audit Servis',email:'ui.audit.service@example.com',phone:'+90 555 222 33 44',businessName:'UI Audit İşletme',address:'İstanbul test servis adresi',productName:'Test cihazı',productCode:'TEST-001',serialNumber:'SER-AUDIT-001',message:'Servis detayı görsel denetimi'}
+            });
+            await context.close();
+          }
+
+          // Seed one real warranty with the isolated superadmin and resolve all dynamic detail routes.
+          let supportInquiryPath='',serviceInquiryPath='',technicalDevicePath='',certificatePath='';
+          {
+            const context=await browser.newContext({viewport:{width:1280,height:900}});
+            await login(context);
+            const page=await context.newPage();
+            await page.goto(base+'/admin',{waitUntil:'networkidle'});
+            const seed=await page.evaluate(async()=>{
+              const catalog=await fetch('/api/catalog?admin=1',{cache:'no-store'}).then(r=>r.json());
+              const inquiries=Array.isArray(catalog?.inquiries)?catalog.inquiries:[];
+              const parsed=inquiries.map(row=>{let data={};try{data=JSON.parse(row.data||'{}')}catch{}return {id:row.id,data};});
+              const support=parsed.find(x=>x.data?.type==='support');
+              const service=parsed.find(x=>x.data?.type==='service');
+              const wp=await fetch('/api/warranty-products',{cache:'no-store'}).then(r=>r.json());
+              const product=wp?.products?.[0];
+              let warrantyId='';
+              if(product){
+                const payload={
+                  productId:product.id,
+                  productCode:product.code||product.id,
+                  businessName:'UI Audit İşletme',
+                  invoiceNumber:'UI-2026-001',
+                  deliveryDocumentNumber:'UI-TESLIM-001',
+                  warrantyNote:'Dinamik sayfa görsel denetim kaydı',
+                  serialNumber:'UI-AUDIT-SERIAL-001',
+                  deliveryDate:'2026-10-01',
+                  warrantyMonths:24,
+                  verificationCode:'AUDIT-2026',
+                  components:[{name:'Ana gövde',covered:true,months:24,note:'Test kapsamı'}]
+                };
+                const saved=await fetch('/api/warranties',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(async r=>({ok:r.ok,body:await r.json()}));
+                if(saved.ok)warrantyId=saved.body?.record?.id||'';
+              }
+              return {supportId:support?.id||'',serviceId:service?.id||'',warrantyId};
+            });
+            supportInquiryPath=seed.supportId?'/admin/inquiries/'+encodeURIComponent(seed.supportId):'';
+            serviceInquiryPath=seed.serviceId?'/admin/inquiries/'+encodeURIComponent(seed.serviceId):'';
+            technicalDevicePath=seed.warrantyId?'/teknik/cihaz/'+encodeURIComponent(seed.warrantyId):'';
+            certificatePath=seed.warrantyId?'/admin/warranties/'+encodeURIComponent(seed.warrantyId)+'/certificate':'';
             await context.close();
           }
 
@@ -686,7 +736,14 @@ jobs:
               }
             }
 
-            for(const [name,path] of privatePages){
+            const devicePrivatePages=[
+              ...privatePages,
+              ...(supportInquiryPath?[['inquiry-detail-support',supportInquiryPath]]:[]),
+              ...(serviceInquiryPath?[['inquiry-detail-service',serviceInquiryPath]]:[]),
+              ...(technicalDevicePath?[['technical-device',technicalDevicePath]]:[]),
+              ...(certificatePath?[['warranty-certificate',certificatePath]]:[])
+            ];
+            for(const [name,path] of devicePrivatePages){
               const response=await page.goto(base+path,{waitUntil:'networkidle',timeout:30000});
               await page.waitForTimeout(250);
               const leaks=await layout(page);
@@ -727,7 +784,8 @@ jobs:
             ...report.customer.filter(x=>x.status!==200||(x.leaks?.length||0)>0)
           ];
           const drawersOk=['mobile','tablet'].every(k=>report.drawer[k]?.open&&report.drawer[k]?.navVisible&&report.drawer[k]?.mainInert);
-          if(failed.length||!report.dialog.insideViewport||!drawersOk){
+          const dynamicRoutesOk=!!supportInquiryPath&&!!serviceInquiryPath&&!!technicalDevicePath&&!!certificatePath;
+          if(failed.length||!report.dialog.insideViewport||!drawersOk||!dynamicRoutesOk){
             console.error(JSON.stringify({failed,dialog:report.dialog,drawer:report.drawer},null,2));
             process.exit(1);
           }
