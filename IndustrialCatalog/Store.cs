@@ -79,8 +79,26 @@ public sealed class Store
             foreach (var node in categories)
             {
                 if (node is not JsonObject category) continue;
+                category["parent"] ??= "";
+                category["description"] ??= "";
+                category["image"] ??= "";
+                category["visible"] ??= true;
+                category["menu"] ??= string.IsNullOrWhiteSpace(category["parent"]?.ToString());
                 category["seoTitle"] ??= "";
                 category["seoDescription"] ??= "";
+            }
+            var ids = categories.OfType<JsonObject>().Select(c => c["id"]?.ToString() ?? "").ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var furnitureEvidence = categories.OfType<JsonObject>().Any(c =>
+                string.Equals(c["id"]?.ToString(), "tezgah", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(c["parent"]?.ToString(), "mobilya", StringComparison.OrdinalIgnoreCase));
+            if (!ids.Contains("mobilya") && ids.Contains("sogutma") && ids.Contains("mutfak") && furnitureEvidence)
+            {
+                categories.Add(new JsonObject
+                {
+                    ["id"]="mobilya",["name"]="Ticari Mobilya",["parent"]="",
+                    ["description"]="Çalışma alanınıza sağlam bir temel.",["image"]="",
+                    ["menu"]=true,["visible"]=true,["seoTitle"]="",["seoDescription"]=""
+                });
             }
         }
         if (data["products"] is JsonArray products)
