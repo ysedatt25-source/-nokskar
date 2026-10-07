@@ -4872,3 +4872,32 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   body.page-detail.app-shell-enabled .detail-mobile-contact{min-width:100px!important;min-height:46px!important;padding:6px 8px!important;border-radius:10px!important;font-size:.66rem!important}
 }
 @media(prefers-reduced-motion:reduce){.app-category-sheet,.app-sheet-loading span{transition:none!important;animation:none!important}}
+
+/* R20.2 — centered mobile category sheet and inquiry counter. */
+@media(max-width:1100px){
+  body.app-shell-enabled .app-category-overlay{
+    align-items:center;
+    justify-content:center;
+    padding:calc(68px + env(safe-area-inset-top,0px)) 12px calc(var(--app-dock-h,72px) + var(--app-safe-bottom,0px) + 12px);
+  }
+  body.app-shell-enabled .app-category-sheet{
+    width:min(680px,calc(100vw - 24px));
+    max-height:min(74dvh,720px);
+    margin:auto;
+    border-radius:24px;
+    overscroll-behavior:contain;
+  }
+}
+@media(max-width:700px){
+  body.app-shell-enabled .app-category-sheet{
+    width:min(560px,calc(100vw - 24px));
+    max-height:min(72dvh,680px);
+  }
+}
+.admin-app-item[data-admin-dock="inquiries"]{position:relative}
+.admin-inquiry-badge{
+  position:absolute;top:3px;left:50%;transform:translateX(10px);
+  min-width:19px;height:19px;padding:0 5px;border:2px solid #fff;border-radius:999px;
+  display:grid;place-items:center;background:#d9364c;color:#fff;
+  font-size:.6rem;font-weight:900;line-height:1;box-shadow:0 3px 9px rgba(142,23,42,.28);
+}

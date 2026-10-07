@@ -397,3 +397,37 @@ document.addEventListener('submit',event=>{
 
 /* R16.5 — eliminate duplicate page-size controls regardless of legacy wrapper/class. */
 (()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;const o=new MutationObserver(clean);o.observe(root,{subtree:true,childList:true,characterData:true});setTimeout(()=>o.disconnect(),2200);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
+
+/* R20.2 — unread inquiry counter for the admin mobile dock. */
+(()=>{
+  if((location.pathname.replace(/\/$/,'')||'/')!=='/admin')return;
+  let last=-1;
+  const render=(count,attempt=0)=>{
+    const btn=document.querySelector('.admin-app-dock [data-admin-dock="inquiries"]');
+    if(!btn){if(attempt<24)setTimeout(()=>render(count,attempt+1),125);return;}
+    let badge=btn.querySelector('.admin-inquiry-badge');
+    if(count<=0){badge?.remove();btn.removeAttribute('aria-label');return;}
+    if(!badge){badge=document.createElement('b');badge.className='admin-inquiry-badge';badge.setAttribute('aria-hidden','true');btn.append(badge);}
+    badge.textContent=count>99?'99+':String(count);
+    btn.setAttribute('aria-label','Talepler, '+count+' okunmamış talep');
+  };
+  const refresh=async()=>{
+    try{
+      const response=await fetch('/api/inquiries/unread-count',{cache:'no-store',headers:{Accept:'application/json'}});
+      if(!response.ok)return;
+      const body=await response.json();
+      const count=Math.max(0,Number(body.count)||0);
+      last=count;render(count);
+    }catch{}
+  };
+  const start=()=>{
+    refresh();
+    const timer=setInterval(refresh,20000);
+    window.addEventListener('pageshow',refresh);
+    window.addEventListener('focus',refresh);
+    window.addEventListener('inokskar:inquiry-change',refresh);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh();});
+    window.addEventListener('beforeunload',()=>clearInterval(timer),{once:true});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();

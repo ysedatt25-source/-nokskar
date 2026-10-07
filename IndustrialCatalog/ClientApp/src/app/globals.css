@@ -167,3 +167,23 @@ body[data-scroll-locked] { overflow: hidden; overscroll-behavior: contain; }
 /* R16 — grouped admin navigation */
 .admin-sidebar nav{align-content:start}.admin-nav-group{display:grid;gap:5px}.admin-nav-group+.admin-nav-group{margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.09)}.admin-nav-group-title{padding:0 10px;color:#9fb0c2;font-size:.62rem;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.admin-nav-group>button,.admin-nav-group>a{width:100%}
 @media(max-width:1100px){body[data-ui-page^="admin-"] .admin-sidebar nav .admin-nav-group{display:grid;gap:6px}body[data-ui-page^="admin-"] .admin-sidebar nav .admin-nav-group+.admin-nav-group{margin-top:4px;padding-top:8px}body[data-ui-page^="admin-"] .admin-nav-group-title{padding:3px 8px;color:#9fb0c2!important;font-size:.61rem!important}}
+
+/* R20.2 — clear read/unread inquiry list states. */
+.inquiry-admin-row{position:relative;transition:border-color .16s ease,background .16s ease,box-shadow .16s ease}
+.inquiry-admin-row.is-unread{
+  border-color:#bdd5f3;border-left:4px solid #1767d4;
+  background:linear-gradient(135deg,#f2f7ff 0%,#fff 64%);
+  box-shadow:0 10px 26px rgba(23,103,212,.09);
+}
+.inquiry-admin-row.is-read{border-left:4px solid #d7e1eb;background:#fff}
+.inquiry-read-state{
+  display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:3px 8px;
+  border:1px solid #d6e0ea;border-radius:999px;font-size:.69rem;font-weight:850;line-height:1;
+}
+.inquiry-read-state i{width:7px;height:7px;border-radius:999px;background:currentColor;box-shadow:0 0 0 3px rgba(100,120,140,.08)}
+.inquiry-read-state.unread{border-color:#b9d3f3;background:#eaf3ff;color:#145ebd}
+.inquiry-read-state.read{border-color:#dbe4ec;background:#f5f7f9;color:#6b7c8d}
+@media(max-width:700px){
+  .inquiry-admin-row{padding:17px 14px}
+  .request-badges{gap:6px;align-items:center;flex-wrap:wrap}
+}

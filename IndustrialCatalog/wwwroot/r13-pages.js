@@ -1,7 +1,7 @@
 /* Page-specific visual scopes; does not alter forms, navigation or requests. */
 (()=>{const tabs={'Genel bakış':'overview','Ürünler':'products','Kategoriler':'categories','Fiyat yönetimi':'prices','Site ayarları':'settings','Güvenlik':'security','İstatistikler':'stats','Geçmiş & yedek':'history','Müşteri talepleri':'inquiries'};
 function scope(){const p=location.pathname.replace(/\/$/,'')||'/';let key=p==='/'?'home':p.replace(/^\//,'').replace(/\//g,'-');if(p.startsWith('/kategori/'))key='category';if(p.startsWith('/urun/'))key='product';if(p.startsWith('/hesabim'))key='hesabim';if(p.startsWith('/admin/inquiries/'))key='inquiry';if(p.startsWith('/teknik/cihaz/'))key='device';if(/\/admin\/warranties\/.*\/certificate$/.test(p))key='certificate';if(p==='/admin'){const active=document.querySelector('.admin-sidebar nav button.active');key='admin-'+(tabs[active?.textContent.trim()]||'overview');}if(document.body.dataset.uiPage!==key)document.body.dataset.uiPage=key;}
-const start=()=>{scope();new MutationObserver(scope).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});window.addEventListener('popstate',scope);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
+const start=()=>{scope();window.addEventListener('popstate',scope);window.addEventListener('pageshow',scope);window.addEventListener('inokskar:navigation',scope);document.addEventListener('click',()=>requestAnimationFrame(scope),true);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
 /* R14: complete shared navigation on server-rendered public pages. */
 (()=>{
 function refine(){
@@ -20,7 +20,7 @@ function refine(){
   const intro=document.createElement('section');intro.className='wrap page-intro';const crumb=document.createElement('div');crumb.className='breadcrumb';const home=document.createElement('a');home.href='/';home.textContent='Ana sayfa';crumb.append(home,document.createTextNode(' / '+name));const title=document.createElement('h1');title.textContent=name;intro.append(crumb,title);document.querySelector('.catalogue').before(intro);
  }
 }
-function start(){refine();const o=new MutationObserver(refine);o.observe(document.body,{childList:true,subtree:true});}
+function start(){refine();window.addEventListener('pageshow',refine);window.addEventListener('inokskar:navigation',refine);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 /* Legacy visual scripts change React-owned nodes. Use a clean document for
@@ -66,7 +66,7 @@ document.addEventListener('submit',event=>{
     window.addEventListener('resize',()=>{if(innerWidth>1100&&side.classList.contains('menu-open'))close()},{passive:true});
     window.addEventListener('pageshow',()=>{if(!side.classList.contains('menu-open')){document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');}});
   };
-  const start=()=>{mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),30000)};
+  const start=()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))return;const observer=new MutationObserver(()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))observer.disconnect();});observer.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -89,7 +89,7 @@ document.addEventListener('submit',event=>{
     if(p==='/')return'home';
     if(p==='/urunler'||p.startsWith('/urun/'))return'products';
     if(p.startsWith('/kategori/'))return'categories';
-    if(p==='/servis-talebi'||p==='/garanti-sorgulama'||p==='/iletisim')return'service';
+    if(p==='/servis-talebi')return'service';
     if(p.startsWith('/hesabim'))return'account';
     return'';
   };
@@ -101,25 +101,40 @@ document.addEventListener('submit',event=>{
     });
     return rows.slice(0,18);
   };
+  const fetchCategories=async()=>{
+    const fromDom=uniqueCategories();if(fromDom.length)return fromDom;
+    try{
+      const r=await fetch('/api/catalog',{cache:'no-store'}),b=await r.json();
+      const cats=Array.isArray(b?.data?.categories)?b.data.categories:[];
+      const roots=cats.filter(c=>!c.parent),ordered=[...roots,...cats.filter(c=>c.parent)];
+      return ordered.slice(0,18).map(c=>({href:'/kategori/'+encodeURIComponent(c.id),label:String(c.name||'Kategori')}));
+    }catch{return[]}
+  };
   const mountSheet=()=>{
     let overlay=document.querySelector('.app-category-overlay');
     if(overlay)return overlay;
     overlay=document.createElement('div');overlay.className='app-category-overlay';overlay.hidden=true;
     overlay.innerHTML='<div class="app-category-sheet" role="dialog" aria-modal="true" aria-label="Ürün kategorileri"><div class="app-sheet-handle"></div><div class="app-sheet-head"><div><small>ÜRÜN KATALOĞU</small><strong>Kategoriler</strong></div><button class="app-sheet-close" type="button" aria-label="Kapat">'+icon('close')+'</button></div><div class="app-category-list"></div><a class="app-all-products" href="/urunler">Tüm ürünleri görüntüle <span>→</span></a></div>';
     document.body.append(overlay);
-    const close=()=>{overlay.hidden=true;document.body.classList.remove('app-sheet-open')};
+    const close=()=>{overlay.classList.remove('is-ready');overlay.hidden=true;document.body.classList.remove('app-sheet-open')};
     overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
     overlay.querySelector('.app-sheet-close').addEventListener('click',close);
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)close()});
-    overlay._open=()=>{
-      const list=overlay.querySelector('.app-category-list'),cats=uniqueCategories();
-      list.innerHTML=cats.length?cats.map(x=>'<a href="'+x.href+'"><span>'+x.label+'</span><b>›</b></a>').join(''):'<p class="app-sheet-empty">Kategoriler yükleniyor…</p>';
+    overlay._close=close;
+    overlay._open=async()=>{
+      const list=overlay.querySelector('.app-category-list');
+      list.innerHTML='<div class="app-sheet-loading" aria-live="polite"><span></span><span></span><span></span></div>';
       overlay.hidden=false;document.body.classList.add('app-sheet-open');
+      requestAnimationFrame(()=>overlay.classList.add('is-ready'));
+      const cats=await fetchCategories();
+      if(overlay.hidden)return;
+      list.innerHTML=cats.length?cats.map(x=>'<a href="'+x.href+'"><span>'+x.label+'</span><b>›</b></a>').join(''):'<p class="app-sheet-empty">Henüz yayınlanmış kategori bulunmuyor.</p>';
     };
     return overlay;
   };
+  const syncNav=()=>{const active=activeKey();document.querySelectorAll('.app-bottom-nav [data-app-key]').forEach(el=>el.classList.toggle('active',el.getAttribute('data-app-key')===active));};
   const mountNav=()=>{
-    if(document.querySelector('.app-bottom-nav'))return;
+    if(document.querySelector('.app-bottom-nav')){syncNav();return;}
     const active=activeKey(),nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Mobil uygulama navigasyonu');
     const items=[
       ['home','/','Ana Sayfa','home'],
@@ -129,8 +144,8 @@ document.addEventListener('submit',event=>{
       ['account','/hesabim','Hesabım','account']
     ];
     nav.innerHTML=items.map(([key,href,label,ic])=>key==='categories'
-      ?'<button type="button" class="app-bottom-item '+(active===key?'active':'')+'" data-app-categories>'+icon(ic)+'<span>'+label+'</span></button>'
-      :'<a class="app-bottom-item '+(active===key?'active':'')+'" href="'+href+'">'+icon(ic)+'<span>'+label+'</span></a>').join('');
+      ?'<button type="button" class="app-bottom-item '+(active===key?'active':'')+'" data-app-key="'+key+'" data-app-categories>'+icon(ic)+'<span>'+label+'</span></button>'
+      :'<a class="app-bottom-item '+(active===key?'active':'')+'" data-app-key="'+key+'" href="'+href+'">'+icon(ic)+'<span>'+label+'</span></a>').join('');
     document.body.append(nav);
     nav.querySelector('[data-app-categories]').addEventListener('click',()=>mountSheet()._open());
   };
@@ -150,7 +165,7 @@ document.addEventListener('submit',event=>{
     document.body.classList.add('app-shell-enabled');
     mountNav();mountSearch();
   };
-  const start=()=>{mount();const o=new MutationObserver(()=>{if(!excluded()){mountSearch();}});o.observe(document.body,{childList:true,subtree:true});window.addEventListener('popstate',mount)};
+  const start=()=>{mount();if(!document.querySelector('.site-header')&&!excluded()){const o=new MutationObserver(()=>{mount();if(document.querySelector('.site-header'))o.disconnect();});o.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000);}const refresh=()=>{mount();syncNav();document.querySelector('.app-category-overlay')?._close?.();};window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('inokskar:navigation',refresh)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -191,7 +206,7 @@ document.addEventListener('submit',event=>{
     if(sideBrand&&!sideBrand.dataset.r158Brand){sideBrand.dataset.r158Brand='1';sideBrand.classList.add('private-brand-link');sideBrand.innerHTML=brandHtml;}
     document.querySelectorAll('.private-brand-header').forEach(setupHeader);
   };
-  const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),30000)};
+  const start=()=>{mount();const root=document.getElementById('root')||document.body;const o=new MutationObserver(()=>{mount();if(document.querySelector('.private-brand-header[data-r158-brand],.private-app-dock'))o.disconnect();});o.observe(root,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -306,8 +321,8 @@ document.addEventListener('submit',event=>{
     if(e.key!=='Tab')return;const items=focusables(layer.panel);if(!items.length)return;const first=items[0],last=items[items.length-1];
     if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   },true);
-  const clearStale=()=>{if(activeLayer())return;if(shield){shield.remove();shield=null;}document.body.classList.remove('ui-layer-locked');setBackgroundInert(false,null);document.querySelectorAll('[inert]').forEach(el=>{if(el.matches('main,.site-footer,.public-home-return-wrap'))el.removeAttribute('inert');});};
-  const start=()=>{sync();new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','hidden'],childList:true});window.addEventListener('pageshow',()=>{sync();clearStale()});window.addEventListener('resize',()=>{if(innerWidth>1100){const layer=activeLayer();if(layer?.kind==='private')layer.close();setTimeout(clearStale,0);}},{passive:true});};
+  const clearStale=()=>{if(activeLayer())return;if(shield){shield.remove();shield=null;}document.body.classList.remove('ui-layer-locked');setBackgroundInert(false,null);};
+  const start=()=>{sync();const schedule=()=>requestAnimationFrame(()=>{sync();clearStale()});document.addEventListener('click',schedule,true);document.addEventListener('pointerup',schedule,true);window.addEventListener('popstate',schedule);window.addEventListener('inokskar:navigation',schedule);window.addEventListener('pageshow',()=>{sync();clearStale()});window.addEventListener('resize',()=>{if(innerWidth>1100){const layer=activeLayer();if(layer?.kind==='private')layer.close();setTimeout(clearStale,0);}},{passive:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -381,4 +396,38 @@ document.addEventListener('submit',event=>{
 })();
 
 /* R16.5 — eliminate duplicate page-size controls regardless of legacy wrapper/class. */
-(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;new MutationObserver(clean).observe(root,{subtree:true,childList:true,characterData:true});};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
+(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;const o=new MutationObserver(clean);o.observe(root,{subtree:true,childList:true,characterData:true});setTimeout(()=>o.disconnect(),2200);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
+
+/* R20.2 — unread inquiry counter for the admin mobile dock. */
+(()=>{
+  if((location.pathname.replace(/\/$/,'')||'/')!=='/admin')return;
+  let last=-1;
+  const render=(count,attempt=0)=>{
+    const btn=document.querySelector('.admin-app-dock [data-admin-dock="inquiries"]');
+    if(!btn){if(attempt<24)setTimeout(()=>render(count,attempt+1),125);return;}
+    let badge=btn.querySelector('.admin-inquiry-badge');
+    if(count<=0){badge?.remove();btn.removeAttribute('aria-label');return;}
+    if(!badge){badge=document.createElement('b');badge.className='admin-inquiry-badge';badge.setAttribute('aria-hidden','true');btn.append(badge);}
+    badge.textContent=count>99?'99+':String(count);
+    btn.setAttribute('aria-label','Talepler, '+count+' okunmamış talep');
+  };
+  const refresh=async()=>{
+    try{
+      const response=await fetch('/api/inquiries/unread-count',{cache:'no-store',headers:{Accept:'application/json'}});
+      if(!response.ok)return;
+      const body=await response.json();
+      const count=Math.max(0,Number(body.count)||0);
+      last=count;render(count);
+    }catch{}
+  };
+  const start=()=>{
+    refresh();
+    const timer=setInterval(refresh,20000);
+    window.addEventListener('pageshow',refresh);
+    window.addEventListener('focus',refresh);
+    window.addEventListener('inokskar:inquiry-change',refresh);
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh();});
+    window.addEventListener('beforeunload',()=>clearInterval(timer),{once:true});
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
