@@ -40,7 +40,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r21-2"
+          expected="r21-3"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -446,6 +446,33 @@ jobs:
             await context.close();
           }
 
+          // Desktop product gallery controls must sit on the image edges, never stack in the center.
+          if (imageProductPath) {
+            const context = await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
+            const page = await context.newPage();
+            await page.goto(base + imageProductPath, { waitUntil: 'domcontentloaded', timeout: 45000 });
+            await page.locator('.detail-photo').first().waitFor({state:'visible',timeout:10000});
+            await page.waitForTimeout(450);
+            const galleryControls = await page.evaluate(() => {
+              const stage=document.querySelector('.gallery-stage')?.getBoundingClientRect();
+              const prev=document.querySelector('.gallery-stage .gallery-arrow.prev')?.getBoundingClientRect();
+              const next=document.querySelector('.gallery-stage .gallery-arrow.next')?.getBoundingClientRect();
+              if(!stage||!prev||!next)return {present:false};
+              const cy=r=>(r.top+r.bottom)/2;
+              return {
+                present:true,
+                prevNearLeft:prev.left-stage.left<=28,
+                nextNearRight:stage.right-next.right<=28,
+                verticallyCentered:Math.abs(cy(prev)-cy(stage))<=3&&Math.abs(cy(next)-cy(stage))<=3,
+                separated:next.left-prev.right>Math.max(120,stage.width*.45),
+                stageRatio:Number((stage.width/stage.height).toFixed(3))
+              };
+            });
+            report.interaction.desktopGalleryControls=galleryControls;
+            await page.screenshot({path:out+'/product-detail-images-desktop-controls.png',fullPage:false,animations:'disabled'});
+            await context.close();
+          }
+
           // Tablet drawer and click-to-open category behavior, isolated from the phone test.
           {
             const context = await browser.newContext({
@@ -533,6 +560,14 @@ jobs:
           const productDetail = report.interaction.productDetail || {};
           const tabletProductDetail = report.interaction.tabletProductDetail || {};
           const imageProductGeometry = report.interaction.imageProductGeometry || {};
+          const desktopGalleryControls = report.interaction.desktopGalleryControls || {};
+          const desktopGalleryControlsOk = !imageProductPath || (
+            desktopGalleryControls.present &&
+            desktopGalleryControls.prevNearLeft &&
+            desktopGalleryControls.nextNearRight &&
+            desktopGalleryControls.verticallyCentered &&
+            desktopGalleryControls.separated
+          );
           const imageProductOk = !imageProductPath || (
             imageProductGeometry.galleryInsideViewport &&
             imageProductGeometry.photoInsideGallery &&
@@ -572,7 +607,7 @@ jobs:
             cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.submenuInFlow && cat?.menuVisible && cat?.categoryUrlStayedHome &&
             tabletMenu?.visible && tabletMenu?.categoryDropdownVisible && tabletMenu?.submenuInFlow && tabletMenu?.urlStayedHome &&
             tabletMenu?.background === 'rgb(255, 255, 255)' &&
-            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk && imageProductOk;
+            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk && imageProductOk && desktopGalleryControlsOk;
           console.log(JSON.stringify(report, null, 2));
 
           if (failedPages.length || !interactionOk) {
