@@ -40,7 +40,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r22-2"
+          expected="r22-3"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -531,12 +531,12 @@ jobs:
             await page.goto(base + '/iletisim', { waitUntil: 'networkidle', timeout: 45000 });
             const contact = await page.evaluate(() => {
               const email=document.querySelector('.inquiry-form input[name="email"]'),phone=document.querySelector('.inquiry-form input[name="phone"]');
-              return {emailRequired:!!email?.required,emailType:email?.getAttribute('type'),phoneRequired:!!phone?.required,phonePattern:phone?.getAttribute('pattern')||''};
+              return {emailRequired:!!email?.required,emailType:email?.getAttribute('type'),emailPattern:email?.getAttribute('pattern')||'',phoneRequired:!!phone?.required,phonePattern:phone?.getAttribute('pattern')||''};
             });
             await page.goto(base + '/servis-talebi', { waitUntil: 'networkidle', timeout: 45000 });
             const service = await page.evaluate(() => {
               const email=document.querySelector('#service-request-form input[name="email"]'),phone=document.querySelector('#service-request-form input[name="phone"]');
-              return {emailRequired:!!email?.required,emailType:email?.getAttribute('type'),phoneRequired:!!phone?.required,phonePattern:phone?.getAttribute('pattern')||''};
+              return {emailRequired:!!email?.required,emailType:email?.getAttribute('type'),emailPattern:email?.getAttribute('pattern')||'',phoneRequired:!!phone?.required,phonePattern:phone?.getAttribute('pattern')||''};
             });
             report.interaction.requiredContacts={contact,service};
             await context.close();
@@ -609,7 +609,7 @@ jobs:
             tabletProductDetail?.inlineVisible &&
             tabletProductDetail?.trustVisible
           );
-          const requiredContactsOk = requiredContacts.contact?.emailRequired && requiredContacts.contact?.emailType === 'email' && requiredContacts.contact?.phoneRequired && requiredContacts.service?.emailRequired && requiredContacts.service?.emailType === 'email' && requiredContacts.service?.phoneRequired;
+          const requiredContactsOk = requiredContacts.contact?.emailRequired && requiredContacts.contact?.emailType === 'email' && !requiredContacts.contact?.emailPattern && requiredContacts.contact?.phoneRequired && requiredContacts.service?.emailRequired && requiredContacts.service?.emailType === 'email' && !requiredContacts.service?.emailPattern && requiredContacts.service?.phoneRequired;
           const geometryOk =
             Number(mobileGeometry.headerSearchGap) <= 2 &&
             Number(tabletGeometry.headerSearchGap) <= 2 &&

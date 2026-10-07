@@ -383,13 +383,7 @@ public sealed class Store
         }
     }
 
-    static string InquiryPhoneKey(string? value)
-    {
-        var digits = new string((value ?? "").Where(char.IsDigit).ToArray());
-        if (digits.Length == 11 && digits.StartsWith("0", StringComparison.Ordinal)) digits = digits[1..];
-        if (digits.Length == 12 && digits.StartsWith("90", StringComparison.Ordinal)) digits = digits[2..];
-        return digits.Length > 10 ? digits[^10..] : digits;
-    }
+    static string InquiryPhoneKey(string? value) => ContactRules.TurkeyPhoneKey(value);
 
     public JsonArray TrackInquiriesByPhone(string phone, int max = 20)
     {

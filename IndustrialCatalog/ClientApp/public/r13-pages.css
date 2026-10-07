@@ -5278,3 +5278,15 @@ body[data-ui-page^="admin-"] [data-slot="select-content"]{z-index:770!important;
     border-radius:0!important;box-shadow:0 -10px 26px rgba(12,36,60,.17)!important
   }
 }
+
+
+/* R22.3 — contact validation helper text */
+.inquiry-form .field-help,
+.service-form label>small{
+  display:block;
+  margin-top:5px;
+  color:#667b90;
+  font-size:.72rem;
+  font-weight:600;
+  line-height:1.4;
+}
