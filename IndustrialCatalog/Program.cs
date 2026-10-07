@@ -71,7 +71,7 @@ app.Use(async(ctx,next)=>{if(ctx.User.Identity?.IsAuthenticated==true&&ctx.User.
 app.UseAuthorization();app.UseRateLimiter();
 app.MapGet("/error",()=>Results.Problem("İşlem tamamlanamadı. Lütfen tekrar deneyin."));
 app.MapGet("/healthz",()=>Results.Json(new{status="ok",checkedAt=DateTimeOffset.UtcNow}));
-app.MapGet("/build-info",()=>Results.Json(new{release="r18-11",commit=Environment.GetEnvironmentVariable("RAILWAY_GIT_COMMIT_SHA")??"",deployment=Environment.GetEnvironmentVariable("RAILWAY_DEPLOYMENT_ID")??"",environment=Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT_NAME")??Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")??""}));
+app.MapGet("/build-info",()=>Results.Json(new{release="r18-12",commit=Environment.GetEnvironmentVariable("RAILWAY_GIT_COMMIT_SHA")??"",deployment=Environment.GetEnvironmentVariable("RAILWAY_DEPLOYMENT_ID")??"",environment=Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT_NAME")??Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")??""}));
 app.MapGet("/api/security/csrf",(HttpContext c,IAntiforgery antiforgery)=>{var tokens=antiforgery.GetAndStoreTokens(c);return Results.Json(new{token=tokens.RequestToken??""});}).RequireAuthorization();
 app.MapGet("/robots.txt",(IConfiguration config)=>Results.Text("User-agent: *\nDisallow: /admin\nDisallow: /login\nDisallow: /forgot-password\nDisallow: /reset-password\nDisallow: /api/\n"+(SeoPages.Origin(config) is string origin?"Sitemap: "+origin+"/sitemap.xml\n":""),"text/plain"));
 app.MapGet("/sitemap.xml",(Store store,IConfiguration config)=>SeoPages.Origin(config) is string origin
