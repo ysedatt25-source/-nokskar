@@ -1,4 +1,4 @@
-/* R22.10 — center brand within the space left of the hamburger menu. */
+/* R22.11 — centered mobile brand and inquiry workflow refinements. */
 @media(max-width:1100px){
   body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link{
     position:relative;
@@ -431,6 +431,81 @@ body.page-detail.app-shell-enabled .detail-thumbnail-rail{
   body.page-detail.app-shell-enabled .detail-gallery-count{
     top:10px;
     right:10px;
+  }
+}
+
+/* R22.11 — professional inquiry search controls in management. */
+.inquiry-admin-toolbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(280px,.85fr) auto;
+  align-items:end;
+  gap:14px;
+  margin-bottom:14px;
+}
+.inquiry-admin-toolbar h2{
+  margin:3px 0 4px;
+}
+.inquiry-admin-toolbar .muted{
+  margin:0;
+}
+.inquiry-search-field{
+  display:grid;
+  gap:6px;
+  min-width:0;
+}
+.inquiry-search-field input{
+  width:100%;
+  min-width:0;
+  min-height:46px;
+  padding:0 13px;
+  border:1px solid #cfdae8;
+  border-radius:12px;
+  background:#fff;
+  color:#19314d;
+  font:inherit;
+}
+.inquiry-search-field input:focus{
+  outline:2px solid rgba(32,116,221,.24);
+  outline-offset:2px;
+  border-color:#4284d9;
+}
+.inquiry-toolbar-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:7px;
+}
+.inquiry-admin-row>p:first-of-type{
+  color:#49647e;
+  font-weight:720;
+}
+@media(max-width:900px){
+  .inquiry-admin-toolbar{
+    grid-template-columns:1fr;
+    align-items:stretch;
+  }
+  .inquiry-toolbar-actions{
+    justify-content:flex-start;
+  }
+}
+@media(max-width:600px){
+  .inquiry-admin-toolbar{
+    gap:10px;
+    padding:15px;
+    border-radius:16px;
+  }
+  .inquiry-search-field input{
+    min-height:50px;
+    font-size:.92rem;
+  }
+  .inquiry-toolbar-actions{
+    display:grid;
+    grid-template-columns:1fr;
+  }
+  .inquiry-toolbar-actions .small-btn{
+    width:100%;
+    justify-content:center;
+    min-height:42px;
   }
 }
 
