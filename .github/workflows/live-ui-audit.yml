@@ -1,0 +1,51 @@
+name: Live UI Release Audit
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-ui-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install audit browser
+        run: |
+          mkdir -p .qa-runtime
+          cd .qa-runtime
+          npm init -y
+          npm install playwright@1.55.0 axe-core@4.10.3
+          npx playwright install --with-deps chromium
+      - name: Wait for Railway deployment
+        run: |
+          for i in {1..30}; do
+            code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://inokskar-web-preview.up.railway.app/healthz" || true)
+            if [ "$code" = "200" ]; then sleep 35; exit 0; fi
+            sleep 10
+          done
+          exit 1
+      - name: Audit live site at 3 viewports
+        env:
+          NODE_PATH: ${{ github.workspace }}/.qa-runtime/node_modules
+          QA_BASE_URL: https://inokskar-web-preview.up.railway.app
+          QA_OUTPUT: qa-output
+        run: node .github/qa/live-ui-audit.mjs
+        continue-on-error: true
+      - name: Print report
+        if: always()
+        run: |
+          cat qa-output/REPORT.md || true
+          node -e "const fs=require('fs');if(fs.existsSync('qa-output/report.json')){const r=JSON.parse(fs.readFileSync('qa-output/report.json'));console.log('SUMMARY',JSON.stringify(r.summary,null,2))}" || true
+      - name: Upload visual audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-ui-audit
+          path: qa-output
+          if-no-files-found: warn
+          retention-days: 7
