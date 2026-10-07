@@ -5246,3 +5246,12 @@ body[data-ui-page="admin-inquiries"] .workflow-manage-btn{
 }
 
 .service-success .service-track-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin-top:10px;padding:8px 12px;border:1px solid #b9d4ef;border-radius:9px;background:#fff;color:#1767ba;text-decoration:none;font-weight:850;font-size:.8rem}
+
+
+/* R22.1 — modal popover stacking
+   Radix Select portals must sit above the dialog overlay; otherwise the option is
+   visible but the overlay intercepts taps/clicks on mobile and desktop. */
+body[data-ui-page^="admin-"] [data-slot="dialog-overlay"]{z-index:600!important}
+body[data-ui-page^="admin-"] [data-slot="dialog-content"]{z-index:610!important}
+body[data-ui-page^="admin-"] [data-radix-popper-content-wrapper]{z-index:760!important}
+body[data-ui-page^="admin-"] [data-slot="select-content"]{z-index:770!important;pointer-events:auto!important}
