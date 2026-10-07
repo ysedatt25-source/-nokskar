@@ -18,23 +18,6 @@
     actions.append(util);
     const cta=document.createElement('a');cta.className='header-cta';cta.href='/iletisim?amac=teklif';cta.textContent='Teklif Al';actions.append(cta);
   }
-  function mobile(nav,sourceForm){
-    if(!nav||nav.querySelector('.mobile-home-search'))return;
-    const wrap=document.createElement('div');wrap.className='mobile-home-search';
-    if(sourceForm){
-      const clone=sourceForm.cloneNode(true);wrap.append(clone);
-      const ci=clone.querySelector('input'),si=sourceForm.querySelector('input');
-      if(ci)ci.placeholder='Ürün, kategori veya model ara...';
-      ci&&ci.addEventListener('input',()=>{if(si)si.value=ci.value;});
-      clone.addEventListener('submit',e=>{e.preventDefault();if(si&&ci)si.value=ci.value;sourceForm.requestSubmit();});
-    }
-    nav.prepend(wrap);
-    const a=document.createElement('a');a.className='mobile-account-link';a.href='/hesabim';a.innerHTML=`${accountIcon}<span>Hesabım / Giriş</span>`;nav.append(a);
-  }
-  function cleanMenu(){
-    document.querySelectorAll('.nav-category-toggle').forEach(b=>{b.setAttribute('tabindex','-1');b.setAttribute('aria-hidden','true');});
-    document.querySelectorAll('.nav-dropdown-all svg,.mega-title svg').forEach(x=>x.remove());
-  }
   function enhance(){
     classify();
     const isPublic=!location.pathname.startsWith('/admin')&&!location.pathname.startsWith('/teknik')&&!['/login','/kayit','/forgot-password','/hesabim','/hesabim/profil','/account/security'].includes(location.pathname);
@@ -42,10 +25,9 @@
     const header=document.querySelector('.site-header');
     if(!header)return;
     const search=document.querySelector('.header-search');
-    const form=search?.closest('form');
     const input=search?.querySelector('input');
     if(input)input.placeholder='Ürün, kategori veya model ara...';
-    utilities();mobile(document.querySelector('.main-nav'),form);cleanMenu();
+    utilities();
     document.body.dataset.r126Public='1';
   }
   const run=()=>{classify();enhance();};

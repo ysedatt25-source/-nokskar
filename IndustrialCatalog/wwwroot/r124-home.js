@@ -25,26 +25,6 @@
     headerActions.append(cta);
   }
 
-  function enhanceMobileMenu(nav, searchForm){
-    if(!nav || nav.querySelector('.mobile-home-search')) return;
-    const searchWrap = document.createElement('div');
-    searchWrap.className='mobile-home-search';
-    if(searchForm){
-      searchWrap.append(searchForm.cloneNode(true));
-      const cloneInput = searchWrap.querySelector('input');
-      const sourceInput = searchForm.querySelector('input');
-      const sync = ()=>{ if(sourceInput && cloneInput) sourceInput.value = cloneInput.value; };
-      cloneInput && cloneInput.addEventListener('input', sync);
-      searchWrap.querySelector('form')?.addEventListener('submit', ()=>{ sync(); searchForm.requestSubmit(); });
-    }
-    nav.prepend(searchWrap);
-    const account = document.createElement('a');
-    account.className='mobile-account-link';
-    account.href='/hesabim';
-    account.innerHTML=`${ICONS.account}<span>Hesabım / Giriş</span>`;
-    nav.append(account);
-  }
-
   function retitleHero(hero){
     const h1 = hero.querySelector('h1');
     if(h1){
@@ -133,15 +113,12 @@
   function transform(){
     applyPageMode();
     const isHome = document.body.classList.contains('page-home');
-    if(!isHome)return;
+    if(!isHome){document.querySelectorAll('.cta-banner').forEach(x=>x.remove());document.body.dataset.r124Home='';return;}
     const header = document.querySelector('.site-header');
     const hero = document.querySelector('.hero');
     if(!header||!hero||document.body.dataset.r124Home==='1')return;
     const headerActions = document.querySelector('.header-actions');
-    const searchForm = document.querySelector('.header-search')?.closest('form') || document.querySelector('.header-search');
-    const nav = document.querySelector('.main-nav');
     buildUtilityLinks(headerActions);
-    enhanceMobileMenu(nav, searchForm && searchForm.tagName==='FORM' ? searchForm : null);
     retitleHero(hero);
     adjustSectionTitles();
     addHomeCta(document.querySelector('main'));
@@ -150,11 +127,14 @@
 
   ready(()=>{
     transform();
-    if(!document.body.classList.contains('page-home'))return;
-    const observer = new MutationObserver(()=>{
-      transform();
-      if(document.body.dataset.r124Home==='1')observer.disconnect();
-    });
-    if(document.body.dataset.r124Home!=='1')observer.observe(document.body,{childList:true,subtree:true});
+    if(document.body.classList.contains('page-home')){
+      const observer = new MutationObserver(()=>{
+        transform();
+        if(document.body.dataset.r124Home==='1')observer.disconnect();
+      });
+      if(document.body.dataset.r124Home!=='1')observer.observe(document.body,{childList:true,subtree:true});
+    }
+    window.addEventListener('inokskar:navigation',()=>requestAnimationFrame(()=>{document.body.dataset.r124Home='';transform();}));
+    window.addEventListener('popstate',()=>requestAnimationFrame(()=>{document.body.dataset.r124Home='';transform();}));
   });
 })();

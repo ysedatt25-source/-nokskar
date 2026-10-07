@@ -443,14 +443,14 @@ document.addEventListener('submit',event=>{
    if(!wasOpen){category.classList.add('open');toggle?.setAttribute('aria-expanded','true');nav.classList.add('category-layer-open');requestAnimationFrame(()=>category.scrollIntoView({block:'nearest',behavior:'smooth'}));}
  };
  const ensure=nav=>{
-   if(!(nav instanceof HTMLElement))return;
+   if(!(nav instanceof HTMLElement)||nav.closest('#root'))return;
    nav.classList.add('public-mobile-menu-sheet');syncGeometry(nav);
    if(!nav.querySelector(':scope>.mobile-menu-sheet-head')){
      const head=document.createElement('div');head.className='mobile-menu-sheet-head';
      head.innerHTML='<div><span>İNOKSKAR</span><strong>Menü</strong></div><button type="button" class="mobile-menu-sheet-close" aria-label="Menüyü kapat">'+closeIcon+'</button>';
      nav.prepend(head);head.querySelector('.mobile-menu-sheet-close')?.addEventListener('click',()=>closeServerMenu(nav));
    }
-   if(nav.closest('#root')||nav.dataset.r205Menu)return;
+   if(nav.dataset.r205Menu)return;
    nav.dataset.r205Menu='1';
    nav.addEventListener('click',e=>{
      if(innerWidth>1100)return;
