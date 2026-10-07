@@ -4751,3 +4751,23 @@ body[data-ui-page^="admin-"] .admin-shell.is-busy::after{
     pointer-events:auto!important;
   }
 }
+
+
+/* R18.13 — crisp drawer overlays */
+body.app-shell-enabled.storefront-layer-open .site-layer-backdrop,
+body.ui-layer-locked .ui-interaction-shield.public-shield{
+  background:rgba(7,18,31,.58)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+@media(max-width:1100px){
+  body.app-shell-enabled.storefront-layer-open .site-header,
+  body.app-shell-enabled.storefront-layer-open .site-header .main-nav.open{
+    filter:none!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+  body.app-shell-enabled.storefront-layer-open .site-header .main-nav.open{
+    opacity:1!important;
+  }
+}
