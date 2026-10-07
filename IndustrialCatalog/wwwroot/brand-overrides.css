@@ -1,4 +1,0 @@
-.backup-full-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.backup-full-actions .upload-button,.backup-full-actions .button{margin:0}
-.backup-full-status{flex-basis:100%}
-@media(max-width:760px){.backup-full-actions{width:100%}.backup-full-actions .upload-button,.backup-full-actions .button{flex:1 1 190px;justify-content:center}}

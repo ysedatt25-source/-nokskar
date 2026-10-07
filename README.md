@@ -1,2 +1,0 @@
-# -nokskar
-Profesyonel web sitesi

@@ -1,7 +1,7 @@
 /* Page-specific visual scopes; does not alter forms, navigation or requests. */
 (()=>{const tabs={'Genel bakış':'overview','Ürünler':'products','Kategoriler':'categories','Fiyat yönetimi':'prices','Site ayarları':'settings','Güvenlik':'security','İstatistikler':'stats','Geçmiş & yedek':'history','Müşteri talepleri':'inquiries'};
 function scope(){const p=location.pathname.replace(/\/$/,'')||'/';let key=p==='/'?'home':p.replace(/^\//,'').replace(/\//g,'-');if(p.startsWith('/kategori/'))key='category';if(p.startsWith('/urun/'))key='product';if(p.startsWith('/hesabim'))key='hesabim';if(p.startsWith('/admin/inquiries/'))key='inquiry';if(p.startsWith('/teknik/cihaz/'))key='device';if(/\/admin\/warranties\/.*\/certificate$/.test(p))key='certificate';if(p==='/admin'){const active=document.querySelector('.admin-sidebar nav button.active');key='admin-'+(tabs[active?.textContent.trim()]||'overview');}if(document.body.dataset.uiPage!==key)document.body.dataset.uiPage=key;}
-const start=()=>{scope();new MutationObserver(scope).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});window.addEventListener('popstate',scope);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
+const start=()=>{scope();window.addEventListener('popstate',scope);window.addEventListener('pageshow',scope);window.addEventListener('inokskar:navigation',scope);document.addEventListener('click',()=>requestAnimationFrame(scope),true);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
 /* R14: complete shared navigation on server-rendered public pages. */
 (()=>{
 function refine(){
@@ -20,7 +20,7 @@ function refine(){
   const intro=document.createElement('section');intro.className='wrap page-intro';const crumb=document.createElement('div');crumb.className='breadcrumb';const home=document.createElement('a');home.href='/';home.textContent='Ana sayfa';crumb.append(home,document.createTextNode(' / '+name));const title=document.createElement('h1');title.textContent=name;intro.append(crumb,title);document.querySelector('.catalogue').before(intro);
  }
 }
-function start(){refine();const o=new MutationObserver(refine);o.observe(document.body,{childList:true,subtree:true});}
+function start(){refine();window.addEventListener('pageshow',refine);window.addEventListener('inokskar:navigation',refine);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 /* Legacy visual scripts change React-owned nodes. Use a clean document for
@@ -66,7 +66,7 @@ document.addEventListener('submit',event=>{
     window.addEventListener('resize',()=>{if(innerWidth>1100&&side.classList.contains('menu-open'))close()},{passive:true});
     window.addEventListener('pageshow',()=>{if(!side.classList.contains('menu-open')){document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');}});
   };
-  const start=()=>{mount();const observer=new MutationObserver(mount);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),30000)};
+  const start=()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))return;const observer=new MutationObserver(()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))observer.disconnect();});observer.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -89,7 +89,7 @@ document.addEventListener('submit',event=>{
     if(p==='/')return'home';
     if(p==='/urunler'||p.startsWith('/urun/'))return'products';
     if(p.startsWith('/kategori/'))return'categories';
-    if(p==='/servis-talebi'||p==='/garanti-sorgulama'||p==='/iletisim')return'service';
+    if(p==='/servis-talebi')return'service';
     if(p.startsWith('/hesabim'))return'account';
     return'';
   };
@@ -150,7 +150,7 @@ document.addEventListener('submit',event=>{
     document.body.classList.add('app-shell-enabled');
     mountNav();mountSearch();
   };
-  const start=()=>{mount();const o=new MutationObserver(()=>{if(!excluded()){mountSearch();}});o.observe(document.body,{childList:true,subtree:true});window.addEventListener('popstate',mount)};
+  const start=()=>{mount();if(!document.querySelector('.site-header')&&!excluded()){const o=new MutationObserver(()=>{mount();if(document.querySelector('.site-header'))o.disconnect();});o.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000);}window.addEventListener('popstate',mount);window.addEventListener('pageshow',mount);window.addEventListener('inokskar:navigation',mount)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -191,7 +191,7 @@ document.addEventListener('submit',event=>{
     if(sideBrand&&!sideBrand.dataset.r158Brand){sideBrand.dataset.r158Brand='1';sideBrand.classList.add('private-brand-link');sideBrand.innerHTML=brandHtml;}
     document.querySelectorAll('.private-brand-header').forEach(setupHeader);
   };
-  const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),30000)};
+  const start=()=>{mount();const root=document.getElementById('root')||document.body;const o=new MutationObserver(()=>{mount();if(document.querySelector('.private-brand-header[data-r158-brand],.private-app-dock'))o.disconnect();});o.observe(root,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -307,7 +307,7 @@ document.addEventListener('submit',event=>{
     if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   },true);
   const clearStale=()=>{if(activeLayer())return;if(shield){shield.remove();shield=null;}document.body.classList.remove('ui-layer-locked');setBackgroundInert(false,null);document.querySelectorAll('[inert]').forEach(el=>{if(el.matches('main,.site-footer,.public-home-return-wrap'))el.removeAttribute('inert');});};
-  const start=()=>{sync();new MutationObserver(sync).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class','hidden'],childList:true});window.addEventListener('pageshow',()=>{sync();clearStale()});window.addEventListener('resize',()=>{if(innerWidth>1100){const layer=activeLayer();if(layer?.kind==='private')layer.close();setTimeout(clearStale,0);}},{passive:true});};
+  const start=()=>{sync();const schedule=()=>requestAnimationFrame(()=>{sync();clearStale()});document.addEventListener('click',schedule,true);document.addEventListener('pointerup',schedule,true);window.addEventListener('popstate',schedule);window.addEventListener('inokskar:navigation',schedule);window.addEventListener('pageshow',()=>{sync();clearStale()});window.addEventListener('resize',()=>{if(innerWidth>1100){const layer=activeLayer();if(layer?.kind==='private')layer.close();setTimeout(clearStale,0);}},{passive:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -381,4 +381,4 @@ document.addEventListener('submit',event=>{
 })();
 
 /* R16.5 — eliminate duplicate page-size controls regardless of legacy wrapper/class. */
-(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;new MutationObserver(clean).observe(root,{subtree:true,childList:true,characterData:true});};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
+(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;const o=new MutationObserver(clean);o.observe(root,{subtree:true,childList:true,characterData:true});setTimeout(()=>o.disconnect(),2200);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();

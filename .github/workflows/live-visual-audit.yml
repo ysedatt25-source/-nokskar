@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r18-14"
+          expected="r19-0"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -308,6 +308,24 @@ jobs:
             await context.close();
           }
 
+          // Contact and service request forms must require e-mail and phone.
+          {
+            const context = await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+            const page = await context.newPage();
+            await page.goto(base + '/iletisim', { waitUntil: 'networkidle', timeout: 45000 });
+            const contact = await page.evaluate(() => {
+              const email=document.querySelector('.inquiry-form input[name="email"]'),phone=document.querySelector('.inquiry-form input[name="phone"]');
+              return {emailRequired:!!email?.required,emailType:email?.getAttribute('type'),phoneRequired:!!phone?.required,phonePattern:phone?.getAttribute('pattern')||''};
+            });
+            await page.goto(base + '/servis-talebi', { waitUntil: 'networkidle', timeout: 45000 });
+            const service = await page.evaluate(() => {
+              const email=document.querySelector('#service-request-form input[name="email"]'),phone=document.querySelector('#service-request-form input[name="phone"]');
+              return {emailRequired:!!email?.required,emailType:email?.getAttribute('type'),phoneRequired:!!phone?.required,phonePattern:phone?.getAttribute('pattern')||''};
+            });
+            report.interaction.requiredContacts={contact,service};
+            await context.close();
+          }
+
           // Desktop categories must open automatically on hover.
           {
             const context = await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});
@@ -333,6 +351,8 @@ jobs:
           const tabletGeometry = report.interaction.tabletHomeGeometry || {};
           const tabletMenu = report.interaction.tabletMenu || {};
           const desktopHover = report.interaction.desktopCategoryHover || {};
+          const requiredContacts = report.interaction.requiredContacts || {};
+          const requiredContactsOk = requiredContacts.contact?.emailRequired && requiredContacts.contact?.emailType === 'email' && requiredContacts.contact?.phoneRequired && requiredContacts.service?.emailRequired && requiredContacts.service?.emailType === 'email' && requiredContacts.service?.phoneRequired;
           const geometryOk =
             Number(mobileGeometry.headerSearchGap) <= 2 &&
             Number(tabletGeometry.headerSearchGap) <= 2 &&
@@ -345,7 +365,7 @@ jobs:
             cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.submenuInFlow && cat?.menuVisible && cat?.categoryUrlStayedHome &&
             tabletMenu?.visible && tabletMenu?.categoryDropdownVisible && tabletMenu?.submenuInFlow && tabletMenu?.urlStayedHome &&
             tabletMenu?.background === 'rgb(255, 255, 255)' &&
-            desktopHover?.hoverDropdownVisible && geometryOk;
+            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk;
           console.log(JSON.stringify(report, null, 2));
 
           if (failedPages.length || !interactionOk) {
