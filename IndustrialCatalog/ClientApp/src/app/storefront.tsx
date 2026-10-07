@@ -46,6 +46,29 @@ export default function Storefront(){
  useEffect(()=>{const lockPage=menu||!!openCategory;const nodes=[document.querySelector('main'),document.querySelector('.site-footer')].filter(Boolean) as HTMLElement[];if(lockPage)nodes.forEach(n=>n.setAttribute('inert',''));return()=>nodes.forEach(n=>n.removeAttribute('inert'));},[menu,openCategory]);
  useEffect(()=>{const panel=filterSheet?document.querySelector('.catalog-filter-sheet'):openCategory?document.querySelector('.nav-category.open .nav-dropdown'):menu?document.querySelector('.main-nav.open'):null;if(!(panel instanceof HTMLElement))return;const previous=document.activeElement as HTMLElement|null;const items=()=>[...panel.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x=>!x.hidden&&x.getClientRects().length);const key=(e:KeyboardEvent)=>{if(e.key!=='Tab')return;const list=items();if(!list.length)return;const first=list[0],last=list[list.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}};document.addEventListener('keydown',key,true);requestAnimationFrame(()=>items()[0]?.focus({preventScroll:true}));return()=>{document.removeEventListener('keydown',key,true);previous?.focus?.({preventScroll:true});};},[menu,openCategory,filterSheet]);
  useEffect(()=>{setPage(1);},[path,search,filter,sort,pageSize]);
+ useEffect(()=>{
+   document.body.classList.remove('detail-sticky-cta-visible');
+   if(!path.startsWith('/urun/'))return;
+   const media=window.matchMedia('(max-width:600px)');
+   let observer:IntersectionObserver|null=null,raf=0;
+   const setup=()=>{
+     observer?.disconnect();
+     document.body.classList.remove('detail-sticky-cta-visible');
+     if(!media.matches)return;
+     const targets=[document.querySelector('.product-gallery'),document.querySelector('.detail-summary')].filter(Boolean) as Element[];
+     if(targets.length<2){raf=requestAnimationFrame(setup);return;}
+     const visible=new Map<Element,boolean>(targets.map(el=>[el,false]));
+     observer=new IntersectionObserver(entries=>{
+       entries.forEach(entry=>visible.set(entry.target,entry.isIntersecting));
+       document.body.classList.toggle('detail-sticky-cta-visible',![...visible.values()].some(Boolean));
+     },{threshold:.01});
+     targets.forEach(el=>observer!.observe(el));
+   };
+   const onMedia=()=>setup();
+   raf=requestAnimationFrame(setup);
+   media.addEventListener?.('change',onMedia);
+   return()=>{cancelAnimationFrame(raf);observer?.disconnect();media.removeEventListener?.('change',onMedia);document.body.classList.remove('detail-sticky-cta-visible');};
+ },[path]);
  useEffect(()=>{const context=(document as any).modelContext;if(!context?.registerTool)return;const lifecycle=new AbortController();Promise.resolve(context.registerTool({name:'search_catalog',title:'Ürün ara',description:'Ürün kataloğunda arama yapar ve sonuçları gösterir.',inputSchema:{type:'object',properties:{query:{type:'string'}},required:['query'],additionalProperties:false},annotations:{readOnlyHint:true},execute:(input:any)=>{if(typeof input?.query!=='string')throw Error('Arama metni gerekli');setSearch(input.query);setFilter('all');setPath('/urunler');window.history.pushState({},'', '/urunler');return {query:input.query,results:data?.products.filter(p=>matchesProduct(p,input.query)).map(p=>({id:p.id,code:productCode(p),name:p.name}))||[]};}},{signal:lifecycle.signal})).catch(()=>{});return()=>lifecycle.abort();},[data]);
  if(!data)return <div className={'load-state '+(error?'state-error':'state-loading')}><div className="state-panel"><span className="state-kicker">İNOKSKAR</span><h1>{error?'Katalog şu an yüklenemiyor':'Ürünler hazırlanıyor'}</h1><p>{error||'Kategoriler ve ürünler sizin için hazırlanıyor.'}</p>{error?<button className="button" onClick={()=>location.reload()}>Tekrar dene</button>:<div className="state-skeleton" aria-hidden="true"><span/><span/><span/></div>}</div></div>;
  const s=data.settings;const heroUrl=s.hero||'/hero.png';const heroVideo=/\.mp4(?:[?#]|$)/i.test(heroUrl);const roots=data.categories.filter(c=>!c.parent);const catId=path.startsWith('/kategori/')?decodeURIComponent(path.split('/')[2]):'';const category=data.categories.find(c=>c.id===catId);const product=path.startsWith('/urun/')?data.products.find(p=>p.id===decodeURIComponent(path.split('/')[2])):undefined;const contact=path==='/iletisim';const about=path==='/hakkimizda';const home=path==='/';const listing=path==='/urunler'||!!category;const menuLinks=s.menu.filter(m=>m.url!=='/blog');

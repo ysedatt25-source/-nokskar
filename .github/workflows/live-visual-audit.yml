@@ -40,7 +40,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r21-1"
+          expected="r21-2"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -337,8 +337,8 @@ jobs:
             await context.close();
           }
 
-          // Product detail must have one fixed product CTA and no separate floating WhatsApp collision.
-          // Navigate exactly like a user: home -> product card, so stale home-only DOM/CSS is caught.
+          // Product detail actions: no floating WhatsApp, no sticky overlay while the gallery/summary is visible.
+          // After the product summary leaves the viewport, one compact sticky CTA may appear above the app dock.
           if (productDetailPath) {
             const context = await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
             const page = await context.newPage();
@@ -352,23 +352,56 @@ jobs:
             }
             await page.locator('.detail').first().waitFor({state:'visible',timeout:10000});
             await page.waitForTimeout(700);
-            const productDetail = await page.evaluate(() => {
-              const floating=document.querySelector('.floating-wa');
-              const cta=document.querySelector('.detail-mobile-cta');
-              const dock=document.querySelector('.app-bottom-nav');
-              const ctaBox=cta?.getBoundingClientRect(),dockBox=dock?.getBoundingClientRect();
+            const initial = await page.evaluate(() => {
               const visible=e=>!!e&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0;
+              const floating=document.querySelector('.floating-wa');
+              const sticky=document.querySelector('.detail-mobile-cta');
+              const inline=document.querySelector('.detail-summary .detail-action-row');
+              const trust=document.querySelector('.detail-trust-row');
+              const stickyBox=sticky?.getBoundingClientRect(),trustBox=trust?.getBoundingClientRect();
+              const overlaps=(a,b)=>!!a&&!!b&&a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
               return {
                 floatingVisible:visible(floating),
-                ctaVisible:visible(cta),
-                ctaAboveDock:!!ctaBox&&!!dockBox&&ctaBox.bottom<=dockBox.top+2,
+                stickyVisible:visible(sticky),
+                inlineVisible:visible(inline),
+                trustVisible:visible(trust),
+                trustCoveredBySticky:visible(sticky)&&overlaps(stickyBox,trustBox),
                 homeCtaPresent:!!document.querySelector('.cta-banner'),
                 pageDetailClass:document.body.classList.contains('page-detail'),
                 pageHomeClass:document.body.classList.contains('page-home')
               };
             });
-            report.interaction.productDetail=productDetail;
-            await page.screenshot({path:out+'/product-detail-mobile-fixed-cta.png',fullPage:false,animations:'disabled'});
+            await page.locator('.product-details').first().scrollIntoViewIfNeeded();
+            await page.waitForTimeout(350);
+            const afterSummary = await page.evaluate(() => {
+              const visible=e=>!!e&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0;
+              const sticky=document.querySelector('.detail-mobile-cta');
+              const dock=document.querySelector('.app-bottom-nav');
+              const stickyBox=sticky?.getBoundingClientRect(),dockBox=dock?.getBoundingClientRect();
+              return {stickyVisible:visible(sticky),stickyAboveDock:!!stickyBox&&!!dockBox&&stickyBox.bottom<=dockBox.top+2};
+            });
+            report.interaction.productDetail={initial,afterSummary};
+            await page.screenshot({path:out+'/product-detail-mobile-sticky-cta.png',fullPage:false,animations:'disabled'});
+            await context.close();
+          }
+
+          // Tablet product detail uses the in-flow actions only; no duplicated phone sticky bar.
+          if (productDetailPath) {
+            const context = await browser.newContext({viewport:{width:820,height:1180},deviceScaleFactor:1,hasTouch:true});
+            const page = await context.newPage();
+            await page.goto(base + productDetailPath, { waitUntil: 'domcontentloaded', timeout: 45000 });
+            await page.locator('.detail-summary').first().waitFor({state:'visible',timeout:10000});
+            await page.waitForTimeout(500);
+            const tabletProductDetail = await page.evaluate(() => {
+              const visible=e=>!!e&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0;
+              return {
+                stickyVisible:visible(document.querySelector('.detail-mobile-cta')),
+                inlineVisible:visible(document.querySelector('.detail-summary .detail-action-row')),
+                trustVisible:visible(document.querySelector('.detail-trust-row'))
+              };
+            });
+            report.interaction.tabletProductDetail=tabletProductDetail;
+            await page.screenshot({path:out+'/product-detail-tablet-actions.png',fullPage:false,animations:'disabled'});
             await context.close();
           }
 
@@ -398,6 +431,7 @@ jobs:
                 summaryInsideViewport:!!summary&&summary.left>=-1&&summary.right<=innerWidth+1,
                 trustInsideSummary:inside(trust,summary),
                 trustCardsInside:cards.length===3&&cards.every(card=>inside(card,trust,1)),
+                stickyHiddenWhileSummaryVisible:!document.querySelector('.detail-mobile-cta') || getComputedStyle(document.querySelector('.detail-mobile-cta')).display==='none',
                 thumbnailsInsideGallery:!thumbnails||inside(thumbnails,gallery),
                 cardCount:cards.length,
                 galleryWidth:gallery?Math.round(gallery.width):0,
@@ -497,6 +531,7 @@ jobs:
           const requiredContacts = report.interaction.requiredContacts || {};
           const firstOpenCategories = report.interaction.firstOpenCategories || {};
           const productDetail = report.interaction.productDetail || {};
+          const tabletProductDetail = report.interaction.tabletProductDetail || {};
           const imageProductGeometry = report.interaction.imageProductGeometry || {};
           const imageProductOk = !imageProductPath || (
             imageProductGeometry.galleryInsideViewport &&
@@ -506,10 +541,25 @@ jobs:
             imageProductGeometry.summaryInsideViewport &&
             imageProductGeometry.trustInsideSummary &&
             imageProductGeometry.trustCardsInside &&
+            imageProductGeometry.stickyHiddenWhileSummaryVisible &&
             imageProductGeometry.thumbnailsInsideGallery
           );
           const firstOpenCategoriesOk = firstOpenCategories.visible && firstOpenCategories.categoryLinks > 0 && firstOpenCategories.hasUsableBox && firstOpenCategories.sameRow && firstOpenCategories.productSameRow;
-          const productDetailOk = !productDetailPath || (productDetail.ctaVisible && !productDetail.floatingVisible && productDetail.ctaAboveDock && !productDetail.homeCtaPresent && productDetail.pageDetailClass && !productDetail.pageHomeClass);
+          const productDetailOk = !productDetailPath || (
+            !productDetail.initial?.floatingVisible &&
+            !productDetail.initial?.stickyVisible &&
+            productDetail.initial?.inlineVisible &&
+            productDetail.initial?.trustVisible &&
+            !productDetail.initial?.trustCoveredBySticky &&
+            !productDetail.initial?.homeCtaPresent &&
+            productDetail.initial?.pageDetailClass &&
+            !productDetail.initial?.pageHomeClass &&
+            productDetail.afterSummary?.stickyVisible &&
+            productDetail.afterSummary?.stickyAboveDock &&
+            !tabletProductDetail?.stickyVisible &&
+            tabletProductDetail?.inlineVisible &&
+            tabletProductDetail?.trustVisible
+          );
           const requiredContactsOk = requiredContacts.contact?.emailRequired && requiredContacts.contact?.emailType === 'email' && requiredContacts.contact?.phoneRequired && requiredContacts.service?.emailRequired && requiredContacts.service?.emailType === 'email' && requiredContacts.service?.phoneRequired;
           const geometryOk =
             Number(mobileGeometry.headerSearchGap) <= 2 &&

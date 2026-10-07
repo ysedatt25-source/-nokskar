@@ -126,6 +126,16 @@ jobs:
             exit 1
           fi
           grep -Fq "body.page-detail .gallery-stage>img{" IndustrialCatalog/ClientApp/public/r13-pages.css
+          grep -Fq "R21.2 — product action flow" IndustrialCatalog/ClientApp/public/r13-pages.css
+          grep -Fq "detail-sticky-cta-visible" IndustrialCatalog/ClientApp/src/app/storefront.tsx
+          if grep -Fq "body.page-detail.app-shell-enabled .detail-summary .detail-action-row{display:none!important}" IndustrialCatalog/ClientApp/public/r13-pages.css; then
+            echo "Obsolete mobile product action hiding rule returned."
+            exit 1
+          fi
+          if grep -Fq ".detail-action-row{display:grid;grid-template-columns:1fr;gap:9px;margin-top:16px}" IndustrialCatalog/ClientApp/src/app/globals.css; then
+            echo "Obsolete base mobile detail action override returned."
+            exit 1
+          fi
 
       - name: Check key page markers
         run: |

@@ -5033,7 +5033,6 @@ body.app-shell-enabled :where(
   body.page-detail.app-shell-enabled .detail-summary .eyebrow{font-size:.65rem!important;margin-bottom:5px!important}
   body.page-detail.app-shell-enabled .detail-summary h1{font-size:1.48rem!important;line-height:1.14!important;margin:0 0 9px!important}
   body.page-detail.app-shell-enabled .detail-price{font-size:1.55rem!important;margin-top:14px!important}
-  body.page-detail.app-shell-enabled .detail-summary .detail-action-row{display:none!important}
   body.page-detail.app-shell-enabled .detail-trust-row{
     display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
     width:100%!important;max-width:100%!important;gap:6px!important;margin:14px 0 0!important;
@@ -5050,4 +5049,26 @@ body.app-shell-enabled :where(
   body.page-detail.app-shell-enabled .product-gallery,
   body.page-detail.app-shell-enabled .detail-summary{width:100%!important;max-width:100%!important}
   body.page-detail.app-shell-enabled .gallery-stage>img{max-width:100%!important;max-height:100%!important}
+}
+
+
+/* R21.2 — product action flow
+   Keep product-summary actions in normal document flow. On phones the fixed CTA
+   is activated only after the gallery and summary are no longer visible. */
+@media(min-width:601px) and (max-width:1100px){
+  body.page-detail.app-shell-enabled .detail-mobile-cta{display:none!important}
+}
+@media(max-width:600px){
+  body.page-detail.app-shell-enabled .detail-summary .detail-action-row{
+    display:flex!important;align-items:stretch!important;gap:8px!important;flex-wrap:nowrap!important;
+    margin-top:14px!important;
+  }
+  body.page-detail.app-shell-enabled .detail-summary .detail-action-row .button{
+    flex:1 1 0!important;min-width:0!important;min-height:46px!important;padding:9px 8px!important;
+    font-size:.72rem!important;line-height:1.2!important;text-align:center!important;
+  }
+  body.page-detail.app-shell-enabled .detail-mobile-cta{display:none!important}
+  body.page-detail.app-shell-enabled.detail-sticky-cta-visible .detail-mobile-cta{display:grid!important}
+  body.page-detail.app-shell-enabled .detail-summary{overflow:visible!important}
+  body.page-detail.app-shell-enabled .detail-trust-row{position:relative!important;z-index:1!important}
 }
