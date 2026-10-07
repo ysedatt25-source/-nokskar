@@ -90,16 +90,16 @@ jobs:
           code="$(curl --silent --show-error --output /tmp/technical-admin --write-out '%{http_code}' http://127.0.0.1:5099/teknik)"
           test "$code" = "302" || { echo "Expected /teknik to redirect unauthenticated users, got $code"; cat /tmp/technical-admin; exit 1; }
 
-          code="$(curl --silent --show-error --output /tmp/technical-service-api --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"message":"test"}' http://127.0.0.1:5099/api/technical/device/test/services)"
+          code="$(curl --silent --show-error --output /tmp/technical-service-api --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"message":"test"}' http://127.0.0.1:5099/api/technical/device/test/services)"
           { [ "$code" = "401" ] || [ "$code" = "403" ]; } || { echo "Expected technical service creation API to reject unauthenticated/invalid-origin request with 401 or 403, got $code"; cat /tmp/technical-service-api; exit 1; }
 
       - name: Validate required request contacts
         run: |
           set -euo pipefail
-          code="$(curl --silent --show-error --output /tmp/inquiry-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"name":"Test Kullanıcı","email":"test@example.com","phone":"abc","message":"Test talebi"}' http://127.0.0.1:5099/api/inquiry)"
+          code="$(curl --silent --show-error --output /tmp/inquiry-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Test Kullanıcı","email":"test@example.com","phone":"abc","message":"Test talebi"}' http://127.0.0.1:5099/api/inquiry)"
           test "$code" = "400" || { echo "Expected invalid inquiry phone to return 400, got $code"; cat /tmp/inquiry-invalid; exit 1; }
           grep -Fq "Telefon numarası" /tmp/inquiry-invalid
-          code="$(curl --silent --show-error --output /tmp/service-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -d '{"name":"Test Kullanıcı","email":"eksik-adres","phone":"+90 555 555 55 55","businessName":"Test Firma","address":"Test adresi 123","message":"Test servis talebi"}' http://127.0.0.1:5099/api/service-request)"
+          code="$(curl --silent --show-error --output /tmp/service-invalid --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' -H 'Origin: http://127.0.0.1:5099' -d '{"name":"Test Kullanıcı","email":"eksik-adres","phone":"+90 555 555 55 55","businessName":"Test Firma","address":"Test adresi 123","message":"Test servis talebi"}' http://127.0.0.1:5099/api/service-request)"
           test "$code" = "400" || { echo "Expected invalid service email to return 400, got $code"; cat /tmp/service-invalid; exit 1; }
           grep -Fq "E-posta adresi" /tmp/service-invalid
 
