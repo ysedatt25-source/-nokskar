@@ -18,12 +18,20 @@ jobs:
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0 axe-core@4.10.3
           npx playwright install --with-deps chromium
-      - name: Wait for Railway deployment
+      - name: Wait for exact Railway deployment
         run: |
-          for i in {1..30}; do
-            code=$(curl -L -s -o /dev/null -w "%{http_code}" "https://inokskar-web-preview.up.railway.app/healthz" || true)
-            if [ "$code" = "200" ]; then sleep 35; exit 0; fi
-            sleep 10
+          expected="$GITHUB_SHA"
+          for i in {1..60}; do
+            info=$(curl -fsS "https://inokskar-web-preview.up.railway.app/build-info" 2>/dev/null || true)
+            actual=$(printf '%s' "$info" | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p')
+            if [ "$actual" = "$expected" ]; then
+              echo "Exact commit is live: $actual"
+              curl -fsS "https://inokskar-web-preview.up.railway.app/healthz"
+              sleep 10
+              exit 0
+            fi
+            echo "Waiting for Railway commit. Expected=$expected Current=${actual:-unavailable}"
+            sleep 5
           done
           exit 1
       - name: Audit live site at 3 viewports
@@ -31,7 +39,6 @@ jobs:
           QA_BASE_URL: https://inokskar-web-preview.up.railway.app
           QA_OUTPUT: qa-output
         run: node .github/qa/live-ui-audit.mjs
-        continue-on-error: true
       - name: Print report
         if: always()
         run: |
