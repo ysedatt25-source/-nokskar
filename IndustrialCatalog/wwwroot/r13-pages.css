@@ -6850,3 +6850,107 @@ html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c) .product-edi
 html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c) .product-editor-dialog .product-editor-form{padding-bottom:14px}
 html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c) .product-editor-form>.button:last-child{position:sticky;bottom:0;z-index:30;width:calc(100% + 24px);min-height:58px;margin:14px -12px -14px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));border-radius:0;box-shadow:0 -10px 26px rgba(12,36,60,.17)}
 }
+
+
+/* R22.3.1 — compact mobile home category cards: all three visible at once. */
+@media(max-width:600px){
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .categories-section{
+    width:calc(100% - 20px);
+    margin:9px auto 0;
+    overflow:visible;
+  }
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-auto-flow:row;
+    grid-auto-columns:auto;
+    gap:7px;
+    overflow:visible;
+    padding:0;
+    scroll-snap-type:none;
+  }
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card,
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card:nth-child(3):last-child{
+    grid-column:auto;
+    min-width:0;
+    min-height:116px;
+    padding:12px 9px;
+    justify-content:flex-start;
+    align-items:flex-start;
+    border:1px solid #dce6f1;
+    border-top:3px solid #2376e4;
+    border-radius:14px;
+    background:#fff;
+    color:#173553;
+    box-shadow:0 7px 18px rgba(17,45,76,.055);
+    scroll-snap-align:none;
+  }
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card:nth-child(2){border-top-color:#ef7b28}
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card:nth-child(3){border-top-color:#d93b50}
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card::before,
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card::after{display:none}
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card img{display:none}
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-number{display:none}
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-icon{
+    position:static;
+    order:0;
+    display:grid;
+    place-items:center;
+    width:26px;
+    height:26px;
+    flex:0 0 26px;
+    margin:0 0 9px;
+    padding:4px;
+    border-radius:9px;
+    background:#edf4ff;
+    color:#1767d4;
+  }
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card:nth-child(2) .category-icon{
+    background:#fff1e6;
+    color:#d76314;
+  }
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card:nth-child(3) .category-icon{
+    background:#fff0f2;
+    color:#c93243;
+  }
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card h3{
+    order:1;
+    margin:0;
+    padding:0;
+    color:#173553;
+    font-size:.76rem;
+    line-height:1.22;
+    overflow-wrap:anywhere;
+    text-shadow:none;
+  }
+
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-card p,
+  html:not(#r22-priority-a):not(#r22-priority-b):not(#r22-priority-c):not(#r22-category-a)
+  body.page-home.app-shell-enabled .category-action{display:none}
+}
