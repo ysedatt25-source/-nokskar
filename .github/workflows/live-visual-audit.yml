@@ -103,8 +103,9 @@ jobs:
             const page = await context.newPage();
 
             for (const [name, path] of paths) {
-              const response = await page.goto(base + path, { waitUntil: 'networkidle', timeout: 45000 });
-              await page.waitForTimeout(350);
+              const response = await page.goto(base + path, { waitUntil: name === 'product-detail' ? 'domcontentloaded' : 'networkidle', timeout: 45000 });
+              if(name === 'product-detail') await page.locator('.detail').first().waitFor({state:'visible',timeout:10000});
+              await page.waitForTimeout(name === 'product-detail' ? 700 : 350);
               const status = response?.status() ?? 0;
               const bodyWidth = await page.evaluate(() => ({
                 innerWidth: window.innerWidth,
@@ -297,11 +298,20 @@ jobs:
           }
 
           // Product detail must have one fixed product CTA and no separate floating WhatsApp collision.
+          // Navigate exactly like a user: home -> product card, so stale home-only DOM/CSS is caught.
           if (productDetailPath) {
             const context = await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
             const page = await context.newPage();
-            await page.goto(base + productDetailPath, { waitUntil: 'networkidle', timeout: 45000 });
-            await page.waitForTimeout(350);
+            await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 45000 });
+            const productLink = page.locator('.featured a[href^="/urun/"]:visible').first();
+            if(await productLink.count()){
+              await productLink.click();
+              await page.waitForURL(/\\/urun\\//,{timeout:10000});
+            }else{
+              await page.goto(base + productDetailPath, { waitUntil: 'domcontentloaded', timeout: 45000 });
+            }
+            await page.locator('.detail').first().waitFor({state:'visible',timeout:10000});
+            await page.waitForTimeout(700);
             const productDetail = await page.evaluate(() => {
               const floating=document.querySelector('.floating-wa');
               const cta=document.querySelector('.detail-mobile-cta');
