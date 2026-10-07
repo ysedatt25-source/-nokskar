@@ -1,0 +1,253 @@
+/* R22.6 — centered brand, product gallery and mobile detail cards. */
+@media(max-width:1100px){
+  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link{
+    position:relative;
+    width:min(270px,calc(100vw - 78px));
+    min-width:0;
+    max-width:min(270px,calc(100vw - 78px));
+    height:48px;
+    margin:0 auto 0 0;
+    padding:0 4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:visible;
+  }
+  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link .header-brand-image{
+    display:block;
+    width:100%;
+    height:44px;
+    max-width:100%;
+    max-height:44px;
+    object-fit:contain;
+    object-position:center center;
+    transform:none;
+    transform-origin:center center;
+  }
+  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link::after{
+    content:"™";
+    position:absolute;
+    top:5px;
+    right:2px;
+    z-index:2;
+    display:grid;
+    place-items:center;
+    min-width:13px;
+    height:12px;
+    padding:0 1px;
+    border-radius:2px;
+    background:linear-gradient(135deg,#eef1f3 0%,#d6dade 55%,#bec4c9 100%);
+    color:#1f2933;
+    font-size:9px;
+    font-weight:900;
+    line-height:1;
+    letter-spacing:-.03em;
+    pointer-events:none;
+  }
+}
+
+@media(max-width:600px){
+  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link{
+    width:min(250px,calc(100vw - 66px));
+    max-width:min(250px,calc(100vw - 66px));
+    height:48px;
+    padding-inline:2px;
+  }
+  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link .header-brand-image{
+    width:100%;
+    height:43px;
+    max-width:100%;
+    max-height:43px;
+    object-fit:contain;
+    object-position:center center;
+    transform:none;
+  }
+  body.app-shell-enabled .site-header.r22-site-header>.brand.brand-image-link::after{
+    top:5px;
+    right:0;
+    font-size:8px;
+  }
+
+  body.page-detail.app-shell-enabled .detail{
+    width:calc(100% - 20px);
+    max-width:100%;
+    margin-left:auto;
+    margin-right:auto;
+    padding-top:10px;
+    overflow-x:clip;
+  }
+  body.page-detail.app-shell-enabled .detail>.breadcrumb{
+    width:100%;
+    min-width:0;
+    margin:0 2px 9px;
+  }
+  body.page-detail.app-shell-enabled .detail-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  body.page-detail.app-shell-enabled .detail-grid>div{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  body.page-detail.app-shell-enabled .detail-grid>div:first-child{
+    display:grid;
+    justify-items:center;
+  }
+  body.page-detail.app-shell-enabled .detail-photo.gallery-stage{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    height:248px;
+    min-height:248px;
+    max-height:248px;
+    margin:0 auto;
+    padding:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    border-radius:15px;
+    background:#fff;
+    box-sizing:border-box;
+  }
+  body.page-detail.app-shell-enabled .detail-photo.gallery-stage>img{
+    display:block;
+    width:100%;
+    height:100%;
+    min-width:0;
+    max-width:100%;
+    max-height:100%;
+    margin:0 auto;
+    padding:0;
+    object-fit:contain;
+    object-position:center center;
+  }
+  body.page-detail.app-shell-enabled .thumbnails{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    margin:10px auto 0;
+    padding:0 2px 2px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    overflow:visible;
+    scroll-snap-type:none;
+  }
+  body.page-detail.app-shell-enabled .thumbnails button{
+    flex:0 0 72px;
+    width:72px;
+    height:68px;
+    min-width:72px;
+    margin:0;
+    padding:4px;
+    border-radius:10px;
+    box-sizing:border-box;
+  }
+  body.page-detail.app-shell-enabled .thumbnails img{
+    display:block;
+    width:100%;
+    height:100%;
+    margin:0 auto;
+    object-fit:contain;
+    object-position:center center;
+  }
+
+  body.page-detail.app-shell-enabled .detail-summary,
+  body.page-detail.app-shell-enabled .product-details{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    margin-left:auto;
+    margin-right:auto;
+    box-sizing:border-box;
+  }
+  body.page-detail.app-shell-enabled .detail-summary{
+    margin-top:10px;
+    padding:17px 15px;
+    border-radius:15px;
+  }
+  body.page-detail.app-shell-enabled .product-code-copy{
+    min-width:0;
+    max-width:100%;
+  }
+  body.page-detail.app-shell-enabled .detail-trust-row{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  body.page-detail.app-shell-enabled .detail-trust-row span{
+    min-width:0;
+    min-height:62px;
+    padding:7px 5px;
+    display:grid;
+    grid-template-columns:1fr;
+    justify-items:center;
+    align-content:center;
+    gap:5px;
+    overflow:hidden;
+    text-align:center;
+    font-size:.61rem;
+    line-height:1.18;
+    overflow-wrap:anywhere;
+  }
+  body.page-detail.app-shell-enabled .detail-trust-row svg{
+    width:17px;
+    height:17px;
+    flex:0 0 17px;
+  }
+  body.page-detail.app-shell-enabled .product-details{
+    margin-top:14px;
+    padding:17px 15px;
+    border-radius:15px;
+  }
+  body.page-detail.app-shell-enabled .related-products{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  body.page-detail.app-shell-enabled .detail-mobile-cta{
+    left:10px;
+    right:10px;
+    width:auto;
+    max-width:none;
+    box-sizing:border-box;
+  }
+}
+
+@media(min-width:601px) and (max-width:1100px){
+  body.page-detail.app-shell-enabled .detail-grid{
+    grid-template-columns:minmax(0,1fr);
+  }
+  body.page-detail.app-shell-enabled .detail-grid>div,
+  body.page-detail.app-shell-enabled .detail-summary,
+  body.page-detail.app-shell-enabled .product-details{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  body.page-detail.app-shell-enabled .detail-photo.gallery-stage{
+    width:100%;
+    max-width:720px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  body.page-detail.app-shell-enabled .thumbnails{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    overflow:visible;
+  }
+}
