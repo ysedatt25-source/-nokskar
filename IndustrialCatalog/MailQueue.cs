@@ -7,14 +7,16 @@ public sealed class MailQueue : BackgroundService
 {
     readonly string outbox;
     readonly MailSettingsStore settings;
+    readonly IHttpClientFactory httpClientFactory;
     readonly ILogger<MailQueue> logger;
     readonly object gate = new();
     string lastError = "";
     DateTimeOffset? lastSuccess;
 
-    public MailQueue(IWebHostEnvironment env, IConfiguration config, MailSettingsStore settings, ILogger<MailQueue> logger)
+    public MailQueue(IWebHostEnvironment env, IConfiguration config, MailSettingsStore settings, IHttpClientFactory httpClientFactory, ILogger<MailQueue> logger)
     {
         this.settings = settings;
+        this.httpClientFactory = httpClientFactory;
         this.logger = logger;
         var dataPath = Path.GetFullPath(config["Storage:Path"] ?? "App_Data", env.ContentRootPath);
         outbox = Path.Combine(dataPath, "mail-outbox");
@@ -141,6 +143,12 @@ public sealed class MailQueue : BackgroundService
 
     async Task Send(JsonObject job, MailSettingsSnapshot current, CancellationToken token)
     {
+        if (string.Equals(current.Provider, "mailjet", StringComparison.OrdinalIgnoreCase))
+        {
+            await SendMailjetApi(job, current, token);
+            return;
+        }
+
         using var message = new MailMessage
         {
             From = new MailAddress(current.FromAddress, current.FromName),
@@ -162,6 +170,46 @@ public sealed class MailQueue : BackgroundService
         token.ThrowIfCancellationRequested();
         await client.SendMailAsync(message);
         token.ThrowIfCancellationRequested();
+    }
+
+    async Task SendMailjetApi(JsonObject job, MailSettingsSnapshot current, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(current.Username) || string.IsNullOrWhiteSpace(current.Password))
+            throw new InvalidOperationException("Mailjet API Key ve Secret Key eksik.");
+
+        var recipient = job["to"]?.ToString() ?? throw new InvalidDataException("Alıcı e-posta bulunamadı.");
+        if (!MailAddress.TryCreate(recipient, out var parsedRecipient))
+            throw new InvalidDataException("Alıcı e-posta adresi geçersiz.");
+
+        var payload = new JsonObject
+        {
+            ["Messages"] = new JsonArray
+            {
+                new JsonObject
+                {
+                    ["From"] = new JsonObject { ["Email"] = current.FromAddress, ["Name"] = current.FromName },
+                    ["To"] = new JsonArray { new JsonObject { ["Email"] = parsedRecipient.Address } },
+                    ["Subject"] = job["subject"]?.ToString() ?? "İNOKSKAR",
+                    ["HTMLPart"] = job["html"]?.ToString() ?? "",
+                    ["TextPart"] = job["text"]?.ToString() ?? ""
+                }
+            }
+        };
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.mailjet.com/v3.1/send");
+        var credential = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(current.Username + ":" + current.Password));
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credential);
+        request.Content = new StringContent(payload.ToJsonString(), System.Text.Encoding.UTF8, "application/json");
+
+        var client = httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(20);
+        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = await response.Content.ReadAsStringAsync(token);
+            var compact = responseBody.Length > 700 ? responseBody[..700] : responseBody;
+            throw new InvalidOperationException($"Mailjet API gönderimi başarısız ({(int)response.StatusCode}): {compact}");
+        }
     }
 }
 

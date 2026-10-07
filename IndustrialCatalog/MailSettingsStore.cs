@@ -41,7 +41,7 @@ public sealed class MailSettingsStore
         new MailProviderPreset("yandex", "Yandex Mail", "smtp.yandex.com", 587, true, "ornek@yandex.com"),
         new MailProviderPreset("zoho", "Zoho Mail", "smtp.zoho.com", 587, true, "ornek@firma.com"),
         new MailProviderPreset("brevo", "Brevo", "smtp-relay.brevo.com", 587, true, "Brevo SMTP kullanıcı adı"),
-        new MailProviderPreset("mailjet", "Mailjet", "in-v3.mailjet.com", 587, true, "Mailjet API Key", "Mailjet için kullanıcı adı alanına API Key, parola alanına Secret Key girin."),
+        new MailProviderPreset("mailjet", "Mailjet", "in-v3.mailjet.com", 587, true, "Mailjet API Key", "Mailjet seçildiğinde gönderim HTTPS API üzerinden yapılır. Kullanıcı adı alanına API Key, parola alanına Secret Key girin; SMTP port engellerinden etkilenmez."),
         new MailProviderPreset("sendgrid", "SendGrid", "smtp.sendgrid.net", 587, true, "apikey"),
         new MailProviderPreset("amazon-ses", "Amazon SES", "email-smtp.eu-central-1.amazonaws.com", 587, true, "SES SMTP kullanıcı adı"),
         new MailProviderPreset("mailgun", "Mailgun", "smtp.mailgun.org", 587, true, "postmaster@alanadiniz.com"),
