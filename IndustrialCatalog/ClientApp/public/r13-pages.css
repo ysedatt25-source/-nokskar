@@ -4817,3 +4817,16 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   }
 }
 
+/* R20.7 — keep the open public menu above its backdrop */
+@media(max-width:1100px){
+  body.storefront-layer-open .site-header{
+    z-index:560!important;
+  }
+  body.storefront-layer-open .site-header .public-mobile-menu-sheet.open{
+    z-index:570!important;
+  }
+  body.storefront-layer-open .site-layer-backdrop{
+    z-index:500!important;
+  }
+}
+
