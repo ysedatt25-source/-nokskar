@@ -4490,6 +4490,9 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f}
     position:fixed;
     inset:0;
     z-index:500;
+    background:rgba(7,18,31,.42);
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
   }
   html body .site-header nav.public-mobile-menu-sheet{
     display:none;
