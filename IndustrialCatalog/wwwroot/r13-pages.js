@@ -147,7 +147,7 @@ document.addEventListener('submit',event=>{
       ?'<button type="button" class="app-bottom-item '+(active===key?'active':'')+'" data-app-key="'+key+'" data-app-categories>'+icon(ic)+'<span>'+label+'</span></button>'
       :'<a class="app-bottom-item '+(active===key?'active':'')+'" data-app-key="'+key+'" href="'+href+'">'+icon(ic)+'<span>'+label+'</span></a>').join('');
     document.body.append(nav);
-    nav.querySelector('[data-app-categories]').addEventListener('click',()=>mountSheet()._open());
+    nav.querySelector('[data-app-categories]').addEventListener('click',()=>{window.dispatchEvent(new Event('inokskar:open-external-layer'));mountSheet()._open();});
   };
   const mountSearch=()=>{
     const p=path(),eligible=p==='/'||p==='/urunler'||p.startsWith('/kategori/');
@@ -432,43 +432,45 @@ document.addEventListener('submit',event=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
-/* R20.3 — canonical public mobile menu structure for SPA and server-rendered pages. */
+/* R20.5 — canonical public menu behavior for SPA and server-rendered pages. */
 (()=>{
  const closeIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
- const closeServerMenu=(nav)=>{
-  nav.classList.remove('open','category-layer-open');
-  nav.querySelectorAll('.nav-category.open').forEach(x=>x.classList.remove('open'));
-  nav.querySelectorAll('.nav-category-toggle[aria-expanded="true"]').forEach(x=>x.setAttribute('aria-expanded','false'));
-  const header=nav.closest('.site-header'),toggle=header?.querySelector('.mobile-menu');
-  toggle?.setAttribute('aria-expanded','false');
-  toggle?.setAttribute('aria-label','Menüyü aç');
+ const syncGeometry=nav=>{const header=nav?.closest?.('.site-header');if(!nav||!header)return;nav.style.setProperty('--public-menu-top',Math.max(64,Math.round(header.getBoundingClientRect().bottom+10))+'px');};
+ const closeCategories=nav=>{nav.querySelectorAll('.nav-category.open').forEach(x=>x.classList.remove('open'));nav.querySelectorAll('.nav-category-toggle[aria-expanded="true"]').forEach(x=>x.setAttribute('aria-expanded','false'));nav.classList.remove('category-layer-open');};
+ const closeServerMenu=nav=>{closeCategories(nav);nav.classList.remove('open');const toggle=nav.closest('.site-header')?.querySelector('.mobile-menu');toggle?.setAttribute('aria-expanded','false');toggle?.setAttribute('aria-label','Menüyü aç');};
+ const switchCategory=(nav,category,toggle)=>{
+   const wasOpen=category.classList.contains('open');
+   closeCategories(nav);
+   if(!wasOpen){category.classList.add('open');toggle?.setAttribute('aria-expanded','true');nav.classList.add('category-layer-open');requestAnimationFrame(()=>category.scrollIntoView({block:'nearest',behavior:'smooth'}));}
  };
- const ensure=(nav)=>{
-  if(!(nav instanceof HTMLElement))return;
-  nav.classList.add('public-mobile-menu-sheet');
-  if(nav.querySelector(':scope>.mobile-menu-sheet-head'))return;
-  const head=document.createElement('div');
-  head.className='mobile-menu-sheet-head';
-  head.innerHTML='<div><span>İNOKSKAR</span><strong>Menü</strong></div><button type="button" class="mobile-menu-sheet-close" aria-label="Menüyü kapat">'+closeIcon+'</button>';
-  nav.prepend(head);
-  head.querySelector('.mobile-menu-sheet-close')?.addEventListener('click',()=>closeServerMenu(nav));
- };
- const mount=()=>{
-  document.querySelectorAll('.site-header .main-nav').forEach(nav=>{
-   ensure(nav);
-   if(nav.closest('#root'))return;
-   if(nav.dataset.r203Menu)return;
-   nav.dataset.r203Menu='1';
+ const ensure=nav=>{
+   if(!(nav instanceof HTMLElement))return;
+   nav.classList.add('public-mobile-menu-sheet');syncGeometry(nav);
+   if(!nav.querySelector(':scope>.mobile-menu-sheet-head')){
+     const head=document.createElement('div');head.className='mobile-menu-sheet-head';
+     head.innerHTML='<div><span>İNOKSKAR</span><strong>Menü</strong></div><button type="button" class="mobile-menu-sheet-close" aria-label="Menüyü kapat">'+closeIcon+'</button>';
+     nav.prepend(head);head.querySelector('.mobile-menu-sheet-close')?.addEventListener('click',()=>closeServerMenu(nav));
+   }
+   if(nav.closest('#root')||nav.dataset.r205Menu)return;
+   nav.dataset.r205Menu='1';
    nav.addEventListener('click',e=>{
-    if(innerWidth<=1100&&e.target.closest('a[href]'))closeServerMenu(nav);
+     if(innerWidth>1100)return;
+     const toggle=e.target.closest('.nav-category-toggle');
+     if(toggle){e.preventDefault();e.stopPropagation();const category=toggle.closest('.nav-category');if(category)switchCategory(nav,category,toggle);return;}
+     const categoryLink=e.target.closest('.nav-category-link');
+     const category=categoryLink?.closest('.nav-category');
+     if(category&&category.querySelector('.nav-dropdown')){e.preventDefault();switchCategory(nav,category,category.querySelector('.nav-category-toggle'));return;}
+     if(e.target.closest('a[href]'))closeServerMenu(nav);
    });
-  });
  };
+ const mount=()=>document.querySelectorAll('.site-header .main-nav').forEach(ensure);
  const start=()=>{
-  mount();
-  window.addEventListener('pageshow',mount);
-  window.addEventListener('inokskar:navigation',mount);
-  window.addEventListener('resize',()=>{if(innerWidth>1100)document.querySelectorAll('.site-header .main-nav.open').forEach(closeServerMenu);},{passive:true});
+   mount();
+   window.addEventListener('pageshow',mount);
+   window.addEventListener('inokskar:navigation',mount);
+   window.addEventListener('resize',()=>{document.querySelectorAll('.site-header .public-mobile-menu-sheet').forEach(nav=>{syncGeometry(nav);if(innerWidth>1100&&nav.classList.contains('open'))closeServerMenu(nav);});},{passive:true});
+   window.addEventListener('orientationchange',mount);
+   document.addEventListener('click',e=>{const toggle=e.target.closest('.site-header .mobile-menu');if(toggle)requestAnimationFrame(()=>{const nav=toggle.closest('.site-header')?.querySelector('.public-mobile-menu-sheet');if(nav)syncGeometry(nav);});},true);
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
