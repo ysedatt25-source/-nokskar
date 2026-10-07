@@ -749,18 +749,6 @@ body.brand-admin-body .brand-admin-actions>a{
   body.app-shell-enabled.page-detail .detail{width:calc(100% - 20px)!important;margin-top:10px!important}
   body.app-shell-enabled.page-detail .breadcrumb{margin:0 2px 8px!important}
   body.app-shell-enabled.page-detail .detail-grid{grid-template-columns:1fr!important;gap:9px!important}
-  body.app-shell-enabled.page-detail .detail-photo{height:auto!important;max-height:none!important;aspect-ratio:1.08!important;border-radius:16px!important}
-  body.app-shell-enabled.page-detail .detail-summary{padding:16px 14px!important;border-radius:16px!important}
-  body.app-shell-enabled.page-detail .detail-summary .eyebrow{font-size:.65rem!important;margin-bottom:5px!important}
-  body.app-shell-enabled.page-detail .detail-summary h1{font-size:1.45rem!important;margin:0 0 8px!important}
-  body.app-shell-enabled.page-detail .detail-price{font-size:1.55rem!important;margin-top:14px!important}
-  body.app-shell-enabled.page-detail .detail-action-row{
-    position:sticky!important;z-index:180!important;bottom:calc(var(--app-dock-h) + var(--app-safe-bottom) + 7px)!important;
-    display:grid!important;grid-template-columns:1fr!important;gap:7px!important;margin:16px -6px 0!important;padding:8px!important;
-    border:1px solid #d8e3ef!important;border-radius:14px!important;background:rgba(255,255,255,.97)!important;
-    box-shadow:0 12px 34px rgba(10,27,47,.16)!important;backdrop-filter:blur(16px)!important;
-  }
-  body.app-shell-enabled.page-detail .detail-action-row .button{min-height:48px!important;font-size:.82rem!important}
   body.app-shell-enabled.page-detail .pdf-link{width:100%!important;display:flex!important;justify-content:center!important;min-height:46px!important;border-radius:11px!important;background:#f5f8fc!important}
   body.app-shell-enabled.page-detail .product-details{padding:17px 14px!important;border-radius:16px!important}
   body.app-shell-enabled.page-detail .product-details h2{font-size:1.28rem!important}
@@ -4857,16 +4845,9 @@ body.r126-auth :is(.helper,.note,.lead,.muted){color:#50677f!important}
   body.page-detail.app-shell-enabled .detail{width:calc(100% - 18px)!important;padding-top:10px!important}
   body.page-detail.app-shell-enabled .page-home-return-wrap{margin-bottom:6px!important}
   body.page-detail.app-shell-enabled .detail>.breadcrumb{margin:0 2px 9px!important;font-size:.72rem!important}
-  body.page-detail.app-shell-enabled .detail-photo{width:100%!important;height:248px!important;min-height:0!important;max-height:248px!important;aspect-ratio:auto!important;border-radius:15px!important}
   body.page-detail.app-shell-enabled .detail-photo .product-photo-fallback{padding:18px 12px!important}
   body.page-detail.app-shell-enabled .detail-photo .product-photo-fallback img{width:min(122px,48%)!important;max-height:42px!important}
   body.page-detail.app-shell-enabled .detail-photo .product-photo-fallback strong{font-size:.86rem!important;line-height:1.28!important}
-  body.page-detail.app-shell-enabled .detail-summary{margin-top:10px!important;padding:17px 15px!important;border-radius:15px!important}
-  body.page-detail.app-shell-enabled .detail-summary h1{margin-bottom:9px!important;font-size:1.48rem!important;line-height:1.14!important}
-  body.page-detail.app-shell-enabled .detail-summary .detail-action-row{display:none!important}
-  body.page-detail.app-shell-enabled .detail-trust-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
-  body.page-detail.app-shell-enabled .detail-trust-row span{min-width:0!important;min-height:58px!important;padding:7px 5px!important;display:grid!important;justify-items:center!important;align-content:center!important;gap:4px!important;text-align:center!important;font-size:.61rem!important;line-height:1.2!important}
-  body.page-detail.app-shell-enabled .detail-trust-row svg{width:17px!important;height:17px!important}
   body.page-detail.app-shell-enabled .detail-mobile-cta{left:7px!important;right:7px!important;bottom:calc(var(--app-dock-h,72px) + var(--app-safe-bottom,0px) + 6px)!important;padding:6px!important;border-radius:15px!important}
   body.page-detail.app-shell-enabled .detail-mobile-cta .button{min-height:46px!important;font-size:.82rem!important}
   body.page-detail.app-shell-enabled .detail-mobile-contact{min-width:100px!important;min-height:46px!important;padding:6px 8px!important;border-radius:10px!important;font-size:.66rem!important}
@@ -4970,4 +4951,103 @@ body[data-ui-page="inquiry"] :is(button,.button,.primary-button,.danger-button):
   body[data-ui-page="inquiry"] :is(button,.button,.primary-button,.danger-button):active::after{
     opacity:.86!important;transform:skewX(-22deg) translateX(720%)!important;transition-duration:.34s!important
   }
+}
+
+
+/* R21 — canonical responsive geometry and overflow cleanup
+   This is the single late source of truth for product-detail shrink/centering.
+   Older duplicate detail sizing blocks were removed above. */
+body.page-detail .detail-grid,
+body.page-detail .detail-grid>*,
+body.page-detail .product-gallery,
+body.page-detail .detail-summary,
+body.page-detail .product-details,
+body.page-detail .related-products,
+body.page-contact .contact-grid>*,
+body.page-content .about-grid>*,
+body.page-listing .product-grid>*{
+  min-width:0!important;
+}
+body.page-detail .product-gallery{
+  width:100%!important;max-width:100%!important;overflow:hidden!important;justify-self:stretch!important;
+}
+body.page-detail .gallery-stage{
+  width:100%!important;max-width:100%!important;margin-inline:auto!important;
+  display:grid!important;place-items:center!important;overflow:hidden!important;
+}
+body.page-detail .gallery-stage>img{
+  display:block!important;width:auto!important;height:auto!important;
+  max-width:100%!important;max-height:100%!important;margin:auto!important;padding:12px!important;
+  object-fit:contain!important;object-position:center center!important;transform:none!important;
+}
+body.page-detail .thumbnails{
+  box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;
+  margin:12px 0 0!important;padding:2px 0 8px!important;display:flex!important;gap:10px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain!important;
+  scroll-snap-type:x proximity!important;-webkit-overflow-scrolling:touch!important;
+}
+body.page-detail .thumbnails button{
+  flex:0 0 82px!important;width:82px!important;max-width:82px!important;height:76px!important;
+  min-width:0!important;scroll-snap-align:start!important;
+}
+body.page-detail .thumbnails img{
+  width:100%!important;height:100%!important;max-width:100%!important;object-fit:contain!important;
+  object-position:center!important;padding:3px!important;
+}
+body.page-detail .detail-summary{
+  width:100%!important;max-width:100%!important;overflow:hidden!important;
+}
+body.page-detail .detail-trust-row{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+}
+body.page-detail .detail-trust-row>span{
+  min-width:0!important;max-width:100%!important;overflow:hidden!important;overflow-wrap:anywhere!important;
+}
+body.app-shell-enabled :where(
+  .wrap,.page-intro,.catalogue,.content-page,.detail,.home-confidence,
+  .contact-grid,.about-grid,.service-layout,.warranty-center,.product-grid
+){max-inline-size:100%!important}
+body.app-shell-enabled :where(
+  .contact-grid,.about-grid,.service-layout,.product-grid,.detail-grid,
+  .confidence-grid,.footer-grid,.footer-service-row
+)>*{min-width:0!important}
+
+@media(max-width:600px){
+  body.page-detail.app-shell-enabled .detail{
+    width:calc(100% - 18px)!important;max-width:calc(100% - 18px)!important;
+    margin-inline:auto!important;overflow:visible!important;
+  }
+  body.page-detail.app-shell-enabled .detail-grid{
+    width:100%!important;max-width:100%!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;
+  }
+  body.page-detail.app-shell-enabled .product-gallery{width:100%!important;max-width:100%!important}
+  body.page-detail.app-shell-enabled .detail-photo{
+    width:100%!important;max-width:100%!important;height:248px!important;min-height:248px!important;max-height:248px!important;
+    aspect-ratio:auto!important;margin:0 auto!important;border-radius:15px!important;
+  }
+  body.page-detail.app-shell-enabled .gallery-stage>img{max-width:100%!important;max-height:248px!important;padding:10px!important}
+  body.page-detail.app-shell-enabled .thumbnails{width:100%!important;max-width:100%!important;margin-top:10px!important}
+  body.page-detail.app-shell-enabled .detail-summary{
+    width:100%!important;max-width:100%!important;margin:10px 0 0!important;padding:17px 15px!important;border-radius:15px!important;
+  }
+  body.page-detail.app-shell-enabled .detail-summary .eyebrow{font-size:.65rem!important;margin-bottom:5px!important}
+  body.page-detail.app-shell-enabled .detail-summary h1{font-size:1.48rem!important;line-height:1.14!important;margin:0 0 9px!important}
+  body.page-detail.app-shell-enabled .detail-price{font-size:1.55rem!important;margin-top:14px!important}
+  body.page-detail.app-shell-enabled .detail-summary .detail-action-row{display:none!important}
+  body.page-detail.app-shell-enabled .detail-trust-row{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    width:100%!important;max-width:100%!important;gap:6px!important;margin:14px 0 0!important;
+  }
+  body.page-detail.app-shell-enabled .detail-trust-row>span{
+    width:100%!important;min-width:0!important;min-height:58px!important;padding:7px 4px!important;
+    display:grid!important;grid-template-columns:1fr!important;justify-items:center!important;align-content:center!important;
+    gap:4px!important;text-align:center!important;white-space:normal!important;font-size:.60rem!important;line-height:1.18!important;
+  }
+  body.page-detail.app-shell-enabled .detail-trust-row svg{width:17px!important;height:17px!important}
+  body.page-detail.app-shell-enabled .product-details{width:100%!important;max-width:100%!important;margin-inline:0!important}
+}
+@media(min-width:601px) and (max-width:1100px){
+  body.page-detail.app-shell-enabled .product-gallery,
+  body.page-detail.app-shell-enabled .detail-summary{width:100%!important;max-width:100%!important}
+  body.page-detail.app-shell-enabled .gallery-stage>img{max-width:100%!important;max-height:100%!important}
 }

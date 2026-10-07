@@ -29,7 +29,7 @@ function ProductGallery({product}:{product:Product}){
  const [index,setIndex]=useState(0);const startX=useRef<number|null>(null);const images=product.images??[];
  const move=(delta:number)=>setIndex(i=>images.length?(i+delta+images.length)%images.length:0);
  const swipeEnd=(x:number)=>{if(startX.current===null)return;const d=x-startX.current;startX.current=null;if(Math.abs(d)>35)move(d>0?-1:1);};
- return <div><div className="detail-photo gallery-stage" onPointerDown={e=>{startX.current=e.clientX;}} onPointerUp={e=>swipeEnd(e.clientX)} onPointerCancel={()=>{startX.current=null;}}>
+ return <div className="product-gallery"><div className="detail-photo gallery-stage" onPointerDown={e=>{startX.current=e.clientX;}} onPointerUp={e=>swipeEnd(e.clientX)} onPointerCancel={()=>{startX.current=null;}}>
   {images.length?<img src={images[Math.min(index,images.length-1)]} alt={product.name} decoding="async"/>:<div className="photo-empty product-photo-fallback product-photo-fallback-detail"><img src="/inokskar-header-brand.png" alt="" decoding="async"/><strong>{product.name}</strong><small>{productCode(product)}</small></div>}
   {images.length>1&&<><GalleryButton direction="prev" onClick={()=>move(-1)}/><GalleryButton direction="next" onClick={()=>move(1)}/><span className="gallery-count">{index+1}/{images.length}</span></>}
  </div>{images.length>1&&<div className="thumbnails" aria-label="Ürün görselleri">{images.map((im,i)=><button key={i} className={i===index?'selected':''} onClick={()=>setIndex(i)} aria-pressed={i===index} aria-label={'Görsel '+(i+1)}><img src={im} alt="" loading="lazy" decoding="async"/></button>)}</div>}</div>;

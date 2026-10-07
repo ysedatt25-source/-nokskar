@@ -35,7 +35,7 @@ jobs:
       - name: Wait for exact live release
         run: |
           set -euo pipefail
-          expected="r20-3"
+          expected="r21-0"
           echo "Expected live release: $expected"
           for i in {1..90}; do
             info="$(curl -fsS "$LIVE_URL/build-info" 2>/dev/null || true)"
@@ -89,9 +89,15 @@ jobs:
           ];
           const catalogResponse = await fetch(base + '/api/catalog');
           const catalogPayload = await catalogResponse.json();
-          const firstProductId = catalogPayload?.data?.products?.[0]?.id || '';
+          const catalogProducts = Array.isArray(catalogPayload?.data?.products) ? catalogPayload.data.products : [];
+          const firstProductId = catalogProducts[0]?.id || '';
           const productDetailPath = firstProductId ? '/urun/' + encodeURIComponent(firstProductId) : '';
+          const imageProduct = catalogProducts
+            .filter(p => Array.isArray(p?.images) && p.images.filter(Boolean).length > 0)
+            .sort((a,b) => (b.images?.filter(Boolean).length || 0) - (a.images?.filter(Boolean).length || 0))[0];
+          const imageProductPath = imageProduct?.id ? '/urun/' + encodeURIComponent(imageProduct.id) : '';
           if (productDetailPath) paths.push(['product-detail', productDetailPath]);
+          if (imageProductPath && imageProductPath !== productDetailPath) paths.push(['product-detail-images', imageProductPath]);
 
           for (const device of devices) {
             const context = await browser.newContext({
@@ -103,9 +109,10 @@ jobs:
             const page = await context.newPage();
 
             for (const [name, path] of paths) {
-              const response = await page.goto(base + path, { waitUntil: name === 'product-detail' ? 'domcontentloaded' : 'networkidle', timeout: 45000 });
-              if(name === 'product-detail') await page.locator('.detail').first().waitFor({state:'visible',timeout:10000});
-              await page.waitForTimeout(name === 'product-detail' ? 700 : 350);
+              const detailPage = name.startsWith('product-detail');
+              const response = await page.goto(base + path, { waitUntil: detailPage ? 'domcontentloaded' : 'networkidle', timeout: 45000 });
+              if(detailPage) await page.locator('.detail').first().waitFor({state:'visible',timeout:10000});
+              await page.waitForTimeout(detailPage ? 700 : 350);
               const status = response?.status() ?? 0;
               const bodyWidth = await page.evaluate(() => ({
                 innerWidth: window.innerWidth,
@@ -113,8 +120,30 @@ jobs:
                 bodyScrollWidth: document.body?.scrollWidth || 0
               }));
               const overflow = bodyWidth.scrollWidth > bodyWidth.innerWidth + 2;
+              const majorLeaks = await page.evaluate(() => {
+                const selectors = [
+                  '.wrap','.page-intro','.catalogue','.content-page','.detail','.detail-grid',
+                  '.product-gallery','.detail-photo','.detail-summary','.detail-trust-row',
+                  '.detail-trust-row>span','.product-details','.contact-grid','.contact-info',
+                  '.inquiry-form','.about-grid','.about-value-grid','.service-layout','.service-info',
+                  '.service-form','.warranty-center','.warranty-query-card','.product-grid','.product-card'
+                ];
+                const leaks=[];
+                for(const selector of selectors){
+                  for(const el of document.querySelectorAll(selector)){
+                    const style=getComputedStyle(el),r=el.getBoundingClientRect();
+                    if(style.display==='none'||style.visibility==='hidden'||r.width<1||r.height<1)continue;
+                    if(style.position==='fixed')continue;
+                    if(r.left < -2 || r.right > innerWidth + 2){
+                      leaks.push({selector,left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width)});
+                      if(leaks.length>=20)return leaks;
+                    }
+                  }
+                }
+                return leaks;
+              });
               const title = await page.title();
-              report.pages.push({ device: device.name, name, path, status, title, horizontalOverflow: overflow, widths: bodyWidth });
+              report.pages.push({ device: device.name, name, path, status, title, horizontalOverflow: overflow, majorLeaks, widths: bodyWidth });
               if (name === 'home' && device.name !== 'desktop') {
                 const geometry = await page.evaluate(() => {
                   const header = document.querySelector('.site-header')?.getBoundingClientRect();
@@ -334,6 +363,46 @@ jobs:
             await context.close();
           }
 
+          // Real image-rich product: gallery and three trust cards must stay centered inside their own containers.
+          if (imageProductPath) {
+            const context = await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+            const page = await context.newPage();
+            await page.goto(base + imageProductPath, { waitUntil: 'domcontentloaded', timeout: 45000 });
+            await page.locator('.detail-photo').first().waitFor({state:'visible',timeout:10000});
+            await page.waitForTimeout(700);
+            const geometry = await page.evaluate(() => {
+              const rect=el=>el?.getBoundingClientRect?.()||null;
+              const inside=(child,parent,t=2)=>!!child&&!!parent&&child.left>=parent.left-t&&child.right<=parent.right+t;
+              const gallery=rect(document.querySelector('.product-gallery'));
+              const photo=rect(document.querySelector('.detail-photo'));
+              const image=rect(document.querySelector('.detail-photo>img'));
+              const summary=rect(document.querySelector('.detail-summary'));
+              const trust=rect(document.querySelector('.detail-trust-row'));
+              const cards=[...document.querySelectorAll('.detail-trust-row>span')].map(rect).filter(Boolean);
+              const thumbnails=rect(document.querySelector('.thumbnails'));
+              return {
+                path:location.pathname,
+                galleryInsideViewport:!!gallery&&gallery.left>=-1&&gallery.right<=innerWidth+1,
+                photoInsideGallery:inside(photo,gallery),
+                imageInsidePhoto:inside(image,photo),
+                imageCentered:!!image&&!!photo&&Math.abs((image.left+image.right)/2-(photo.left+photo.right)/2)<=2,
+                summaryInsideViewport:!!summary&&summary.left>=-1&&summary.right<=innerWidth+1,
+                trustInsideSummary:inside(trust,summary),
+                trustCardsInside:cards.length===3&&cards.every(card=>inside(card,trust,1)),
+                thumbnailsInsideGallery:!thumbnails||inside(thumbnails,gallery),
+                cardCount:cards.length,
+                galleryWidth:gallery?Math.round(gallery.width):0,
+                photoWidth:photo?Math.round(photo.width):0,
+                imageWidth:image?Math.round(image.width):0,
+                trustWidth:trust?Math.round(trust.width):0,
+                cardWidths:cards.map(x=>Math.round(x.width))
+              };
+            });
+            report.interaction.imageProductGeometry=geometry;
+            await page.screenshot({path:out+'/product-detail-images-mobile-geometry.png',fullPage:true,animations:'disabled'});
+            await context.close();
+          }
+
           // Tablet drawer and click-to-open category behavior, isolated from the phone test.
           {
             const context = await browser.newContext({
@@ -409,7 +478,7 @@ jobs:
           await browser.close();
           fs.writeFileSync(out + '/report.json', JSON.stringify(report, null, 2));
 
-          const failedPages = report.pages.filter(p => p.status !== 200 || p.horizontalOverflow);
+          const failedPages = report.pages.filter(p => p.status !== 200 || p.horizontalOverflow || (p.majorLeaks?.length || 0) > 0);
           const m = report.interaction.publicMobileMenu;
           const cat = report.interaction.mobileCategorySubmenu;
           const mobileGeometry = report.interaction.mobileHomeGeometry || {};
@@ -419,6 +488,17 @@ jobs:
           const requiredContacts = report.interaction.requiredContacts || {};
           const firstOpenCategories = report.interaction.firstOpenCategories || {};
           const productDetail = report.interaction.productDetail || {};
+          const imageProductGeometry = report.interaction.imageProductGeometry || {};
+          const imageProductOk = !imageProductPath || (
+            imageProductGeometry.galleryInsideViewport &&
+            imageProductGeometry.photoInsideGallery &&
+            imageProductGeometry.imageInsidePhoto &&
+            imageProductGeometry.imageCentered &&
+            imageProductGeometry.summaryInsideViewport &&
+            imageProductGeometry.trustInsideSummary &&
+            imageProductGeometry.trustCardsInside &&
+            imageProductGeometry.thumbnailsInsideGallery
+          );
           const firstOpenCategoriesOk = firstOpenCategories.visible && firstOpenCategories.categoryLinks > 0 && firstOpenCategories.hasUsableBox && firstOpenCategories.sameRow && firstOpenCategories.productSameRow;
           const productDetailOk = !productDetailPath || (productDetail.ctaVisible && !productDetail.floatingVisible && productDetail.ctaAboveDock && !productDetail.homeCtaPresent && productDetail.pageDetailClass && !productDetail.pageHomeClass);
           const requiredContactsOk = requiredContacts.contact?.emailRequired && requiredContacts.contact?.emailType === 'email' && requiredContacts.contact?.phoneRequired && requiredContacts.service?.emailRequired && requiredContacts.service?.emailType === 'email' && requiredContacts.service?.phoneRequired;
@@ -434,7 +514,7 @@ jobs:
             cat?.categoryDropdownVisible && cat?.siblingPointerLocked && cat?.submenuInFlow && cat?.menuVisible && cat?.categoryUrlStayedHome &&
             tabletMenu?.visible && tabletMenu?.categoryDropdownVisible && tabletMenu?.submenuInFlow && tabletMenu?.urlStayedHome &&
             tabletMenu?.background === 'rgb(255, 255, 255)' &&
-            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk;
+            desktopHover?.hoverDropdownVisible && geometryOk && requiredContactsOk && firstOpenCategoriesOk && productDetailOk && imageProductOk;
           console.log(JSON.stringify(report, null, 2));
 
           if (failedPages.length || !interactionOk) {
