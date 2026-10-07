@@ -4,7 +4,7 @@ const root=fileURLToPath(new URL('../../../',import.meta.url));
 const checks=[
  ['IndustrialCatalog/ClientApp/src/app/storefront.tsx',['normalizeTurkeyPhone','kişisel/iş e-posta','Ülke kodu isteğe bağlıdır']],
  ['IndustrialCatalog/ClientApp/public/r98-service-request.js',['normalizePhone','kişisel/iş e-posta','Ülke kodu isteğe bağlıdır']],
- ['IndustrialCatalog/InquiryPages.cs',['normalizePhone','+90 542','Talep Takibi']],
+ ['IndustrialCatalog/InquiryPages.cs',['normalizePhone','+90 542','TALEP TAKİBİ']],
  ['IndustrialCatalog/Program.cs',['/api/inquiries/unread-count','/api/inquiries/mark-read','/api/service-request']],
  ['IndustrialCatalog/ClientApp/public/r13-pages.js',['admin-inquiry-badge','/api/inquiries/unread-count']]
 ];
