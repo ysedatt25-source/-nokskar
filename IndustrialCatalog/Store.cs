@@ -72,6 +72,8 @@ public sealed class Store
         if (settings == null) return;
         settings.Remove("logo");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
+        settings["founderLabelText"] ??= "BİR YİĞİTKAR DEKOR KURULUŞUDUR";
+        settings["founderLabelVisible"] ??= true;
         if ((settings["rate"]?.GetValue<decimal>() ?? 0) <= 0 && string.IsNullOrWhiteSpace(settings["lastRate"]?.ToString())) settings["autoRate"] = true;
         settings["rateSource"] ??= "";
         settings["rateDate"] ??= "";
