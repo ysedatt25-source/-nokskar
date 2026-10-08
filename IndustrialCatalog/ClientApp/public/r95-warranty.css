@@ -4,3 +4,26 @@
 @media(max-width:1000px){.warranty-layout,.warranty-admin-grid{grid-template-columns:1fr}.warranty-query-card{position:static}.warranty-component-edit{grid-template-columns:1fr 1fr}.warranty-component-edit .wc-remove{align-self:end}.warranty-admin-top,.warranty-admin-heading{align-items:flex-start;flex-direction:column}.warranty-admin-top nav{flex-wrap:wrap}}@media(max-width:650px){.warranty-intro{padding-top:28px}.warranty-layout{gap:18px}.warranty-meta{grid-template-columns:1fr}.warranty-query-card,.warranty-record-head{padding:20px}.warranty-remaining{margin:18px;padding:18px 14px}.warranty-scope{padding:0 19px 20px}.warranty-component{flex-direction:column;gap:8px}.warranty-component-status{text-align:left}.warranty-record-foot{align-items:stretch;flex-direction:column;padding:18px 20px}.warranty-admin-wrap{width:min(100% - 24px,1500px);margin-top:18px}.warranty-admin-top{padding:16px 18px}.warranty-admin-form-card,.warranty-admin-list-card{padding:16px}.warranty-two-col,.warranty-component-edit{grid-template-columns:1fr}.warranty-list-head{align-items:stretch;flex-direction:column}.warranty-list-head input{width:100%}}
 
 .warranty-optional{border:1px solid #dce6f3;border-radius:10px;background:#f8fbff;padding:0 14px}.warranty-optional summary{cursor:pointer;font-weight:800;padding:13px 0;color:#24466f}.warranty-optional[open]{padding-bottom:14px}.warranty-optional .warranty-two-col{margin-bottom:12px}@media(max-width:700px){.warranty-public-body .warranty-footer-grid{align-items:flex-start;flex-direction:column}.warranty-public-body .warranty-footer-grid nav{gap:12px}}
+
+
+/* Dedicated warranty attachment controls reuse the existing protected technical files service. */
+.warranty-private-files{display:grid;gap:13px;margin:16px 0 20px;padding:20px;border:1px solid #cbdff1;border-radius:17px;background:linear-gradient(150deg,#f7fbff,#fff);box-shadow:0 7px 24px rgba(19,66,116,.06)}
+.warranty-private-files[hidden],.warranty-private-drop[hidden]{display:none!important}
+.warranty-files-head{display:flex;align-items:center;gap:13px}
+.warranty-files-icon{display:grid;place-items:center;width:43px;height:43px;flex:0 0 43px;border-radius:12px;background:#e6f0ff;color:#185aa6;font-size:1.35rem}
+.warranty-files-head>div{min-width:0;flex:1}
+.warranty-files-head h3{margin:0 0 3px;font-size:1.02rem;color:#153958}
+.warranty-files-head p{margin:0;color:#6a7f96;font-size:.8rem;line-height:1.45}
+.warranty-private-badge{padding:6px 9px;border-radius:8px;border:1px solid #d0dfef;background:#f4f9ff;color:#2d5e90;font-weight:850;font-size:.67rem;letter-spacing:.06em}
+.warranty-private-drop{padding:14px;border:1px dashed #96b9dc;border-radius:13px;background:#f5faff;display:grid;gap:8px}
+.warranty-private-upload{display:flex!important;align-items:center;justify-content:center;gap:8px;min-height:47px;margin:0;padding:11px 15px;border:1px solid #1e6ec0;border-radius:11px;background:linear-gradient(135deg,#1876d7,#0c4f9a);color:#fff!important;font-size:.89rem;font-weight:850;cursor:pointer;text-align:center}
+.warranty-private-upload input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.warranty-private-upload:focus-within{outline:3px solid #69a7e8;outline-offset:2px}
+.warranty-private-drop>small{color:#678199;font-size:.73rem;line-height:1.5;text-align:center}
+.warranty-pending-files,.warranty-existing-files{display:grid;gap:8px}
+.warranty-pending-row,.warranty-private-file{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-width:0;padding:9px 12px;border:1px solid #dde8f2;border-radius:10px;background:#fff}
+.warranty-pending-row>span,.warranty-file-name{min-width:130px;flex:1;overflow-wrap:anywhere;font-weight:740;color:#264c70;font-size:.79rem}
+.warranty-pending-row small{font-size:.7rem;color:#758ca2}
+.warranty-file-type{padding:6px 8px;border-radius:7px;background:#eef4fc;color:#2564a5;font-size:.65rem;font-weight:900}
+.warranty-private-file .small-btn,.warranty-pending-row .small-btn{min-height:34px;padding:7px 9px;font-size:.73rem;text-decoration:none}
+@media(max-width:640px){.warranty-private-files{padding:13px 12px;margin:12px 0 15px;border-radius:14px}.warranty-files-head{gap:9px}.warranty-files-icon{width:36px;height:36px;flex-basis:36px}.warranty-files-head h3{font-size:.93rem}.warranty-files-head p{font-size:.72rem}.warranty-private-badge{font-size:.59rem;padding:5px 6px}.warranty-private-file .warranty-file-name{flex:1 1 100%;order:0}.warranty-private-file .warranty-file-type{order:0}}
