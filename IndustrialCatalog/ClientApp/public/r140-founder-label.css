@@ -9,7 +9,7 @@ body.page-home .hero .hero-founder-label{
   border-radius:999px;background:linear-gradient(120deg,rgba(8,23,39,.40),rgba(10,29,46,.28));
   box-shadow:0 5px 18px rgba(3,13,27,.15),inset 0 1px 0 rgba(255,255,255,.12);
   backdrop-filter:blur(2px) saturate(110%);-webkit-backdrop-filter:blur(2px) saturate(110%);
-  color:#f4d59a;pointer-events:none;
+  color:#ff9c51;pointer-events:none;
 }
 body.page-home .hero .hero-founder-label-mark{
   display:block;width:5px;height:5px;flex:0 0 5px;
@@ -61,7 +61,7 @@ body.page-home .hero .hero-founder-label-text{
   background-color:#0d213a;background-position:center;background-size:cover;border:1px solid #19324e;box-sizing:border-box}
 .founder-setting-preview-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
   max-width:100%;min-width:0;padding:8px 11px;border:1px solid rgba(245,210,147,.4);
-  border-radius:999px;background:rgba(8,23,39,.34);color:#f4d59a;backdrop-filter:blur(2px) saturate(110%);-webkit-backdrop-filter:blur(2px) saturate(110%)}
+  border-radius:999px;background:rgba(8,23,39,.34);color:#ff9c51;backdrop-filter:blur(2px) saturate(110%);-webkit-backdrop-filter:blur(2px) saturate(110%)}
 .founder-setting-preview-mark{width:5px;height:5px;flex:0 0 5px;background:#f2c77c;border-radius:50%}
 .founder-setting-preview-badge>span:last-child{font-family:"Manrope","Segoe UI",Arial,sans-serif;font-optical-sizing:auto;
   min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
