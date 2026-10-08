@@ -99,6 +99,18 @@ try{
   await importDialog.getByRole('button',{name:'İptal'}).click();
   await importDialog.waitFor({state:'hidden'});
   await page.setViewportSize({width:1440,height:900});
+  await page.waitForTimeout(400);
+  const postDialog=await page.evaluate(()=>({
+    url:location.pathname+location.search,
+    tab:document.body.dataset.uiPage,
+    cards:document.querySelectorAll('.product-item-card').length,
+    buttons:document.querySelectorAll('.product-item-card .product-list-actions button').length,
+    dialogs:document.querySelectorAll('[data-slot="dialog-content"]').length,
+    overlays:document.querySelectorAll('[data-slot="dialog-overlay"]').length,
+    html:document.querySelector('.product-item-card')?.outerHTML?.slice(-500)
+  }));
+  console.log('POST_IMPORT_DIAGNOSTICS',JSON.stringify(postDialog));
+  assert(postDialog.cards>0,'Product cards disappeared after closing image import: '+JSON.stringify(postDialog));
   await page.locator('.product-item-card').first().getByRole('button',{name:'Düzenle'}).click();
   const editor=page.locator('.product-editor-dialog');
   await editor.waitFor({state:'visible'});
