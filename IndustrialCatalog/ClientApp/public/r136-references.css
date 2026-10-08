@@ -1,0 +1,52 @@
+
+/* INOKSKAR Reference gallery and editorial manager — scoped design */
+.references-public{padding-top:clamp(20px,3vw,44px);padding-bottom:clamp(90px,8vw,130px)}
+.references-public-heading{text-align:center;margin:0 auto 30px;max-width:720px}
+.references-public-heading .eyebrow{display:inline-block;color:#9e7138;letter-spacing:.15em;font-weight:900;font-size:.74rem;margin-bottom:10px}
+.references-public-heading h1{font-size:clamp(1.8rem,4vw,2.8rem);color:#1b3954;letter-spacing:-.045em;margin:0 0 8px}
+.references-public-heading p{font-size:.94rem;color:#70859b;margin:0}
+.references-public-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;gap:16px}
+.references-public-card{min-width:0;display:flex;flex-direction:column;justify-content:flex-start;gap:0;border:1px solid #dce6f0;border-radius:18px;background:#fff;box-shadow:0 8px 26px rgba(9,43,75,.06);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
+.references-public-card:hover{transform:translateY(-3px);border-color:#b9d4ec;box-shadow:0 17px 32px rgba(9,43,75,.13)}
+.references-public-logo{display:flex;align-items:center;justify-content:center;height:155px;padding:24px 18px;background:linear-gradient(145deg,#fff,#fafcff)}
+.references-public-logo img{display:block;max-width:100%;max-height:110px;width:100%;height:100%;object-fit:contain;object-position:center}
+.references-public-contacts{display:grid;gap:9px;padding:11px 13px 15px;margin-top:auto;border-top:1px solid #ecf1f6}
+.references-public-contacts a{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;color:#2565a6;font-size:.77rem;text-decoration:none;font-weight:760;overflow-wrap:anywhere;line-height:1.4;text-align:center}
+.references-public-contacts a span{min-width:0;overflow-wrap:anywhere}
+.references-public-contacts a:hover{text-decoration:underline}
+.references-public-empty{display:grid;justify-items:center;gap:11px;max-width:550px;margin:0 auto;padding:45px 22px;text-align:center;background:#fff;border:1px dashed #c7d6e6;border-radius:18px;color:#7990a6}
+.references-public-empty p{margin:0;color:#526d87}
+.references-admin{display:grid;gap:17px;min-width:0}
+.references-admin-top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:22px 24px;background:linear-gradient(145deg,#f7fbff,#fff);border:1px solid #d5e3f0;border-radius:17px}
+.references-admin-top h2{font-size:1.28rem;color:#1b3b57;margin:0 0 5px}
+.references-admin-top p{font-size:.84rem;color:#687f97;max-width:590px;margin:0;line-height:1.55}
+.references-admin-top button{flex:0 0 auto}
+.references-admin-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.reference-admin-card{display:flex;flex-wrap:wrap;gap:12px;align-items:center;min-width:0;padding:14px;border:1px solid #d9e5f0;border-radius:15px;background:#fff;box-shadow:0 4px 17px rgba(12,47,79,.05)}
+.reference-admin-image{display:grid;place-items:center;width:106px;height:82px;flex:0 0 106px;padding:10px;background:#f8fbff;border:1px solid #e2eaf3;border-radius:11px}
+.reference-admin-image img{max-width:100%;max-height:100%;object-fit:contain}
+.reference-admin-info{flex:1;min-width:100px;display:grid;gap:5px}
+.reference-admin-info strong{font-size:.85rem;color:#203d59;overflow-wrap:anywhere}
+.reference-admin-info small{font-size:.72rem;color:#73879b}
+.reference-admin-actions{display:flex;flex-wrap:wrap;gap:6px;width:100%;border-top:1px solid #edf1f5;padding-top:11px}
+.reference-admin-actions .small-btn{min-height:36px;padding:7px 10px;display:flex;align-items:center;justify-content:center;gap:5px}
+.references-preview-link{justify-self:start;display:inline-flex;align-items:center;gap:9px}
+.references-admin-empty{grid-column:1/-1;display:grid;place-items:center;gap:10px;min-height:220px;border:1px dashed #c7dbea;border-radius:16px;background:#f7fbff;color:#7991a7}
+.references-admin-empty strong{color:#325573}
+.reference-edit-backdrop{position:fixed;inset:0;z-index:920;display:grid;place-items:center;background:rgba(7,22,39,.63);padding:16px}
+.reference-edit-dialog{display:grid;gap:15px;width:min(540px,100%);max-height:calc(100dvh - 32px);overflow:auto;padding:22px;border-radius:19px;background:#fff;box-shadow:0 22px 65px rgba(3,20,43,.45)}
+.reference-edit-heading{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.reference-edit-heading strong{display:block;font-size:1.22rem;color:#163a5a}
+.reference-edit-heading p{font-size:.79rem;line-height:1.5;color:#678097;margin:4px 0 0}
+.reference-logo-editor{display:grid;justify-items:center;gap:13px;padding:16px;border:1px dashed #bdd5ed;border-radius:13px;background:#f6faff}
+.reference-logo-editor img{width:min(100%,270px);height:120px;object-fit:contain}
+.reference-logo-empty{display:grid;justify-items:center;gap:8px;padding:16px;color:#8ba1b6}
+.reference-edit-dialog label:not(.upload-button){display:grid;gap:7px;color:#2c5274;font-size:.83rem;font-weight:760}
+.reference-edit-dialog input:not([type=file]):not([type=checkbox]){width:100%;min-height:47px;border:1px solid #ccdaeb;border-radius:10px;padding:11px 13px;background:#fff;font:inherit;font-size:16px}
+.reference-edit-dialog .reference-visible{display:flex!important;align-items:center;gap:9px}
+.reference-edit-dialog .reference-visible input{width:18px;height:18px;accent-color:#1d68bc}
+.reference-edit-actions{display:flex;gap:9px;justify-content:flex-end;padding-top:12px;border-top:1px solid #edf1f6}
+.reference-edit-actions button{min-height:45px}
+@media(max-width:1050px){.references-public-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.references-admin-list{grid-template-columns:1fr}}
+@media(max-width:700px){.references-public-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.references-public-card{border-radius:14px}.references-public-logo{height:122px;padding:15px 10px}.references-public-logo img{max-height:95px}.references-public-contacts{padding:10px 7px;gap:8px}.references-public-contacts a{font-size:.69rem;gap:5px}.references-public-contacts a svg{width:13px;flex:0 0 13px}.references-admin-top{flex-direction:column;align-items:stretch;padding:17px}.references-admin-top button{width:100%}.reference-admin-card{padding:11px}.reference-admin-image{width:91px;height:76px;flex-basis:91px}.reference-edit-dialog{padding:17px;border-radius:15px}.reference-edit-actions{display:grid;grid-template-columns:1fr 1fr}.reference-edit-actions .button{min-width:0;width:100%;padding:9px 7px}}
+@media(prefers-reduced-motion:reduce){.references-public-card{transition:none}}
