@@ -29,6 +29,12 @@
     const h1 = hero.querySelector('h1');
     if(h1){
       h1.innerHTML='Endüstriyel<br>Mutfaklarda<br><em>Güçlü Partneriniz</em>';
+      // Keep the founder label exactly the same color as the visible accent headline.
+      const founderLabel=hero.querySelector('.hero-founder-label');
+      const headlineAccent=h1.querySelector('em');
+      if(founderLabel&&headlineAccent){
+        founderLabel.style.color=window.getComputedStyle(headlineAccent).color;
+      }
     }
     const p = hero.querySelector('p');
     if(p){
