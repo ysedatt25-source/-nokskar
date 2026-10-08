@@ -105,7 +105,23 @@ function pricePreview(){if(!selected.length){setError('Önce ürün seçin.');re
 function exportBackup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='site-yedek-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);}
 async function exportFullBackup(){setBusy(true);setError('');setNotice('');try{const r=await request('/api/backup',{cache:'no-store'},120000);if(r.status===401){location.href='/login';return;}if(!r.ok){const b:any=await r.json().catch(()=>({}));throw Error(b.error||'Tam ZIP yedeği oluşturulamadı.');}const blob=await r.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='inokskar-tam-yedek-'+new Date().toISOString().slice(0,10)+'.zip';a.click();URL.revokeObjectURL(url);setNotice('Tam ZIP yedeği indirildi.');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
 async function restoreFullBackup(file:File){setBusy(true);setError('');setNotice('');try{const form=new FormData();form.append('file',file);form.append('revision',String(revision));const r=await request('/api/backup/restore',{method:'POST',body:form},120000);if(r.status===401){location.href='/login';return;}const b:any=await r.json().catch(()=>({}));if(!r.ok)throw Error(b.error||'Tam ZIP yedeği geri yüklenemedi.');setRevision(b.revision);setData(b.data);setDirty(false);setNotice('Tam ZIP yedeği geri yüklendi.');await load();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
-async function refreshOfficialRate(){if(dirty){setError('Resmi kuru yenilemeden önce mevcut değişiklikleri kaydedin.');return;}setBusy(true);setError('');setNotice('');try{const r=await request('/api/rate/refresh',{method:'POST'},45000);if(r.status===401){location.href='/login';return;}const b:any=await r.json().catch(()=>({}));if(!r.ok)throw Error(b.error||'Resmi kur alınamadı.');await load();setNotice('Resmi EUR/TL kuru güncellendi: '+Number(b.rate).toLocaleString('tr-TR',{minimumFractionDigits:4,maximumFractionDigits:4})+' TL'+(b.rateDate?' · Kur tarihi: '+new Date(b.rateDate+'T00:00:00').toLocaleDateString('tr-TR'):'')+'.');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+async function refreshOfficialRate(){
+  if(dirty){const message='Resmi kuru yenilemeden önce mevcut değişiklikleri kaydedin.';setError(message);setSettingsFeedback({tone:'error',message});return;}
+  setBusy(true);setError('');setNotice('');
+  setSettingsFeedback({tone:'info',message:'Resmî EUR/TL kuru kontrol ediliyor…'});
+  try{
+    const r=await request('/api/rate/refresh',{method:'POST'},45000);
+    if(r.status===401){location.href='/login';return;}
+    const b:any=await r.json().catch(()=>({}));
+    if(!r.ok)throw Error(b.error||'Resmi kur alınamadı.');
+    await load();
+    const message='Resmî EUR/TL kuru güncellendi: '+Number(b.rate).toLocaleString('tr-TR',{minimumFractionDigits:4,maximumFractionDigits:4})+' TL'+(b.rateDate?' · Kur tarihi: '+new Date(b.rateDate+'T00:00:00').toLocaleDateString('tr-TR'):'')+'.';
+    setNotice(message);setSettingsFeedback({tone:'success',message});
+  }catch(e){
+    const message=(e as Error).message||'Resmî kur güncellenemedi.';
+    setError(message);setSettingsFeedback({tone:'error',message});
+  }finally{setBusy(false);}
+}
 async function changeAdminPassword(e:FormEvent<HTMLFormElement>){
   e.preventDefault();
   if(busy)return;
