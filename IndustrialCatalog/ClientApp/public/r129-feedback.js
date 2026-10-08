@@ -33,7 +33,8 @@
     for (var i = 0; i < endpointRules.length; i++) {
       if (endpointRules[i][0].test(path)) return endpointRules[i][1];
     }
-    return '';
+    // Future mutation endpoints automatically participate without another patch.
+    return /^\/api\//.test(path) ? 'İşlem başarıyla tamamlandı.' : '';
   }
   function el(tag, css, value) {
     var node = doc.createElement(tag);
