@@ -71,7 +71,7 @@ public static class InquiryStatusPages
         return """
 <!doctype html>
 <html lang="tr">
-<head>
+<head><link rel='stylesheet' href='/r129-feedback.css?v=1'><script defer src='/r129-feedback.js?v=1'></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#252b33">
