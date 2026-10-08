@@ -82,7 +82,7 @@ try{
       const dock=document.querySelector('.admin-app-dock');
       return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,w:b.width,h:b.height,
         translate:getComputedStyle(el).translate,overlayZ:back?Number(getComputedStyle(back).zIndex):0,
-        dockZ:dock?Number(getComputedStyle(dock).zIndex):0};
+        dockZ:dock&&getComputedStyle(dock).display!=='none'?(Number.parseInt(getComputedStyle(dock).zIndex,10)||0):0};
     });
     assert(result.left>=-2&&result.right<=width+2&&result.top>=-2&&result.bottom<=height+2,
       'Offscreen modal '+label+': '+JSON.stringify(result));
