@@ -92,3 +92,10 @@
   .support-center .support-info .contact-quick-list>a,.support-center .support-info .contact-quick-list>div{min-height:58px}
 }
 @media(prefers-reduced-motion:reduce){.support-center .support-choice,.support-center .support-choice::after,.support-center .support-submit{transition:none}}
+
+/* Admin inquiry previews — compact, readable at all widths. */
+.inquiry-purpose-mini{display:flex;align-items:stretch;gap:9px;flex-wrap:wrap;margin:13px 0;padding:0}
+.inquiry-purpose-mini>span{display:grid;gap:5px;min-width:132px;flex:1 1 170px;padding:11px 13px;border:1px solid #d7e5f4;border-radius:11px;background:linear-gradient(145deg,#f0f7ff,#fff);color:#617990;font-size:.71rem;font-weight:750}
+.inquiry-purpose-mini>span:nth-child(2){background:#f8fafc}
+.inquiry-purpose-mini strong{font-size:.85rem;color:#18578f;font-weight:850;line-height:1.35}
+@media(max-width:600px){.inquiry-purpose-mini{gap:7px;margin:10px 0}.inquiry-purpose-mini>span{min-width:0;flex:1 1 120px;padding:10px}}
