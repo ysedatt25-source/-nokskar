@@ -20,7 +20,7 @@ public static class InquiryStatusPages
         if (normalized.Length != 10) return result;
 
         var rows = store.Snapshot()["inquiries"]?.AsArray() ?? new JsonArray();
-        foreach (var node in rows.OfType<JsonObject>().OrderByDescending(x => x["created"]?.ToString()).Take(250))
+        foreach (var node in rows.OfType<JsonObject>().OrderByDescending(x => x["created"]?.ToString()))
         {
             JsonObject data;
             try { data = JsonNode.Parse(node["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject(); }
@@ -108,7 +108,7 @@ public static class InquiryStatusPages
 <section class="hero">
 <div class="intro"><p class="eyebrow">TALEP TAKİBİ</p><h1>Talebiniz hangi aşamada?</h1><p>Destek veya servis talebinde kullandığınız telefon numarasını girin. Türkiye numaralarında <strong>+90</strong>, <strong>0</strong> veya doğrudan <strong>5xx…</strong> biçimlerinin tamamı kabul edilir.</p></div>
 <form id="inquiry-status-form" class="query-card" novalidate>
-<label>Telefon numarası<div class="phone-shell"><span>☎</span><input id="status-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="542 000 00 00" required></div><small>Örnek: 5420000000 · 05420000000 · +905420000000</small></label>
+<label>Talep oluştururken kullandığınız telefon<div class="phone-shell"><span>☎</span><input id="status-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="542 000 00 00" required></div><small>Örnek: 5420000000 · 05420000000 · +905420000000</small></label>
 <div class="helper"><span>+90 ile</span><span>0 ile</span><span>Kodsuz</span></div>
 <button id="status-submit" type="submit">Talep durumunu sorgula</button>
 </form>
