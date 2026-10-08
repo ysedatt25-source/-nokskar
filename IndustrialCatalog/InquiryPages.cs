@@ -27,6 +27,36 @@ public static class InquiryPages
             "</span><strong>" + E(content) + "</strong></div>";
     }
 
+    public static string PurposeLabel(string? value, bool service = false) => service ? "Teknik Servis" : (value ?? "").Trim().ToLowerInvariant() switch
+    {
+        "teklif" => "Teklif Al",
+        "proje" => "Proje & Danışmanlık",
+        "servis" => "Teknik Servis",
+        _ => "Genel Destek"
+    };
+    public static string PreferenceLabel(string? value) => (value ?? "").Trim().ToLowerInvariant() switch
+    {
+        "email" => "E-posta ile dönüş",
+        "system" => "Talep ekranından yazılı yanıt",
+        "phone" => "Telefonla dönüş",
+        _ => "Belirtilmedi"
+    };
+    static string ServiceTopicLabel(string? value) => (value ?? "").Trim().ToLowerInvariant() switch
+    {
+        "ariza" => "Arıza / Onarım", "bakim" => "Bakım", "yedek-parca" => "Yedek Parça",
+        "kurulum" => "Kurulum / Montaj", "diger" => "Diğer", _ => ""
+    };
+    static string ProjectTypeLabel(string? value) => (value ?? "").Trim().ToLowerInvariant() switch
+    {
+        "restoran" => "Restoran / Lokanta", "otel" => "Otel / Konaklama",
+        "kafe" => "Kafe / Pastane", "mutfak" => "Endüstriyel mutfak kurulumu",
+        "ozel" => "Özel üretim / Diğer", _ => ""
+    };
+    static string TopicLabel(string? value) => (value ?? "").Trim().ToLowerInvariant() switch
+    {
+        "bilgi" => "Bilgi talebi", "oneri" => "Öneri", "sikayet" => "Şikâyet", "diger" => "Diğer", _ => ""
+    };
+
     static string Option(string value, string label, string current) => $"<option value='{E(value)}'{(string.Equals(value, current, StringComparison.Ordinal) ? " selected" : "")}>{E(label)}</option>";
 
 
@@ -100,14 +130,26 @@ public static class InquiryPages
             + SummaryCard("Ad / Yetkili", b["name"]?.ToString())
             + SummaryCard("E-posta", b["email"]?.ToString())
             + SummaryCard("Telefon", b["phone"]?.ToString());
-        var extraFields = (service ? Field("İşletme Adı", b["businessName"]?.ToString())
+        var purposeLabel = PurposeLabel(b["purpose"]?.ToString(), service);
+        var preferenceLabel = PreferenceLabel(b["contactPreference"]?.ToString());
+        var purposePanel = "<div class='inquiry-purpose-card' aria-label='Talep amacı ve müşteri tercihi'>" +
+            "<div><span>TALEP AMACI</span><strong>" + E(purposeLabel) + "</strong></div>" +
+            "<div><span>MÜŞTERİ TERCİHİ</span><strong>" + E(preferenceLabel) + "</strong></div></div>";
+        var extraFields = (service ? Field("Servis Türü", ServiceTopicLabel(b["serviceTopic"]?.ToString()))
+            + Field("İşletme Adı", b["businessName"]?.ToString())
             + Field("Servis Adresi", b["address"]?.ToString(), true) : "")
+            + Field("Talep Konusu", TopicLabel(b["topic"]?.ToString()))
+            + Field("Teklif Adedi", b["quantity"]?.ToString())
+            + Field("Proje Türü", ProjectTypeLabel(b["projectType"]?.ToString()))
+            + Field("Proje Konumu", b["projectCity"]?.ToString())
+            + Field("Proje Ölçüleri", b["projectSize"]?.ToString())
+            + Field("Planlanan Zaman", b["projectTimeline"]?.ToString())
             + Field("Ürün", b["productName"]?.ToString())
             + Field("Ürün Kodu", b["productCode"]?.ToString())
             + Field("Seri Numarası", b["serialNumber"]?.ToString());
         var message = Field(service ? "Arıza / Servis Açıklaması" : "Mesaj", b["message"]?.ToString(), true);
         var detailsBlock = "<section class='inquiry-card inquiry-details-overview' aria-label='Talep bilgileri'>" +
-            "<div class='inquiry-summary-grid'>" + summaryCards + "</div>" +
+            purposePanel + "<div class='inquiry-summary-grid'>" + summaryCards + "</div>" +
             (string.IsNullOrWhiteSpace(extraFields) ? "" : "<div class='inquiry-extra-grid'>" + extraFields + "</div>") +
             "</section>" +
             "<section class='inquiry-card inquiry-message-card' aria-label='Talep mesajı'>" +
@@ -199,7 +241,14 @@ public static class InquiryPages
 @media(max-width:680px){#inquiry-customer-workflow{padding:17px 14px}#inquiry-customer-workflow .icw-grid,#inquiry-customer-workflow .icw-template-edit{grid-template-columns:1fr}#inquiry-customer-workflow .icw-head{align-items:flex-start}#inquiry-customer-workflow .icw-footer button{width:100%}#inquiry-customer-workflow .icw-template-actions{justify-content:stretch}#inquiry-customer-workflow .icw-template-actions button{flex:1}}
 </style>
 <style>
-/* Inquiry detail only — six concise information tiles and a full-width message. */
+/* Inquiry detail only — five summary tiles plus purpose/preference banner. */
+.inquiry-wrap .inquiry-purpose-card{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.inquiry-wrap .inquiry-purpose-card>div{display:grid;gap:6px;min-width:0;padding:16px 18px;border:1px solid #bad6f4;border-radius:13px;background:linear-gradient(135deg,#eaf4ff,#f7fbff)}
+.inquiry-wrap .inquiry-purpose-card>div:nth-child(2){background:linear-gradient(135deg,#f8faff,#eef3f9);border-color:#d9e5f0}
+.inquiry-wrap .inquiry-purpose-card span{font-size:.72rem;font-weight:900;letter-spacing:.065em;color:#3d6897}
+.inquiry-wrap .inquiry-purpose-card strong{font-size:1.02rem;font-weight:850;color:#154b82;line-height:1.3;overflow-wrap:anywhere}
+@media(max-width:600px){.inquiry-wrap .inquiry-purpose-card{gap:8px}.inquiry-wrap .inquiry-purpose-card>div{padding:12px 10px}.inquiry-wrap .inquiry-purpose-card span{font-size:.61rem}.inquiry-wrap .inquiry-purpose-card strong{font-size:.82rem}}
+
 .inquiry-wrap .inquiry-details-overview{padding:17px}
 .inquiry-wrap .inquiry-summary-grid{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
