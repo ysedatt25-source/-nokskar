@@ -849,41 +849,12 @@ body[data-ui-page="admin-security"] .security-password-form input{
   min-width:0;
   max-width:100%;
 }
-body[data-ui-page="admin-security"] .security-password-feedback{
-  display:grid;
-  gap:4px;
-  margin:1px 0 0;
-  padding:12px 14px;
-  border-radius:11px;
-  border:1px solid #cbd9e8;
-  background:#f0f5fb;
-  color:#294e70;
-  line-height:1.45;
-  overflow-wrap:anywhere;
-}
-body[data-ui-page="admin-security"] .security-password-feedback strong{
-  font-size:.88rem;
-}
-body[data-ui-page="admin-security"] .security-password-feedback span{
-  font-size:.82rem;
-}
-body[data-ui-page="admin-security"] .security-password-feedback.error{
-  border-color:#e8b8c0;
-  background:#fff1f2;
-  color:#972b3c;
-}
-body[data-ui-page="admin-security"] .security-password-feedback.success{
-  border-color:#abd7bc;
-  background:#eaf8ef;
-  color:#17613d;
-}
-body[data-ui-page="admin-security"] .toast-stack{
-  top:auto;
-  bottom:calc(90px + env(safe-area-inset-bottom,0px));
-  z-index:270;
-  max-height:calc(100dvh - 140px);
-  overflow-y:auto;
-}
+
+
+
+
+
+
 @media(max-width:1100px){
   body[data-ui-page="admin-security"] .admin-main{
     padding-bottom:calc(135px + env(safe-area-inset-bottom,0px));
@@ -903,11 +874,7 @@ body[data-ui-page="admin-security"] .toast-stack{
     margin:0 0 4px;
     line-height:1.25;
   }
-  body[data-ui-page="admin-security"] .toast-stack{
-    left:12px;
-    right:12px;
-    width:auto;
-  }
+  
 }
 @media(max-width:600px){
   body[data-ui-page="admin-security"] .security-grid > .admin-box{
@@ -2605,28 +2572,11 @@ body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) :
 body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) :is(.product-primary-actions,.product-bulk-panel,.product-item-card) button:focus-visible{
   outline:2px solid #337fda;outline-offset:2px;
 }
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback{
-  display:grid;grid-template-columns:27px minmax(0,1fr) 27px;gap:8px;align-items:center;
-  padding:10px 12px;margin:0 0 10px;
-  background:#f0f7ff;border:1px solid #caddec;border-left:3px solid #2c71b8;
-  border-radius:11px;color:#28547d;
-  box-shadow:0 3px 12px rgba(13,54,105,.055);
-  font-size:.78rem;font-weight:700;line-height:1.45;overflow-wrap:anywhere;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback.success{
-  background:#eaf8ef;color:#17643e;border-color:#bce2c8;border-left-color:#26844b;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback.error{
-  background:#fff0f2;color:#973146;border-color:#efc4cd;border-left-color:#be3952;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback-icon{
-  display:flex;align-items:center;justify-content:center;
-  height:26px;width:26px;border-radius:50%;background:rgba(55,122,189,.12);font-weight:850;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback button{
-  width:26px;height:26px;min-height:26px;border:0;
-  background:transparent;color:inherit;font-size:1.2rem;cursor:pointer;
-}
+
+
+
+
+
 @media(prefers-reduced-motion:reduce){
   body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) :is(.product-primary-actions,.product-bulk-panel,.product-item-card) button{transition:none}
 }
