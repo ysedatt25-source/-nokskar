@@ -55,9 +55,50 @@ document.addEventListener('submit',event=>{
     backdrop.type='button';backdrop.className='admin-drawer-backdrop';backdrop.setAttribute('aria-label','Yönetim menüsünü kapat');backdrop.hidden=true;
     document.body.append(backdrop);
     let previousFocus=null;
+    const drawerHome=nav.parentNode;
+    const drawerAfter=nav.nextSibling;
     const focusables=()=>[...nav.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>x.getClientRects().length);
-    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');try{previousFocus?.focus?.({preventScroll:true});}catch{}previousFocus=null;};
-    const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
+    const returnDrawer=()=>{
+      if(nav.parentNode!==drawerHome && drawerHome?.isConnected){
+        if(drawerAfter && drawerAfter.parentNode===drawerHome)drawerHome.insertBefore(nav,drawerAfter);
+        else drawerHome.appendChild(nav);
+      }
+      nav.classList.remove('admin-viewport-drawer');
+      nav.removeAttribute('aria-modal');
+      nav.removeAttribute('role');
+    };
+    const close=()=>{
+      const wasOpen=side.classList.contains('menu-open');
+      side.classList.remove('menu-open');
+      document.body.classList.remove('admin-drawer-open');
+      backdrop.hidden=true;
+      returnDrawer();
+      document.querySelector('.admin-main')?.removeAttribute('inert');
+      toggle.setAttribute('aria-expanded','false');
+      toggle.setAttribute('aria-label','Yönetim menüsünü aç');
+      if(wasOpen)try{previousFocus?.focus?.({preventScroll:true});}catch{}
+      previousFocus=null;
+    };
+    const open=()=>{
+      if(side.classList.contains('menu-open'))return;
+      previousFocus=document.activeElement;
+      // Put the sheet directly under the React root. This escapes the compact
+      // logo/header stacking context while retaining React's delegated clicks.
+      const host=document.getElementById('root');
+      if(!host)return;
+      host.appendChild(nav);
+      nav.classList.add('admin-viewport-drawer');
+      nav.setAttribute('role','dialog');
+      nav.setAttribute('aria-modal','true');
+      side.classList.add('menu-open');
+      document.body.classList.add('admin-drawer-open');
+      backdrop.hidden=false;
+      document.querySelector('.admin-main')?.setAttribute('inert','');
+      toggle.setAttribute('aria-expanded','true');
+      toggle.setAttribute('aria-label','Yönetim menüsünü kapat');
+      nav.scrollTop=0;
+      requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));
+    };
     toggle.addEventListener('click',()=>side.classList.contains('menu-open')?close():open());
     sheetHead.querySelector('.admin-menu-sheet-close')?.addEventListener('click',close);
     backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});
