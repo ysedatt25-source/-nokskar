@@ -18,7 +18,7 @@ try{
   const context=await browser.newContext({viewport:{width:1440,height:900},locale:'tr-TR'});
   const page=await context.newPage();
   const indexHTML=await fetch(base+'/').then(r=>r.text());
-  await page.route('**/admin',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:indexHTML}));
+  await page.route('**/admin**',route=>route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:indexHTML}));
   await page.route('**/api/admin/security',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({email:'qa-browser@example.test',role:'SuperAdmin'})}));
   await page.route('**/api/security/csrf',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({token:'qa-browser-only'})}));
   await page.route('**/api/catalog**',async route=>{
@@ -32,7 +32,8 @@ try{
     }
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:productData,revision,history:[],events:[],inquiries:[]})});
   });
-  await page.goto(base+'/admin',{waitUntil:'networkidle',timeout:60000});
+  await page.goto(base+'/admin?tab=products',{waitUntil:'networkidle',timeout:60000});
+  await page.locator('.product-list-table tbody tr').first().waitFor({state:'visible',timeout:12000});
   await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
   await page.locator('.product-list-table tbody tr').first().waitFor({state:'visible',timeout:12000});
   await page.screenshot({path:out+'/product-list-desktop.png',fullPage:true});
