@@ -219,14 +219,15 @@ public static class MailTemplates
     public static (string Subject, string Html, string Text) AdminRequest(JsonObject request, int count, string? adminUrl)
     {
         var service = string.Equals(request["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
-        var kind = service ? "servis" : "destek";
+        var purpose = InquiryPages.PurposeLabel(request["purpose"]?.ToString(), service);
+        var preference = InquiryPages.PreferenceLabel(request["contactPreference"]?.ToString());
         var business = request["businessName"]?.ToString();
         var name = request["name"]?.ToString() ?? "Müşteri";
-        var subject = $"{count} kişi servis veya destek talebinde bulundu";
+        var subject = $"Yeni {purpose} talebi | İNOKSKAR";
         var link = !string.IsNullOrWhiteSpace(adminUrl) ? $"<p><a href='{E(adminUrl)}'>Yönetim panelinde talepleri görüntüleyin</a></p>" : "";
-        var html = $"<div style='font-family:Arial,sans-serif;line-height:1.6;color:#102a51'><h2>Yeni {kind} talebi</h2><p><strong>{E(name)}</strong>{(string.IsNullOrWhiteSpace(business) ? "" : " · " + E(business))} yeni bir {kind} talebi oluşturdu.</p><p>Toplam kayıtlı servis/destek talebi: <strong>{count}</strong></p><p>{E(request["message"]?.ToString())}</p>{link}</div>";
-        var text = $"Yeni {kind} talebi\n{name}\nToplam kayıt: {count}\n{request["message"]}";
-        return (subject, html, text);
+        var html = $"<div style='font-family:Arial,sans-serif;line-height:1.6;color:#102a51'><h2>Yeni {E(purpose)} talebi</h2><p><strong>{E(name)}</strong>{(string.IsNullOrWhiteSpace(business) ? "" : " · " + E(business))} yeni bir talep oluşturdu.</p><div style='padding:14px 18px;background:#eff6ff;border-radius:12px'><p><strong>Talep amacı:</strong> {E(purpose)}</p><p><strong>Dönüş tercihi:</strong> {E(preference)}</p></div><p>Toplam kayıtlı servis/destek talebi: <strong>{count}</strong></p><p>{E(request["message"]?.ToString())}</p>{link}</div>";
+        var plain = $"Yeni {purpose} talebi\n{name}\nDönüş tercihi: {preference}\nToplam kayıt: {count}\n{request["message"]}";
+        return (subject, html, plain);
     }
 
     public static (string Subject, string Html, string Text) CustomerReceipt(JsonObject request)
