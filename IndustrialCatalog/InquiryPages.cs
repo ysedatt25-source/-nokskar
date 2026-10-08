@@ -99,8 +99,7 @@ public static class InquiryPages
             + SummaryCard("Talep numarası", requestCode)
             + SummaryCard("Ad / Yetkili", b["name"]?.ToString())
             + SummaryCard("E-posta", b["email"]?.ToString())
-            + SummaryCard("Telefon", b["phone"]?.ToString())
-            + SummaryCard("İletişim", b["contact"]?.ToString());
+            + SummaryCard("Telefon", b["phone"]?.ToString());
         var extraFields = (service ? Field("İşletme Adı", b["businessName"]?.ToString())
             + Field("Servis Adresi", b["address"]?.ToString(), true) : "")
             + Field("Ürün", b["productName"]?.ToString())
@@ -277,7 +276,62 @@ public static class InquiryPages
   .inquiry-wrap .inquiry-summary-item>strong{font-size:.69rem}
   .inquiry-wrap .inquiry-extra-grid{grid-template-columns:1fr}
 }
-</style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-6">
+
+<style>
+/* R22.16 — inquiry detail only: preserve every remaining value on one line.
+   Two wider tiles per mobile row; the final phone tile spans both columns. */
+.inquiry-wrap .inquiry-summary-item > strong{
+  white-space:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  overflow-wrap:normal;
+  word-break:normal;
+  scrollbar-width:none;
+  max-width:100%;
+  width:100%;
+  font-variant-numeric:tabular-nums;
+}
+.inquiry-wrap .inquiry-summary-item > strong::-webkit-scrollbar{display:none}
+.inquiry-wrap .inquiry-summary-item > span{
+  white-space:nowrap;
+  font-size:clamp(.62rem,.88vw,.72rem);
+}
+@media(max-width:750px){
+  .inquiry-wrap .inquiry-summary-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  .inquiry-wrap .inquiry-summary-item{
+    min-height:67px;
+    padding:10px 11px;
+    gap:5px;
+    border-radius:11px;
+  }
+  .inquiry-wrap .inquiry-summary-item > span{
+    font-size:.69rem;
+    line-height:1.2;
+    letter-spacing:0;
+  }
+  .inquiry-wrap .inquiry-summary-item > strong{
+    font-size:clamp(.66rem,2.9vw,.84rem);
+    line-height:1.4;
+    letter-spacing:-.02em;
+  }
+  .inquiry-wrap .inquiry-summary-item:nth-child(5){
+    grid-column:1/-1;
+    min-height:60px;
+  }
+}
+@media(max-width:350px){
+  .inquiry-wrap .inquiry-summary-item{
+    padding-inline:8px;
+  }
+  .inquiry-wrap .inquiry-summary-item > strong{
+    font-size:.66rem;
+    letter-spacing:-.035em;
+  }
+}
+</style></style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-6">
 <style>
 /* R22.14: Inquiry detail header only. Place the delete action beside the title,
    keeping the six information cards immediately below the heading. */
