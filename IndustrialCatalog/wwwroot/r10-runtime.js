@@ -35,7 +35,7 @@
     const button=form.querySelector('button[type="submit"],button:not([type])');if(button)button.textContent='Destek talebini gönder';
     form.dataset.r10Contact='1';
   }
-  function upgradeFooter(){document.querySelectorAll('footer,.consult-strip').forEach(n=>n.remove());}
+  function upgradeFooter(){document.querySelectorAll('footer.site-footer,.consult-strip').forEach(n=>n.remove());}
   function upgradeAdmin(){
     if(location.pathname!=='/admin')return;
     const nav=document.querySelector('.admin-sidebar nav');
