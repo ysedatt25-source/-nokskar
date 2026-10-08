@@ -76,6 +76,7 @@ try{
   // The production API is mocked; no product is deleted.
   const checkOverlayBounds=async (locator,label,width,height)=>{
     await locator.waitFor({state:'visible',timeout:9000});
+    await locator.evaluate(async el=>{await Promise.all(el.getAnimations().map(animation=>animation.finished.catch(()=>{})));});
     const result=await locator.evaluate(el=>{
       const b=el.getBoundingClientRect();
       const back=document.querySelector('[data-slot="alert-dialog-overlay"],[data-slot="dialog-overlay"]');
