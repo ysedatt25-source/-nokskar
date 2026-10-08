@@ -163,6 +163,27 @@ public static class InquiryPages
             (string.IsNullOrWhiteSpace(message) ? "<div class='inquiry-field'><span>" +
               (service ? "Arıza / Servis Açıklaması" : "Mesaj") + "</span><div class='inquiry-value'>—</div></div>" : message) +
             "</section>";
+        if (b["attachments"] is JsonArray documents && documents.Count > 0 && !service)
+        {
+            var documentRows = string.Join("", documents.OfType<JsonObject>().Select(file =>
+            {
+                var attachmentId = file["id"]?.ToString() ?? "";
+                var attachmentName = file["originalName"]?.ToString() ?? "Proje belgesi";
+                var isPdf = file["mime"]?.ToString() == "application/pdf";
+                var sizeBytes = long.TryParse(file["size"]?.ToString(), out var length) ? length : 0;
+                var fileSize = (sizeBytes / 1048576d).ToString("0.0", System.Globalization.CultureInfo.GetCultureInfo("tr-TR")) + " MB";
+                var prefix = "/api/inquiries/" + Uri.EscapeDataString(id) + "/attachments/" + Uri.EscapeDataString(attachmentId);
+                return "<div class='project-doc-row'><span class='project-doc-kind'>" + (isPdf?"PDF":"GÖRSEL") +
+                    "</span><span class='project-doc-name'>" + E(attachmentName) + "<small>" + E(fileSize) +
+                    "</small></span><a href='" + E(prefix + "/view") + "' target='_blank' rel='noopener noreferrer'>Görüntüle</a>" +
+                    "<a href='" + E(prefix + "/download") + "'>İndir</a></div>";
+            }));
+            detailsBlock += "<section class='inquiry-card project-documents' aria-label='Gizli proje ekleri'>" +
+                "<div class='project-doc-title'><div><p>YALNIZCA YETKİLİ PERSONEL</p><h2>Proje Ekleri</h2>" +
+                "<span>Müşterinizin paylaştığı çizimler ve görseller. Müşteri sorgulama ekranında gösterilmez.</span></div>" +
+                "<strong>" + documents.Count + " dosya</strong></div>" +
+                "<div class='project-doc-rows'>" + documentRows + "</div></section>";
+        }
         var currentStatus = b["customerStatus"]?.ToString() ?? "new";
         var activeTemplates = templates ?? new JsonArray();
         var templateOptions = string.Join("", activeTemplates.OfType<JsonObject>().Select(t =>
