@@ -42,7 +42,7 @@ public static class WarrantyPages
     <label class="warranty-product-mode"><input type="radio" name="productMode" value="manual"><span>Elle ürün gir</span></label>
   </div>
   <div id="warranty-catalog-fields" class="warranty-product-fields">
-    <label class="warranty-search-group">Ürün ara ve seç <span class="warranty-required">*</span><input id="warranty-product-search" type="search" role="combobox" aria-autocomplete="list" aria-controls="warranty-product-results" aria-expanded="false" placeholder="Ürün adı / kodu yazın veya dokunun" autocomplete="off"><div id="warranty-product-results" class="warranty-product-results" role="listbox" aria-label="Eşleşen katalog ürünleri" hidden></div></label>
+    <div class="warranty-search-group"><label for="warranty-product-search">Ürün ara ve seç <span class="warranty-required">*</span></label><input id="warranty-product-search" type="search" role="combobox" aria-autocomplete="list" aria-controls="warranty-product-results" aria-expanded="false" placeholder="Ürün adı / kodu yazın veya dokunun" autocomplete="off"><div id="warranty-product-results" class="warranty-product-results" role="listbox" aria-label="Eşleşen katalog ürünleri" hidden></div></div>
     <label class="warranty-native-fallback">Ürün listesi<select name="productId" required><option value="">Katalogdaki ürünler yükleniyor…</option></select></label>
     <div class="warranty-product-hint" id="warranty-product-count" role="status" aria-live="polite">Katalog kontrol ediliyor…</div>
   </div>
