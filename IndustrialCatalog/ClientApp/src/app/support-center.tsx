@@ -1,5 +1,5 @@
 import {useState,type FormEvent} from 'react';
-import {ArrowRight, CheckCircle2, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench} from 'lucide-react';
+import {ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench} from 'lucide-react';
 import type {Catalog} from '../lib/model';
 
 type Purpose = 'genel' | 'teklif' | 'servis' | 'proje';
@@ -62,12 +62,10 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
   };
   return <section className="wrap content-page contact-pro support-center" aria-label="İNOKSKAR Destek Merkezi">
     <div className="contact-purpose support-purpose" role="group" aria-label="Talep amacı seçin">
-      {choices.map(({key,label,detail,Icon})=><button type="button" key={key} className={'support-choice '+(purpose===key?'active':'')} onClick={()=>switchPurpose(key)} aria-pressed={purpose===key}>
-        <span className="support-choice-head">
-          <span className="support-choice-icon"><Icon size={20} strokeWidth={1.9}/></span>
-          <strong>{label}</strong>
-        </span>
-        <small className="support-choice-detail">{detail}</small>
+      {choices.map(({key,label,detail,Icon})=><button type="button" key={key} className={'support-choice '+(purpose===key?'active':'')} onClick={()=>switchPurpose(key)} aria-pressed={purpose===key} aria-label={label+' — '+detail}>
+        <Icon className="support-choice-icon" size={19} strokeWidth={2} aria-hidden="true"/>
+        <span className="support-choice-label">{label}</span>
+        <ChevronRight className="support-choice-chevron" size={16} aria-hidden="true"/>
       </button>)}
     </div>
     <div className="support-layout">
