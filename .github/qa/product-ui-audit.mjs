@@ -40,9 +40,37 @@ try{
   await page.goto(base+'/admin?tab=products',{waitUntil:'networkidle',timeout:60000});
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   assert(new URL(page.url()).searchParams.get('tab')==='products','Product deep link not retained');
+  const checkProductLayout=async (label)=>{
+    const v=await page.evaluate(()=>{
+      const buttons=[...document.querySelectorAll('.product-primary-actions button')];
+      const rects=buttons.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right};});
+      const card=document.querySelector('.product-item-card');
+      const box=card?.getBoundingClientRect();
+      return {scope:document.body.dataset.uiPage,
+        bar:document.querySelector('.product-primary-actions')&&getComputedStyle(document.querySelector('.product-primary-actions')).display,
+        list:document.querySelector('.product-card-list')&&getComputedStyle(document.querySelector('.product-card-list')).display,
+        cardDisplay:card&&getComputedStyle(card).display,
+        border:card&&getComputedStyle(card).borderLeftWidth,
+        buttons:rects,cardBox:box?{x:box.x,right:box.right}:null,screen:innerWidth};
+    });
+    assert(v.scope==='admin-products','Product CSS scope missing '+label+': '+JSON.stringify(v));
+    assert(v.bar==='grid'&&v.list==='grid'&&v.cardDisplay==='grid','Product grid CSS missing '+label+': '+JSON.stringify(v));
+    assert(Number.parseFloat(v.border)>=2,'Card visual framing missing '+label+': '+JSON.stringify(v));
+    assert(v.buttons.length===3 && Math.max(...v.buttons.map(x=>x.y))-Math.min(...v.buttons.map(x=>x.y))<4,'3 action buttons not side-by-side '+label+': '+JSON.stringify(v));
+    assert(v.buttons.every(b=>b.x>=-2&&b.right<=v.screen+2),'Action row exceeds viewport '+label+': '+JSON.stringify(v));
+    assert(v.cardBox&&v.cardBox.x>=-2&&v.cardBox.right<=v.screen+2,'Card exceeds viewport '+label+': '+JSON.stringify(v));
+  };
+  await page.setViewportSize({width:390,height:844});
+  await checkProductLayout('mobile direct-link');
+  await page.screenshot({path:out+'/product-mobile-direct-load.png',fullPage:true});
+  await page.setViewportSize({width:820,height:1180});
+  await checkProductLayout('tablet direct-link');
+  await page.setViewportSize({width:1440,height:900});
+  await checkProductLayout('desktop direct-link');
   await page.reload({waitUntil:'networkidle'});
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   assert(new URL(page.url()).searchParams.get('tab')==='products','Product tab lost on reload');
+  await checkProductLayout('desktop refresh');
   await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   await page.screenshot({path:out+'/product-list-desktop.png',fullPage:true});

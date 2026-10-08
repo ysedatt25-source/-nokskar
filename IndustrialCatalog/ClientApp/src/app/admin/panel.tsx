@@ -29,6 +29,10 @@ async function request(input:RequestInfo|URL,init:RequestInit={},timeout=45000){
 async function load(){setError('');try{const [r,sr]=await Promise.all([request('/api/catalog?admin=1',{},30000),request('/api/admin/security',{},30000)]);const b:any=await r.json();if(!r.ok)throw Error(b.error);setData(normalizeCatalog(b.data));setRevision(b.revision);setHist(b.history);setEvents(b.events);setInquiries(b.inquiries);setDirty(false);if(sr.ok){const sb:any=await sr.json();setSecurityEmail(sb.email||'');}}catch(e){setError((e as Error).message);}}
 useEffect(()=>{load();},[]);
 useEffect(()=>{
+  document.body.dataset.uiPage='admin-'+tab;
+  window.dispatchEvent(new Event('inokskar:navigation'));
+},[tab]);
+useEffect(()=>{
   const restore=()=>{
     const current=new URLSearchParams(window.location.search).get('tab');
     setTab(current&&tabs.some(([key])=>key===current)?current:'overview');
