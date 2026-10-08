@@ -24,16 +24,34 @@ public static class WarrantyRules
     public static JsonObject Prepare(JsonObject input, JsonObject catalog, JsonObject? existing, out string issuedCode)
     {
         issuedCode = "";
-        var productId = Clean(input["productId"]?.ToString(), 100, "Ürün seçimi gerekli.");
-        var product = catalog["products"]?.AsArray().FirstOrDefault(x => x?["id"]?.ToString() == productId)?.AsObject();
-        if (product == null && (existing == null || !string.Equals(existing["productId"]?.ToString(), productId, StringComparison.Ordinal)))
-            throw new ArgumentException("Seçilen ürün katalogda bulunamadı.");
-        var productName = product != null
-            ? Clean(product["name"]?.ToString(), 200, "Ürün adı bulunamadı.")
-            : Clean(existing?["productName"]?.ToString(), 200, "Garanti kaydındaki ürün adı bulunamadı.");
-        var defaultCode = (product?["code"]?.ToString() ?? existing?["productCode"]?.ToString() ?? "").Trim();
-        if (string.IsNullOrWhiteSpace(defaultCode)) defaultCode = productId;
-        var productCode = Clean(input["productCode"]?.ToString() ?? defaultCode, 100, "Ürün kodu gerekli.");
+        var mode = input["productMode"]?.ToString() ?? "";
+        var requestedId = input["productId"]?.ToString() ?? "";
+        var existingId = existing?["productId"]?.ToString() ?? "";
+        var manual = mode == "manual" ||
+            (string.IsNullOrWhiteSpace(mode) && existingId.StartsWith("manual-", StringComparison.Ordinal));
+        string productId, productName, productCode;
+        if (manual)
+        {
+            productId = existingId.StartsWith("manual-", StringComparison.Ordinal)
+                ? existingId
+                : "manual-" + Guid.NewGuid().ToString("N");
+            productName = Clean(input["productName"]?.ToString(), 200, "Ürün adını girin.");
+            productCode = CleanOptional(input["productCode"]?.ToString(), 100, "Ürün kodu");
+            if (string.IsNullOrWhiteSpace(productCode)) productCode = "Belirtilmedi";
+        }
+        else
+        {
+            productId = Clean(requestedId, 100, "Katalogdan bir ürün seçin veya elle girişe geçin.");
+            var product = catalog["products"]?.AsArray().FirstOrDefault(x => x?["id"]?.ToString() == productId)?.AsObject();
+            if (product == null && (existing == null || !string.Equals(existingId, productId, StringComparison.Ordinal)))
+                throw new ArgumentException("Seçilen ürün katalogda bulunamadı. Elle ürün girişini kullanabilirsiniz.");
+            productName = product != null
+                ? Clean(product["name"]?.ToString(), 200, "Katalog ürününün adı geçersiz.")
+                : Clean(existing?["productName"]?.ToString(), 200, "Garanti kaydındaki ürün adı bulunamadı.");
+            var defaultCode = (product?["code"]?.ToString() ?? existing?["productCode"]?.ToString() ?? "").Trim();
+            productCode = CleanOptional(input["productCode"]?.ToString() ?? defaultCode, 100, "Ürün kodu");
+            if (string.IsNullOrWhiteSpace(productCode)) productCode = string.IsNullOrWhiteSpace(defaultCode) ? productId : defaultCode;
+        }
         var businessName = Clean(input["businessName"]?.ToString(), 200, "Teslim edileceği işletme adı gerekli.");
         var invoiceNumber = CleanOptional(input["invoiceNumber"]?.ToString(), 100, "Fatura numarası");
         var deliveryDocumentNumber = CleanOptional(input["deliveryDocumentNumber"]?.ToString(), 100, "Teslim belgesi numarası");
@@ -107,6 +125,7 @@ public static class WarrantyRules
         {
             ["id"] = existing?["id"]?.ToString() ?? Guid.NewGuid().ToString("N"),
             ["productId"] = productId,
+            ["productMode"] = manual ? "manual" : "catalog",
             ["productName"] = productName,
             ["productCode"] = productCode,
             ["businessName"] = businessName,
