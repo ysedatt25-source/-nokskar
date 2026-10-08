@@ -101,9 +101,9 @@ useEffect(()=>{setPage(1);},[path,search,filter,sort,pageSize]);
     <header className="references-public-heading"><span className="eyebrow">İNOKSKAR REFERANSLARI</span><h1>Referanslarımız</h1><p>Birlikte çalıştığımız işletmeler</p></header>
     {data.references.length?<div className="references-public-grid">{data.references.map(ref=><article className="references-public-card" key={ref.id}>
       <div className="references-public-logo"><img src={ref.logo} alt="Referans firma logosu" loading="lazy"/></div>
-      {(ref.phone||ref.email)&&<div className="references-public-contacts">
-        {ref.phone&&<a href={'tel:'+ref.phone.replace(/[^\d+]/g,'')}><Phone size={15}/><span>{ref.phone}</span></a>}
-        {ref.email&&<a href={'mailto:'+ref.email}><Mail size={15}/><span>{ref.email}</span></a>}
+      {(ref.phone||ref.email)&&<div className="references-public-contacts" aria-label="Referans iletişim">
+        {ref.phone&&<a className="references-public-contact-link" href={'tel:'+ref.phone.replace(/[^\d+]/g,'')} title={'Telefon: '+ref.phone} aria-label={'Telefon ile ara: '+ref.phone}><Phone size={17} strokeWidth={2} aria-hidden="true"/></a>}
+        {ref.email&&<a className="references-public-contact-link" href={'mailto:'+ref.email} title={'E-posta: '+ref.email} aria-label={'E-posta gönder: '+ref.email}><Mail size={17} strokeWidth={2} aria-hidden="true"/></a>}
       </div>}
     </article>)}</div>:<div className="references-public-empty"><Building2 size={33}/><p>Referanslarımız çok yakında burada yayınlanacak.</p></div>}
   </section>}
