@@ -10,7 +10,7 @@ public static class LegalPages
         var nav=new StringBuilder();
         foreach(var c in catalog["categories"]!.AsArray().Where(x=>x?["menu"]?.GetValue<bool>()==true))nav.Append($"<a href='/kategori/{Uri.EscapeDataString(c!["id"]!.ToString())}'>{E(c["name"]?.ToString())}</a>");
         foreach(var m in s["menu"]!.AsArray().Where(x=>x?["url"]?.ToString()!="/blog"&&x?["url"]?.ToString()!="/garanti-sorgulama"&&x?["url"]?.ToString()!="/servis-talebi"))nav.Append($"<a href='{E(m!["url"]?.ToString())}'>{E(m["name"]?.ToString())}</a>");
-        nav.Append("<a href='/garanti-sorgulama'>Garanti Sorgula</a><a href='/servis-talebi'>Servis Talebi</a>");
+        nav.Append("<a href='/garanti-sorgulama'>Garanti Sorgula</a><a href='/iletisim?amac=servis'>Teknik Destek</a>");
         var (title,body)=kind switch
         {
             "kvkk"=>("KVKK Aydınlatma Metni",$"Bu sayfa, {name} internet sitesi üzerinden iletilen iletişim ve servis taleplerindeki kişisel verilerin talebin değerlendirilmesi, iletişim kurulması, servis organizasyonu ve kayıt güvenliğinin sağlanması amaçlarıyla işlenmesine ilişkin genel bilgilendirmeyi içerir. Veriler yalnız gerekli süre boyunca ve ilgili mevzuat çerçevesinde korunur. Kişisel verilerinizle ilgili talepleriniz için {email} adresinden iletişime geçebilirsiniz."),
