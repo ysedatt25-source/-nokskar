@@ -180,7 +180,6 @@ app.MapGet("/account/security",(HttpContext c)=>Results.Content(AccessPages.Acco
 app.MapGet("/admin/security",(HttpContext c)=>Results.Redirect("/account/security")).RequireAuthorization();
 app.MapPost("/admin/security/password",(HttpContext c)=>Results.Redirect("/account/security")).RequireAuthorization();
 app.MapGet("/garanti-sorgulama",(Store store)=>Results.Content(WarrantyPages.Public(CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
-app.MapGet("/servis-talebi",(HttpContext c,Store store,CustomerDirectory customers)=>Results.Content(ServicePages.Public(CatalogRules.Public(store.Snapshot()["data"]!.AsObject()),c.Request.Query,AccessControl.Role(c.User)=="Customer"?customers.ById(AccessControl.UserId(c.User)):null),"text/html; charset=utf-8"));
 app.MapGet("/talep-sorgula",()=>Results.Content(InquiryStatusPages.Public(),"text/html; charset=utf-8"));
 app.MapGet("/gizlilik",(Store store)=>Results.Content(LegalPages.Render("gizlilik",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
 app.MapGet("/kvkk",(Store store)=>Results.Content(LegalPages.Render("kvkk",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
