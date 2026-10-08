@@ -71,6 +71,64 @@ try{
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   assert(new URL(page.url()).searchParams.get('tab')==='products','Product tab lost on reload');
   await checkProductLayout('desktop refresh');
+
+  // Verify the shared modal primitive in the real browser at phone, tablet and desktop sizes.
+  // The production API is mocked; no product is deleted.
+  const checkOverlayBounds=async (locator,label,width,height)=>{
+    await locator.waitFor({state:'visible',timeout:9000});
+    const result=await locator.evaluate(el=>{
+      const b=el.getBoundingClientRect();
+      const back=document.querySelector('[data-slot="alert-dialog-overlay"],[data-slot="dialog-overlay"]');
+      const dock=document.querySelector('.admin-app-dock');
+      return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,w:b.width,h:b.height,
+        translate:getComputedStyle(el).translate,overlayZ:back?Number(getComputedStyle(back).zIndex):0,
+        dockZ:dock?Number(getComputedStyle(dock).zIndex):0};
+    });
+    assert(result.left>=-2&&result.right<=width+2&&result.top>=-2&&result.bottom<=height+2,
+      'Offscreen modal '+label+': '+JSON.stringify(result));
+    assert(result.overlayZ>result.dockZ,'Modal is behind mobile dock '+label+': '+JSON.stringify(result));
+    if(width<=700){
+      assert(Math.abs(result.bottom-height)<4,'Mobile sheet not bottom aligned '+label+': '+JSON.stringify(result));
+      assert(result.translate==='none','Old horizontal dialog translation remains '+label+': '+JSON.stringify(result));
+    }else{
+      assert(Math.abs((result.left+result.right)/2-width/2)<5,'Dialog not centered '+label+': '+JSON.stringify(result));
+    }
+  };
+  for(const {width,height} of [{width:390,height:844},{width:820,height:1180},{width:1440,height:900}]){
+    await page.setViewportSize({width,height});
+    const brand=page.locator('.admin-sidebar > a.brand.private-brand-link');
+    const bounds=await brand.boundingBox();
+    assert(bounds,'Management logo missing '+width);
+    if(width<=1100){
+      assert(Math.abs(bounds.x+bounds.width/2-width/2)<4,
+        'Management logo is not centered at '+width+': '+JSON.stringify(bounds));
+    }else{
+      const sidebar=await page.locator('.admin-sidebar').boundingBox();
+      assert(sidebar&&Math.abs(bounds.x+bounds.width/2-sidebar.x-sidebar.width/2)<5,
+        'Desktop management logo not centered in sidebar: '+JSON.stringify(bounds));
+    }
+    await page.locator('.product-item-card').first().getByRole('button',{name:/sil/i}).click();
+    const confirmDialog=page.locator('[data-slot="alert-dialog-content"]');
+    await checkOverlayBounds(confirmDialog,'Product deletion confirmation '+width,width,height);
+    if(width===390)await page.screenshot({path:out+'/confirmation-dialog-mobile.png'});
+    await confirmDialog.getByRole('button',{name:'Vazgeç'}).click();
+    await confirmDialog.waitFor({state:'hidden'});
+  }
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('.admin-sidebar nav button').filter({hasText:'Kategoriler'}).first().click();
+  await page.locator('.category-admin-list .category-admin').first().getByRole('button',{name:'Düzenle'}).click();
+  const categoryDialog=page.locator('[data-slot="dialog-content"]');
+  await checkOverlayBounds(categoryDialog,'Category editor',390,844);
+  await categoryDialog.locator('[data-slot="dialog-close"]').click();
+  await categoryDialog.waitFor({state:'hidden'});
+  await page.locator('.admin-sidebar nav button').filter({hasText:'Fiyat yönetimi'}).first().click();
+  await page.getByRole('button',{name:/Excel\/CSV fiyat aktar/}).click();
+  const priceDialog=page.locator('[data-slot="dialog-content"]');
+  await checkOverlayBounds(priceDialog,'Price import',390,844);
+  await priceDialog.locator('[data-slot="dialog-close"]').click();
+  await priceDialog.waitFor({state:'hidden'});
+  await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
+  await page.setViewportSize({width:1440,height:900});
   await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   await page.screenshot({path:out+'/product-list-desktop.png',fullPage:true});

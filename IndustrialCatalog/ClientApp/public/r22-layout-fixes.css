@@ -2630,3 +2630,199 @@ body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .
 @media(prefers-reduced-motion:reduce){
   body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) :is(.product-primary-actions,.product-bulk-panel,.product-item-card) button{transition:none}
 }
+
+/* R22.29 — common Radix modal viewport geometry.
+   The old mobile bottom-sheet rules set left:0 but retained the
+   Radix translate-x:-50%, shifting the entire sheet off screen. */
+@media(max-width:700px){
+  body .inok-modal-surface,
+  body[data-ui-page^="admin-"] .inok-modal-surface{
+    position:fixed;
+    box-sizing:border-box;
+    inset:auto 0 0 0;
+    top:auto;
+    left:0;
+    right:0;
+    bottom:0;
+    translate:none;
+    transform:none;
+    margin:0;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    max-height:calc(100dvh - max(8px,env(safe-area-inset-top,0px)));
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    border-radius:18px 18px 0 0;
+    scrollbar-gutter:auto;
+  }
+  body .inok-modal-surface [data-slot="alert-dialog-footer"]{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:8px;
+    margin-top:6px;
+  }
+  body .inok-modal-surface [data-slot="alert-dialog-footer"] :is(button,[role="button"]){
+    box-sizing:border-box;
+    min-width:0;
+    width:100%;
+    min-height:44px;
+    margin:0;
+    white-space:normal;
+  }
+  body dialog[open]:not(.inok-modal-surface){
+    box-sizing:border-box;
+    inset:auto 8px 0 8px;
+    top:auto;
+    bottom:0;
+    left:8px;
+    right:8px;
+    translate:none;
+    transform:none;
+    margin:0;
+    width:calc(100% - 16px);
+    max-width:calc(100% - 16px);
+    max-height:calc(100dvh - 8px);
+  }
+}
+
+
+/* R22.29 — make the brand truly viewport-centered on every
+   administration tab and server-rendered private header. */
+@media(max-width:1100px){
+  body[data-ui-page^="admin-"] .admin-sidebar{
+    position:relative;
+    grid-template-rows:60px auto;
+    min-height:60px;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar > a.brand.private-brand-link{
+    position:absolute;
+    z-index:2;
+    top:30px;
+    left:50%;
+    right:auto;
+    grid-column:1/-1;
+    grid-row:1;
+    justify-self:center;
+    transform:translate(-50%,-50%);
+    width:min(245px,calc(100vw - 120px));
+    max-width:calc(100vw - 120px);
+    min-width:0;
+    min-height:0;
+    height:52px;
+    margin:0;
+    padding:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar > a.brand.private-brand-link .private-brand-image{
+    display:block;
+    width:100%;
+    max-width:100%;
+    height:50px;
+    min-height:0;
+    max-height:50px;
+    object-fit:contain;
+    object-position:center center;
+    margin:0;
+    transform:none;
+  }
+  body[data-ui-page^="admin-"] .admin-sidebar .admin-mobile-toggle{
+    position:relative;
+    z-index:4;
+    grid-row:1;
+    align-self:center;
+    justify-self:end;
+    margin:0;
+  }
+  body .private-brand-header:not(.site-header){
+    position:relative;
+    min-height:64px;
+  }
+  body .private-brand-header:not(.site-header) > a.private-brand-link{
+    position:absolute;
+    z-index:2;
+    top:32px;
+    left:50%;
+    right:auto;
+    transform:translate(-50%,-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:min(238px,calc(100vw - 120px));
+    max-width:calc(100vw - 120px);
+    height:54px;
+    min-height:0;
+    margin:0;
+    padding:0;
+    flex:none;
+  }
+  body .private-brand-header:not(.site-header) > a.private-brand-link .private-brand-image{
+    width:100%;
+    max-width:100%;
+    height:48px;
+    min-height:0;
+    max-height:48px;
+    object-fit:contain;
+    object-position:center center;
+    transform:none;
+  }
+  body .private-brand-header:not(.site-header) > nav{
+    position:relative;
+    z-index:3;
+    margin-left:auto;
+  }
+}
+@media(min-width:1101px){
+  body .admin-sidebar > a.brand.private-brand-link{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-inline:auto;
+  }
+  body .admin-sidebar > a.brand.private-brand-link .private-brand-image{
+    object-position:center center;
+    margin-inline:auto;
+  }
+  body .private-brand-header:not(.site-header){
+    position:relative;
+  }
+  body .private-brand-header:not(.site-header) > a.private-brand-link{
+    position:absolute;
+    top:50%;
+    left:50%;
+    right:auto;
+    transform:translate(-50%,-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:min(275px,30vw);
+    min-width:0;
+    max-width:min(275px,30vw);
+    margin:0;
+    padding:0;
+    flex:none;
+  }
+  body .private-brand-header:not(.site-header) > a.private-brand-link .private-brand-image{
+    max-width:100%;
+    height:auto;
+    object-fit:contain;
+    object-position:center center;
+  }
+  body .private-brand-header:not(.site-header) > nav{
+    margin-left:auto;
+    position:relative;
+    z-index:2;
+  }
+}
+
+
+/* R22.29: open dialogs always remain above the fixed mobile app dock. */
+body [data-slot="dialog-overlay"]{z-index:340}
+body [data-slot="dialog-content"]{z-index:350}
+body [data-slot="alert-dialog-overlay"]{z-index:370}
+body [data-slot="alert-dialog-content"]{z-index:380}
+body :is([data-slot="select-content"],[data-slot="popover-content"]){z-index:410}
