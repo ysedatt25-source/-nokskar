@@ -18,7 +18,7 @@ public static class SeoPages
 
     public static IEnumerable<string> Paths(JsonObject data)
     {
-        foreach (var path in new[] { "/", "/urunler", "/iletisim", "/hakkimizda", "/garanti-sorgulama", "/talep-sorgula", "/gizlilik", "/kvkk", "/cerez" }) yield return path;
+        foreach (var path in new[] { "/", "/urunler", "/iletisim", "/hakkimizda", "/referanslar", "/garanti-sorgulama", "/talep-sorgula", "/gizlilik", "/kvkk", "/cerez" }) yield return path;
         foreach (var (prefix, key) in new[] { ("/urun/", "products"), ("/kategori/", "categories") })
             foreach (var item in data[key]!.AsArray()) yield return prefix + Uri.EscapeDataString(Text(item!["id"]));
     }
@@ -84,7 +84,7 @@ public static class SeoPages
     {
         var settings = data["settings"]!;
         var brand = Text(settings["name"]);
-        var title = path switch { "/urunler" => "Ürün kataloğu", "/iletisim" => "İletişim", "/hakkimizda" => "Hakkımızda", "/garanti-sorgulama" => "Garanti Sorgulama", "/talep-sorgula" => "Talep Takibi", _ => brand };
+        var title = path switch { "/urunler" => "Ürün kataloğu", "/iletisim" => "İletişim", "/hakkimizda" => "Hakkımızda", "/referanslar" => "Referanslarımız", "/garanti-sorgulama" => "Garanti Sorgulama", "/talep-sorgula" => "Talep Takibi", _ => brand };
         var description = Text(settings["heroText"]);
         var image = Text(settings["hero"]);
         var content = $"<h1>{E(title)}</h1><p>{E(description)}</p>";
