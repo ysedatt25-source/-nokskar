@@ -419,7 +419,7 @@ app.MapPost("/api/event",async(HttpContext c,Store store)=>{
 app.MapFallback((HttpContext c,Store store,IWebHostEnvironment env,IConfiguration config)=>{
     var requestPath=c.Request.Path.Value??"/";var path=requestPath.Length>1?requestPath.TrimEnd('/'):requestPath;if(path=="")path="/";
     if(path=="/blog"||path.StartsWith("/blog/"))return Results.Redirect("/urunler",false);
-    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda"}.Contains(path,StringComparer.OrdinalIgnoreCase);
+    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda","/referanslar"}.Contains(path,StringComparer.OrdinalIgnoreCase);
     foreach(var (prefix,key) in new[]{("/urun/","products"),("/kategori/","categories")})
     {
         if(!path.StartsWith(prefix,StringComparison.OrdinalIgnoreCase))continue;
