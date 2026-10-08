@@ -11,7 +11,13 @@ public static class CatalogRules
         var settings=d["settings"]?.AsObject() ?? throw new ArgumentException("Ayarlar gerekli.");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
         settings["notificationEmail"] ??= "";
-        foreach(var key in new[]{"name","tagline","heroTitle","heroText","hero","headerImage","phone","whatsapp","email","notificationEmail","address","hours","social","waMessage","lastRate","rateSource","rateDate","about"}) Text(settings,key);
+        settings["founderLabelText"] ??= "BİR YİĞİTKAR DEKOR KURULUŞUDUR";
+        settings["founderLabelVisible"] ??= true;
+        foreach(var key in new[]{"name","tagline","heroTitle","heroText","hero","headerImage","founderLabelText","phone","whatsapp","email","notificationEmail","address","hours","social","waMessage","lastRate","rateSource","rateDate","about"}) Text(settings,key);
+        var founderLabel=Text(settings,"founderLabelText").Trim();
+        if(founderLabel.Length>64)throw new ArgumentException("Kuruluş etiketi en fazla 64 karakter olabilir.");
+        settings["founderLabelText"]=founderLabel;
+        settings["founderLabelVisible"]!.GetValue<bool>();
         var siteName=Text(settings,"name").Trim();if(siteName.Length<2||!Regex.IsMatch(siteName,@"[\\p{L}\\p{N}]"))siteName="İNOKSKAR";settings["name"]=siteName;
         foreach(var key in new[]{"hero","headerImage","social"})if(!Safe(Text(settings,key)))throw new ArgumentException("Geçersiz bağlantı.");
         var rate=settings["rate"]!.GetValue<decimal>();if(rate<0)throw new ArgumentException("Kur negatif olamaz.");
