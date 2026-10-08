@@ -1,0 +1,47 @@
+
+/* INOKSKAR — single global mutation-feedback surface (all page types). */
+#ifc-unused{display:none}
+#inokskar-feedback-center.ifc-host{
+  position:fixed!important;z-index:2147481000!important;top:max(20px,env(safe-area-inset-top,0px) + 10px);
+  left:50%;transform:translateX(-50%);
+  width:min(540px,calc(100vw - 28px));max-width:540px;
+  display:grid;gap:10px;pointer-events:none;color:#173752;
+}
+#inokskar-feedback-center .ifc-notice{
+  display:grid;grid-template-columns:40px minmax(0,1fr) 35px;align-items:start;gap:12px;
+  padding:16px;border:1px solid #cadbee;border-left:5px solid #2271bd;
+  border-radius:16px;background:#fff;color:#1a3c58;
+  box-shadow:0 16px 64px #061f3655,0 4px 15px #15365322;
+  backdrop-filter:none;pointer-events:auto;
+  font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.45;
+  animation:ifc-appear .16s ease-out;
+}
+#inokskar-feedback-center .ifc-notice:focus{outline:3px solid #348ae1;outline-offset:2px}
+#inokskar-feedback-center .ifc-icon{
+  display:grid;place-items:center;align-self:center;width:37px;height:37px;border-radius:11px;
+  background:#eaf4ff;color:#1c64aa;font-size:1.22rem;font-weight:900;line-height:1;
+}
+#inokskar-feedback-center .ifc-copy{min-width:0}
+#inokskar-feedback-center .ifc-copy strong{display:block;font-size:.94rem;font-weight:850;letter-spacing:-.01em;color:#183d5b;margin:0 0 4px}
+#inokskar-feedback-center .ifc-copy p{margin:0;padding:0;color:#405e79;font-size:.86rem;line-height:1.55;overflow-wrap:anywhere;font-weight:500}
+#inokskar-feedback-center .ifc-close{
+  display:grid;place-items:center;width:33px;height:33px;min-width:33px;min-height:33px;margin:0;
+  padding:0;border:1px solid #e1eaf4;border-radius:9px;background:#f8fbff;
+  color:#567089;font-family:inherit;font-size:1.3rem;font-weight:500;cursor:pointer;
+}
+#inokskar-feedback-center .ifc-close:hover{background:#edf4fc;color:#1b4d7a}
+#inokskar-feedback-center .ifc-close:focus-visible{outline:2px solid #276fbc;outline-offset:2px}
+#inokskar-feedback-center .ifc-success{border-left-color:#188657;border-color:#cae7d7;border-left-color:#188657}
+#inokskar-feedback-center .ifc-success .ifc-icon{background:#e7f8ef;color:#137c4f}
+#inokskar-feedback-center .ifc-error{border-color:#f0cccc;border-left-color:#bd3145}
+#inokskar-feedback-center .ifc-error .ifc-icon{background:#fff0f2;color:#a92a3b}
+@keyframes ifc-appear{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:650px){
+  #inokskar-feedback-center.ifc-host{top:max(12px,env(safe-area-inset-top,0px) + 8px);width:calc(100vw - 20px)}
+  #inokskar-feedback-center .ifc-notice{grid-template-columns:35px minmax(0,1fr) 32px;padding:12px;gap:9px;border-radius:13px;box-shadow:0 13px 44px #061f365c}
+  #inokskar-feedback-center .ifc-icon{width:34px;height:34px}
+  #inokskar-feedback-center .ifc-copy strong{font-size:.87rem}
+  #inokskar-feedback-center .ifc-copy p{font-size:.8rem}
+  #inokskar-feedback-center .ifc-close{width:31px;height:31px;min-width:31px;min-height:31px}
+}
+@media(prefers-reduced-motion:reduce){#inokskar-feedback-center .ifc-notice{animation:none}}
