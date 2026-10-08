@@ -12,7 +12,7 @@ const publicCatalog=await fetch(base+'/api/catalog').then(async response=>{
 const productData=publicCatalog.data;
 assert(productData?.categories?.length>0,'Catalog categories missing');
 assert(productData?.products?.length>0,'Catalog products missing');
-let revision=publicCatalog.revision||1,saveCount=0,updatedName='';
+let revision=publicCatalog.revision||1,saveCount=0,updatedName='',failNextSave=false;
 const browser=await chromium.launch({headless:true});
 try{
   const context=await browser.newContext({viewport:{width:1440,height:900},locale:'tr-TR'});
@@ -23,6 +23,11 @@ try{
   await page.route('**/api/security/csrf',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({token:'qa-browser-only'})}));
   await page.route('**/api/catalog**',async route=>{
     if(route.request().method()==='POST'){
+      if(failNextSave){
+        failNextSave=false;
+        await route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({error:'Test: ürün güncellenemedi.'})});
+        return;
+      }
       const body=JSON.parse(route.request().postData()||'{}');
       assert(body.data?.products?.length>0,'Product save payload was empty');
       productData.products=body.data.products;
@@ -34,6 +39,10 @@ try{
   });
   await page.goto(base+'/admin?tab=products',{waitUntil:'networkidle',timeout:60000});
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
+  assert(new URL(page.url()).searchParams.get('tab')==='products','Product deep link not retained');
+  await page.reload({waitUntil:'networkidle'});
+  await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
+  assert(new URL(page.url()).searchParams.get('tab')==='products','Product tab lost on reload');
   await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   await page.screenshot({path:out+'/product-list-desktop.png',fullPage:true});
@@ -57,8 +66,14 @@ try{
   await firstRow.locator('.product-select-hitarea input').check();
   await page.locator('.product-bulk-editor').first().locator('select').selectOption(productData.categories[0].id);
   assert(await page.locator('.product-bulk-editor').first().getByRole('button',{name:'Kategoriye taşı'}).isEnabled(),'Category move did not enable');
+  failNextSave=true;
+  await page.locator('.product-bulk-editor').first().getByRole('button',{name:'Kategoriye taşı'}).click();
+  await page.locator('.product-action-feedback.error').waitFor({state:'visible'});
+  assert((await page.locator('.product-action-feedback.error').innerText()).includes('Test: ürün güncellenemedi.'),'Error feedback missing');
+  assert(saveCount===0,'Failed save should not modify catalog');
   await page.locator('.product-bulk-editor').first().getByRole('button',{name:'Kategoriye taşı'}).click();
   assert(saveCount===1,'Category move did not send save request');
+  assert((await page.locator('.product-action-feedback.success').innerText()).includes('kategoriye taşındı'),'Success feedback missing');
   await page.locator('.product-bulk-editor').nth(1).locator('select').selectOption('Stokta');
   await page.locator('.product-bulk-editor').nth(1).getByRole('button',{name:'Durumu uygula'}).click();
   assert(saveCount===2,'Status update did not send save request');
@@ -66,6 +81,14 @@ try{
   assert(saveCount===3,'Visibility update did not send save request');
   await page.locator('.product-bulk-selection').getByRole('button',{name:'Seçimi temizle'}).click();
   assert(await page.locator('.product-selected-count').innerText()==='0 seçili','Bulk selection clear failed');
+  assert((await page.locator('.product-action-feedback.info').innerText()).includes('Seçim temizlendi'),'Selection feedback missing');
+  await page.locator('.admin-sidebar nav button').filter({hasText:'Genel bakış'}).first().click();
+  assert(new URL(page.url()).searchParams.get('tab')==='overview','Admin navigation did not update URL');
+  await page.reload({waitUntil:'networkidle'});
+  await page.getByRole('heading',{name:'Genel bakış'}).waitFor({state:'visible',timeout:12000});
+  await page.goBack({waitUntil:'networkidle'});
+  await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
+  assert(new URL(page.url()).searchParams.get('tab')==='products','Back navigation failed');
   await page.locator('.product-primary-actions').getByRole('button',{name:'Görsel aktar'}).click();
   const importDialog=page.locator('.image-import-dialog');
   await importDialog.waitFor({state:'visible'});
@@ -156,8 +179,20 @@ try{
       'Logo is not centered on '+path+': '+JSON.stringify(geometry));
     await publicPage.screenshot({path:out+'/logo-'+(path==='/'?'home':path.slice(1))+'.png',fullPage:false});
   }
+  const visibleProduct=productData.products.find(p=>p.visible!==false&&p.id);
+  assert(visibleProduct,'Public product fixture missing');
+  await publicPage.goto(base+'/urun/'+encodeURIComponent(visibleProduct.id),{waitUntil:'domcontentloaded',timeout:45000});
+  const routeBefore=new URL(publicPage.url()).pathname;
+  await publicPage.reload({waitUntil:'domcontentloaded'});
+  assert(new URL(publicPage.url()).pathname===routeBefore,'Product detail refresh changed page');
+  const visibleCategory=productData.categories.find(c=>c.visible!==false&&c.id);
+  assert(visibleCategory,'Public category fixture missing');
+  await publicPage.goto(base+'/kategori/'+encodeURIComponent(visibleCategory.id),{waitUntil:'domcontentloaded',timeout:45000});
+  const categoryBefore=new URL(publicPage.url()).pathname;
+  await publicPage.reload({waitUntil:'domcontentloaded'});
+  assert(new URL(publicPage.url()).pathname===categoryBefore,'Category refresh changed page');
   await publicContext.close();
-  console.log(JSON.stringify({result:'PASS',productSaves:saveCount,categoriesTested:true,statusTested:true,seoExpanded:true,mobileEditorContained:true,publicLogosCentered:6,mode:'mocked admin API; no production changes'},null,2));
+  console.log(JSON.stringify({result:'PASS',productSaves:saveCount,reloadAndBack:true,errorFeedback:true,categoriesTested:true,statusTested:true,seoExpanded:true,mobileEditorContained:true,publicLogosCentered:6,mode:'mocked admin API; no production changes'},null,2));
 }finally{
   await browser.close();
 }
