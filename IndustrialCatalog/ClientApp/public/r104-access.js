@@ -47,7 +47,7 @@ $('access-close').addEventListener('click',()=>dialog.close());$('access-cancel'
 $('password-close').addEventListener('click',()=>passwordDialog.close());$('password-cancel').addEventListener('click',()=>passwordDialog.close());
 $('access-delete-close').addEventListener('click',()=>deleteDialog.close());$('access-delete-cancel').addEventListener('click',()=>deleteDialog.close());
 $('access-reset-permissions').addEventListener('click',()=>applyPermissions(defaults(field(form,'role').value)));
-field(form,'role').addEventListener('change',()=>{if(!field(form,'id').value)applyPermissions(defaults(field(form,'role').value));});
+field(form,'role').addEventListener('change',()=>{applyPermissions(defaults(field(form,'role').value));});
 document.querySelectorAll('.filter').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.role;document.querySelectorAll('.filter').forEach(x=>{const active=x===btn;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active));});render();}));
 search.addEventListener('input',render);$('access-search-clear').addEventListener('click',()=>{search.value='';search.focus();render();});
 list.addEventListener('click',e=>{const button=e.target.closest('button[data-action]');if(!button)return;const r=rows.find(x=>x.id===button.dataset.id);if(!r)return;switch(button.dataset.action){case'edit':openEdit(r);break;case'password':openPassword(r);break;case'delete':openDelete(r);break;}});
