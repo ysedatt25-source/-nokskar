@@ -62,7 +62,7 @@ app.UseStaticFiles(new StaticFileOptions{OnPrepareResponse=ctx=>{
 app.UseAuthentication();
 app.Use(async(ctx,next)=>{
     var unsafeMethod=HttpMethods.IsPost(ctx.Request.Method)||HttpMethods.IsPut(ctx.Request.Method)||HttpMethods.IsPatch(ctx.Request.Method)||HttpMethods.IsDelete(ctx.Request.Method);
-    var publicWrite=ctx.Request.Path=="/api/inquiry"||ctx.Request.Path=="/api/service-request"||ctx.Request.Path=="/api/event";var protectedPath=ctx.Request.Path.StartsWithSegments("/api")||ctx.Request.Path.StartsWithSegments("/admin")||ctx.Request.Path.StartsWithSegments("/hesabim")||ctx.Request.Path=="/logout";
+    var publicWrite=ctx.Request.Path=="/api/inquiry"||ctx.Request.Path=="/api/service-request"||ctx.Request.Path=="/api/inquiry-status"||ctx.Request.Path=="/api/event";var protectedPath=ctx.Request.Path.StartsWithSegments("/api")||ctx.Request.Path.StartsWithSegments("/admin")||ctx.Request.Path.StartsWithSegments("/hesabim")||ctx.Request.Path=="/logout";
     if(unsafeMethod&&protectedPath&&!publicWrite&&ctx.User.Identity?.IsAuthenticated==true)
     {
         try{await ctx.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(ctx);}
@@ -381,7 +381,10 @@ app.MapPost("/api/inquiry",async(HttpContext c,Store store,MailQueue mail,IConfi
         ["projectSize"]=(b["projectSize"]?.ToString()??"").Trim(),
         ["projectTimeline"]=(b["projectTimeline"]?.ToString()??"").Trim()};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone});}
     var row=store.AddInquiry(clean);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
-    var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);if(!string.IsNullOrWhiteSpace(mail.AdminAddress))mail.Enqueue(mail.AdminAddress,admin.Subject,admin.Html,admin.Text);var customer=MailTemplates.CustomerReceipt(clean);mail.Enqueue(parsedEmail.Address,customer.Subject,customer.Html,customer.Text);
+    var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);var notificationRecipient=(store.Snapshot()["data"]?["settings"]?["notificationEmail"]?.ToString()??"").Trim();
+    if(string.IsNullOrWhiteSpace(notificationRecipient))notificationRecipient=mail.AdminAddress;
+    if(mail.IsConfigured&&!string.IsNullOrWhiteSpace(notificationRecipient))
+        mail.Enqueue(notificationRecipient,admin.Subject,admin.Html,admin.Text);var customer=MailTemplates.CustomerReceipt(clean);mail.Enqueue(parsedEmail.Address,customer.Subject,customer.Html,customer.Text);
     return Results.Json(new{ok=true,requestCode});
 }).RequireRateLimiting("public-write");
 app.MapPost("/api/service-request",async(HttpContext c,Store store,MailQueue mail,IConfiguration config,CustomerDirectory customers)=>{
@@ -403,7 +406,10 @@ app.MapPost("/api/service-request",async(HttpContext c,Store store,MailQueue mai
         ["message"]=message,["serviceStatus"]="new",["appointmentDate"]="",
         ["technician"]="",["internalNote"]="",["parts"]="",["resolution"]=""};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone,["businessName"]=business,["address"]=address});}
     var row=store.AddInquiry(clean);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
-    var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);if(!string.IsNullOrWhiteSpace(mail.AdminAddress))mail.Enqueue(mail.AdminAddress,admin.Subject,admin.Html,admin.Text);var customer=MailTemplates.CustomerReceipt(clean);mail.Enqueue(parsedEmail.Address,customer.Subject,customer.Html,customer.Text);
+    var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);var notificationRecipient=(store.Snapshot()["data"]?["settings"]?["notificationEmail"]?.ToString()??"").Trim();
+    if(string.IsNullOrWhiteSpace(notificationRecipient))notificationRecipient=mail.AdminAddress;
+    if(mail.IsConfigured&&!string.IsNullOrWhiteSpace(notificationRecipient))
+        mail.Enqueue(notificationRecipient,admin.Subject,admin.Html,admin.Text);var customer=MailTemplates.CustomerReceipt(clean);mail.Enqueue(parsedEmail.Address,customer.Subject,customer.Html,customer.Text);
     return Results.Json(new{ok=true,requestCode});
 }).RequireRateLimiting("public-write");
 app.MapPost("/api/event",async(HttpContext c,Store store)=>{
