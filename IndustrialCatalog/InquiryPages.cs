@@ -20,6 +20,13 @@ public static class InquiryPages
         var css = multiline ? "inquiry-value preserve" : "inquiry-value";
         return $"<div class='inquiry-field'><span>{E(label)}</span><div class='{css}'>{E(value)}</div></div>";
     }
+    static string SummaryCard(string label, string? value)
+    {
+        var content = string.IsNullOrWhiteSpace(value) ? "—" : value;
+        return "<div class='inquiry-summary-item'><span>" + E(label) +
+            "</span><strong>" + E(content) + "</strong></div>";
+    }
+
     static string Option(string value, string label, string current) => $"<option value='{E(value)}'{(string.Equals(value, current, StringComparison.Ordinal) ? " selected" : "")}>{E(label)}</option>";
 
 
@@ -88,16 +95,26 @@ public static class InquiryPages
         var requestCode = inquiry["requestCode"]?.ToString() ?? id;
         var service = string.Equals(b["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
         var type = service ? "Servis Talebi" : "Destek Talebi";
-        var fields = Field("Talep Numarası", requestCode)
-            + Field("Ad / Yetkili", b["name"]?.ToString())
-            + Field("E-posta", b["email"]?.ToString())
-            + Field("Telefon", b["phone"]?.ToString())
-            + (!string.IsNullOrWhiteSpace(b["contact"]?.ToString()) ? Field("İletişim", b["contact"]?.ToString()) : "")
-            + (service ? Field("İşletme Adı", b["businessName"]?.ToString()) + Field("Servis Adresi", b["address"]?.ToString(), true) : "")
+        var summaryCards = SummaryCard("Talep tarihi", DateText(inquiry))
+            + SummaryCard("Talep numarası", requestCode)
+            + SummaryCard("Ad / Yetkili", b["name"]?.ToString())
+            + SummaryCard("E-posta", b["email"]?.ToString())
+            + SummaryCard("Telefon", b["phone"]?.ToString())
+            + SummaryCard("İletişim", b["contact"]?.ToString());
+        var extraFields = (service ? Field("İşletme Adı", b["businessName"]?.ToString())
+            + Field("Servis Adresi", b["address"]?.ToString(), true) : "")
             + Field("Ürün", b["productName"]?.ToString())
             + Field("Ürün Kodu", b["productCode"]?.ToString())
-            + Field("Seri Numarası", b["serialNumber"]?.ToString())
-            + Field(service ? "Arıza / Servis Açıklaması" : "Mesaj", b["message"]?.ToString(), true);
+            + Field("Seri Numarası", b["serialNumber"]?.ToString());
+        var message = Field(service ? "Arıza / Servis Açıklaması" : "Mesaj", b["message"]?.ToString(), true);
+        var detailsBlock = "<section class='inquiry-card inquiry-details-overview' aria-label='Talep bilgileri'>" +
+            "<div class='inquiry-summary-grid'>" + summaryCards + "</div>" +
+            (string.IsNullOrWhiteSpace(extraFields) ? "" : "<div class='inquiry-extra-grid'>" + extraFields + "</div>") +
+            "</section>" +
+            "<section class='inquiry-card inquiry-message-card' aria-label='Talep mesajı'>" +
+            (string.IsNullOrWhiteSpace(message) ? "<div class='inquiry-field'><span>" +
+              (service ? "Arıza / Servis Açıklaması" : "Mesaj") + "</span><div class='inquiry-value'>—</div></div>" : message) +
+            "</section>";
         var currentStatus = b["customerStatus"]?.ToString() ?? "new";
         var activeTemplates = templates ?? new JsonArray();
         var templateOptions = string.Join("", activeTemplates.OfType<JsonObject>().Select(t =>
@@ -181,8 +198,87 @@ public static class InquiryPages
 #inquiry-customer-workflow .icw-template-actions button{min-height:36px;font-size:.75rem;padding:7px 11px}
 #inquiry-customer-workflow .icw-template-actions button[value=delete]{background:#fff0f1;border:1px solid #efc9cc;color:#a72f43}
 @media(max-width:680px){#inquiry-customer-workflow{padding:17px 14px}#inquiry-customer-workflow .icw-grid,#inquiry-customer-workflow .icw-template-edit{grid-template-columns:1fr}#inquiry-customer-workflow .icw-head{align-items:flex-start}#inquiry-customer-workflow .icw-footer button{width:100%}#inquiry-customer-workflow .icw-template-actions{justify-content:stretch}#inquiry-customer-workflow .icw-template-actions button{flex:1}}
+</style>
+<style>
+/* Inquiry detail only — six concise information tiles and a full-width message. */
+.inquiry-wrap .inquiry-details-overview{padding:17px}
+.inquiry-wrap .inquiry-summary-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;width:100%;align-items:stretch
+}
+.inquiry-wrap .inquiry-summary-item{
+  display:flex;flex-direction:column;gap:8px;min-width:0;min-height:94px;
+  padding:15px 14px;border:1px solid #dce6f0;border-radius:13px;
+  background:linear-gradient(155deg,#fbfdff,#f0f5fb)
+}
+.inquiry-wrap .inquiry-summary-item>span{
+  display:block;color:#627992;font-size:.72rem;font-weight:850;
+  letter-spacing:.035em;text-transform:uppercase;line-height:1.3
+}
+.inquiry-wrap .inquiry-summary-item>strong{
+  color:#1a3859;font-size:.95rem;font-weight:780;line-height:1.4;
+  white-space:normal;overflow-wrap:anywhere;word-break:normal
+}
+.inquiry-wrap .inquiry-extra-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+  margin-top:12px
+}
+.inquiry-wrap .inquiry-extra-grid .inquiry-field{
+  min-width:0;display:flex;flex-direction:column;gap:6px;
+  padding:11px 13px;border:1px solid #e0e8f2;border-radius:11px;
+  background:#fafcff
+}
+.inquiry-wrap .inquiry-extra-grid .inquiry-field>span{
+  font-size:.72rem;line-height:1.3
+}
+.inquiry-wrap .inquiry-extra-grid .inquiry-value{
+  white-space:normal;overflow-wrap:anywhere;font-size:.88rem
+}
+.inquiry-wrap .inquiry-message-card{
+  margin-top:12px;padding:18px 20px;
+  border-left:3px solid #b94c0b
+}
+.inquiry-wrap .inquiry-message-card .inquiry-field{
+  display:block;border-bottom:0;padding:0
+}
+.inquiry-wrap .inquiry-message-card .inquiry-field>span{
+  display:block;margin-bottom:10px;color:#9b500d;font-size:.76rem
+}
+.inquiry-wrap .inquiry-message-card .inquiry-value{
+  white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;
+  font-weight:550;font-size:.94rem
+}
+@media(max-width:750px){
+  .inquiry-wrap .inquiry-details-overview{padding:12px}
+  .inquiry-wrap .inquiry-summary-grid{gap:7px}
+  .inquiry-wrap .inquiry-summary-item{
+    min-height:83px;gap:7px;padding:11px 9px;border-radius:10px
+  }
+  .inquiry-wrap .inquiry-summary-item>span{
+    font-size:.63rem;letter-spacing:.01em
+  }
+  .inquiry-wrap .inquiry-summary-item>strong{
+    font-size:.76rem;line-height:1.35
+  }
+  .inquiry-wrap .inquiry-extra-grid{gap:7px;margin-top:9px}
+  .inquiry-wrap .inquiry-message-card{
+    padding:14px 15px;margin-top:10px
+  }
+  .inquiry-wrap .inquiry-head{
+    margin-bottom:13px;gap:12px
+  }
+  .inquiry-wrap .inquiry-head h1{
+    font-size:clamp(1.55rem,6vw,2rem);line-height:1.12
+  }
+}
+@media(max-width:370px){
+  .inquiry-wrap .inquiry-summary-item{padding:10px 6px;gap:6px}
+  .inquiry-wrap .inquiry-summary-item>span{font-size:.59rem}
+  .inquiry-wrap .inquiry-summary-item>strong{font-size:.69rem}
+  .inquiry-wrap .inquiry-extra-grid{grid-template-columns:1fr}
+}
 </style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-6"><script src="/r13-pages.js?v=r22-2" defer></script></head>
-<body><header class="inquiry-top private-brand-header"><a class="private-brand-link" href="/" aria-label="İNOKSKAR ana sayfa"><img class="private-brand-image" src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><nav><a href="/admin?tab=inquiries">← Müşteri taleplerine dön</a></nav></header><main class="inquiry-wrap"><section class="inquiry-head"><div><p>YÖNETİM ALANI</p><h1>Talep detayı</h1><span class="inquiry-badge@@BADGE_CLASS@@">@@TYPE@@</span></div><form method="post" action="/admin/inquiries/@@ID@@/delete" onsubmit="return confirm('Bu müşteri talebi kalıcı olarak silinsin mi?')"><button class="danger-button" type="submit">Sil</button></form></section><section class="inquiry-card"><div class="inquiry-meta"><span>Talep tarihi</span><strong>@@DATE@@</strong></div>@@FIELDS@@</section>@@WORKFLOW_PANEL@@@@SERVICE_PANEL@@@@AUDIT_TIMELINE@@</main><script>
+<body><header class="inquiry-top private-brand-header"><a class="private-brand-link" href="/" aria-label="İNOKSKAR ana sayfa"><img class="private-brand-image" src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><nav><a href="/admin?tab=inquiries">← Müşteri taleplerine dön</a></nav></header><main class="inquiry-wrap"><section class="inquiry-head"><div><p>YÖNETİM ALANI</p><h1>Talep detayı</h1><span class="inquiry-badge@@BADGE_CLASS@@">@@TYPE@@</span></div><form method="post" action="/admin/inquiries/@@ID@@/delete" onsubmit="return confirm('Bu müşteri talebi kalıcı olarak silinsin mi?')"><button class="danger-button" type="submit">Sil</button></form></section>@@DETAILS_BLOCK@@@@WORKFLOW_PANEL@@@@SERVICE_PANEL@@@@AUDIT_TIMELINE@@</main><script>
 (()=>{const root=document.getElementById('inquiry-customer-workflow');if(!root)return;
 const select=root.querySelector('#icw-preset'),status=root.querySelector('#icw-status'),date=root.querySelector('#icw-callback'),reply=root.querySelector('#icw-reply');
 let generated='';
@@ -198,7 +294,7 @@ date.addEventListener('change',()=>{if(select.value&&reply.value===generated)fil
             .Replace("@@BADGE_CLASS@@", service ? " service" : "", StringComparison.Ordinal)
             .Replace("@@ID@@", Uri.EscapeDataString(id), StringComparison.Ordinal)
             .Replace("@@DATE@@", E(DateText(inquiry)), StringComparison.Ordinal)
-            .Replace("@@FIELDS@@", fields, StringComparison.Ordinal)
+            .Replace("@@DETAILS_BLOCK@@", detailsBlock, StringComparison.Ordinal)
             .Replace("@@WORKFLOW_PANEL@@", workflowPanel, StringComparison.Ordinal)
             .Replace("@@SERVICE_PANEL@@", servicePanel, StringComparison.Ordinal)
             .Replace("@@AUDIT_TIMELINE@@", AuditTimeline(audit), StringComparison.Ordinal);
