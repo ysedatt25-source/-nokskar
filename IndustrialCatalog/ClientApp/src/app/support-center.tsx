@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,type FormEvent} from 'react';
 import {ArrowRight, CheckCircle2, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Search, Send, ShieldCheck, Wrench} from 'lucide-react';
 import type {Catalog} from '../lib/model';
 
@@ -26,7 +26,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
     const url=new URL(window.location.href);url.searchParams.set('amac',next);url.searchParams.delete('urun');url.searchParams.delete('kod');
     window.history.replaceState(window.history.state,'',url.pathname+url.search);
   };
-  const submit=async(e:React.FormEvent<HTMLFormElement>)=>{
+  const submit=async(e:FormEvent<HTMLFormElement>)=>{
     e.preventDefault();if(sending)return;
     const form=e.currentTarget;
     const fields=Object.fromEntries(new FormData(form).entries());
@@ -75,45 +75,45 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
         </div>:<form key={purpose} className="inquiry-form support-form" onSubmit={submit}>
           <input type="hidden" name="purpose" value={purpose}/>
           <div className="support-fields-pair">
-            <label>Adınız ve soyadınız <span>*</span><input name="name" required minLength={2} maxLength={100} autoComplete="name" placeholder="Adınız Soyadınız"/></label>
-            <label>Telefon numaranız <span>*</span><input name="phone" required type="tel" inputMode="tel" autoComplete="tel" maxLength={40} placeholder="05xx xxx xx xx"/></label>
+            <label>Adınız ve soyadınız  *<input name="name" required minLength={2} maxLength={100} autoComplete="name" placeholder="Adınız Soyadınız"/></label>
+            <label>Telefon numaranız  *<input name="phone" required type="tel" inputMode="tel" autoComplete="tel" maxLength={40} placeholder="05xx xxx xx xx"/></label>
           </div>
-          <label>E-posta adresiniz <span>*</span><input name="email" type="email" required maxLength={200} inputMode="email" autoComplete="email" placeholder="ornek@gmail.com"/></label>
+          <label>E-posta adresiniz  *<input name="email" type="email" required maxLength={200} inputMode="email" autoComplete="email" placeholder="ornek@gmail.com"/></label>
           <label>Size nasıl dönüş yapalım?<select name="contactPreference" defaultValue="phone" required>
             <option value="phone">Telefonla arayın</option><option value="email">E-posta ile yanıtlayın</option><option value="system">Talep ekranından yazılı yanıtlayın</option>
           </select></label>
           {purpose==='genel'&&<>
-            <label>Talep konusu <span>*</span><select name="topic" required defaultValue="">
+            <label>Talep konusu  *<select name="topic" required defaultValue="">
               <option value="" disabled>Konu seçiniz</option><option value="bilgi">Bilgi almak istiyorum</option>
               <option value="oneri">Önerim var</option><option value="sikayet">Şikâyet bildirmek istiyorum</option>
               <option value="diger">Diğer</option>
             </select></label>
           </>}
           {purpose==='teklif'&&<>
-            <div className="support-fields-pair"><label>Ürün / ekipman adı <span>*</span><input name="productName" defaultValue={product} maxLength={180} required placeholder="Teklif istediğiniz ürün"/></label>
+            <div className="support-fields-pair"><label>Ürün / ekipman adı  *<input name="productName" defaultValue={product} maxLength={180} required placeholder="Teklif istediğiniz ürün"/></label>
             <label>Ürün kodu<input name="productCode" defaultValue={code} maxLength={100} placeholder="Varsa ürün kodu"/></label></div>
-            <label>İstenen adet <span>*</span><input name="quantity" type="number" min={1} max={100000} required defaultValue={1}/></label>
+            <label>İstenen adet  *<input name="quantity" type="number" min={1} max={100000} required defaultValue={1}/></label>
           </>}
           {purpose==='servis'&&<>
-            <label>Servis ihtiyacınız <span>*</span><select name="serviceTopic" required defaultValue="">
+            <label>Servis ihtiyacınız  *<select name="serviceTopic" required defaultValue="">
               <option value="" disabled>Servis türü seçiniz</option><option value="ariza">Arıza / Onarım</option>
               <option value="bakim">Bakım</option><option value="yedek-parca">Yedek Parça</option>
               <option value="kurulum">Kurulum / Montaj</option><option value="diger">Diğer</option>
             </select></label>
-            <label>İşletme adı <span>*</span><input name="businessName" maxLength={180} required minLength={2} placeholder="İşletme / firma adı"/></label>
-            <label>Servis adresi <span>*</span><textarea name="address" rows={2} maxLength={1200} minLength={5} required placeholder="Açık servis adresi, il ve ilçe"/></label>
+            <label>İşletme adı  *<input name="businessName" maxLength={180} required minLength={2} placeholder="İşletme / firma adı"/></label>
+            <label>Servis adresi  *<textarea name="address" rows={2} maxLength={1200} minLength={5} required placeholder="Açık servis adresi, il ve ilçe"/></label>
             <div className="support-fields-pair"><label>Cihaz / ürün adı<input name="productName" maxLength={180} placeholder="Cihaz modeli"/></label>
             <label>Seri numarası<input name="serialNumber" maxLength={100} placeholder="Varsa seri no"/></label></div>
             <label>Ürün kodu<input name="productCode" maxLength={100} placeholder="Varsa ürün kodu"/></label>
           </>}
           {purpose==='proje'&&<>
-            <label>Proje türü <span>*</span><select name="projectType" required defaultValue="">
+            <label>Proje türü  *<select name="projectType" required defaultValue="">
               <option value="" disabled>Projenizi seçiniz</option>
               <option value="restoran">Restoran / Lokanta</option><option value="otel">Otel / Konaklama</option>
               <option value="kafe">Kafe / Pastane</option><option value="mutfak">Endüstriyel mutfak kurulumu</option>
               <option value="ozel">Özel üretim / Diğer</option>
             </select></label>
-            <div className="support-fields-pair"><label>Proje ili / ilçesi <span>*</span><input name="projectCity" maxLength={120} required placeholder="Örn. İstanbul / Şişli"/></label>
+            <div className="support-fields-pair"><label>Proje ili / ilçesi  *<input name="projectCity" maxLength={120} required placeholder="Örn. İstanbul / Şişli"/></label>
             <label>Yaklaşık alan / ölçü<input name="projectSize" maxLength={120} placeholder="Örn. 90 m²"/></label></div>
             <label>Planlanan zaman<select name="projectTimeline" defaultValue="belirsiz">
               <option value="belirsiz">Henüz belirlenmedi</option><option value="hemen">En kısa sürede</option>
@@ -121,7 +121,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
               <option value="6ay">6 aydan sonra</option>
             </select></label>
           </>}
-          <label>{purpose==='servis'?'Sorun / ihtiyaç açıklaması':purpose==='proje'?'Projenizin detayları':purpose==='teklif'?'Teklif detayları':'Mesajınız'} <span>*</span>
+          <label>{purpose==='servis'?'Sorun / ihtiyaç açıklaması':purpose==='proje'?'Projenizin detayları':purpose==='teklif'?'Teklif detayları':'Mesajınız'}  *
             <textarea name="message" required minLength={2} rows={4} maxLength={5000} placeholder={purpose==='servis'?'Cihazdaki sorunu veya ihtiyaç duyduğunuz parçayı açıklayın.':purpose==='proje'?'İhtiyacınızı, mutfak ekipmanlarını ve özel taleplerinizi anlatın.':'Talebinizi ayrıntılarıyla yazın.'}/></label>
           <input name="website" tabIndex={-1} autoComplete="off" className="honeypot" aria-hidden="true"/>
           {error&&<p className="support-error" role="alert">{error}</p>}
