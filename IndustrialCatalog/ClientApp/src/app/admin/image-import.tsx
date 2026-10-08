@@ -27,7 +27,7 @@ export default function ImageImport({data,onApply,onBusy}:{data:Catalog,onApply:
   }finally{setRunning(false);onBusy(false);}
  }
  return <>
-  <button type="button" className="small-btn image-import-trigger" onClick={()=>setOpen(true)}>Kodla toplu görsel aktar</button>
+  <button type="button" className="small-btn image-import-trigger" title="Ürün koduyla toplu görsel aktar" onClick={()=>setOpen(true)}>Görsel aktar</button>
   <Dialog open={open} onOpenChange={v=>!running&&setOpen(v)}><DialogContent className="editor-dialog image-import-dialog" showCloseButton={!running} aria-busy={running}>
    <DialogHeader><DialogTitle>Ürün koduyla toplu görsel aktarımı</DialogTitle><DialogDescription>Dosyaları seçin, eşleşmeleri kontrol edin ve görselleri ürünlere ekleyin.</DialogDescription></DialogHeader>
    <p>Dosya adlarını ürün koduyla hazırlayın: <strong>ABC-001.jpg</strong>, <strong>ABC-001__01.jpg</strong>, <strong>ABC-001__02.jpg</strong>. Mevcut galeri korunur; yeni görseller dosya sırasıyla sonuna eklenir.</p>

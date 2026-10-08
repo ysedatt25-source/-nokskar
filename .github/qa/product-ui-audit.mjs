@@ -33,11 +33,11 @@ try{
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:productData,revision,history:[],events:[],inquiries:[]})});
   });
   await page.goto(base+'/admin?tab=products',{waitUntil:'networkidle',timeout:60000});
-  await page.locator('.product-list-table tbody tr').first().waitFor({state:'visible',timeout:12000});
+  await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
-  await page.locator('.product-list-table tbody tr').first().waitFor({state:'visible',timeout:12000});
+  await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
   await page.screenshot({path:out+'/product-list-desktop.png',fullPage:true});
-  const firstRow=page.locator('.product-list-table tbody tr').first();
+  const firstRow=page.locator('.product-item-card').first();
   await firstRow.locator('.product-select-hitarea input').check();
   assert(await firstRow.locator('.product-select-hitarea input').isChecked(),'Product select checkbox did not check');
   await firstRow.locator('.product-select-hitarea input').uncheck();
@@ -46,7 +46,27 @@ try{
   assert(await page.locator('.product-select-all').getAttribute('aria-pressed')==='true','Select all failed');
   await page.locator('.product-select-all').click();
   assert(await page.locator('.product-select-all').getAttribute('aria-pressed')==='false','Clear all failed');
-  await page.locator('.image-import-trigger').click();
+  await page.setViewportSize({width:390,height:844});
+  const firstActionGroup=page.locator('.product-primary-actions');
+  const rects=await firstActionGroup.locator('button').evaluateAll(xs=>xs.map(x=>{const b=x.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,right:b.right};}));
+  assert(rects.length===3,'Expected 3 top action buttons');
+  assert(Math.max(...rects.map(x=>x.y))-Math.min(...rects.map(x=>x.y))<3,'Top action buttons are not in one row');
+  assert(rects.every(x=>x.x>=-1&&x.right<=391),'Top action button clipped on mobile');
+  await page.setViewportSize({width:1440,height:900});
+  // Verify bulk operations and selection against the isolated mocked catalog.
+  await firstRow.locator('.product-select-hitarea input').check();
+  await page.locator('.product-bulk-editor').first().locator('select').selectOption(productData.categories[0].id);
+  assert(await page.locator('.product-bulk-editor').first().getByRole('button',{name:'Kategoriye taşı'}).isEnabled(),'Category move did not enable');
+  await page.locator('.product-bulk-editor').first().getByRole('button',{name:'Kategoriye taşı'}).click();
+  assert(saveCount===1,'Category move did not send save request');
+  await page.locator('.product-bulk-editor').nth(1).locator('select').selectOption('Stokta');
+  await page.locator('.product-bulk-editor').nth(1).getByRole('button',{name:'Durumu uygula'}).click();
+  assert(saveCount===2,'Status update did not send save request');
+  await page.locator('.product-bulk-publish').getByRole('button',{name:'Seçilileri gizle'}).click();
+  assert(saveCount===3,'Visibility update did not send save request');
+  await page.locator('.product-bulk-selection').getByRole('button',{name:'Seçimi temizle'}).click();
+  assert(await page.locator('.product-selected-count').innerText()==='0 seçili','Bulk selection clear failed');
+  await page.locator('.product-primary-actions').getByRole('button',{name:'Görsel aktar'}).click();
   const importDialog=page.locator('.image-import-dialog');
   await importDialog.waitFor({state:'visible'});
   await page.setViewportSize({width:390,height:844});
@@ -56,7 +76,7 @@ try{
   await importDialog.getByRole('button',{name:'İptal'}).click();
   await importDialog.waitFor({state:'hidden'});
   await page.setViewportSize({width:1440,height:900});
-  await page.locator('.product-list-table tbody tr').first().getByRole('button',{name:'Düzenle'}).click();
+  await page.locator('.product-item-card').first().getByRole('button',{name:'Düzenle'}).click();
   const editor=page.locator('.product-editor-dialog');
   await editor.waitFor({state:'visible'});
   assert(await editor.locator('.product-edit-section').count()===5,'Product form sections missing');
@@ -77,10 +97,10 @@ try{
   await editor.locator('.product-edit-basic-grid input').first().fill(originalName+' QA');
   await editor.getByRole('button',{name:'Ürünü kaydet ve yayınla'}).click();
   await editor.waitFor({state:'hidden',timeout:12000});
-  assert(saveCount===1,'Editing did not submit product data');
+  assert(saveCount===4,'Editing did not submit product data');
   assert(updatedName.endsWith(' QA'),'Edited product name was not saved in request payload');
 
-  await page.locator('.product-list-toolbar').getByRole('button',{name:'Ürün ekle'}).click();
+  await page.locator('.product-primary-actions').getByRole('button',{name:'Ürün ekle'}).click();
   await editor.waitFor({state:'visible'});
   assert((await editor.locator('[data-slot=dialog-title]').innerText()).includes('Yeni ürün'),'Create product heading incorrect');
   await editor.locator('.product-edit-basic-grid input').nth(0).fill('QA Test Ürünü');
@@ -99,8 +119,8 @@ try{
   // Test Cancel without saving changes; re-open for a separate create submission.
   await editor.getByRole('button',{name:'İptal'}).click();
   await editor.waitFor({state:'hidden'});
-  assert(saveCount===1,'Cancel unexpectedly saved product');
-  await page.locator('.product-list-toolbar').getByRole('button',{name:'Ürün ekle'}).click();
+  assert(saveCount===4,'Cancel unexpectedly saved product');
+  await page.locator('.product-primary-actions').getByRole('button',{name:'Ürün ekle'}).click();
   await editor.waitFor({state:'visible'});
   const hb=await handle.boundingBox();
   assert(hb,'Drag handle has no bounds');
@@ -109,15 +129,15 @@ try{
   await page.mouse.move(hb.x+hb.width/2,hb.y+hb.height/2+145,{steps:8});
   await page.mouse.up();
   await editor.waitFor({state:'hidden'});
-  assert(saveCount===1,'Downward swipe unexpectedly saved product');
-  await page.locator('.product-list-toolbar').getByRole('button',{name:'Ürün ekle'}).click();
+  assert(saveCount===4,'Downward swipe unexpectedly saved product');
+  await page.locator('.product-primary-actions').getByRole('button',{name:'Ürün ekle'}).click();
   await editor.waitFor({state:'visible'});
   await editor.locator('.product-edit-basic-grid input').nth(0).fill('QA Test Ürünü');
   await editor.locator('.product-edit-basic-grid input').nth(1).fill('QA-TEST-001');
   await editor.locator('.product-edit-basic-grid select').selectOption(productData.categories[0].id);
   await editor.getByRole('button',{name:'Ürünü kaydet ve yayınla'}).click();
   await editor.waitFor({state:'hidden',timeout:12000});
-  assert(saveCount===2,'Creating did not submit product data');
+  assert(saveCount===5,'Creating did not submit product data');
   assert(productData.products.some(p=>p.name==='QA Test Ürünü'),'Created product missing from request payload');
   await page.screenshot({path:out+'/product-list-mobile.png',fullPage:true});
   await context.close();
