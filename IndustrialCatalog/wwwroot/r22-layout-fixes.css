@@ -829,3 +829,92 @@ body [data-slot="dialog-content"].product-editor-dialog :is(input,select,textare
     grid-column:auto;
   }
 }
+
+/* R22.17 — admin security page: response feedback and dock-safe lower area.
+   Intentionally scoped to this tab; no other page or dialog is affected. */
+body[data-ui-page="admin-security"] .security-grid{
+  align-items:start;
+  gap:14px;
+  min-width:0;
+}
+body[data-ui-page="admin-security"] .security-grid > .admin-box{
+  min-width:0;
+  align-self:start;
+}
+body[data-ui-page="admin-security"] .security-password-form{
+  min-width:0;
+}
+body[data-ui-page="admin-security"] .security-password-form input{
+  box-sizing:border-box;
+  min-width:0;
+  max-width:100%;
+}
+body[data-ui-page="admin-security"] .security-password-feedback{
+  display:grid;
+  gap:4px;
+  margin:1px 0 0;
+  padding:12px 14px;
+  border-radius:11px;
+  border:1px solid #cbd9e8;
+  background:#f0f5fb;
+  color:#294e70;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+body[data-ui-page="admin-security"] .security-password-feedback strong{
+  font-size:.88rem;
+}
+body[data-ui-page="admin-security"] .security-password-feedback span{
+  font-size:.82rem;
+}
+body[data-ui-page="admin-security"] .security-password-feedback.error{
+  border-color:#e8b8c0;
+  background:#fff1f2;
+  color:#972b3c;
+}
+body[data-ui-page="admin-security"] .security-password-feedback.success{
+  border-color:#abd7bc;
+  background:#eaf8ef;
+  color:#17613d;
+}
+body[data-ui-page="admin-security"] .toast-stack{
+  top:auto;
+  bottom:calc(90px + env(safe-area-inset-bottom,0px));
+  z-index:270;
+  max-height:calc(100dvh - 140px);
+  overflow-y:auto;
+}
+@media(max-width:1100px){
+  body[data-ui-page="admin-security"] .admin-main{
+    padding-bottom:calc(135px + env(safe-area-inset-bottom,0px));
+  }
+  body[data-ui-page="admin-security"] .security-grid{
+    grid-template-columns:minmax(0,1fr);
+    gap:12px;
+  }
+  body[data-ui-page="admin-security"] .security-grid > .admin-box{
+    border-radius:15px;
+    padding:17px 15px;
+  }
+  body[data-ui-page="admin-security"] .security-grid > .admin-box .form-grid{
+    gap:12px;
+  }
+  body[data-ui-page="admin-security"] .security-grid > .admin-box > h2{
+    margin:0 0 4px;
+    line-height:1.25;
+  }
+  body[data-ui-page="admin-security"] .toast-stack{
+    left:12px;
+    right:12px;
+    width:auto;
+  }
+}
+@media(max-width:600px){
+  body[data-ui-page="admin-security"] .security-grid > .admin-box{
+    padding:15px 13px;
+  }
+  body[data-ui-page="admin-security"] .security-password-form > .button{
+    min-height:46px;
+    width:100%;
+  }
+}
