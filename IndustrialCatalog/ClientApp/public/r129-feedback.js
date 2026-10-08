@@ -30,6 +30,8 @@
   // are intentionally excluded from automatic "saved" notifications.
   function operation(path) {
     if (/^\/api\/(?:event|inquiry-status|warranty\/query|prices\/preview)(?:\/|$)/.test(path)) return '';
+    // The warranty editor owns its specific, person-named save/error message.
+    if (path === '/api/warranties') return '';
     for (var i = 0; i < endpointRules.length; i++) {
       if (endpointRules[i][0].test(path)) return endpointRules[i][1];
     }
