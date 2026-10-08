@@ -72,11 +72,11 @@
 .reference-edit-actions :is(button):focus-visible{outline:3px solid #3a86cf!important;outline-offset:2px!important}
 @media(max-width:1050px){.references-admin-list{grid-template-columns:1fr}}
 @media(max-width:700px){
-  .references-public{width:calc(100% - 24px);max-width:100%;padding-top:15px}
+  body .content-page.references-public{width:calc(100% - 20px);max-width:100%;padding:14px 9px 105px;overflow-x:hidden;box-sizing:border-box}
   .references-public-heading{margin-bottom:15px}
   .references-public-heading h1{font-size:1.65rem}
   .references-public-heading p{font-size:.79rem}
-  .references-public-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  body .references-public .references-public-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;width:100%;max-width:100%;min-width:0}
   .references-public-card{border-radius:11px}
   .references-public-logo{height:96px;padding:9px 6px}
   .references-public-logo img{max-height:78px}
