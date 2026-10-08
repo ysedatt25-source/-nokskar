@@ -362,7 +362,24 @@ app.MapPost("/api/inquiry",async(HttpContext c,Store store,MailQueue mail,IConfi
     var b=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Form gerekli.");if(!string.IsNullOrEmpty(b["website"]?.ToString()))return Results.Json(new{ok=true});
     var name=(b["name"]?.ToString()??"").Trim();var email=(b["email"]?.ToString()??b["contact"]?.ToString()??"").Trim();var phone=(b["phone"]?.ToString()??"").Trim();var message=(b["message"]?.ToString()??"").Trim();
     if(name.Length is < 2 or > 100||message.Length is < 2 or > 5000)return Results.BadRequest(new{error="Ad ve talep açıklaması eksik veya geçersiz."});if(!System.Net.Mail.MailAddress.TryCreate(email,out var parsedEmail)||!System.Text.RegularExpressions.Regex.IsMatch(email,@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"))return Results.BadRequest(new{error="E-posta adresi eksik veya hatalı. Kişisel veya iş e-posta adresi kullanabilirsiniz (ör. ornek@gmail.com)."});var phoneDigits=System.Text.RegularExpressions.Regex.Replace(phone,@"\D","");if(!System.Text.RegularExpressions.Regex.IsMatch(phone,@"^\+?[\d\s().-]+$")||phoneDigits.Length is <10 or >15)return Results.BadRequest(new{error="Telefon numarası eksik veya hatalı. 10-15 rakam girin; yalnızca +, boşluk, parantez, nokta ve tire kullanılabilir."});
-    var clean=new JsonObject{["type"]="support",["name"]=name,["email"]=parsedEmail.Address,["phone"]=phone,["contact"]=parsedEmail.Address,["message"]=message};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone});}
+    // Preserve the selected support purpose and contact channel with the inquiry record.
+    var purpose=(b["purpose"]?.ToString()??"genel").Trim().ToLowerInvariant();
+    if(purpose is not ("genel" or "teklif" or "proje"))purpose="genel";
+    var preference=(b["contactPreference"]?.ToString()??"phone").Trim().ToLowerInvariant();
+    if(preference is not ("phone" or "email" or "system"))preference="phone";
+    foreach(var (key,max) in new[]{("topic",60),("productName",180),("productCode",100),("quantity",10),
+        ("projectType",80),("projectCity",120),("projectSize",120),("projectTimeline",40)})
+        if((b[key]?.ToString()??"").Length>max)return Results.BadRequest(new{error="Talep alanlarından biri izin verilen uzunluğu aşıyor."});
+    var clean=new JsonObject{["type"]="support",["name"]=name,["email"]=parsedEmail.Address,
+        ["phone"]=phone,["contact"]=parsedEmail.Address,["message"]=message,["purpose"]=purpose,
+        ["contactPreference"]=preference,["topic"]=(b["topic"]?.ToString()??"").Trim(),
+        ["productName"]=(b["productName"]?.ToString()??"").Trim(),
+        ["productCode"]=(b["productCode"]?.ToString()??"").Trim(),
+        ["quantity"]=(b["quantity"]?.ToString()??"").Trim(),
+        ["projectType"]=(b["projectType"]?.ToString()??"").Trim(),
+        ["projectCity"]=(b["projectCity"]?.ToString()??"").Trim(),
+        ["projectSize"]=(b["projectSize"]?.ToString()??"").Trim(),
+        ["projectTimeline"]=(b["projectTimeline"]?.ToString()??"").Trim()};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone});}
     var row=store.AddInquiry(clean);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
     var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);if(!string.IsNullOrWhiteSpace(mail.AdminAddress))mail.Enqueue(mail.AdminAddress,admin.Subject,admin.Html,admin.Text);var customer=MailTemplates.CustomerReceipt(clean);mail.Enqueue(parsedEmail.Address,customer.Subject,customer.Html,customer.Text);
     return Results.Json(new{ok=true,requestCode});
@@ -372,7 +389,19 @@ app.MapPost("/api/service-request",async(HttpContext c,Store store,MailQueue mai
     var name=(b["name"]?.ToString()??"").Trim();var email=(b["email"]?.ToString()??"").Trim();var phone=(b["phone"]?.ToString()??"").Trim();var business=(b["businessName"]?.ToString()??"").Trim();var address=(b["address"]?.ToString()??"").Trim();var message=(b["message"]?.ToString()??"").Trim();
     if(name.Length is < 2 or > 100||business.Length is < 2 or > 180||address.Length is < 5 or > 1200||message.Length is < 2 or > 5000)return Results.BadRequest(new{error="Servis talebi alanlarını kontrol edin. Ad, işletme, adres ve açıklama zorunludur."});if(!System.Net.Mail.MailAddress.TryCreate(email,out var parsedEmail)||!System.Text.RegularExpressions.Regex.IsMatch(email,@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"))return Results.BadRequest(new{error="E-posta adresi eksik veya hatalı. Kişisel veya iş e-posta adresi kullanabilirsiniz (ör. ornek@gmail.com)."});var servicePhoneDigits=System.Text.RegularExpressions.Regex.Replace(phone,@"\D","");if(!System.Text.RegularExpressions.Regex.IsMatch(phone,@"^\+?[\d\s().-]+$")||servicePhoneDigits.Length is <10 or >15)return Results.BadRequest(new{error="Telefon numarası eksik veya hatalı. 10-15 rakam girin; yalnızca +, boşluk, parantez, nokta ve tire kullanılabilir."});
     foreach(var (key,max) in new[]{("productName",180),("productCode",100),("serialNumber",100)})if((b[key]?.ToString()??"").Length>max)throw new ArgumentException("Servis talebi ürün bilgilerini kontrol edin.");
-    var clean=new JsonObject{["type"]="service",["name"]=name,["email"]=parsedEmail.Address,["phone"]=phone,["contact"]=parsedEmail.Address,["businessName"]=business,["address"]=address,["productName"]=(b["productName"]?.ToString()??"").Trim(),["productCode"]=(b["productCode"]?.ToString()??"").Trim(),["serialNumber"]=(b["serialNumber"]?.ToString()??"").Trim(),["message"]=message,["serviceStatus"]="new",["appointmentDate"]="",["technician"]="",["internalNote"]="",["parts"]="",["resolution"]=""};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone,["businessName"]=business,["address"]=address});}
+    var serviceTopic=(b["serviceTopic"]?.ToString()??"ariza").Trim().ToLowerInvariant();
+    if(serviceTopic is not ("ariza" or "bakim" or "yedek-parca" or "kurulum" or "diger"))serviceTopic="diger";
+    var servicePreference=(b["contactPreference"]?.ToString()??"phone").Trim().ToLowerInvariant();
+    if(servicePreference is not ("phone" or "email" or "system"))servicePreference="phone";
+    var clean=new JsonObject{["type"]="service",["name"]=name,["email"]=parsedEmail.Address,
+        ["phone"]=phone,["contact"]=parsedEmail.Address,["purpose"]="servis",
+        ["contactPreference"]=servicePreference,["serviceTopic"]=serviceTopic,
+        ["businessName"]=business,["address"]=address,
+        ["productName"]=(b["productName"]?.ToString()??"").Trim(),
+        ["productCode"]=(b["productCode"]?.ToString()??"").Trim(),
+        ["serialNumber"]=(b["serialNumber"]?.ToString()??"").Trim(),
+        ["message"]=message,["serviceStatus"]="new",["appointmentDate"]="",
+        ["technician"]="",["internalNote"]="",["parts"]="",["resolution"]=""};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone,["businessName"]=business,["address"]=address});}
     var row=store.AddInquiry(clean);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
     var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);if(!string.IsNullOrWhiteSpace(mail.AdminAddress))mail.Enqueue(mail.AdminAddress,admin.Subject,admin.Html,admin.Text);var customer=MailTemplates.CustomerReceipt(clean);mail.Enqueue(parsedEmail.Address,customer.Subject,customer.Html,customer.Text);
     return Results.Json(new{ok=true,requestCode});
