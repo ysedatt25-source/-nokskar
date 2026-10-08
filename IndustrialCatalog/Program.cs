@@ -46,7 +46,7 @@ app.Use(async(ctx,next)=>{try{await next();}catch(Exception ex){app.Services.Get
 app.Use(async(ctx,next)=>{
     ctx.Response.Headers["X-Content-Type-Options"]="nosniff";ctx.Response.Headers["X-Frame-Options"]="SAMEORIGIN";ctx.Response.Headers["Referrer-Policy"]="strict-origin-when-cross-origin";ctx.Response.Headers["Permissions-Policy"]="camera=(), microphone=(), geolocation=(), payment=(), usb=()";
     ctx.Response.Headers["Cross-Origin-Opener-Policy"]="same-origin";ctx.Response.Headers["Cross-Origin-Resource-Policy"]="same-site";
-    var csp="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self'";
+    var csp="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'";
     if(!app.Environment.IsDevelopment())csp+="; upgrade-insecure-requests";ctx.Response.Headers["Content-Security-Policy"]=csp;
     if(ctx.Request.Path.StartsWithSegments("/api")||ctx.Request.Path.StartsWithSegments("/admin")||ctx.Request.Path=="/login"||(ctx.Request.Path=="/forgot-password"||ctx.Request.Path=="/reset-password"))ctx.Response.Headers.CacheControl="no-store";
     if(HttpMethods.IsPost(ctx.Request.Method)||HttpMethods.IsPut(ctx.Request.Method)||HttpMethods.IsPatch(ctx.Request.Method)||HttpMethods.IsDelete(ctx.Request.Method)){
