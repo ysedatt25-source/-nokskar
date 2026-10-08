@@ -196,7 +196,7 @@ app.MapGet("/admin/system",(HttpContext c)=>AccessControl.Has(c.User,AccessPermi
 app.MapGet("/admin/mail",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Content(MailSettingsPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/header-brand",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.Settings,"edit")?Results.Content(BrandingPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/inquiries/{id}",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.Content(InquiryPages.NotFound(),"text/html; charset=utf-8",statusCode:404);var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"view"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"view"))return Results.Forbid();inquiry=store.MarkInquiryRead(id,AccessControl.DisplayName(c.User))??inquiry;return Results.Content(InquiryPages.AdminDetail(inquiry,store.AuditForTarget(id),store.InquiryTemplates()),"text/html; charset=utf-8");}).RequireAuthorization();
-app.MapPost("/admin/inquiries/{id}/delete",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound();var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();store.RemoveInquiry(id,AccessControl.DisplayName(c.User),service?"service":"support");return Results.Redirect("/admin?tab=inquiries");}).RequireAuthorization();
+app.MapPost("/admin/inquiries/{id}/delete",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound();var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();if(store.RemoveInquiry(id,AccessControl.DisplayName(c.User),service?"service":"support")&&parsed?["attachments"] is JsonArray deletedFiles)InquiryAttachments.Cleanup(deletedFiles,dataPath);return Results.Redirect("/admin?tab=inquiries");}).RequireAuthorization();
 app.MapPost("/admin/inquiries/{id}/service",async(string id,HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();var form=await c.Request.ReadFormAsync();var input=new JsonObject
     {
         ["status"]=form["status"].ToString(),["appointmentDate"]=form["appointmentDate"].ToString(),["technician"]=form["technician"].ToString(),
@@ -350,7 +350,7 @@ app.MapPost("/api/warranty/query",async(HttpContext c,Store store)=>{
     var warranty=store.QueryWarranty(serial,code);
     return warranty==null?Results.Json(new{found=false,message="Girilen bilgilerle eşleşen garanti kaydı bulunamadı. Seri numarası ve garanti doğrulama kodunu kontrol edin."}):Results.Json(new{found=true,warranty});
 }).RequireRateLimiting("warranty-query");
-app.MapDelete("/api/inquiries/{id}",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound(new{error="Müşteri talebi bulunamadı."});var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();if(!store.RemoveInquiry(id,AccessControl.DisplayName(c.User),service?"service":"support"))return Results.NotFound(new{error="Müşteri talebi bulunamadı."});return Results.Json(new{ok=true});}).RequireAuthorization();
+app.MapDelete("/api/inquiries/{id}",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound(new{error="Müşteri talebi bulunamadı."});var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();if(!store.RemoveInquiry(id,AccessControl.DisplayName(c.User),service?"service":"support"))return Results.NotFound(new{error="Müşteri talebi bulunamadı."});if(parsed?["attachments"] is JsonArray deletedFiles)InquiryAttachments.Cleanup(deletedFiles,dataPath);return Results.Json(new{ok=true});}).RequireAuthorization();
 app.MapPost("/api/inquiry-status",async(HttpContext c,Store store)=>{
     var body=await c.Request.ReadFromJsonAsync<JsonObject>()??new JsonObject();
     var phone=(body["phone"]?.ToString()??"").Trim();
@@ -360,7 +360,12 @@ app.MapPost("/api/inquiry-status",async(HttpContext c,Store store)=>{
     return Results.Json(new{ok=true,count=rows.Count,inquiries=rows});
 }).RequireRateLimiting("warranty-query");
 app.MapPost("/api/inquiry",async(HttpContext c,Store store,MailQueue mail,IConfiguration config,CustomerDirectory customers)=>{
-    var b=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Form gerekli.");if(!string.IsNullOrEmpty(b["website"]?.ToString()))return Results.Json(new{ok=true});
+    var sizeFeature=c.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature>();
+    if(sizeFeature is {IsReadOnly:false}) sizeFeature.MaxRequestBodySize=InquiryAttachments.MaxRequestSize;
+    var multipart=c.Request.HasFormContentType?await c.Request.ReadFormAsync():null;
+    var b=multipart==null?await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Form gerekli."):new JsonObject();
+    if(multipart!=null)foreach(var field in multipart)b[field.Key]=field.Value.ToString();
+    if(!string.IsNullOrEmpty(b["website"]?.ToString()))return Results.Json(new{ok=true});
     var name=(b["name"]?.ToString()??"").Trim();var email=(b["email"]?.ToString()??b["contact"]?.ToString()??"").Trim();var phone=(b["phone"]?.ToString()??"").Trim();var message=(b["message"]?.ToString()??"").Trim();
     if(name.Length is < 2 or > 100||message.Length is < 2 or > 5000)return Results.BadRequest(new{error="Ad ve talep açıklaması eksik veya geçersiz."});if(!System.Net.Mail.MailAddress.TryCreate(email,out var parsedEmail)||!System.Text.RegularExpressions.Regex.IsMatch(email,@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"))return Results.BadRequest(new{error="E-posta adresi eksik veya hatalı. Kişisel veya iş e-posta adresi kullanabilirsiniz (ör. ornek@gmail.com)."});var phoneDigits=System.Text.RegularExpressions.Regex.Replace(phone,@"\D","");if(!System.Text.RegularExpressions.Regex.IsMatch(phone,@"^\+?[\d\s().-]+$")||phoneDigits.Length is <10 or >15)return Results.BadRequest(new{error="Telefon numarası eksik veya hatalı. 10-15 rakam girin; yalnızca +, boşluk, parantez, nokta ve tire kullanılabilir."});
     // Preserve the selected support purpose and contact channel with the inquiry record.
@@ -381,13 +386,29 @@ app.MapPost("/api/inquiry",async(HttpContext c,Store store,MailQueue mail,IConfi
         ["projectCity"]=(b["projectCity"]?.ToString()??"").Trim(),
         ["projectSize"]=(b["projectSize"]?.ToString()??"").Trim(),
         ["projectTimeline"]=(b["projectTimeline"]?.ToString()??"").Trim()};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone});}
-    var row=store.AddInquiry(clean);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
+    var uploaded=new JsonArray();
+    if(multipart?.Files.Count>0)
+    {
+        if(purpose is not ("proje" or "teklif"))
+            return Results.BadRequest(new{error="Bu talep türünde dosya eklenemez."});
+        try{uploaded=await InquiryAttachments.SaveAsync(multipart.Files,dataPath,c.RequestAborted);}
+        catch(ArgumentException ex){return Results.BadRequest(new{error=ex.Message});}
+        clean["attachments"]=uploaded.DeepClone();
+    }
+    JsonObject row;
+    try{row=store.AddInquiry(clean);}
+    catch{InquiryAttachments.Cleanup(uploaded,dataPath);throw;}
+    var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
     var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);var notificationRecipient=(store.Snapshot()["data"]?["settings"]?["notificationEmail"]?.ToString()??"").Trim();
     if(string.IsNullOrWhiteSpace(notificationRecipient))notificationRecipient=mail.AdminAddress;
     if(mail.IsConfigured&&!string.IsNullOrWhiteSpace(notificationRecipient))
         mail.Enqueue(notificationRecipient,admin.Subject,admin.Html,admin.Text);var customer=MailTemplates.CustomerReceipt(clean);mail.Enqueue(parsedEmail.Address,customer.Subject,customer.Html,customer.Text);
     return Results.Json(new{ok=true,requestCode});
 }).RequireRateLimiting("public-write");
+app.MapGet("/api/inquiries/{id}/attachments/{attachmentId}/view",(string id,string attachmentId,HttpContext c,Store store)=>
+    InquiryAttachments.Open(id,attachmentId,c,store,dataPath,false)).RequireAuthorization();
+app.MapGet("/api/inquiries/{id}/attachments/{attachmentId}/download",(string id,string attachmentId,HttpContext c,Store store)=>
+    InquiryAttachments.Open(id,attachmentId,c,store,dataPath,true)).RequireAuthorization();
 app.MapPost("/api/service-request",async(HttpContext c,Store store,MailQueue mail,IConfiguration config,CustomerDirectory customers)=>{
     var b=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Servis talebi formu gerekli.");if(!string.IsNullOrEmpty(b["website"]?.ToString()))return Results.Json(new{ok=true});
     var name=(b["name"]?.ToString()??"").Trim();var email=(b["email"]?.ToString()??"").Trim();var phone=(b["phone"]?.ToString()??"").Trim();var business=(b["businessName"]?.ToString()??"").Trim();var address=(b["address"]?.ToString()??"").Trim();var message=(b["message"]?.ToString()??"").Trim();
