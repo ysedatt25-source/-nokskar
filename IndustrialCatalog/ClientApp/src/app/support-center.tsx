@@ -1,5 +1,5 @@
 import {useState,type FormEvent} from 'react';
-import {ArrowRight, CheckCircle2, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Search, Send, ShieldCheck, Wrench} from 'lucide-react';
+import {ArrowRight, CheckCircle2, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench} from 'lucide-react';
 import type {Catalog} from '../lib/model';
 
 type Purpose = 'genel' | 'teklif' | 'servis' | 'proje';
@@ -10,11 +10,21 @@ const choices = [
   {key:'proje' as Purpose,label:'Proje & Danışmanlık',detail:'Özel üretim ve kurulum çözümleri',Icon:DraftingCompass}
 ];
 const validPurpose=(v:string|null):Purpose=>choices.some(c=>c.key===v)?v as Purpose:'genel';
+const displayTrackingPhone=(value:string):string=>{
+  const digits=value.replace(/\D/g,'');
+  const local=digits.length===14&&digits.startsWith('0090')?digits.slice(4):
+    digits.length===12&&digits.startsWith('90')?digits.slice(2):
+    digits.length===11&&digits.startsWith('0')?digits.slice(1):digits;
+  return local.length===10&&local.startsWith('5')
+    ? `${local.slice(0,3)} ${local.slice(3,6)} ${local.slice(6,8)} ${local.slice(8)}`
+    :value.trim();
+};
 
 export default function SupportCenter({settings:s}:{settings:Catalog['settings']}) {
   const query=new URLSearchParams(typeof window!=='undefined'?window.location.search:'');
   const [purpose,setPurpose]=useState<Purpose>(()=>validPurpose(query.get('amac')));
   const [sentCode,setSentCode]=useState('');
+  const [sentPhone,setSentPhone]=useState('');
   const [sent,setSent]=useState(false);
   const [sending,setSending]=useState(false);
   const [error,setError]=useState('');
@@ -22,7 +32,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
   const product=query.get('urun')||'';
   const code=query.get('kod')||'';
   const switchPurpose=(next:Purpose)=>{
-    setPurpose(next);setSent(false);setSentCode('');setError('');
+    setPurpose(next);setSent(false);setSentCode('');setSentPhone('');setError('');
     const url=new URL(window.location.href);url.searchParams.set('amac',next);url.searchParams.delete('urun');url.searchParams.delete('kod');
     window.history.replaceState(window.history.state,'',url.pathname+url.search);
   };
@@ -46,35 +56,29 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
       });
       const result=await response.json().catch(()=>({}));
       if(!response.ok||!result.ok)throw new Error(result.error||'Talebiniz şu anda gönderilemedi. Lütfen tekrar deneyin.');
-      setSentCode(String(result.requestCode||''));setSent(true);
+      setSentCode(String(result.requestCode||''));setSentPhone(displayTrackingPhone(phone));setSent(true);
     }catch(err){setError(err instanceof Error?err.message:'Bağlantı sorunu oluştu, tekrar deneyin.');}
     finally{setSending(false);}
   };
-  return <section className="wrap content-page contact-pro support-center" aria-labelledby="support-title">
-    <div className="support-intro-row">
-      <div className="support-intro">
-        <span className="support-eyebrow"><ShieldCheck size={15}/> İNOKSKAR DESTEK MERKEZİ</span>
-        <h1 id="support-title">Size nasıl yardımcı olabiliriz?</h1>
-        <p>İhtiyacınızı seçin, size uygun kısa formu doldurun. Talebiniz doğru ekibe ulaşsın.</p>
-      </div>
-      <a className="support-track-primary" href="/talep-sorgula"><Search size={19}/><span><strong>Talebimi Sorgula</strong><small>Telefon numaranızla takip edin</small></span><ArrowRight size={17}/></a>
-    </div>
+  return <section className="wrap content-page contact-pro support-center" aria-label="İNOKSKAR Destek Merkezi">
     <div className="contact-purpose support-purpose" role="group" aria-label="Talep amacı seçin">
       {choices.map(({key,label,detail,Icon})=><button type="button" key={key} className={'support-choice '+(purpose===key?'active':'')} onClick={()=>switchPurpose(key)} aria-pressed={purpose===key}>
-        <span className="support-choice-icon"><Icon size={22} strokeWidth={1.9}/></span>
-        <span className="support-choice-copy"><strong>{label}</strong><small>{detail}</small></span>
-        <ArrowRight size={17} className="support-choice-arrow"/>
+        <span className="support-choice-head">
+          <span className="support-choice-icon"><Icon size={20} strokeWidth={1.9}/></span>
+          <strong>{label}</strong>
+        </span>
+        <small className="support-choice-detail">{detail}</small>
       </button>)}
     </div>
     <div className="support-layout">
       <div className="support-form-shell" id="destek-formu">
-        <div className="support-form-heading"><div><span>TALEP OLUŞTUR</span><h2>{selected.label}</h2><p>{selected.detail}</p></div><selected.Icon size={26} aria-hidden="true"/></div>
+        <div className="support-form-heading"><div><span>TALEP OLUŞTUR</span><h2>{selected.label}</h2></div><selected.Icon size={23} aria-hidden="true"/></div>
         {sent?<div className="support-success" role="status">
-          <CheckCircle2 size={44}/><h3>Talebiniz başarıyla alındı</h3>
-          <p>Başvurunuz kayıt altına alındı. Süreci talep sorgulama sayfasından takip edebilirsiniz.</p>
-          {sentCode&&<div className="support-request-code"><small>TALEP NUMARANIZ</small><strong>{sentCode}</strong></div>}
-          <a className="button" href="/talep-sorgula">Talebimi sorgula <ArrowRight size={16}/></a>
-          <button className="support-text-action" type="button" onClick={()=>{setSent(false);setSentCode('');}}>Yeni talep oluştur</button>
+          <CheckCircle2 size={40}/><h3>Talebiniz oluşturuldu.</h3>
+          <p><strong>{sentPhone}</strong> numaralı telefonunuzla <strong>Talep Takibi</strong> ekranından süreci takip edebilirsiniz.</p>
+          {sentCode&&<div className="support-request-code"><small>Talep numaranız</small><strong>{sentCode}</strong></div>}
+          <a className="button" href="/talep-sorgula">Talep takibine git <ArrowRight size={16}/></a>
+          <button className="support-text-action" type="button" onClick={()=>{setSent(false);setSentCode('');setSentPhone('');}}>Yeni talep oluştur</button>
         </div>:<form key={purpose} className="inquiry-form support-form" onSubmit={submit}>
           <input type="hidden" name="purpose" value={purpose}/>
           <div className="support-fields-pair">
