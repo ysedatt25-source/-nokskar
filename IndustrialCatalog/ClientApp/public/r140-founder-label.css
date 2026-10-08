@@ -5,10 +5,10 @@ body.page-home .hero .hero-founder-label{
   z-index:5;display:inline-flex;align-items:center;gap:9px;
   width:max-content;max-width:calc(100% - 30px);min-width:0;
   padding:9px 13px 9px 11px;box-sizing:border-box;
-  border:1px solid rgba(245,210,147,.39);
-  border-radius:999px;background:linear-gradient(110deg,rgba(7,20,39,.85),rgba(15,36,58,.73));
-  box-shadow:0 8px 24px rgba(3,13,27,.25),inset 0 1px 0 rgba(255,245,215,.09);
-  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  border:1px solid rgba(245,214,166,.48);
+  border-radius:999px;background:linear-gradient(120deg,rgba(8,23,39,.40),rgba(10,29,46,.28));
+  box-shadow:0 5px 18px rgba(3,13,27,.15),inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter:blur(2px) saturate(110%);-webkit-backdrop-filter:blur(2px) saturate(110%);
   color:#f4d59a;pointer-events:none;
 }
 body.page-home .hero .hero-founder-label-mark{
@@ -19,8 +19,8 @@ body.page-home .hero .hero-founder-label-mark{
 body.page-home .hero .hero-founder-label-text{
   display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;line-height:1.25;
-  font-family:"Avenir Next","Montserrat","Segoe UI",Arial,sans-serif;
-  font-size:clamp(8px,1.4vw,12px);font-weight:760;letter-spacing:.09em;
+  font-family:"Manrope","Segoe UI",Arial,sans-serif;
+  font-optical-sizing:auto;font-size:clamp(10px,1.05vw,14px);font-weight:600;letter-spacing:.055em;
   text-shadow:0 1px 4px rgba(0,0,0,.24);
 }
 @media(max-width:650px){
@@ -30,13 +30,13 @@ body.page-home .hero .hero-founder-label-text{
     gap:7px;padding:8px 10px 8px 9px;border-radius:999px
   }
   body.page-home .hero .hero-founder-label-text{
-    font-size:clamp(7.5px,2.1vw,9.7px);letter-spacing:.055em;line-height:1.25
+    font-size:clamp(9.4px,2.55vw,11.6px);letter-spacing:.02em;line-height:1.3
   }
   body.page-home .hero .hero-founder-label-mark{width:4px;height:4px;flex-basis:4px}
 }
 @media(max-width:350px){
   body.page-home .hero .hero-founder-label{padding:7px 8px;gap:5px}
-  body.page-home .hero .hero-founder-label-text{font-size:7.4px;letter-spacing:.02em}
+  body.page-home .hero .hero-founder-label-text{font-size:9.2px;letter-spacing:0}
 }
 
 /* Site Ayarları — editable brand label card and faithful live preview. */
@@ -58,14 +58,14 @@ body.page-home .hero .hero-founder-label-text{
 .founder-setting-card>label>small{font-size:.72rem;color:#788ca1;line-height:1.5;font-weight:500}
 .founder-setting-preview{display:flex;justify-content:center;align-items:center;min-width:0;
   min-height:66px;padding:12px 10px;border-radius:12px;
-  background:linear-gradient(130deg,#0d213a,#28445b);border:1px solid #19324e;box-sizing:border-box}
+  background-color:#0d213a;background-position:center;background-size:cover;border:1px solid #19324e;box-sizing:border-box}
 .founder-setting-preview-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
   max-width:100%;min-width:0;padding:8px 11px;border:1px solid rgba(245,210,147,.4);
-  border-radius:999px;background:rgba(3,16,32,.57);color:#f4d59a}
+  border-radius:999px;background:rgba(8,23,39,.34);color:#f4d59a;backdrop-filter:blur(2px) saturate(110%);-webkit-backdrop-filter:blur(2px) saturate(110%)}
 .founder-setting-preview-mark{width:5px;height:5px;flex:0 0 5px;background:#f2c77c;border-radius:50%}
-.founder-setting-preview-badge>span:last-child{font-family:"Avenir Next","Montserrat","Segoe UI",Arial,sans-serif;
+.founder-setting-preview-badge>span:last-child{font-family:"Manrope","Segoe UI",Arial,sans-serif;font-optical-sizing:auto;
   min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font-size:clamp(7.6px,1.4vw,10.5px);font-weight:780;letter-spacing:.06em;line-height:1.3}
+  font-size:clamp(9px,1.3vw,12px);font-weight:600;letter-spacing:.025em;line-height:1.3}
 .founder-setting-preview-empty{color:#bbc8d5;font-size:.78rem;font-weight:700}
 @media(max-width:650px){
   .founder-setting-card{padding:12px;gap:12px}
@@ -73,6 +73,6 @@ body.page-home .hero .hero-founder-label-text{
   .founder-setting-head p{font-size:.76rem}
   .founder-setting-preview{padding:11px 6px}
   .founder-setting-preview-badge{padding:8px;gap:5px}
-  .founder-setting-preview-badge>span:last-child{font-size:clamp(7px,2vw,9px)}
+  .founder-setting-preview-badge>span:last-child{font-size:clamp(8.4px,2.1vw,10.2px)}
 }
 @media(prefers-reduced-motion:reduce){body.page-home .hero .hero-founder-label{transition:none}}
