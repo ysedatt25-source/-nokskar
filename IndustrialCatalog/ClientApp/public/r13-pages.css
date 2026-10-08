@@ -4017,11 +4017,23 @@ body .tech-empty span{font-size:.7rem;color:#73859a}
   }
 }
 @media(max-width:430px){
-  body.warranty-admin-body .warranty-heading-actions,
-  body.warranty-admin-body .warranty-form-actions,
-  body .technical-service-actions{
-    grid-template-columns:1fr;
+  body.warranty-admin-body .warranty-heading-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+    width:100%;
+    min-width:0;
   }
+  body.warranty-admin-body .warranty-admin-heading{gap:4px;margin-bottom:8px;padding:8px 10px}
+  body.warranty-admin-body .warranty-admin-heading h1{margin:0}
+  body.warranty-admin-body .warranty-heading-actions>.button{
+    display:flex;align-items:center;justify-content:center;
+    width:100%;min-width:0;max-width:100%;box-sizing:border-box;
+    min-height:38px!important;padding:8px 7px!important;margin:0;
+    flex:none!important;font-size:.73rem!important;white-space:nowrap;
+  }
+  body.warranty-admin-body .warranty-form-actions,
+  body .technical-service-actions{grid-template-columns:1fr}
   body.warranty-admin-body .warranty-form-actions .button:first-child{grid-column:auto}
   body.warranty-admin-body .warranty-component-edit{grid-template-columns:1fr}
 }
