@@ -10,13 +10,18 @@ public static class CatalogRules
     {
         var settings=d["settings"]?.AsObject() ?? throw new ArgumentException("Ayarlar gerekli.");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
-        foreach(var key in new[]{"name","tagline","heroTitle","heroText","hero","headerImage","phone","whatsapp","email","address","hours","social","waMessage","lastRate","rateSource","rateDate","about"}) Text(settings,key);
+        settings["notificationEmail"] ??= "";
+        foreach(var key in new[]{"name","tagline","heroTitle","heroText","hero","headerImage","phone","whatsapp","email","notificationEmail","address","hours","social","waMessage","lastRate","rateSource","rateDate","about"}) Text(settings,key);
         var siteName=Text(settings,"name").Trim();if(siteName.Length<2||!Regex.IsMatch(siteName,@"[\\p{L}\\p{N}]"))siteName="İNOKSKAR";settings["name"]=siteName;
         foreach(var key in new[]{"hero","headerImage","social"})if(!Safe(Text(settings,key)))throw new ArgumentException("Geçersiz bağlantı.");
         var rate=settings["rate"]!.GetValue<decimal>();if(rate<0)throw new ArgumentException("Kur negatif olamaz.");
         foreach(var key in new[]{"waEnabled","autoRate"})settings[key]!.GetValue<bool>();
         var wa=Text(settings,"whatsapp");if(wa!=""&&(!Regex.IsMatch(wa,@"^\+?[\d\s()-]+$")||Regex.Replace(wa,@"\D","").Length is <8 or >15))throw new ArgumentException("WhatsApp numarası geçersiz.");
         var email=Text(settings,"email");if(email!=""&&!System.Net.Mail.MailAddress.TryCreate(email,out _))throw new ArgumentException("E-posta geçersiz.");
+        var notificationEmail=Text(settings,"notificationEmail").Trim();
+        if(notificationEmail.Length>254||(notificationEmail!=""&&(!System.Net.Mail.MailAddress.TryCreate(notificationEmail,out var parsedNotification)||!string.Equals(parsedNotification.Address,notificationEmail,StringComparison.OrdinalIgnoreCase))))
+            throw new ArgumentException("Talep bildirimi için geçerli bir e-posta adresi girin.");
+        settings["notificationEmail"]=notificationEmail;
         foreach(var m in settings["menu"]!.AsArray())if(string.IsNullOrWhiteSpace(Text(m,"name"))||!Safe(Text(m,"url")))throw new ArgumentException("Menü bağlantısı geçersiz.");
         d.Remove("posts");var cats=d["categories"]!.AsArray();var products=d["products"]!.AsArray();
         foreach(var list in new[]{cats,products})
@@ -39,7 +44,7 @@ public static class CatalogRules
     }
     public static JsonObject Public(JsonObject source)
     {
-        var d=source.DeepClone().AsObject();var publicSettings=d["settings"]!.AsObject();var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\\p{L}\\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
+        var d=source.DeepClone().AsObject();var publicSettings=d["settings"]!.AsObject();publicSettings.Remove("notificationEmail");var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\\p{L}\\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
         bool Visible(JsonNode c){var seen=new HashSet<string>();while(true){if(c["visible"]?.GetValue<bool>()!=true||!seen.Add(c["id"]!.ToString()))return false;var parent=c["parent"]!.ToString();if(parent=="")return true;if(!map.TryGetValue(parent,out var next)||next==null)return false;c=next;}}
         var allowed=cats.Where(c=>c!=null&&Visible(c)).Select(c=>c!["id"]!.ToString()).ToHashSet();
         d["categories"]=new JsonArray(cats.Where(c=>allowed.Contains(c!["id"]!.ToString())).Select(c=>c!.DeepClone()).ToArray());
