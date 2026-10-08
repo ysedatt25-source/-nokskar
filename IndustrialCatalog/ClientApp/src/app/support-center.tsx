@@ -1,5 +1,5 @@
 import {useState,type FormEvent} from 'react';
-import {ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench} from 'lucide-react';
+import {ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
 import type {Catalog} from '../lib/model';
 
 type Purpose = 'genel' | 'teklif' | 'servis' | 'proje';
@@ -25,6 +25,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
   const [purpose,setPurpose]=useState<Purpose>(()=>validPurpose(query.get('amac')));
   const [sentCode,setSentCode]=useState('');
   const [sentPhone,setSentPhone]=useState('');
+  const [projectFiles,setProjectFiles]=useState<File[]>([]);
   const [sent,setSent]=useState(false);
   const [sending,setSending]=useState(false);
   const [error,setError]=useState('');
@@ -32,7 +33,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
   const product=query.get('urun')||'';
   const code=query.get('kod')||'';
   const switchPurpose=(next:Purpose)=>{
-    setPurpose(next);setSent(false);setSentCode('');setSentPhone('');setError('');
+    setPurpose(next);setSent(false);setSentCode('');setSentPhone('');setError('');setProjectFiles([]);
     const url=new URL(window.location.href);url.searchParams.set('amac',next);url.searchParams.delete('urun');url.searchParams.delete('kod');
     window.history.replaceState(window.history.state,'',url.pathname+url.search);
   };
@@ -51,12 +52,18 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
     }
     setError('');setSending(true);
     try{
+      const withFiles=(purpose==='proje'||purpose==='teklif')&&projectFiles.length>0;
+      const body=withFiles?new FormData():JSON.stringify(fields);
+      if(body instanceof FormData){
+        for(const [key,value] of Object.entries(fields))body.append(key,String(value));
+        for(const file of projectFiles)body.append('files',file,file.name);
+      }
       const response=await fetch(purpose==='servis'?'/api/service-request':'/api/inquiry',{
-        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)
+        method:'POST',...(withFiles?{}:{headers:{'Content-Type':'application/json'}}),body
       });
       const result=await response.json().catch(()=>({}));
       if(!response.ok||!result.ok)throw new Error(result.error||'Talebiniz şu anda gönderilemedi. Lütfen tekrar deneyin.');
-      setSentCode(String(result.requestCode||''));setSentPhone(displayTrackingPhone(phone));setSent(true);
+      setSentCode(String(result.requestCode||''));setSentPhone(displayTrackingPhone(phone));setProjectFiles([]);setSent(true);
     }catch(err){setError(err instanceof Error?err.message:'Bağlantı sorunu oluştu, tekrar deneyin.');}
     finally{setSending(false);}
   };
@@ -128,6 +135,30 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
           </>}
           <label>{purpose==='servis'?'Sorun / ihtiyaç açıklaması':purpose==='proje'?'Projenizin detayları':purpose==='teklif'?'Teklif detayları':'Mesajınız'}  *
             <textarea name="message" required minLength={2} rows={4} maxLength={5000} placeholder={purpose==='servis'?'Cihazdaki sorunu veya ihtiyaç duyduğunuz parçayı açıklayın.':purpose==='proje'?'İhtiyacınızı, mutfak ekipmanlarını ve özel taleplerinizi anlatın.':'Talebinizi ayrıntılarıyla yazın.'}/></label>
+          {(purpose==='proje'||purpose==='teklif')&&<section className="support-file-card" aria-label="Proje dosyaları ekleme">
+            <div className="support-file-heading"><FileText size={21} aria-hidden="true"/><div><strong>Proje belgeleri ve görseller</strong><span>İsteğe bağlı</span></div></div>
+            <p>Hazır çizim, ölçü planı veya örnek görsellerinizi paylaşarak teklif sürecini kolaylaştırabilirsiniz.</p>
+            <label className="support-file-pick"><CloudUpload size={22} aria-hidden="true"/><span>PDF veya görsel ekle</span>
+              <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" multiple
+                aria-label="Proje için PDF veya görsel seç"
+                onChange={e=>{
+                  const selected=Array.from(e.target.files||[]);
+                  e.target.value='';
+                  if(projectFiles.length+selected.length>5){setError('En fazla 5 proje belgesi ekleyebilirsiniz.');return;}
+                  const bad=selected.find(file=>file.size===0||file.size>20*1024*1024||!(/\.(pdf|jpe?g|png|webp)$/i.test(file.name)));
+                  if(bad){setError('Yalnız PDF, JPG, PNG veya WebP dosyaları ekleyin. Dosya başına en fazla 20 MB.');return;}
+                  setProjectFiles(files=>[...files,...selected]);setError('');
+                }}/>
+            </label>
+            <small>En fazla 5 dosya · Dosya başına 20 MB · Yalnız yetkili personel görüntüler.</small>
+            {projectFiles.length>0&&<div className="support-file-list" aria-label="Eklenecek belgeler">
+              {projectFiles.map((file,index)=><div className="support-file-row" key={index}>
+                {file.name.toLowerCase().endsWith('.pdf')?<FileText size={19} aria-hidden="true"/>:<ImageIcon size={19} aria-hidden="true"/>}
+                <span title={file.name}>{file.name}<small>{(file.size/1024/1024).toFixed(1)} MB</small></span>
+                <button type="button" aria-label={file.name+' dosyasını kaldır'} onClick={()=>setProjectFiles(files=>files.filter((_,i)=>i!==index))}><X size={17}/></button>
+              </div>)}
+            </div>}
+          </section>}
           <input name="website" tabIndex={-1} autoComplete="off" className="honeypot" aria-hidden="true"/>
           {error&&<p className="support-error" role="alert">{error}</p>}
           <button className="button support-submit" type="submit" disabled={sending}><Send size={18}/>{sending?'Talebiniz gönderiliyor…':'Talebimi gönder'}<ArrowRight size={18}/></button>
