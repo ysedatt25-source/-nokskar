@@ -33,7 +33,7 @@ public static class CatalogRules
             var id=Text(r,"id");
             if(!Regex.IsMatch(id,@"^[a-zA-Z0-9_-]+$")||!refIds.Add(id))throw new ArgumentException("Referans kimliği geçersiz.");
             var logo=Text(r,"logo");
-            if(string.IsNullOrWhiteSpace(logo)||!Safe(logo)||!logo.StartsWith("/uploads/",StringComparison.OrdinalIgnoreCase))throw new ArgumentException("Referans logosu siteye yüklenen geçerli bir görsel olmalıdır.");
+            if(string.IsNullOrWhiteSpace(logo)||!Safe(logo)||!logo.StartsWith("/api/files/",StringComparison.OrdinalIgnoreCase))throw new ArgumentException("Referans logosu siteye yüklenen geçerli bir görsel olmalıdır.");
             var phone=Text(r,"phone").Trim();var emailRef=Text(r,"email").Trim();
             if(phone.Length>50||(phone.Length>0&&!Regex.IsMatch(phone,@"^\+?[\d\s().-]{8,50}$")))throw new ArgumentException("Referans telefon numarası geçersiz.");
             if(emailRef.Length>254||(emailRef.Length>0&&!System.Net.Mail.MailAddress.TryCreate(emailRef,out _)))throw new ArgumentException("Referans e-postası geçersiz.");
