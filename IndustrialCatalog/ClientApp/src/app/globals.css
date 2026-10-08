@@ -277,3 +277,81 @@ body[data-ui-page="admin-settings"] .settings-save-button:focus-visible{outline:
 
 body[data-ui-page="admin-settings"] .settings-save-hint{display:flex;align-items:center;gap:8px;min-height:35px;margin:0;padding:8px 12px;border:1px solid #d5e4f3;border-radius:10px;background:#f1f7ff;color:#275b90;font-size:.84rem;font-weight:720;line-height:1.45}
 
+
+
+/* Shared interactive overlay contract: filter sheet is portaled to body.
+   Never render a second fullscreen scrim above form controls. */
+@media(max-width:1100px){
+  html body .catalog-filter-layer{
+    position:fixed!important;
+    inset:0!important;
+    z-index:1500!important;
+    display:flex!important;
+    align-items:flex-end;
+    justify-content:center;
+    width:100%!important;
+    min-width:0;
+    max-width:none!important;
+    height:100dvh!important;
+    margin:0!important;
+    padding:12px 12px calc(var(--app-dock-h,72px) + env(safe-area-inset-bottom,0px) + 15px)!important;
+    box-sizing:border-box;
+    overflow-x:hidden;
+    overflow-y:auto;
+    background:rgba(7,18,31,.55);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    pointer-events:auto!important;
+    touch-action:auto;
+  }
+  html body .catalog-filter-layer>.catalog-filter-sheet{
+    position:relative;
+    z-index:1;
+    flex:0 1 720px;
+    box-sizing:border-box;
+    display:grid;
+    gap:14px;
+    min-width:0;
+    max-width:100%;
+    width:100%;
+    max-height:calc(100dvh - var(--app-dock-h,72px) - env(safe-area-inset-bottom,0px) - 55px);
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding:15px;
+    margin:0 auto;
+    background:#fff;
+    border:1px solid #d8e3ef;
+    border-radius:20px;
+    box-shadow:0 22px 70px rgba(5,18,34,.3);
+    pointer-events:auto!important;
+    touch-action:pan-y;
+  }
+  html body .catalog-filter-sheet :is(button,input,[role="combobox"],[role="button"]){
+    pointer-events:auto!important;
+    touch-action:manipulation;
+  }
+  html body [data-slot="select-content"].catalog-filter-select-popover{
+    position:relative;
+    z-index:1600!important;
+    pointer-events:auto!important;
+    max-width:calc(100vw - 24px);
+  }
+  html body .catalog-filter-sheet [data-slot="select-trigger"]{min-width:0}
+  html body .catalog-filter-actions{
+    grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);
+    min-width:0;
+  }
+  html body .catalog-filter-actions .button{min-width:0;white-space:normal}
+}
+@media(max-width:600px){
+  html body .catalog-filter-layer{
+    padding:9px 9px calc(var(--app-dock-h,72px) + env(safe-area-inset-bottom,0px) + 11px)!important;
+  }
+  html body .catalog-filter-layer>.catalog-filter-sheet{
+    padding:13px;
+    gap:12px;
+    border-radius:17px;
+  }
+}
