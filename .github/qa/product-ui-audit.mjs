@@ -115,19 +115,19 @@ try{
     await confirmDialog.waitFor({state:'hidden'});
   }
   await page.setViewportSize({width:390,height:844});
-  await page.locator('.admin-sidebar nav button').filter({hasText:'Kategoriler'}).first().click();
+  await page.goto(base+'/admin?tab=categories',{waitUntil:'networkidle',timeout:45000});
   await page.locator('.category-admin-list .category-admin').first().getByRole('button',{name:'Düzenle'}).click();
   const categoryDialog=page.locator('[data-slot="dialog-content"]');
   await checkOverlayBounds(categoryDialog,'Category editor',390,844);
   await categoryDialog.locator('[data-slot="dialog-close"]').click();
   await categoryDialog.waitFor({state:'hidden'});
-  await page.locator('.admin-sidebar nav button').filter({hasText:'Fiyat yönetimi'}).first().click();
+  await page.goto(base+'/admin?tab=prices',{waitUntil:'networkidle',timeout:45000});
   await page.getByRole('button',{name:/Excel\/CSV fiyat aktar/}).click();
   const priceDialog=page.locator('[data-slot="dialog-content"]');
   await checkOverlayBounds(priceDialog,'Price import',390,844);
   await priceDialog.locator('[data-slot="dialog-close"]').click();
   await priceDialog.waitFor({state:'hidden'});
-  await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
+  await page.goto(base+'/admin?tab=products',{waitUntil:'networkidle',timeout:45000});
   await page.setViewportSize({width:1440,height:900});
   await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
   await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
