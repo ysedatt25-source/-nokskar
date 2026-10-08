@@ -372,8 +372,8 @@ public sealed class Store
         lock (gate)
         {
             var next = state.DeepClone().AsObject();
-            var list = next["inquiryTemplates"]?.AsArray() ?? new JsonArray();
-            next["inquiryTemplates"] = list;
+            var list = next["inquiryTemplates"] as JsonArray;
+            if (list == null) { list = new JsonArray(); next["inquiryTemplates"] = list; }
             var index = list.ToList().FindIndex(x => x?["id"]?.ToString() == id);
             if (action == "delete")
             {
