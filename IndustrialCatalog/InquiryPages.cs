@@ -52,6 +52,13 @@ public static class InquiryPages
         "kafe" => "Kafe / Pastane", "mutfak" => "Endüstriyel mutfak kurulumu",
         "ozel" => "Özel üretim / Diğer", _ => ""
     };
+    static string ProjectTimelineLabel(string? value) => (value ?? "").Trim().ToLowerInvariant() switch
+    {
+        "belirsiz" => "Henüz belirlenmedi", "hemen" => "En kısa sürede",
+        "1-3ay" => "1–3 ay içinde", "3-6ay" => "3–6 ay içinde",
+        "6ay" => "6 aydan sonra", _ => ""
+    };
+
     static string TopicLabel(string? value) => (value ?? "").Trim().ToLowerInvariant() switch
     {
         "bilgi" => "Bilgi talebi", "oneri" => "Öneri", "sikayet" => "Şikâyet", "diger" => "Diğer", _ => ""
@@ -143,7 +150,7 @@ public static class InquiryPages
             + Field("Proje Türü", ProjectTypeLabel(b["projectType"]?.ToString()))
             + Field("Proje Konumu", b["projectCity"]?.ToString())
             + Field("Proje Ölçüleri", b["projectSize"]?.ToString())
-            + Field("Planlanan Zaman", b["projectTimeline"]?.ToString())
+            + Field("Planlanan Zaman", ProjectTimelineLabel(b["projectTimeline"]?.ToString()))
             + Field("Ürün", b["productName"]?.ToString())
             + Field("Ürün Kodu", b["productCode"]?.ToString())
             + Field("Seri Numarası", b["serialNumber"]?.ToString());
