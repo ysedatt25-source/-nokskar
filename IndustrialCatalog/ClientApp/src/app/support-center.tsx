@@ -51,10 +51,13 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
     finally{setSending(false);}
   };
   return <section className="wrap content-page contact-pro support-center" aria-labelledby="support-title">
-    <div className="support-intro">
-      <span className="support-eyebrow"><ShieldCheck size={15}/> İNOKSKAR DESTEK MERKEZİ</span>
-      <h1 id="support-title">Size nasıl yardımcı olabiliriz?</h1>
-      <p>İhtiyacınızı seçin, size uygun kısa formu doldurun. Talebiniz doğru ekibe ulaşsın.</p>
+    <div className="support-intro-row">
+      <div className="support-intro">
+        <span className="support-eyebrow"><ShieldCheck size={15}/> İNOKSKAR DESTEK MERKEZİ</span>
+        <h1 id="support-title">Size nasıl yardımcı olabiliriz?</h1>
+        <p>İhtiyacınızı seçin, size uygun kısa formu doldurun. Talebiniz doğru ekibe ulaşsın.</p>
+      </div>
+      <a className="support-track-primary" href="/talep-sorgula"><Search size={19}/><span><strong>Talebimi Sorgula</strong><small>Telefon numaranızla takip edin</small></span><ArrowRight size={17}/></a>
     </div>
     <div className="contact-purpose support-purpose" role="group" aria-label="Talep amacı seçin">
       {choices.map(({key,label,detail,Icon})=><button type="button" key={key} className={'support-choice '+(purpose===key?'active':'')} onClick={()=>switchPurpose(key)} aria-pressed={purpose===key}>
@@ -137,7 +140,6 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
           {s.address&&<a href={'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.address)} target="_blank" rel="noreferrer"><MapPin/><span><small>ADRES</small><strong>{s.address}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.hours&&<div><Clock3/><span><small>ÇALIŞMA SAATLERİ</small><strong>{s.hours}</strong></span></div>}
         </div>
-        <a className="support-track" href="/talep-sorgula"><Search size={19}/><span><strong>Mevcut talebinizi takip edin</strong><small>Talep numaranızla sorgulayın</small></span><ArrowRight size={17}/></a>
       </aside>
     </div>
   </section>;
