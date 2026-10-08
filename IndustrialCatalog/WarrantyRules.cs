@@ -53,6 +53,7 @@ public static class WarrantyRules
             if (string.IsNullOrWhiteSpace(productCode)) productCode = string.IsNullOrWhiteSpace(defaultCode) ? productId : defaultCode;
         }
         var businessName = Clean(input["businessName"]?.ToString(), 200, "Teslim edileceği işletme adı gerekli.");
+        var customerName = CleanOptional(input["customerName"]?.ToString() ?? existing?["customerName"]?.ToString(), 120, "Müşteri / yetkili adı");
         var invoiceNumber = CleanOptional(input["invoiceNumber"]?.ToString(), 100, "Fatura numarası");
         var deliveryDocumentNumber = CleanOptional(input["deliveryDocumentNumber"]?.ToString(), 100, "Teslim belgesi numarası");
         var warrantyNote = CleanOptional(input["warrantyNote"]?.ToString(), 1200, "Garanti notu");
@@ -129,6 +130,7 @@ public static class WarrantyRules
             ["productName"] = productName,
             ["productCode"] = productCode,
             ["businessName"] = businessName,
+            ["customerName"] = customerName,
             ["invoiceNumber"] = invoiceNumber,
             ["deliveryDocumentNumber"] = deliveryDocumentNumber,
             ["warrantyNote"] = warrantyNote,
@@ -165,6 +167,7 @@ public static class WarrantyRules
         view.Remove("verificationHint");
         view.Remove("verificationCode");
         view.Remove("businessName");
+        view.Remove("customerName");
         view.Remove("invoiceNumber");
         view.Remove("deliveryDocumentNumber");
         view.Remove("warrantyNote");
@@ -188,6 +191,7 @@ public static class WarrantyRules
             Clean(r["productCode"]?.ToString(), 100, "Garanti kaydındaki ürün kodu geçersiz.");
             var businessName = (r["businessName"]?.ToString() ?? "").Trim();
             if (businessName.Length > 200 || (businessName.Length > 0 && !SafeText.IsMatch(businessName))) throw new ArgumentException("Garanti kaydındaki işletme adı geçersiz.");
+            CleanOptional(r["customerName"]?.ToString(), 120, "Müşteri / yetkili adı");
             CleanOptional(r["invoiceNumber"]?.ToString(), 100, "Fatura numarası");
             CleanOptional(r["deliveryDocumentNumber"]?.ToString(), 100, "Teslim belgesi numarası");
             CleanOptional(r["warrantyNote"]?.ToString(), 1200, "Garanti notu");
