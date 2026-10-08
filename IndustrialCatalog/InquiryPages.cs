@@ -277,7 +277,82 @@ public static class InquiryPages
   .inquiry-wrap .inquiry-summary-item>strong{font-size:.69rem}
   .inquiry-wrap .inquiry-extra-grid{grid-template-columns:1fr}
 }
-</style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-6"><script src="/r13-pages.js?v=r22-2" defer></script></head>
+</style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-6">
+<style>
+/* R22.14: Inquiry detail header only. Place the delete action beside the title,
+   keeping the six information cards immediately below the heading. */
+body[data-ui-page="inquiry"] .inquiry-wrap{
+  margin-top:14px;
+}
+.inquiry-wrap > .inquiry-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  column-gap:14px;
+  row-gap:8px;
+  margin:0 0 13px;
+}
+.inquiry-wrap > .inquiry-head > div{
+  min-width:0;
+}
+.inquiry-wrap > .inquiry-head > div > p{
+  margin:0 0 5px;
+}
+.inquiry-wrap > .inquiry-head > div > h1{
+  margin:0 0 9px;
+  line-height:1.12;
+}
+.inquiry-wrap > .inquiry-head > form{
+  justify-self:end;
+  align-self:center;
+  min-width:0;
+  width:auto;
+  margin:0;
+}
+.inquiry-wrap > .inquiry-head > form > .danger-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  min-height:44px;
+  min-width:78px;
+  width:auto;
+  margin:0;
+  padding:9px 15px;
+  border-radius:11px;
+  font-size:.89rem;
+  line-height:1.2;
+  font-weight:850;
+  white-space:nowrap;
+}
+@media(max-width:620px){
+  body[data-ui-page="inquiry"] .inquiry-wrap{
+    margin-top:10px;
+  }
+  .inquiry-wrap > .inquiry-head{
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    column-gap:10px;
+    row-gap:0;
+    margin-bottom:11px;
+  }
+  .inquiry-wrap > .inquiry-head > div > p{
+    font-size:.7rem;
+    margin-bottom:4px;
+  }
+  .inquiry-wrap > .inquiry-head > div > h1{
+    margin:0 0 8px;
+    font-size:clamp(1.55rem,6vw,2rem);
+    line-height:1.13;
+  }
+  .inquiry-wrap > .inquiry-head > form > .danger-button{
+    min-width:72px;
+    min-height:44px;
+    padding:9px 13px;
+    font-size:.86rem;
+  }
+}
+</style><script src="/r13-pages.js?v=r22-2" defer></script></head>
 <body><header class="inquiry-top private-brand-header"><a class="private-brand-link" href="/" aria-label="İNOKSKAR ana sayfa"><img class="private-brand-image" src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><nav><a href="/admin?tab=inquiries">← Müşteri taleplerine dön</a></nav></header><main class="inquiry-wrap"><section class="inquiry-head"><div><p>YÖNETİM ALANI</p><h1>Talep detayı</h1><span class="inquiry-badge@@BADGE_CLASS@@">@@TYPE@@</span></div><form method="post" action="/admin/inquiries/@@ID@@/delete" onsubmit="return confirm('Bu müşteri talebi kalıcı olarak silinsin mi?')"><button class="danger-button" type="submit">Sil</button></form></section>@@DETAILS_BLOCK@@@@WORKFLOW_PANEL@@@@SERVICE_PANEL@@@@AUDIT_TIMELINE@@</main><script>
 (()=>{const root=document.getElementById('inquiry-customer-workflow');if(!root)return;
 const select=root.querySelector('#icw-preset'),status=root.querySelector('#icw-status'),date=root.querySelector('#icw-callback'),reply=root.querySelector('#icw-reply');
