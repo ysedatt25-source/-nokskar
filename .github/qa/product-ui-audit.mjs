@@ -88,7 +88,7 @@ try{
     await logo.waitFor({state:'visible',timeout:12000});
     const geometry=await logo.evaluate(el=>{
       const b=el.getBoundingClientRect();
-      return {center:b.x+b.width/2,screen:window.innerWidth};
+      const h=el.closest('.site-header,.top')?.getBoundingClientRect();return {center:b.x+b.width/2,screen:window.innerWidth,headerLeft:h?.left,headerWidth:h?.width};
     });
     assert(Math.abs(geometry.center-geometry.screen/2)<=3,
       'Logo is not centered on '+path+': '+JSON.stringify(geometry));

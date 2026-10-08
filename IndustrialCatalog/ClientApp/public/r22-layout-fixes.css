@@ -1817,3 +1817,11 @@ body.warranty-public-body .site-header:not(.r22-site-header){
     top:0;
   }
 }
+
+/* R22.23 — account for the legacy service-header's 4px content offset
+   identified by the real mobile browser geometry check. */
+@media(max-width:1100px){
+  body.warranty-public-body .site-header:not(.r22-site-header) > .brand.brand-image-link{
+    left:calc(50% - 4px);
+  }
+}
