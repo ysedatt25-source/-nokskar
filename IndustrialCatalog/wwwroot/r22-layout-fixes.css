@@ -2826,3 +2826,29 @@ body [data-slot="dialog-content"]{z-index:350}
 body [data-slot="alert-dialog-overlay"]{z-index:370}
 body [data-slot="alert-dialog-content"]{z-index:380}
 body :is([data-slot="select-content"],[data-slot="popover-content"]){z-index:410}
+
+/* R22.30 — cross-device contrast defects surfaced by live browser review. */
+body.app-shell-enabled[data-ui-page="iletisim"] .contact-info{
+  color:#183653;
+}
+body.app-shell-enabled[data-ui-page="iletisim"] .contact-info h2{
+  color:#153653;
+}
+body.app-shell-enabled[data-ui-page="iletisim"] .contact-info > p{
+  color:#49627c;
+}
+body[data-ui-page="product"] :is(.detail,.detail-grid,.product-details,.detail-summary) dt{
+  color:#405a74;
+}
+body[data-ui-page="product"] dt{color:#405a74}
+body :is(.private-app-item,.admin-app-item)[data-app-key="service"].active,
+body :is(.private-app-item,.admin-app-item)[data-app-key="service"][aria-current="page"],
+body .private-app-item[href="/admin/warranties"].active,
+body .admin-app-item[data-admin-dock="prices"].active{
+  color:#8b3d07;
+}
+
+
+body .app-bottom-nav .app-bottom-item[data-app-key="service"].active{
+  color:#8b3d07;
+}

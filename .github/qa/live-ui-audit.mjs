@@ -69,7 +69,13 @@ for(const device of devices){
     const errors=[], failed=[], badResponses=[];
     page.on('console',msg=>{ if(msg.type()==='error') errors.push(msg.text().slice(0,500)); });
     page.on('pageerror',err=>errors.push(String(err).slice(0,500)));
-    page.on('requestfailed',req=>failed.push({url:req.url(),error:req.failure()?.errorText||'failed'}));
+    page.on('requestfailed',req=>{
+      const error=req.failure()?.errorText||'failed';
+      // Optional profile prefill is canceled when the audit navigates/closes
+      // the contact page; this is not a failed user submission.
+      if(error==='net::ERR_ABORTED'&&req.url().includes('/api/customer/profile'))return;
+      failed.push({url:req.url(),error});
+    });
     page.on('response',res=>{ if(res.status()>=400 && !res.url().includes('/api/event')) badResponses.push({url:res.url(),status:res.status()}); });
     let status=0,title='',finalUrl='',navError='';
     try{
