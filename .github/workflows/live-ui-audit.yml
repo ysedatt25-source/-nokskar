@@ -34,6 +34,10 @@ jobs:
             sleep 5
           done
           exit 1
+      - name: Verify product editor and storefront logo in browser
+        env:
+          QA_BASE_URL: https://inokskar-web-preview.up.railway.app
+        run: node .github/qa/product-ui-audit.mjs
       - name: Audit live site at 3 viewports
         env:
           QA_BASE_URL: https://inokskar-web-preview.up.railway.app
