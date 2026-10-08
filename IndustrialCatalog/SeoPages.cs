@@ -18,7 +18,7 @@ public static class SeoPages
 
     public static IEnumerable<string> Paths(JsonObject data)
     {
-        foreach (var path in new[] { "/", "/urunler", "/iletisim", "/hakkimizda", "/garanti-sorgulama", "/servis-talebi", "/talep-sorgula", "/gizlilik", "/kvkk", "/cerez" }) yield return path;
+        foreach (var path in new[] { "/", "/urunler", "/iletisim", "/hakkimizda", "/garanti-sorgulama", "/talep-sorgula", "/gizlilik", "/kvkk", "/cerez" }) yield return path;
         foreach (var (prefix, key) in new[] { ("/urun/", "products"), ("/kategori/", "categories") })
             foreach (var item in data[key]!.AsArray()) yield return prefix + Uri.EscapeDataString(Text(item!["id"]));
     }
@@ -84,7 +84,7 @@ public static class SeoPages
     {
         var settings = data["settings"]!;
         var brand = Text(settings["name"]);
-        var title = path switch { "/urunler" => "Ürün kataloğu", "/iletisim" => "İletişim", "/hakkimizda" => "Hakkımızda", "/garanti-sorgulama" => "Garanti Sorgulama", "/servis-talebi" => "Servis Talebi", "/talep-sorgula" => "Talep Takibi", _ => brand };
+        var title = path switch { "/urunler" => "Ürün kataloğu", "/iletisim" => "İletişim", "/hakkimizda" => "Hakkımızda", "/garanti-sorgulama" => "Garanti Sorgulama", "/talep-sorgula" => "Talep Takibi", _ => brand };
         var description = Text(settings["heroText"]);
         var image = Text(settings["hero"]);
         var content = $"<h1>{E(title)}</h1><p>{E(description)}</p>";
@@ -133,14 +133,6 @@ public static class SeoPages
         if (path == "/hakkimizda") { description = Text(settings["about"]); content = $"<h1>{E(title)}</h1><p>{E(description)}</p>"; }
         if (path == "/iletisim") content += $"<p>{E(Text(settings["phone"]))}</p><p>{E(Text(settings["email"]))}</p><p>{E(Text(settings["address"]))}</p>";
         if (path == "/garanti-sorgulama") { description = "İnokskar ürününüzün garanti durumunu seri numarası ve doğrulama koduyla güvenli şekilde sorgulayın."; content = $"<h1>{E(title)}</h1><p>{E(description)}</p>"; }
-        if (path == "/servis-talebi")
-        {
-            description = "İnokskar ürününüz için çevrimiçi servis talebi oluşturun."; content = $"<h1>{E(title)}</h1><p>{E(description)}</p>";
-            var service = new JsonObject { ["@type"] = "Service", ["name"] = "İnokskar Teknik Servis", ["serviceType"] = "Endüstriyel mutfak ve soğutma teknik servis hizmeti", ["description"] = description };
-            if (origin != null) { service["url"] = origin + path; service["provider"] = new JsonObject { ["@id"] = origin + "/#organization" }; }
-            else service["provider"] = new JsonObject { ["@type"] = "Organization", ["name"] = brand };
-            graph.Add(service); graph.Add(BreadcrumbSchema(new[] { ("Ana sayfa", "/"), ("Servis Talebi", "/servis-talebi") }, origin));
-        }
         if (path == "/talep-sorgula")
         {
             description = "İnokskar destek ve servis taleplerinizin güncel durumunu telefon numaranızla güvenli şekilde takip edin.";
