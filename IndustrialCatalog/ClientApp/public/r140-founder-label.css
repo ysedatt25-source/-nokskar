@@ -1,0 +1,78 @@
+/* INOKSKAR — editable founding-brand inscription. One source of truth: settings.founderLabel*. */
+body.page-home .hero{isolation:isolate}
+body.page-home .hero .hero-founder-label{
+  position:absolute;top:clamp(13px,2.4vw,26px);left:clamp(15px,3.5vw,38px);
+  z-index:5;display:inline-flex;align-items:center;gap:9px;
+  width:max-content;max-width:calc(100% - 30px);min-width:0;
+  padding:9px 13px 9px 11px;box-sizing:border-box;
+  border:1px solid rgba(245,210,147,.39);
+  border-radius:999px;background:linear-gradient(110deg,rgba(7,20,39,.85),rgba(15,36,58,.73));
+  box-shadow:0 8px 24px rgba(3,13,27,.25),inset 0 1px 0 rgba(255,245,215,.09);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  color:#f4d59a;pointer-events:none;
+}
+body.page-home .hero .hero-founder-label-mark{
+  display:block;width:5px;height:5px;flex:0 0 5px;
+  border-radius:50%;background:#f2c77c;
+  box-shadow:0 0 0 3px rgba(241,189,108,.12);
+}
+body.page-home .hero .hero-founder-label-text{
+  display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;line-height:1.25;
+  font-family:"Avenir Next","Montserrat","Segoe UI",Arial,sans-serif;
+  font-size:clamp(8px,1.4vw,12px);font-weight:760;letter-spacing:.09em;
+  text-shadow:0 1px 4px rgba(0,0,0,.24);
+}
+@media(max-width:650px){
+  body.page-home .hero .hero-founder-label{
+    left:clamp(12px,3vw,18px);right:auto;
+    top:clamp(12px,3.5vw,18px);max-width:calc(100% - 24px);
+    gap:7px;padding:8px 10px 8px 9px;border-radius:999px
+  }
+  body.page-home .hero .hero-founder-label-text{
+    font-size:clamp(7.5px,2.1vw,9.7px);letter-spacing:.055em;line-height:1.25
+  }
+  body.page-home .hero .hero-founder-label-mark{width:4px;height:4px;flex-basis:4px}
+}
+@media(max-width:350px){
+  body.page-home .hero .hero-founder-label{padding:7px 8px;gap:5px}
+  body.page-home .hero .hero-founder-label-text{font-size:7.4px;letter-spacing:.02em}
+}
+
+/* Site Ayarları — editable brand label card and faithful live preview. */
+.founder-setting-card{display:grid;gap:14px;min-width:0;max-width:100%;
+  padding:17px;border:1px solid #d4e0ec;border-radius:15px;
+  background:linear-gradient(145deg,#f8faff,#fff);box-shadow:0 5px 16px rgba(20,55,90,.045)}
+.founder-setting-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;min-width:0}
+.founder-setting-head>div{min-width:0;flex:1}
+.founder-setting-eyebrow{font-size:.67rem;font-weight:900;letter-spacing:.12em;color:#a77839}
+.founder-setting-head h3{margin:5px 0;font-size:1.06rem;color:#1b3c5b;line-height:1.3}
+.founder-setting-head p{margin:0;font-size:.81rem;line-height:1.52;color:#647c93}
+.founder-setting-live{flex:0 0 auto;padding:5px 8px;border-radius:8px;
+  background:#eaf1fc;border:1px solid #cdddf1;color:#295e91;font-size:.62rem;font-weight:850;letter-spacing:.04em}
+.founder-setting-card>label{display:grid;gap:7px;min-width:0;color:#264766;font-size:.84rem;font-weight:820}
+.founder-setting-card>label>input{display:block;width:100%;max-width:100%;min-width:0;
+  min-height:45px;padding:10px 12px;border:1px solid #cadbed;border-radius:10px;
+  background:#fff;color:#193c58;font-size:16px;font-weight:550;box-sizing:border-box}
+.founder-setting-card>label>input:focus{outline:2px solid #4688d3;outline-offset:1px}
+.founder-setting-card>label>small{font-size:.72rem;color:#788ca1;line-height:1.5;font-weight:500}
+.founder-setting-preview{display:flex;justify-content:center;align-items:center;min-width:0;
+  min-height:66px;padding:12px 10px;border-radius:12px;
+  background:linear-gradient(130deg,#0d213a,#28445b);border:1px solid #19324e;box-sizing:border-box}
+.founder-setting-preview-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  max-width:100%;min-width:0;padding:8px 11px;border:1px solid rgba(245,210,147,.4);
+  border-radius:999px;background:rgba(3,16,32,.57);color:#f4d59a}
+.founder-setting-preview-mark{width:5px;height:5px;flex:0 0 5px;background:#f2c77c;border-radius:50%}
+.founder-setting-preview-badge>span:last-child{font-family:"Avenir Next","Montserrat","Segoe UI",Arial,sans-serif;
+  min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:clamp(7.6px,1.4vw,10.5px);font-weight:780;letter-spacing:.06em;line-height:1.3}
+.founder-setting-preview-empty{color:#bbc8d5;font-size:.78rem;font-weight:700}
+@media(max-width:650px){
+  .founder-setting-card{padding:12px;gap:12px}
+  .founder-setting-head h3{font-size:.98rem}
+  .founder-setting-head p{font-size:.76rem}
+  .founder-setting-preview{padding:11px 6px}
+  .founder-setting-preview-badge{padding:8px;gap:5px}
+  .founder-setting-preview-badge>span:last-child{font-size:clamp(7px,2vw,9px)}
+}
+@media(prefers-reduced-motion:reduce){body.page-home .hero .hero-founder-label{transition:none}}
