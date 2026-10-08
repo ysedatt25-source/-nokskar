@@ -3308,7 +3308,10 @@ body[data-ui-page^="admin-"] .admin-mobile-logout{display:none;margin:0}
   body.page-home.app-shell-enabled .site-header>.header-actions{width:44px;height:44px}
 }
 
-/* Admin mobile/tablet drawer: same white bottom-sheet language as the customer/public drawer. */
+/* Central mobile management drawer.
+   The nav is reparented into #root (still inside React's event delegation
+   boundary) only while open. Its coordinates are relative to the viewport,
+   never to the header/logo, and it clears the bottom app dock. */
 @media(max-width:1100px){
   body[data-ui-page^="admin-"] .admin-mobile-toggle,
   body[data-ui-page^="admin-"] .admin-mobile-toggle *,
@@ -3318,149 +3321,149 @@ body[data-ui-page^="admin-"] .admin-mobile-logout{display:none;margin:0}
     transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease;
     transform:none;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav{
-    display:block;
+  body.admin-drawer-open .admin-drawer-backdrop{
     position:fixed;
-    z-index:440;
-    top:auto;
-    left:12px;
-    right:12px;
-    bottom:12px;
-    width:auto;
-    max-width:760px;
-    max-height:calc(100dvh - 82px);
-    margin:0 auto;
-    padding:8px 12px 14px;
-    overflow:auto;
+    z-index:700;
+    inset:0;
+    background:rgba(7,18,31,.56);
+    backdrop-filter:blur(4px);
+    pointer-events:auto;
+  }
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer{
+    display:block!important;
+    position:fixed!important;
+    z-index:720!important;
+    box-sizing:border-box;
+    top:auto!important;
+    left:max(10px,env(safe-area-inset-left,0px));
+    right:max(10px,env(safe-area-inset-right,0px));
+    bottom:calc(var(--private-dock-h,70px) + env(safe-area-inset-bottom,0px) + 10px)!important;
+    width:auto!important;
+    max-width:720px;
+    max-height:calc(100dvh - var(--private-dock-h,70px) - env(safe-area-inset-bottom,0px) - 86px)!important;
+    min-height:0;
+    margin:0 auto!important;
+    padding:9px 13px 14px!important;
+    overflow-x:hidden;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
     overscroll-behavior:contain;
     border:1px solid #d7e2ed;
-    border-radius:24px 24px 16px 16px;
+    border-radius:23px 23px 16px 16px;
     background:#fff;
     color:#173553;
-    box-shadow:0 24px 78px rgba(5,18,34,.30);
+    box-shadow:0 24px 78px rgba(5,18,34,.3);
+    transform:none!important;
+    animation:none;
+    isolation:isolate;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav::before{
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer::before{
     content:"";
     display:block;
     width:44px;
     height:5px;
-    margin:1px auto 8px;
+    margin:0 auto 9px;
     border-radius:999px;
     background:#d2dbe5;
   }
-  body[data-ui-page^="admin-"] .admin-menu-sheet-head{
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-menu-sheet-head{
     position:sticky;
-    top:-8px;
-    z-index:20;
+    top:-9px;
+    z-index:2;
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    margin:0 -2px 9px;
-    padding:8px 2px 10px;
+    min-width:0;
+    margin:0 -3px 12px;
+    padding:9px 3px 13px;
     border-bottom:1px solid #e4ebf2;
     background:rgba(255,255,255,.98);
-    backdrop-filter:blur(12px);
   }
-  body[data-ui-page^="admin-"] .admin-menu-sheet-head>div{
-    display:grid;
-    gap:1px;
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-menu-sheet-head>div{display:grid;gap:2px;min-width:0}
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-menu-sheet-head span{color:#bf6921;font-size:.67rem;font-weight:900;letter-spacing:.12em}
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-menu-sheet-head strong{color:#173553;font-size:1.22rem;line-height:1.15}
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-menu-sheet-close{
+    display:grid;place-items:center;flex:0 0 42px;
+    width:42px;min-width:42px;max-width:42px;height:42px;min-height:42px;
+    margin:0;padding:0;
+    border:1px solid #d7e1ec;border-radius:12px;
+    background:#f6f9fc;color:#405b78;
+    box-shadow:none;transform:none;cursor:pointer;
   }
-  body[data-ui-page^="admin-"] .admin-menu-sheet-head span{
-    color:#d76314;
-    font-size:.66rem;
-    font-weight:900;
-    letter-spacing:.12em;
-  }
-  body[data-ui-page^="admin-"] .admin-menu-sheet-head strong{
-    color:#173553;
-    font-size:1.28rem;
-    line-height:1.1;
-  }
-  body[data-ui-page^="admin-"] .admin-menu-sheet-close{
-    display:grid;
-    place-items:center;
-    width:42px;
-    height:42px;
-    min-height:42px;
-    padding:0;
-    border:1px solid #d7e1ec;
-    border-radius:12px;
-    background:#f6f9fc;
-    color:#405b78;
-    box-shadow:none;
-    transform:none;
-  }
-  body[data-ui-page^="admin-"] .admin-menu-sheet-close svg{
-    width:22px;
-    height:22px;
-    transform:none;
-  }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group{
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-menu-sheet-close svg{width:22px;height:22px}
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:7px;
-    margin:0 0 10px;
+    min-width:0;
+    margin:0 0 14px;
+    padding:0;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group-title{
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group-title{
     grid-column:1/-1;
-    margin:3px 2px 1px;
+    margin:3px 2px 2px;
     color:#8a5a21;
-    font-size:.64rem;
+    font-size:.66rem;
     font-weight:900;
     letter-spacing:.11em;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group :is(button,a){
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group :is(button,a){
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:9px;
+    width:100%;
+    min-width:0;
     min-height:46px;
-    padding:8px 10px;
+    margin:0;
+    padding:9px 11px;
     border:1px solid #dce6f1;
     border-left:4px solid #2478df;
     border-radius:11px;
     background:#f8fafc;
     color:#234363;
-    font-size:.76rem;
+    font:inherit;
+    font-size:.77rem;
     font-weight:800;
-    justify-content:flex-start;
-    gap:8px;
+    line-height:1.3;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    text-align:left;
+    text-decoration:none;
+    box-sizing:border-box;
     box-shadow:none;
     transform:none;
+    cursor:pointer;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group:nth-of-type(2) :is(button,a){
-    border-left-color:#f07c24;
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group :is(button,a) svg{
+    flex:0 0 19px;width:19px;height:19px;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group:nth-of-type(3) :is(button,a){
-    border-left-color:#d83d50;
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group:nth-of-type(3) :is(button,a){border-left-color:#f07c24}
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group:nth-of-type(4) :is(button,a){border-left-color:#d83d50}
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group :is(button,a).active{
+    background:#edf4ff;color:#1767d4;border-color:#c7daf5;border-left-color:#1767d4;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group :is(button,a).active{
-    background:#edf4ff;
-    color:#1767d4;
-    border-color:#c7daf5;
-    border-left-color:#1767d4;
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group :is(button,a):focus-visible,
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-menu-sheet-close:focus-visible{
+    outline:3px solid #3488d9;outline-offset:2px;
   }
-  body.admin-drawer-open .admin-drawer-backdrop{
-    z-index:410;
-    background:rgba(7,18,31,.52);
-    backdrop-filter:blur(4px);
-  }
-  body.admin-drawer-open .admin-sidebar{z-index:425}
-  body.admin-drawer-open .admin-sidebar.menu-open>nav{z-index:440}
 }
 @media(max-width:600px){
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav{
-    left:8px;
-    right:8px;
-    bottom:8px;
-    max-height:calc(100dvh - 68px);
-    border-radius:22px 22px 14px 14px;
-    padding:7px 10px 12px;
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer{
+    left:8px;right:8px;
+    bottom:calc(var(--private-dock-h,70px) + env(safe-area-inset-bottom,0px) + 7px)!important;
+    max-height:calc(100dvh - var(--private-dock-h,70px) - env(safe-area-inset-bottom,0px) - 80px)!important;
+    border-radius:20px 20px 13px 13px;
+    padding:8px 10px 12px!important;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group{
-    grid-template-columns:1fr;
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group{
+    grid-template-columns:minmax(0,1fr);
     gap:5px;
+    margin-bottom:12px;
   }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-nav-group :is(button,a){
-    min-height:43px;
-    font-size:.73rem;
+  body[data-ui-page^="admin-"] #root>nav.admin-viewport-drawer .admin-nav-group :is(button,a){
+    min-height:42px;font-size:.74rem;
   }
 }
 
@@ -3610,35 +3613,6 @@ body.r126-auth.login-page .helper{
     margin-top:16px;
     padding-top:13px;
     font-size:.69rem;
-  }
-}
-
-
-/* R18.7 — square admin sheet close control */
-@media(max-width:1100px){
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-menu-sheet-close{
-    flex:0 0 42px;
-    width:42px;
-    min-width:42px;
-    max-width:42px;
-    height:42px;
-    min-height:42px;
-    margin:0 0 0 auto;
-    padding:0;
-    border:1px solid #d7e1ec;
-    border-left:1px solid #d7e1ec;
-    border-radius:12px;
-    background:#f6f9fc;
-    color:#405b78;
-    display:grid;
-    place-items:center;
-    box-shadow:none;
-    transform:none;
-  }
-  body[data-ui-page^="admin-"] .admin-sidebar.menu-open>nav .admin-menu-sheet-close svg{
-    width:22px;
-    height:22px;
-    transform:none;
   }
 }
 
