@@ -167,7 +167,7 @@ app.MapGet("/admin/warranties/{id}/certificate",(string id,HttpContext c,Store s
 app.MapGet("/admin/system",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Content(OperationsPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/mail",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Content(MailSettingsPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/header-brand",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.Settings,"edit")?Results.Content(BrandingPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
-app.MapGet("/admin/inquiries/{id}",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.Content(InquiryPages.NotFound(),"text/html; charset=utf-8",statusCode:404);var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"view"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"view"))return Results.Forbid();inquiry=store.MarkInquiryRead(id,AccessControl.DisplayName(c.User))??inquiry;return Results.Content(InquiryPages.AdminDetail(inquiry,store.AuditForTarget(id)),"text/html; charset=utf-8");}).RequireAuthorization();
+app.MapGet("/admin/inquiries/{id}",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.Content(InquiryPages.NotFound(),"text/html; charset=utf-8",statusCode:404);var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"view"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"view"))return Results.Forbid();inquiry=store.MarkInquiryRead(id,AccessControl.DisplayName(c.User))??inquiry;return Results.Content(InquiryPages.AdminDetail(inquiry,store.AuditForTarget(id),store.InquiryTemplates()),"text/html; charset=utf-8");}).RequireAuthorization();
 app.MapPost("/admin/inquiries/{id}/delete",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound();var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();store.RemoveInquiry(id,AccessControl.DisplayName(c.User),service?"service":"support");return Results.Redirect("/admin?tab=inquiries");}).RequireAuthorization();
 app.MapPost("/admin/inquiries/{id}/service",async(string id,HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();var form=await c.Request.ReadFormAsync();var input=new JsonObject
     {
@@ -175,6 +175,29 @@ app.MapPost("/admin/inquiries/{id}/service",async(string id,HttpContext c,Store 
         ["internalNote"]=form["internalNote"].ToString(),["parts"]=form["parts"].ToString(),["resolution"]=form["resolution"].ToString()
     };
     if(store.UpdateInquiryWorkflow(id,input,AccessControl.DisplayName(c.User))==null)return Results.NotFound();
+    return Results.Redirect("/admin/inquiries/"+Uri.EscapeDataString(id));
+}).RequireAuthorization();
+app.MapPost("/admin/inquiries/{id}/workflow",async(string id,HttpContext c,Store store)=>{
+    var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound();
+    var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();
+    var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);
+    if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();
+    if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();
+    var form=await c.Request.ReadFormAsync();
+    var input=new JsonObject{["status"]=form["status"].ToString(),["callbackAt"]=form["callbackAt"].ToString(),
+        ["publicReply"]=form["publicReply"].ToString(),["internalNote"]=form["internalNote"].ToString()};
+    if(store.UpdateInquiryCustomerWorkflow(id,input,AccessControl.DisplayName(c.User))==null)return Results.NotFound();
+    return Results.Redirect("/admin/inquiries/"+Uri.EscapeDataString(id));
+}).RequireAuthorization();
+app.MapPost("/admin/inquiries/{id}/templates",async(string id,HttpContext c,Store store)=>{
+    var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound();
+    var parsed=JsonNode.Parse(inquiry["data"]?.ToString()??"{}")?.AsObject();
+    var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);
+    if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();
+    if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();
+    var form=await c.Request.ReadFormAsync();
+    store.SaveInquiryTemplate(form["action"].ToString(),form["id"].ToString(),form["title"].ToString(),
+        form["status"].ToString(),form["body"].ToString(),AccessControl.DisplayName(c.User));
     return Results.Redirect("/admin/inquiries/"+Uri.EscapeDataString(id));
 }).RequireAuthorization();
 app.MapGet("/admin",(HttpContext c,IWebHostEnvironment e)=>(AccessControl.Role(c.User) is "Admin" or "SuperAdmin")&&CatalogPermissionGuard.CanOpenAdmin(c.User)?Results.File(Path.Combine(e.WebRootPath,"index.html"),"text/html"):Results.Forbid()).RequireAuthorization();

@@ -35,6 +35,17 @@ public sealed class Store
         root["history"] ??= new JsonArray();
         root["events"] ??= new JsonArray();
         root["inquiries"] ??= new JsonArray();
+        root["inquiryTemplates"] ??= new JsonArray(
+            new JsonObject { ["id"] = "received", ["title"] = "Talebiniz alındı", ["status"] = "review", ["body"] = "Talebiniz alınmıştır. İlgili ekibimiz tarafından incelenmektedir. En kısa sürede bilgilendirme yapılacaktır." },
+            new JsonObject { ["id"] = "reviewing", ["title"] = "Talep inceleniyor", ["status"] = "review", ["body"] = "Talebiniz incelenmeye devam ediyor. Gelişmeler hakkında sizi bilgilendireceğiz." },
+            new JsonObject { ["id"] = "contacted", ["title"] = "Müşteri arandı", ["status"] = "contacted", ["body"] = "{{şimdi}} tarihinde telefonla sizinle iletişime geçildi. İlginiz için teşekkür ederiz." },
+            new JsonObject { ["id"] = "callback", ["title"] = "Belirtilen tarihte aranacak", ["status"] = "callback", ["body"] = "Talebinizle ilgili {{tarih}} tarihinde saat {{saat}}'te sizinle telefonla iletişime geçeceğiz." },
+            new JsonObject { ["id"] = "info", ["title"] = "Ek bilgi / belge gerekli", ["status"] = "answered", ["body"] = "Talebinizi sonuçlandırabilmek için ek bilgi veya belgeye ihtiyacımız bulunmaktadır. Lütfen bizimle iletişime geçiniz." },
+            new JsonObject { ["id"] = "forwarded", ["title"] = "İlgili birime yönlendirildi", ["status"] = "review", ["body"] = "Talebiniz ilgili birime yönlendirilmiştir. İnceleme tamamlandığında tarafınıza bilgi verilecektir." },
+            new JsonObject { ["id"] = "answered", ["title"] = "Talebe cevap verildi", ["status"] = "answered", ["body"] = "Talebiniz hakkında gerekli inceleme yapılmıştır. Detaylı bilgi için bizimle iletişime geçebilirsiniz." },
+            new JsonObject { ["id"] = "resolved", ["title"] = "İşlem tamamlandı", ["status"] = "resolved", ["body"] = "Talebiniz sonuçlandırılmıştır. Bizi tercih ettiğiniz için teşekkür ederiz." }
+        );
+
         root["warranties"] ??= new JsonArray();
         root["warrantyHistory"] ??= new JsonArray();
         root["auditLog"] ??= new JsonArray();
@@ -345,6 +356,94 @@ public sealed class Store
             row["status"] = status;
             row["updated"] = DateTimeOffset.UtcNow.ToString("O");
             AddAudit(next, "Servis talebi güncellendi", id, status, actor);
+            Persist(next);
+            return row.DeepClone().AsObject();
+        }
+    }
+
+
+    public JsonArray InquiryTemplates()
+    {
+        lock (gate) return state["inquiryTemplates"]?.DeepClone().AsArray() ?? new JsonArray();
+    }
+
+    public void SaveInquiryTemplate(string action, string id, string title, string status, string body, string actor)
+    {
+        lock (gate)
+        {
+            var next = state.DeepClone().AsObject();
+            var list = next["inquiryTemplates"]?.AsArray() ?? new JsonArray();
+            next["inquiryTemplates"] = list;
+            var index = list.ToList().FindIndex(x => x?["id"]?.ToString() == id);
+            if (action == "delete")
+            {
+                if (index < 0) throw new ArgumentException("Hazır cevap bulunamadı.");
+                list.RemoveAt(index);
+                AddAudit(next, "Hazır cevap silindi", id, "", actor);
+            }
+            else
+            {
+                title = title.Trim(); body = body.Trim(); status = status.Trim();
+                if (title.Length is < 2 or > 80 || body.Length is < 2 or > 3000)
+                    throw new ArgumentException("Hazır cevap başlığı 2-80, metni 2-3000 karakter olmalıdır.");
+                if (!(new[] { "new", "review", "contacted", "callback", "answered", "resolved", "closed" }).Contains(status))
+                    throw new ArgumentException("Hazır cevap durumu geçersiz.");
+                if (index < 0)
+                {
+                    id = Guid.NewGuid().ToString("N");
+                    list.Add(new JsonObject { ["id"] = id, ["title"] = title, ["status"] = status, ["body"] = body });
+                }
+                else
+                {
+                    var item = list[index]!.AsObject();
+                    item["title"] = title; item["status"] = status; item["body"] = body;
+                }
+                AddAudit(next, "Hazır cevap kaydedildi", id, title, actor);
+            }
+            Persist(next);
+        }
+    }
+
+    public JsonObject? UpdateInquiryCustomerWorkflow(string id, JsonObject input, string actor = "admin")
+    {
+        lock (gate)
+        {
+            var next = state.DeepClone().AsObject();
+            var row = next["inquiries"]!.AsArray().FirstOrDefault(x => x?["id"]?.ToString() == id)?.AsObject();
+            if (row == null) return null;
+            var data = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject();
+            var status = (input["status"]?.ToString() ?? "new").Trim().ToLowerInvariant();
+            if (!(new[] { "new", "review", "contacted", "callback", "answered", "resolved", "closed" }).Contains(status))
+                throw new ArgumentException("Talep süreç durumu geçersiz.");
+            var callback = (input["callbackAt"]?.ToString() ?? "").Trim();
+            if (callback.Length > 0 &&
+                !DateTime.TryParseExact(callback, "yyyy-MM-ddTHH:mm", System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out _))
+                throw new ArgumentException("Arama tarihini ve saatini kontrol edin.");
+            if (status == "callback" && callback.Length == 0)
+                throw new ArgumentException("Aranacak durumu için tarih ve saat seçin.");
+            var reply = (input["publicReply"]?.ToString() ?? "").Trim();
+            var note = (input["internalNote"]?.ToString() ?? "").Trim();
+            if (reply.Length > 3000 || note.Length > 3000)
+                throw new ArgumentException("Yanıt veya iç not 3000 karakteri geçemez.");
+            var previousReply = data["publicReply"]?.ToString() ?? "";
+            var now = DateTimeOffset.UtcNow.ToString("O");
+            data["customerStatus"] = status;
+            data["callbackAt"] = callback;
+            data["publicReply"] = reply;
+            data["workflowInternalNote"] = note;
+            data["customerStatusUpdatedAt"] = now;
+            if (reply.Length > 0 && reply != previousReply)
+            {
+                data["replyHistory"] ??= new JsonArray();
+                var history = data["replyHistory"]!.AsArray();
+                history.Add(new JsonObject { ["created"] = now, ["text"] = reply, ["actor"] = actor });
+                while (history.Count > 30) history.RemoveAt(0);
+            }
+            row["data"] = data.ToJsonString();
+            if (!string.Equals(data["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase)) row["status"] = status;
+            row["updated"] = now;
+            AddAudit(next, "Talep iletişim süreci güncellendi", id, status, actor);
             Persist(next);
             return row.DeepClone().AsObject();
         }

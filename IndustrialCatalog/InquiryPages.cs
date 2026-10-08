@@ -22,6 +22,51 @@ public static class InquiryPages
     }
     static string Option(string value, string label, string current) => $"<option value='{E(value)}'{(string.Equals(value, current, StringComparison.Ordinal) ? " selected" : "")}>{E(label)}</option>";
 
+
+    static string WorkflowLabel(string? value) => (value ?? "new").Trim().ToLowerInvariant() switch
+    {
+        "review" => "İnceleniyor", "contacted" => "Arandı",
+        "callback" => "Aranacak", "answered" => "Cevap verildi",
+        "resolved" => "Çözüldü", "closed" => "Kapatıldı", _ => "Yeni"
+    };
+    static string WorkflowOptions(string current) =>
+        Option("new", "Yeni", current) + Option("review", "İnceleniyor", current) +
+        Option("contacted", "Arandı", current) + Option("callback", "Aranacak", current) +
+        Option("answered", "Cevap verildi", current) + Option("resolved", "Çözüldü", current) +
+        Option("closed", "Kapatıldı", current);
+    static string ReplyHistory(JsonObject data)
+    {
+        var rows = data["replyHistory"] as JsonArray;
+        if (rows == null || rows.Count == 0) return "";
+        var html = rows.OfType<JsonObject>().TakeLast(30).Reverse().Select(row =>
+        {
+            var at = DateTimeOffset.TryParse(row["created"]?.ToString(), out var date) ?
+                date.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : "—";
+            return "<article class='icw-history-item'><div><strong>İnokskar yanıtı</strong><time>" + E(at) + "</time></div><p>" +
+                E(row["text"]?.ToString()) + "</p></article>";
+        });
+        return "<div class='icw-history'><h3>Yayınlanan yanıt geçmişi</h3>" + string.Join("", html) + "</div>";
+    }
+    static string TemplateManagement(JsonArray templates, string id)
+    {
+        var url = "/admin/inquiries/" + Uri.EscapeDataString(id) + "/templates";
+        var list = templates.OfType<JsonObject>().Select(t =>
+            "<form class='icw-template-edit' method='post' action='" + url + "'>" +
+            "<input type='hidden' name='id' value='" + E(t["id"]?.ToString()) + "'>" +
+            "<label>Başlık<input name='title' maxlength='80' required value='" + E(t["title"]?.ToString()) + "'></label>" +
+            "<label>Durum<select name='status'>" + WorkflowOptions(t["status"]?.ToString() ?? "answered") + "</select></label>" +
+            "<label class='icw-template-text'>Hazır cevap metni<textarea name='body' rows='2' maxlength='3000' required>" + E(t["body"]?.ToString()) + "</textarea></label>" +
+            "<div class='icw-template-actions'><button type='submit' name='action' value='save'>Kaydet</button>" +
+            "<button type='submit' name='action' value='delete' formnovalidate onclick='return confirm(&quot;Bu hazır cevap silinsin mi?&quot;)'>Sil</button></div></form>");
+        return "<details class='icw-manager'><summary>Hazır cevapları yönet <span>Yeni ekle · düzenle · sil</span></summary>" +
+            "<div class='icw-manager-content'>" + string.Join("", list) +
+            "<form class='icw-template-edit' method='post' action='" + url + "'>" +
+            "<label>Yeni cevap başlığı<input name='title' maxlength='80' required placeholder='Ör. Ürün kontrolü'></label>" +
+            "<label>Durum<select name='status'>" + WorkflowOptions("answered") + "</select></label>" +
+            "<label class='icw-template-text'>Cevap metni<textarea name='body' rows='2' maxlength='3000' required placeholder='Müşteriye gönderilecek metin'></textarea></label>" +
+            "<div class='icw-template-actions'><button type='submit' name='action' value='save'>Yeni hazır cevap ekle</button></div></form></div></details>";
+    }
+
     static string AuditTimeline(JsonArray? audit)
     {
         if (audit == null || audit.Count == 0) return "<section class='inquiry-card inquiry-audit'><div class='audit-heading'><div><p>İŞLEM GEÇMİŞİ</p><h2>Talep zaman çizelgesi</h2></div></div><div class='audit-empty'>Bu talep için henüz işlem kaydı yok.</div></section>";
@@ -36,7 +81,7 @@ public static class InquiryPages
         return "<section class='inquiry-card inquiry-audit'><div class='audit-heading'><div><p>İŞLEM GEÇMİŞİ</p><h2>Talep zaman çizelgesi</h2></div><span>Son işlemler</span></div><div class='audit-timeline'>" + string.Join("", rows) + "</div></section>";
     }
 
-    public static string AdminDetail(JsonObject inquiry, JsonArray? audit = null)
+    public static string AdminDetail(JsonObject inquiry, JsonArray? audit = null, JsonArray? templates = null)
     {
         var b = Data(inquiry);
         var id = inquiry["id"]?.ToString() ?? "";
@@ -53,6 +98,37 @@ public static class InquiryPages
             + Field("Ürün Kodu", b["productCode"]?.ToString())
             + Field("Seri Numarası", b["serialNumber"]?.ToString())
             + Field(service ? "Arıza / Servis Açıklaması" : "Mesaj", b["message"]?.ToString(), true);
+        var currentStatus = b["customerStatus"]?.ToString() ?? "new";
+        var activeTemplates = templates ?? new JsonArray();
+        var templateOptions = string.Join("", activeTemplates.OfType<JsonObject>().Select(t =>
+            "<option value='" + E(t["id"]?.ToString()) + "' data-status='" + E(t["status"]?.ToString()) +
+            "' data-reply='" + E(t["body"]?.ToString()) + "'>" + E(t["title"]?.ToString()) + "</option>"));
+        var workflowPanel = """
+<section id="inquiry-customer-workflow" class="inquiry-card icw-panel" aria-label="Müşteri iletişim süreci">
+  <div class="icw-head"><div><p>MÜŞTERİ İLETİŞİM SÜRECİ</p><h2>Süreci yönet ve yanıtla</h2></div><span>@@CURRENT_LABEL@@</span></div>
+  <form method="post" action="/admin/inquiries/@@ID@@/workflow" class="icw-form">
+    <div class="icw-grid">
+      <label>Talep durumu<select id="icw-status" name="status">@@STATUS_OPTIONS@@</select></label>
+      <label>Aranacak tarih ve saat<input id="icw-callback" name="callbackAt" type="datetime-local" value="@@CALLBACK@@"></label>
+    </div>
+    <label>Hazır cevap seç <select id="icw-preset"><option value="">Hazır cevap seçiniz…</option>@@PRESETS@@</select></label>
+    <label>Müşterinin göreceği yanıt<textarea id="icw-reply" name="publicReply" maxlength="3000" rows="4" placeholder="Müşterinin telefonla sorguladığında göreceği yanıtı yazın.">@@REPLY@@</textarea><small>Hazır cevap metnini değiştirebilirsiniz. Yanıt yalnız kaydettiğinizde müşteriye görünür.</small></label>
+    <label>Yalnız yönetim için iç not<textarea name="internalNote" maxlength="3000" rows="3" placeholder="Bu not müşteriye gösterilmez.">@@NOTE@@</textarea></label>
+    <div class="icw-footer"><span>“Aranacak” için tarih ve saat zorunludur.</span><button type="submit">Süreci kaydet ve yanıtı yayınla</button></div>
+  </form>
+  @@REPLY_HISTORY@@
+  @@TEMPLATE_MANAGER@@
+</section>
+"""
+            .Replace("@@ID@@", Uri.EscapeDataString(id), StringComparison.Ordinal)
+            .Replace("@@CURRENT_LABEL@@", E(WorkflowLabel(currentStatus)), StringComparison.Ordinal)
+            .Replace("@@STATUS_OPTIONS@@", WorkflowOptions(currentStatus), StringComparison.Ordinal)
+            .Replace("@@CALLBACK@@", E(b["callbackAt"]?.ToString()), StringComparison.Ordinal)
+            .Replace("@@PRESETS@@", templateOptions, StringComparison.Ordinal)
+            .Replace("@@REPLY@@", E(b["publicReply"]?.ToString()), StringComparison.Ordinal)
+            .Replace("@@NOTE@@", E(b["workflowInternalNote"]?.ToString()), StringComparison.Ordinal)
+            .Replace("@@REPLY_HISTORY@@", ReplyHistory(b), StringComparison.Ordinal)
+            .Replace("@@TEMPLATE_MANAGER@@", TemplateManagement(activeTemplates, id), StringComparison.Ordinal);
         var servicePanel = "";
         if (service)
         {
@@ -69,8 +145,53 @@ public static class InquiryPages
                 .Replace("@@RESOLUTION@@", E(b["resolution"]?.ToString()), StringComparison.Ordinal);
         }
         var html = """
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#252b33"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="İNOKSKAR"><title>@@TYPE@@ Detayı | İnokskar</title><link rel="stylesheet" href="/r98-inquiry.css"><link rel="stylesheet" href="/r123-professional.css"><script src="/r123-security.js" defer></script><style>.service-workflow{margin-top:18px}.service-workflow h2{margin-top:0}.service-workflow form{display:grid;gap:14px}.service-workflow label{display:grid;gap:7px;font-weight:700}.service-workflow input,.service-workflow textarea,.service-workflow select{width:100%;padding:11px 12px;border:1px solid #ccd9eb;border-radius:8px;font:inherit;background:#fff}.workflow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.primary-button{justify-self:start;border:0;border-radius:8px;background:#1455c0;color:#fff;padding:11px 16px;font-weight:800}@media(max-width:760px){.workflow-grid{grid-template-columns:1fr}}</style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-6"><script src="/r13-pages.js?v=r22-2" defer></script></head>
-<body><header class="inquiry-top private-brand-header"><a class="private-brand-link" href="/" aria-label="İNOKSKAR ana sayfa"><img class="private-brand-image" src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><nav><a href="/admin?tab=inquiries">← Müşteri taleplerine dön</a></nav></header><main class="inquiry-wrap"><section class="inquiry-head"><div><p>YÖNETİM ALANI</p><h1>Talep detayı</h1><span class="inquiry-badge@@BADGE_CLASS@@">@@TYPE@@</span></div><form method="post" action="/admin/inquiries/@@ID@@/delete" onsubmit="return confirm('Bu müşteri talebi kalıcı olarak silinsin mi?')"><button class="danger-button" type="submit">Sil</button></form></section><section class="inquiry-card"><div class="inquiry-meta"><span>Talep tarihi</span><strong>@@DATE@@</strong></div>@@FIELDS@@</section>@@SERVICE_PANEL@@@@AUDIT_TIMELINE@@</main></body></html>
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#252b33"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="İNOKSKAR"><title>@@TYPE@@ Detayı | İnokskar</title><link rel="stylesheet" href="/r98-inquiry.css"><link rel="stylesheet" href="/r123-professional.css"><script src="/r123-security.js" defer></script><style>.service-workflow{margin-top:18px}.service-workflow h2{margin-top:0}.service-workflow form{display:grid;gap:14px}.service-workflow label{display:grid;gap:7px;font-weight:700}.service-workflow input,.service-workflow textarea,.service-workflow select{width:100%;padding:11px 12px;border:1px solid #ccd9eb;border-radius:8px;font:inherit;background:#fff}.workflow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.primary-button{justify-self:start;border:0;border-radius:8px;background:#1455c0;color:#fff;padding:11px 16px;font-weight:800}@media(max-width:760px){.workflow-grid{grid-template-columns:1fr}}</style>
+<style>
+#inquiry-customer-workflow{margin-top:16px}
+#inquiry-customer-workflow *,#inquiry-customer-workflow *::before,#inquiry-customer-workflow *::after{box-sizing:border-box}
+#inquiry-customer-workflow .icw-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+#inquiry-customer-workflow .icw-head p{margin:0 0 4px;color:#1d67b4;font-size:.7rem;font-weight:850;letter-spacing:.11em}
+#inquiry-customer-workflow .icw-head h2{margin:0;font-size:1.3rem;line-height:1.2;color:#173553}
+#inquiry-customer-workflow .icw-head>span{border-radius:999px;padding:6px 11px;background:#eaf3ff;color:#185b9b;font-size:.75rem;font-weight:800}
+#inquiry-customer-workflow .icw-form{display:grid;gap:13px}
+#inquiry-customer-workflow .icw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#inquiry-customer-workflow label{display:grid;gap:6px;min-width:0;color:#294765;font-size:.87rem;font-weight:750}
+#inquiry-customer-workflow label small{font-size:.75rem;color:#657b91;font-weight:500;line-height:1.5}
+#inquiry-customer-workflow :is(input,select,textarea){width:100%;min-width:0;border:1px solid #cbd9e8;border-radius:10px;background:#fff;padding:10px 12px;color:#163653;font:inherit;font-size:16px;line-height:1.4}
+#inquiry-customer-workflow :is(input,select){min-height:44px}
+#inquiry-customer-workflow textarea{resize:vertical}
+#inquiry-customer-workflow :is(input,select,textarea):focus-visible{outline:2px solid #2a77cc;outline-offset:2px}
+#inquiry-customer-workflow .icw-footer{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+#inquiry-customer-workflow .icw-footer span{font-size:.76rem;color:#667b91}
+#inquiry-customer-workflow button{min-height:42px;padding:9px 16px;border:0;border-radius:10px;background:linear-gradient(135deg,#246ed0,#134b91);color:#fff;font:inherit;font-size:.85rem;font-weight:800;cursor:pointer}
+#inquiry-customer-workflow button:hover{background:linear-gradient(135deg,#3182ea,#185db1)}
+#inquiry-customer-workflow .icw-history{margin-top:20px;padding-top:16px;border-top:1px solid #e2eaf3}
+#inquiry-customer-workflow .icw-history h3{margin:0 0 9px;font-size:1rem}
+#inquiry-customer-workflow .icw-history-item{padding:11px 13px;margin-top:8px;border-left:3px solid #2d74d2;background:#f4f8fd;border-radius:9px}
+#inquiry-customer-workflow .icw-history-item>div{display:flex;justify-content:space-between;gap:10px;font-size:.75rem}
+#inquiry-customer-workflow .icw-history-item time{color:#627c96}
+#inquiry-customer-workflow .icw-history-item p{white-space:pre-wrap;overflow-wrap:anywhere;margin:6px 0 0;line-height:1.5}
+#inquiry-customer-workflow .icw-manager{border-top:1px solid #e3eaf3;margin-top:19px;padding-top:14px}
+#inquiry-customer-workflow .icw-manager summary{cursor:pointer;color:#1e5d9e;font-weight:800}
+#inquiry-customer-workflow .icw-manager summary span{font-size:.73rem;color:#71859a;font-weight:500}
+#inquiry-customer-workflow .icw-manager-content{display:grid;gap:10px;margin-top:13px}
+#inquiry-customer-workflow .icw-template-edit{display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,.6fr);gap:8px;padding:12px;border:1px solid #e1e9f1;border-radius:11px;background:#fafcff}
+#inquiry-customer-workflow .icw-template-edit .icw-template-text{grid-column:1/-1}
+#inquiry-customer-workflow .icw-template-actions{grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+#inquiry-customer-workflow .icw-template-actions button{min-height:36px;font-size:.75rem;padding:7px 11px}
+#inquiry-customer-workflow .icw-template-actions button[value=delete]{background:#fff0f1;border:1px solid #efc9cc;color:#a72f43}
+@media(max-width:680px){#inquiry-customer-workflow{padding:17px 14px}#inquiry-customer-workflow .icw-grid,#inquiry-customer-workflow .icw-template-edit{grid-template-columns:1fr}#inquiry-customer-workflow .icw-head{align-items:flex-start}#inquiry-customer-workflow .icw-footer button{width:100%}#inquiry-customer-workflow .icw-template-actions{justify-content:stretch}#inquiry-customer-workflow .icw-template-actions button{flex:1}}
+</style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-6"><script src="/r13-pages.js?v=r22-2" defer></script></head>
+<body><header class="inquiry-top private-brand-header"><a class="private-brand-link" href="/" aria-label="İNOKSKAR ana sayfa"><img class="private-brand-image" src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><nav><a href="/admin?tab=inquiries">← Müşteri taleplerine dön</a></nav></header><main class="inquiry-wrap"><section class="inquiry-head"><div><p>YÖNETİM ALANI</p><h1>Talep detayı</h1><span class="inquiry-badge@@BADGE_CLASS@@">@@TYPE@@</span></div><form method="post" action="/admin/inquiries/@@ID@@/delete" onsubmit="return confirm('Bu müşteri talebi kalıcı olarak silinsin mi?')"><button class="danger-button" type="submit">Sil</button></form></section><section class="inquiry-card"><div class="inquiry-meta"><span>Talep tarihi</span><strong>@@DATE@@</strong></div>@@FIELDS@@</section>@@WORKFLOW_PANEL@@@@SERVICE_PANEL@@@@AUDIT_TIMELINE@@</main><script>
+(()=>{const root=document.getElementById('inquiry-customer-workflow');if(!root)return;
+const select=root.querySelector('#icw-preset'),status=root.querySelector('#icw-status'),date=root.querySelector('#icw-callback'),reply=root.querySelector('#icw-reply');
+let generated='';
+const localParts=()=>{const v=date.value;if(!v)return {tarih:'[tarih seçiniz]',saat:'[saat seçiniz]'};const p=v.split('T');const d=p[0].split('-');return {tarih:d.length===3?d[2]+'.'+d[1]+'.'+d[0]:'[tarih seçiniz]',saat:p[1]||'[saat seçiniz]'};};
+const fill=()=>{const option=select.selectedOptions[0];if(!option||!option.value)return;const p=localParts(),now=new Date().toLocaleString('tr-TR',{dateStyle:'short',timeStyle:'short'});generated=(option.dataset.reply||'').replaceAll('{{tarih}}',p.tarih).replaceAll('{{saat}}',p.saat).replaceAll('{{şimdi}}',now);reply.value=generated;if(option.dataset.status)status.value=option.dataset.status;};
+select.addEventListener('change',()=>{if(select.value)fill();});
+date.addEventListener('change',()=>{if(select.value&&reply.value===generated)fill();});
+})();
+</script></body></html>
 """;
         return html
             .Replace("@@TYPE@@", E(type), StringComparison.Ordinal)
@@ -78,6 +199,7 @@ public static class InquiryPages
             .Replace("@@ID@@", Uri.EscapeDataString(id), StringComparison.Ordinal)
             .Replace("@@DATE@@", E(DateText(inquiry)), StringComparison.Ordinal)
             .Replace("@@FIELDS@@", fields, StringComparison.Ordinal)
+            .Replace("@@WORKFLOW_PANEL@@", workflowPanel, StringComparison.Ordinal)
             .Replace("@@SERVICE_PANEL@@", servicePanel, StringComparison.Ordinal)
             .Replace("@@AUDIT_TIMELINE@@", AuditTimeline(audit), StringComparison.Ordinal);
     }
