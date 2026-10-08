@@ -82,9 +82,9 @@ try{
 
   const publicContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
   const publicPage=await publicContext.newPage();
-  for(const path of ['/','/urunler','/iletisim','/servis-talebi']){
+  for(const path of ['/','/urunler','/iletisim','/servis-talebi','/garanti-sorgulama','/talep-sorgula']){
     await publicPage.goto(base+path,{waitUntil:'domcontentloaded',timeout:45000});
-    const logo=publicPage.locator('.site-header > .brand.brand-image-link').first();
+    const logo=publicPage.locator(path==='/talep-sorgula'?'.top > a:first-child':'.site-header > .brand.brand-image-link').first();
     await logo.waitFor({state:'visible',timeout:12000});
     const geometry=await logo.evaluate(el=>{
       const b=el.getBoundingClientRect();
@@ -95,7 +95,7 @@ try{
     await publicPage.screenshot({path:out+'/logo-'+(path==='/'?'home':path.slice(1))+'.png',fullPage:false});
   }
   await publicContext.close();
-  console.log(JSON.stringify({result:'PASS',productSaves:saveCount,categoriesTested:true,statusTested:true,seoExpanded:true,mobileEditorContained:true,publicLogosCentered:4,mode:'mocked admin API; no production changes'},null,2));
+  console.log(JSON.stringify({result:'PASS',productSaves:saveCount,categoriesTested:true,statusTested:true,seoExpanded:true,mobileEditorContained:true,publicLogosCentered:6,mode:'mocked admin API; no production changes'},null,2));
 }finally{
   await browser.close();
 }
