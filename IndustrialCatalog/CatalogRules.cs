@@ -23,6 +23,22 @@ public static class CatalogRules
             throw new ArgumentException("Talep bildirimi için geçerli bir e-posta adresi girin.");
         settings["notificationEmail"]=notificationEmail;
         foreach(var m in settings["menu"]!.AsArray())if(string.IsNullOrWhiteSpace(Text(m,"name"))||!Safe(Text(m,"url")))throw new ArgumentException("Menü bağlantısı geçersiz.");
+        d["references"] ??= new JsonArray();
+        var references=d["references"]!.AsArray();
+        if(references.Count>250)throw new ArgumentException("En fazla 250 referans eklenebilir.");
+        var refIds=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach(var item in references)
+        {
+            var r=item?.AsObject()??throw new ArgumentException("Referans kaydı geçersiz.");
+            var id=Text(r,"id");
+            if(!Regex.IsMatch(id,@"^[a-zA-Z0-9_-]+$")||!refIds.Add(id))throw new ArgumentException("Referans kimliği geçersiz.");
+            var logo=Text(r,"logo");
+            if(string.IsNullOrWhiteSpace(logo)||!Safe(logo)||!logo.StartsWith("/uploads/",StringComparison.OrdinalIgnoreCase))throw new ArgumentException("Referans logosu siteye yüklenen geçerli bir görsel olmalıdır.");
+            var phone=Text(r,"phone").Trim();var emailRef=Text(r,"email").Trim();
+            if(phone.Length>50||(phone.Length>0&&!Regex.IsMatch(phone,@"^\+?[\d\s().-]{8,50}$")))throw new ArgumentException("Referans telefon numarası geçersiz.");
+            if(emailRef.Length>254||(emailRef.Length>0&&!System.Net.Mail.MailAddress.TryCreate(emailRef,out _)))throw new ArgumentException("Referans e-postası geçersiz.");
+            r["phone"]=phone;r["email"]=emailRef;r["visible"]?.GetValue<bool>();
+        }
         d.Remove("posts");var cats=d["categories"]!.AsArray();var products=d["products"]!.AsArray();
         foreach(var list in new[]{cats,products})
         {var ids=new HashSet<string>();foreach(var x in list){var id=Text(x,"id");if(!Regex.IsMatch(id,@"^[a-zA-Z0-9_-]+$")||!ids.Add(id))throw new ArgumentException("Kayıt kimliği geçersiz veya tekrarlı.");x!["visible"]!.GetValue<bool>();}}
@@ -44,7 +60,9 @@ public static class CatalogRules
     }
     public static JsonObject Public(JsonObject source)
     {
-        var d=source.DeepClone().AsObject();var publicSettings=d["settings"]!.AsObject();publicSettings.Remove("notificationEmail");var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\\p{L}\\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
+        var d=source.DeepClone().AsObject();
+        d["references"] = new JsonArray((d["references"] as JsonArray??new JsonArray()).Where(x=>x?["visible"]?.GetValue<bool>()==true).Select(x=>x!.DeepClone()).ToArray());
+        var publicSettings=d["settings"]!.AsObject();publicSettings.Remove("notificationEmail");var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\\p{L}\\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
         bool Visible(JsonNode c){var seen=new HashSet<string>();while(true){if(c["visible"]?.GetValue<bool>()!=true||!seen.Add(c["id"]!.ToString()))return false;var parent=c["parent"]!.ToString();if(parent=="")return true;if(!map.TryGetValue(parent,out var next)||next==null)return false;c=next;}}
         var allowed=cats.Where(c=>c!=null&&Visible(c)).Select(c=>c!["id"]!.ToString()).ToHashSet();
         d["categories"]=new JsonArray(cats.Where(c=>allowed.Contains(c!["id"]!.ToString())).Select(c=>c!.DeepClone()).ToArray());
