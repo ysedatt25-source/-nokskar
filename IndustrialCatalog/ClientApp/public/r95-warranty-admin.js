@@ -114,8 +114,8 @@
   }
   function chooseCatalogProduct(product){
     if(!product)return;
-    productSearch.value=(product.name||product.id)+(product.code?' · '+product.code:'');
     renderProductOptions(product.id);
+    productSearch.value=(product.name||product.id)+(product.code?' · '+product.code:'');
     form.elements.productCode.value=product.code||product.id||'';
     hideProductResults();
     productCount.textContent='Seçili ürün: '+(product.name||product.id);
@@ -233,8 +233,19 @@
         if(response.ok&&Array.isArray(data.products))products=data.products;
         else catalogWarning='Katalog ürünleri alınamadı. Elle ürün girebilirsiniz.';
       }else catalogWarning='Katalog bağlantısı kurulamadı. Elle ürün girebilirsiniz.';
-      // The public catalog may still expose items when the warranty-specific
-      // endpoint is unavailable. Preserve admin returned hidden products.
+      // Prefer the full administration catalog when the specialized endpoint
+      // returns no products; the public catalog may intentionally hide records.
+      if(!products.length){
+        try{
+          const response=await request('/api/catalog?admin=1',{cache:'no-store'},15000);
+          const data=await response.json().catch(()=>({}));
+          if(response.ok&&Array.isArray(data?.data?.products)){
+            products=data.data.products.map(p=>({id:p.id,name:p.name,code:p.code}));
+            if(products.length)catalogWarning='';
+          }
+        }catch{}
+      }
+      // Public catalog fallback is read-only and may hide unpublished products.
       if(!products.length){
         try{
           const response=await request('/api/catalog',{cache:'no-store'},15000);
