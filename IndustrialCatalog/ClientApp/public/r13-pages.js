@@ -488,7 +488,7 @@ document.addEventListener('submit',event=>{
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
-/* A single mirror pass on navigation, then every five seconds while visible. */
+/* A single mirror pass when a page opens or the route changes. */
 (()=>{
  const start=()=>{
   const style=document.createElement('style');
@@ -507,11 +507,11 @@ document.addEventListener('submit',event=>{
   };
   const all=()=>{mount();for(const host of hosts)sweep(host);};
   let lastPath=location.pathname+location.search;
-  const observer=new MutationObserver(()=>{mount();const path=location.pathname+location.search;if(path!==lastPath){lastPath=path;all();}});
+  const navigate=()=>{const path=location.pathname+location.search;if(path===lastPath)return;lastPath=path;all();};
+  const observer=new MutationObserver(()=>{mount();navigate();});
   observer.observe(document.body,{childList:true,subtree:true});
-  window.addEventListener('popstate',all);window.addEventListener('inokskar:navigation',all);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)all();});
-  mount();setInterval(()=>{if(!document.hidden)all();},5000);
+  window.addEventListener('popstate',navigate);window.addEventListener('inokskar:navigation',navigate);
+  mount();
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
