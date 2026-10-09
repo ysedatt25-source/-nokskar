@@ -355,3 +355,16 @@ body[data-ui-page="admin-settings"] .settings-save-hint{display:flex;align-items
     border-radius:17px;
   }
 }
+
+/* Keep compact catalog controls within the introduction card on touch layouts. */
+@media(max-width:1100px){
+ body.page-listing .page-intro-row{display:grid;grid-template-columns:minmax(0,1fr) 94px;align-items:center;gap:12px}
+ body.page-listing .page-intro-row>div:first-child{min-width:0}
+ body.page-listing .catalog-intro-actions{min-width:0;align-self:center}
+ body.page-listing .catalog-intro-actions>.catalog-count-pill{display:none}
+ body.page-listing .page-intro .catalog-mobile-toolbar{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;margin:0;width:100%}
+ body.page-listing .page-intro .catalog-mobile-toolbar button{width:100%;min-height:38px;padding:6px 7px;justify-content:center;gap:5px;font-size:.72rem;border-radius:10px}
+ body.page-listing .page-intro .catalog-mobile-toolbar button svg{flex:0 0 16px;width:16px;height:16px}
+ body.page-listing .page-intro .catalog-mobile-toolbar button b{min-width:16px;height:16px;font-size:.6rem}
+ body.page-listing .page-intro .catalog-mobile-toolbar>span{justify-self:center;font-size:.68rem;line-height:1.3;padding-top:2px;white-space:nowrap}
+}
