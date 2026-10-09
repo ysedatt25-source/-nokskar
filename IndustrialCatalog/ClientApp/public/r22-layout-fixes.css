@@ -2847,6 +2847,14 @@ body .app-bottom-nav .app-bottom-item[data-app-key="service"].active{
   }
   body .admin-sidebar .admin-nav-group > a svg{flex:0 0 19px}
   body .admin-sidebar .admin-nav-group > a:hover{background:#303944;color:#fff}
+
+  /* Center wide category panels on the navigation instead of an edge category. */
+  body .site-header.r22-site-header .r22-desktop-nav{position:relative}
+  body .site-header.r22-site-header .r22-desktop-nav .nav-category{position:static}
+  body .site-header.r22-site-header .r22-desktop-nav .nav-dropdown.mega-menu{
+    left:50%;top:calc(100% + 4px);transform:translateX(-50%);
+    width:min(720px,calc(100vw - 40px));max-width:calc(100vw - 40px);
+  }
 }
 
 /* Bound portrait reference images to their thumbnail, keeping controls clear. */
