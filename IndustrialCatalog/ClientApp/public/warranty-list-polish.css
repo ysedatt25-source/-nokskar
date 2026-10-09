@@ -1,0 +1,50 @@
+/* Warranty inventory: scoped layout, including the private mobile menu. */
+body.warranty-list-view{background:#f2f5fa;color:#21364b}
+body.warranty-list-view .warranty-admin-wrap{width:min(1280px,calc(100% - 40px));margin:24px auto 110px;min-width:0}
+body.warranty-list-view .warranty-admin-heading{display:flex;flex-direction:row;align-items:center;gap:24px;padding:24px;border:1px solid #dce5ef;border-radius:18px;background:linear-gradient(120deg,#fff,#f8fbff);box-shadow:0 8px 24px #203b5910;margin-bottom:18px}
+body.warranty-list-view .warranty-admin-heading>div:first-child{min-width:0;flex:1}
+body.warranty-list-view .warranty-admin-heading .eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;color:#ad5718;margin-bottom:7px}
+body.warranty-list-view .warranty-admin-heading h1{font-size:clamp(24px,3vw,32px);line-height:1.18;letter-spacing:-.035em;margin:0 0 9px;color:#203c56}
+body.warranty-list-view .warranty-admin-heading p:not(.eyebrow){font-size:14px;line-height:1.6;color:#607286;max-width:560px}
+body.warranty-list-view .warranty-heading-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;min-width:0;flex:0 1 350px;width:auto}
+body.warranty-list-view .warranty-heading-actions .button{width:100%;min-width:0;min-height:46px;padding:10px 12px;font-size:13px;line-height:1.4;text-align:center;white-space:normal;overflow-wrap:anywhere;border-radius:11px}
+body.warranty-list-view .warranty-list-shell{padding:22px;border-radius:18px;min-width:0;border-color:#dce5ef;box-shadow:0 8px 24px #203b590a}
+body.warranty-list-view .warranty-list-toolbar{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin:0 0 20px;padding:0;border:0;background:transparent;min-width:0}
+body.warranty-list-view .warranty-list-search{display:grid;gap:8px;width:100%;min-width:0;font-size:14px;color:#29435c}
+body.warranty-list-view .warranty-list-search input{width:100%;min-width:0;height:48px;padding:12px 14px;border:1px solid #ccd9e7;border-radius:11px;font-size:16px;font-weight:400;background:#f9fbfe;box-shadow:none}
+body.warranty-list-view .warranty-list-search input::placeholder{color:#7b8998;font-size:14px;font-weight:400}
+body.warranty-list-view .warranty-list-search small{font-size:12px;font-weight:400;line-height:1.5;color:#64768a}
+body.warranty-list-view .warranty-filter-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;min-width:0;gap:10px;overflow:visible;padding:0}
+body.warranty-list-view .warranty-filter{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-width:0;min-height:50px;padding:10px 14px;border-radius:12px;border:1px solid #d8e2ee;background:#f8fafd;color:#344e68;font-size:13px;line-height:1.4;font-weight:700;white-space:normal;text-align:left}
+body.warranty-list-view .warranty-filter::before{content:"";width:7px;height:7px;border-radius:50%;background:#2980dc;flex:0 0 7px}
+body.warranty-list-view .warranty-filter[data-filter=active]::before{background:#16946b}
+body.warranty-list-view .warranty-filter[data-filter=expired]::before{background:#dc5363}
+body.warranty-list-view .warranty-filter strong{display:grid;place-items:center;flex:0 0 auto;min-width:28px;height:28px;padding:0 7px;margin:0 0 0 auto;border-radius:9px;background:#eaf0f7;color:#3b5672;font-size:12px}
+body.warranty-list-view .warranty-filter.active{background:#eaf3ff;border-color:#6da5ed;color:#1354a2;box-shadow:inset 0 0 0 1px #6da5ed}
+body.warranty-list-view .warranty-filter.active strong{background:#1766ca;color:#fff}
+body.warranty-list-view .warranty-filter[data-filter=active].active{background:#edf9f3;border-color:#68b795;color:#126847;box-shadow:inset 0 0 0 1px #68b795}
+body.warranty-list-view .warranty-filter[data-filter=expired].active{background:#fff1f2;border-color:#de919b;color:#a32f40;box-shadow:inset 0 0 0 1px #de919b}
+body.warranty-list-view .warranty-filter:hover{border-color:#8daac9}
+body.warranty-list-view .warranty-empty-large{padding:36px 18px;border:1px dashed #d6e1ec;border-radius:13px;background:#fafcfe;color:#63778c;font-size:14px;line-height:1.6}
+body.warranty-list-view .warranty-list-card-actions{flex-wrap:wrap}
+body.warranty-list-view .warranty-list-card-actions :is(a,button){min-width:0;white-space:normal;overflow-wrap:anywhere;text-align:center}
+body.warranty-list-view .warranty-admin-top.private-brand-header>nav :is(a,button){min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.45;text-align:left;box-sizing:border-box}
+@media(max-width:1100px){
+ body.warranty-list-view .warranty-admin-top.private-brand-header>nav{display:none;max-width:min(640px,calc(100vw - 24px));width:auto;overflow-x:hidden;grid-template-columns:minmax(0,1fr);gap:8px;padding:12px;border-radius:16px}
+ body.warranty-list-view .warranty-admin-top.private-brand-header.menu-open>nav{display:grid}
+ body.warranty-list-view .warranty-admin-top.private-brand-header>nav :is(a,button){display:flex;width:100%;min-height:46px;padding:12px 14px;font-size:14px;justify-content:flex-start;margin:0}
+ body.warranty-list-view .warranty-admin-heading{align-items:stretch;flex-direction:column;gap:16px}
+ body.warranty-list-view .warranty-heading-actions{flex:auto;width:100%;max-width:440px}
+}
+@media(max-width:600px){
+ body.warranty-list-view .warranty-admin-wrap{width:calc(100% - 24px);margin:14px auto 110px}
+ body.warranty-list-view .warranty-admin-heading{padding:18px 16px;border-radius:16px;gap:14px;margin-bottom:14px}
+ body.warranty-list-view .warranty-admin-heading h1{font-size:25px}
+ body.warranty-list-view .warranty-admin-heading p:not(.eyebrow){font-size:13px}
+ body.warranty-list-view .warranty-heading-actions .button{font-size:12px;padding:10px 8px;min-height:46px}
+ body.warranty-list-view .warranty-list-shell{padding:16px;border-radius:16px}
+ body.warranty-list-view .warranty-list-toolbar{gap:16px;margin-bottom:16px}
+ body.warranty-list-view .warranty-filter-group{grid-template-columns:minmax(0,1fr);gap:8px}
+ body.warranty-list-view .warranty-filter{min-height:44px;padding:9px 12px}
+ body.warranty-list-view .warranty-empty-large{padding:28px 14px;font-size:13px}
+}
