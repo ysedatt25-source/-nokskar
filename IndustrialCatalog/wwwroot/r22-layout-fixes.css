@@ -2905,3 +2905,8 @@ body.page-home .featured .product-photo-wrap .gallery-arrow.next{right:10px;left
   body[data-ui-page="admin-prices"] .table-box td:nth-child(7)::before{content:"Durum"}
   body[data-ui-page="admin-prices"] .table-box td:nth-child(8)::before{content:"İşlem"}
 }
+
+@media(max-width:1100px){
+  body.warranty-public-body .site-header{width:100%;max-width:100%;box-sizing:border-box}
+  body .content-page.references-public{min-height:0}
+}
