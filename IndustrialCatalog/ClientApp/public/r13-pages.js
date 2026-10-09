@@ -487,3 +487,31 @@ document.addEventListener('submit',event=>{
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+
+/* A single mirror pass on navigation, then every five seconds while visible. */
+(()=>{
+ const start=()=>{
+  const style=document.createElement('style');
+  style.textContent=`.logo-mirror-host{isolation:isolate;overflow:hidden}.logo-mirror-pass{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden;border-radius:inherit}.logo-mirror-pass::after{content:"";position:absolute;top:-20%;left:-45%;width:30%;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg) translateX(0);opacity:0}.logo-mirror-active .logo-mirror-pass::after{animation:logo-mirror-sweep .85s ease-out both}@keyframes logo-mirror-sweep{0%{transform:skewX(-20deg) translateX(0);opacity:0}12%{opacity:1}85%{opacity:1}100%{transform:skewX(-20deg) translateX(550%);opacity:0}}@media(prefers-reduced-motion:reduce){.logo-mirror-pass{display:none}}`;
+  document.head.append(style);
+  const selector='.site-header .brand img,.private-brand-link img,.admin-brand img,.admin-sidebar>a img,.r126-auth .brand img,.r126-auth .mobile-brand img,.shell>a img,.account-brand img';
+  const hosts=new Set();
+  const sweep=host=>{host.classList.remove('logo-mirror-active');void host.offsetWidth;host.classList.add('logo-mirror-active');};
+  const mount=()=>{
+   for(const img of document.querySelectorAll(selector)){
+    const host=img.parentElement;if(hosts.has(host))continue;
+    host.classList.add('logo-mirror-host');if(getComputedStyle(host).position==='static')host.style.position='relative';
+    const overlay=document.createElement('span');overlay.className='logo-mirror-pass';overlay.setAttribute('aria-hidden','true');host.append(overlay);hosts.add(host);sweep(host);
+   }
+   for(const host of hosts)if(!host.isConnected)hosts.delete(host);
+  };
+  const all=()=>{mount();for(const host of hosts)sweep(host);};
+  let lastPath=location.pathname+location.search;
+  const observer=new MutationObserver(()=>{mount();const path=location.pathname+location.search;if(path!==lastPath){lastPath=path;all();}});
+  observer.observe(document.body,{childList:true,subtree:true});
+  window.addEventListener('popstate',all);window.addEventListener('inokskar:navigation',all);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)all();});
+  mount();setInterval(()=>{if(!document.hidden)all();},5000);
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
