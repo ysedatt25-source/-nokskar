@@ -36,6 +36,13 @@ public sealed class LogoNavigationMiddleware
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     html = headEnd >= 0 ? html.Insert(headEnd, script) : html + script;
                 }
+                // Some legacy server pages omit the shared layout stylesheet.
+                if (!html.Contains("/r22-layout-fixes.css", StringComparison.Ordinal))
+                {
+                    const string style = "<link rel=\"stylesheet\" href=\"/r22-layout-fixes.css?v=responsive-audit-1\">";
+                    var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
+                    if (headEnd >= 0) html = html.Insert(headEnd, style);
+                }
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;
                 context.Response.Body = original;
