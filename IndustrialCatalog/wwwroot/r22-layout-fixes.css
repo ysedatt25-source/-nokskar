@@ -849,41 +849,12 @@ body[data-ui-page="admin-security"] .security-password-form input{
   min-width:0;
   max-width:100%;
 }
-body[data-ui-page="admin-security"] .security-password-feedback{
-  display:grid;
-  gap:4px;
-  margin:1px 0 0;
-  padding:12px 14px;
-  border-radius:11px;
-  border:1px solid #cbd9e8;
-  background:#f0f5fb;
-  color:#294e70;
-  line-height:1.45;
-  overflow-wrap:anywhere;
-}
-body[data-ui-page="admin-security"] .security-password-feedback strong{
-  font-size:.88rem;
-}
-body[data-ui-page="admin-security"] .security-password-feedback span{
-  font-size:.82rem;
-}
-body[data-ui-page="admin-security"] .security-password-feedback.error{
-  border-color:#e8b8c0;
-  background:#fff1f2;
-  color:#972b3c;
-}
-body[data-ui-page="admin-security"] .security-password-feedback.success{
-  border-color:#abd7bc;
-  background:#eaf8ef;
-  color:#17613d;
-}
-body[data-ui-page="admin-security"] .toast-stack{
-  top:auto;
-  bottom:calc(90px + env(safe-area-inset-bottom,0px));
-  z-index:270;
-  max-height:calc(100dvh - 140px);
-  overflow-y:auto;
-}
+
+
+
+
+
+
 @media(max-width:1100px){
   body[data-ui-page="admin-security"] .admin-main{
     padding-bottom:calc(135px + env(safe-area-inset-bottom,0px));
@@ -903,11 +874,7 @@ body[data-ui-page="admin-security"] .toast-stack{
     margin:0 0 4px;
     line-height:1.25;
   }
-  body[data-ui-page="admin-security"] .toast-stack{
-    left:12px;
-    right:12px;
-    width:auto;
-  }
+  
 }
 @media(max-width:600px){
   body[data-ui-page="admin-security"] .security-grid > .admin-box{
@@ -2605,28 +2572,11 @@ body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) :
 body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) :is(.product-primary-actions,.product-bulk-panel,.product-item-card) button:focus-visible{
   outline:2px solid #337fda;outline-offset:2px;
 }
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback{
-  display:grid;grid-template-columns:27px minmax(0,1fr) 27px;gap:8px;align-items:center;
-  padding:10px 12px;margin:0 0 10px;
-  background:#f0f7ff;border:1px solid #caddec;border-left:3px solid #2c71b8;
-  border-radius:11px;color:#28547d;
-  box-shadow:0 3px 12px rgba(13,54,105,.055);
-  font-size:.78rem;font-weight:700;line-height:1.45;overflow-wrap:anywhere;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback.success{
-  background:#eaf8ef;color:#17643e;border-color:#bce2c8;border-left-color:#26844b;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback.error{
-  background:#fff0f2;color:#973146;border-color:#efc4cd;border-left-color:#be3952;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback-icon{
-  display:flex;align-items:center;justify-content:center;
-  height:26px;width:26px;border-radius:50%;background:rgba(55,122,189,.12);font-weight:850;
-}
-body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) .product-action-feedback button{
-  width:26px;height:26px;min-height:26px;border:0;
-  background:transparent;color:inherit;font-size:1.2rem;cursor:pointer;
-}
+
+
+
+
+
 @media(prefers-reduced-motion:reduce){
   body:is([data-ui-page="admin-products"],:has(.admin-shell .product-card-list)) :is(.product-primary-actions,.product-bulk-panel,.product-item-card) button{transition:none}
 }
@@ -2851,4 +2801,107 @@ body .admin-app-item[data-admin-dock="prices"].active{
 
 body .app-bottom-nav .app-bottom-item[data-app-key="service"].active{
   color:#8b3d07;
+}
+
+/* Live desktop review: reserve action widths without changing the public theme. */
+@media(min-width:1101px){
+  body .site-header.r22-site-header .header-actions.r22-header-actions{width:100%;gap:10px}
+  body .site-header.r22-site-header .header-search{flex:1 1 160px;min-width:100px;width:auto}
+  body .site-header.r22-site-header .header-util-links,
+  body .site-header.r22-site-header .header-cta{flex:0 0 auto}
+  body.page-home .hero .hero-founder-label{top:10px}
+
+  /* Drawer headings belong to the small-screen menu, not the desktop navigation. */
+  body .site-header .mobile-menu-sheet-head,
+  body .admin-sidebar .admin-menu-sheet-head{display:none}
+  body.warranty-public-body .site-header:not(.r22-site-header){
+    width:100%;max-width:100%;display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(180px,250px) minmax(0,1fr);
+    grid-template-rows:44px auto;gap:0;padding:6px 20px 0;align-items:center;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) > .brand.brand-image-link{
+    position:static;transform:none;grid-column:2;grid-row:1;
+    width:100%;max-width:250px;height:44px;margin:0;padding:0;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) .header-brand-image{
+    width:auto;height:42px;max-height:42px;max-width:100%;object-fit:contain;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) > .header-actions{
+    grid-column:3;grid-row:1;width:100%;min-width:0;margin:0;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) .header-search{
+    flex:1 1 160px;min-width:100px;width:auto;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) > .main-nav{
+    grid-column:1/-1;grid-row:2;position:static;display:flex;
+    align-items:center;justify-content:center;flex-wrap:wrap;margin:0;
+  }
+
+  /* A fixed sidebar remains reachable when the document's long forms scroll. */
+  body .admin-shell > .admin-sidebar{position:fixed;top:0;left:0;height:100dvh;width:250px}
+  body .admin-shell > .admin-main{margin-left:250px}
+  body .admin-sidebar .admin-nav-group > a{
+    display:flex;align-items:center;gap:12px;min-height:48px;
+    padding:12px 13px;border-radius:8px;text-decoration:none;
+    color:#c6d8f3;font-size:.9375rem;
+  }
+  body .admin-sidebar .admin-nav-group > a svg{flex:0 0 19px}
+  body .admin-sidebar .admin-nav-group > a:hover{background:#303944;color:#fff}
+
+  /* Center wide category panels on the navigation instead of an edge category. */
+  body .site-header.r22-site-header .r22-desktop-nav{position:relative}
+  body .site-header.r22-site-header .r22-desktop-nav .nav-category{position:static}
+  body .site-header.r22-site-header .r22-desktop-nav .nav-dropdown.mega-menu{
+    left:50%;top:calc(100% + 4px);transform:translateX(-50%);
+    width:min(720px,calc(100vw - 40px));max-width:calc(100vw - 40px);
+  }
+}
+
+/* Bound portrait reference images to their thumbnail, keeping controls clear. */
+body .reference-admin-image{overflow:hidden;min-width:0;min-height:0}
+body .reference-admin-image img{display:block;width:100%;height:100%;min-width:0;min-height:0;object-fit:contain}
+
+/* Home button decoration must not move carousel controls into the product copy. */
+body.page-home .featured .product-photo-wrap .gallery-arrow{position:absolute;top:50%;transform:translateY(-50%)}
+body.page-home .featured .product-photo-wrap .gallery-arrow.prev{left:10px;right:auto}
+body.page-home .featured .product-photo-wrap .gallery-arrow.next{right:10px;left:auto}
+
+/* Responsive review: keep private menus in the viewport rather than the header grid. */
+@media(max-width:1100px){
+  body .private-brand-header:not(.site-header)>nav{
+    display:none;
+    position:fixed;
+    top:auto;
+    left:10px;
+    right:10px;
+    bottom:calc(var(--private-dock-h,66px) + env(safe-area-inset-bottom,0px) + 8px);
+    width:auto;
+    margin:0 auto;
+    max-width:760px;
+    max-height:calc(100dvh - var(--private-dock-h,66px) - 90px);
+    overflow:auto;
+    z-index:440;
+  }
+  body .private-brand-header:not(.site-header).menu-open>nav{display:grid}
+  body[data-ui-page^="admin-"] [data-slot="dialog-content"]>[data-slot="dialog-close"]{
+    order:-1;
+    justify-self:end;
+    float:none;
+    margin:0 0 -42px;
+    right:0;
+    top:0;
+    width:42px;
+    height:42px;
+    min-height:42px;
+  }
+  body[data-ui-page^="admin-"] [data-slot="dialog-content"]>[data-slot="dialog-header"]{padding-right:48px;text-align:left}
+  body[data-ui-page^="admin-"] .admin-shell button[role="checkbox"],
+  body[data-ui-page^="admin-"] [data-slot="dialog-content"] button[role="checkbox"]{
+    width:20px;height:20px;min-width:20px;min-height:20px;padding:0;flex:none;
+  }
+}
+@media(max-width:600px){
+  body[data-ui-page="admin-prices"] .table-box td:nth-child(6)::before{content:"KDV"}
+  body[data-ui-page="admin-prices"] .table-box td:nth-child(7)::before{content:"Durum"}
+  body[data-ui-page="admin-prices"] .table-box td:nth-child(8)::before{content:"İşlem"}
 }
