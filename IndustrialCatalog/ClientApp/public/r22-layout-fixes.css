@@ -2923,3 +2923,15 @@ body.page-home .featured .product-photo-wrap .gallery-arrow.next{right:10px;left
 body.page-home .hero.hero-media-only{height:550px;min-height:550px}
 body.page-home .hero.hero-media-only::before,body.page-home .hero.hero-media-only::after{display:none!important}
 @media(max-width:850px){body.page-home .hero.hero-media-only{height:clamp(320px,95vw,520px);min-height:0}}
+
+/* Keep the image clear; the translucent backing follows the headline only. */
+body.page-home .hero::before,body.page-home .hero::after{display:none!important}
+body.page-home .hero .hero-visual{inset:0!important;width:100%!important;height:100%!important;max-height:none!important;background:transparent!important}
+body.page-home .hero .hero-image{width:100%!important;height:100%!important;max-height:none!important;opacity:1!important;object-fit:cover}
+body.page-home .hero .hero-content{width:fit-content!important;max-width:calc(100% - 48px)!important;min-height:0!important;height:auto!important;padding:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important}
+body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;max-width:min(14ch,100%);padding:12px 16px;border-radius:12px;background:rgba(5,20,37,.54);overflow-wrap:anywhere}
+@media(max-width:850px){
+ body.page-home .hero,body.page-home .hero.hero-media-only{height:clamp(320px,83vw,460px)!important;min-height:0!important;max-height:none!important;padding:0!important}
+ body.page-home .hero .hero-content{position:absolute!important;left:24px!important;right:auto!important;top:auto!important;bottom:16px!important;margin:0!important}
+ body.page-home .hero .hero-content h1{max-width:min(12ch,100%);padding:10px 12px}
+}
