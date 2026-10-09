@@ -11,6 +11,9 @@ public static class CatalogRules
         var settings=d["settings"]?.AsObject() ?? throw new ArgumentException("Ayarlar gerekli.");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
         settings["notificationEmail"] ??= "";
+        settings["heroHeading"] ??= "Endüstriyel\nMutfaklarda";
+        settings["heroAccent"] ??= "Güçlü Partneriniz";
+        foreach(var key in new[]{"heroHeading","heroAccent"})if(Text(settings,key).Length>160)throw new ArgumentException("Ana sayfa başlığı en fazla 160 karakter olabilir.");
         settings["founderLabelText"] ??= "BİR YİĞİTKAR DEKOR KURULUŞUDUR";
         settings["founderLabelVisible"] ??= true;
         foreach(var key in new[]{"name","tagline","heroTitle","heroText","hero","headerImage","founderLabelText","phone","whatsapp","email","notificationEmail","address","hours","social","waMessage","lastRate","rateSource","rateDate","about"}) Text(settings,key);

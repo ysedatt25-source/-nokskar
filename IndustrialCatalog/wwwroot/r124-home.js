@@ -28,7 +28,12 @@
   function retitleHero(hero){
     const h1 = hero.querySelector('h1');
     if(h1){
-      h1.innerHTML='Endüstriyel<br>Mutfaklarda<br><em>Güçlü Partneriniz</em>';
+      // Keep the founder label exactly the same color as the visible accent headline.
+      const founderLabel=hero.querySelector('.hero-founder-label');
+      const headlineAccent=h1.querySelector('em');
+      if(founderLabel&&headlineAccent){
+        founderLabel.style.color=window.getComputedStyle(headlineAccent).color;
+      }
     }
     const p = hero.querySelector('p');
     if(p){
@@ -116,10 +121,10 @@
     if(!isHome){document.querySelectorAll('.cta-banner').forEach(x=>x.remove());document.body.dataset.r124Home='';return;}
     const header = document.querySelector('.site-header');
     const hero = document.querySelector('.hero');
-    if(!header||!hero||document.body.dataset.r124Home==='1')return;
+    if(!header||document.body.dataset.r124Home==='1')return;
     const headerActions = document.querySelector('.header-actions');
     buildUtilityLinks(headerActions);
-    retitleHero(hero);
+    if(hero)retitleHero(hero);
     adjustSectionTitles();
     addHomeCta(document.querySelector('main'));
     document.body.dataset.r124Home='1';
