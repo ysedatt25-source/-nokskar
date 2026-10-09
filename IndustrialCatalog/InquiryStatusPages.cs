@@ -100,23 +100,47 @@ public static class InquiryStatusPages
   .top>a:first-child img{height:41px;max-height:41px}
   .top>a:last-child{min-height:37px;padding:0 9px;font-size:.72rem}
 }
+
+/* Refined customer request tracking layout. */
+.wrap{width:min(680px,calc(100% - 40px));margin:34px auto 50px}
+.hero{display:block;overflow:hidden;border:1px solid #dce6ef;border-radius:22px;background:#fff;box-shadow:0 16px 44px #1535520b}
+.intro,.query-card{border:0;border-radius:0;box-shadow:none}
+.intro{padding:28px 30px 22px;background:linear-gradient(135deg,#f2f8ff,#fff 82%);border-bottom:1px solid #e4edf5}
+.intro .eyebrow{color:#216aaa;font-size:.68rem;letter-spacing:.12em;margin-bottom:9px}
+.intro h1{font-size:clamp(1.65rem,4.8vw,2.15rem);line-height:1.18;letter-spacing:-.035em;margin-bottom:10px;max-width:22ch}
+.intro p{font-size:.91rem;line-height:1.65;max-width:49ch}
+.query-card{padding:25px 30px 28px;gap:17px}
+.query-card label{font-size:.86rem;gap:9px;color:#26455f}
+.query-card small{font-size:.75rem;font-weight:500;line-height:1.5}
+.phone-shell{min-height:54px;border-radius:12px;background:#f8fafc;grid-template-columns:42px minmax(0,1fr)}
+.phone-shell input{height:52px;font-size:1rem;letter-spacing:.025em}
+.phone-shell input::placeholder{color:#8394a3;font-weight:500}
+.phone-format{margin:-5px 0 0;color:#60758a;font-size:.74rem;line-height:1.55}
+.phone-format strong{font-weight:700;color:#395b79}
+.query-card button{min-height:50px;font-size:.9rem;cursor:pointer;border-radius:12px;box-shadow:0 6px 16px #1767d426;transition:background .18s,box-shadow .18s}
+.query-card button:hover:not(:disabled){background:linear-gradient(180deg,#2477da,#125bbf);box-shadow:0 8px 20px #1767d430}
+.query-card button:focus-visible,.actions a:focus-visible{outline:3px solid #87b9f2;outline-offset:3px}
+.actions,.actions:has(.new-support-action){display:flex;justify-content:center;margin-top:18px}
+.actions .new-support-action{width:auto;min-height:44px;padding:0 17px;font-size:.78rem;border-radius:11px;box-shadow:none}
+.privacy{max-width:55ch;margin:15px auto 0;text-align:center;font-size:.7rem;line-height:1.6;color:#6a7d8e}
+@media(max-width:760px){.wrap{width:calc(100% - 24px);margin:18px auto 30px}.hero{border-radius:18px}.intro{padding:21px 20px 18px}.intro h1{font-size:1.65rem}.intro p{font-size:.85rem;line-height:1.6}.query-card{padding:20px;gap:16px}.phone-format{font-size:.72rem}.actions .new-support-action{width:100%;max-width:320px}.privacy{padding:0 9px 12px}}
 </style>
 </head>
 <body>
 <header class="top"><a href="/" aria-label="Ana sayfa" style="padding:0;border:0;background:transparent"><img src="/inokskar-header-brand.png" alt="İNOKSKAR"></a><a href="/">Ana sayfa</a></header>
 <main class="wrap">
 <section class="hero">
-<div class="intro"><p class="eyebrow">TALEP TAKİBİ</p><h1>Talebiniz hangi aşamada?</h1><p>Destek veya servis talebinde kullandığınız telefon numarasını girin. Türkiye numaralarında <strong>+90</strong>, <strong>0</strong> veya doğrudan <strong>5xx…</strong> biçimlerinin tamamı kabul edilir.</p></div>
+<div class="intro"><p class="eyebrow">TALEP TAKİBİ</p><h1>Talep durumunuzu takip edin</h1><p>Talebinizin güncel durumunu, planlanan işlemleri ve ekibimizin yanıtlarını görüntüleyin.</p></div>
 <form id="inquiry-status-form" class="query-card" novalidate>
-<label>Talep oluştururken kullandığınız telefon<div class="phone-shell"><span>☎</span><input id="status-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="542 000 00 00" required></div><small>Örnek: 5420000000 · 05420000000 · +905420000000</small></label>
-<div class="helper"><span>+90 ile</span><span>0 ile</span><span>Kodsuz</span></div>
+<label for="status-phone">Telefon numaranız<div class="phone-shell"><span aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 1.9z"/></svg></span><input id="status-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="05xx xxx xx xx" aria-describedby="phone-help phone-format" required></div><small id="phone-help">Talep oluştururken kullandığınız numarayı girin.</small></label>
+<p id="phone-format" class="phone-format">Numaranızı <strong>+90</strong>, <strong>0</strong> ile veya doğrudan <strong>5xx</strong> şeklinde yazabilirsiniz.</p>
 <button id="status-submit" type="submit">Talep durumunu sorgula</button>
 </form>
 </section>
 <div id="status-message" class="message" hidden></div>
 <section id="status-results" class="results" aria-live="polite"></section>
 <div class="actions"><a href="/iletisim" class="new-support-action">Yeni destek talebi oluştur <span aria-hidden="true">→</span></a></div>
-<p class="privacy">Gizliliğiniz için bu ekranda yalnız talep numarası, talep türü, güncel durum, planlanan arama, servis planı ve tarafınıza yayınlanan yanıtlar gösterilir. İç yönetim notları gösterilmez.</p>
+<p class="privacy">Bu ekranda yalnızca talep durumunuz ve size iletilen yanıtlar gösterilir. Bilgileriniz gizli tutulur.</p>
 </main>
 <script>
 (()=>{
