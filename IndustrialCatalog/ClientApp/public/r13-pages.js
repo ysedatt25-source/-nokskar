@@ -487,31 +487,3 @@ document.addEventListener('submit',event=>{
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
-
-/* A single mirror pass when a page opens or the route changes. */
-(()=>{
- const start=()=>{
-  const style=document.createElement('style');
-  style.textContent=`.logo-mirror-host{isolation:isolate;overflow:hidden}.logo-mirror-host::after{content:"";position:absolute;pointer-events:none;z-index:9;top:-20%;left:-45%;width:30%;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg) translateX(0);opacity:0}.logo-mirror-host.logo-mirror-active::after{animation:logo-mirror-sweep .85s ease-out both}@keyframes logo-mirror-sweep{0%{transform:skewX(-20deg) translateX(0);opacity:0}12%{opacity:1}85%{opacity:1}100%{transform:skewX(-20deg) translateX(550%);opacity:0}}@media(prefers-reduced-motion:reduce){.logo-mirror-host::after{display:none}}`;
-  document.head.append(style);
-  const selector='.site-header .brand img,.private-brand-link img,.admin-brand img,.admin-sidebar>a img,.r126-auth .brand img,.r126-auth .mobile-brand img,.shell>a img,.account-brand img';
-  const hosts=new Set();
-  const sweep=host=>{host.classList.remove('logo-mirror-active');void host.offsetWidth;host.classList.add('logo-mirror-active');};
-  const mount=()=>{
-   for(const img of document.querySelectorAll(selector)){
-    const host=img.parentElement;if(hosts.has(host))continue;
-    host.classList.add('logo-mirror-host');if(getComputedStyle(host).position==='static')host.style.position='relative';
-    hosts.add(host);sweep(host);
-   }
-   for(const host of hosts)if(!host.isConnected)hosts.delete(host);
-  };
-  const all=()=>{mount();for(const host of hosts)sweep(host);};
-  let lastPath=location.pathname+location.search;
-  const navigate=()=>{const path=location.pathname+location.search;if(path===lastPath)return;lastPath=path;all();};
-  const observer=new MutationObserver(()=>{mount();navigate();});
-  observer.observe(document.body,{childList:true,subtree:true});
-  window.addEventListener('popstate',navigate);window.addEventListener('inokskar:navigation',navigate);
-  mount();
- };
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
