@@ -76,3 +76,6 @@ body.page-home .hero .hero-founder-label-text{
   .founder-setting-preview-badge>span:last-child{font-size:clamp(8.4px,2.1vw,10.2px)}
 }
 @media(prefers-reduced-motion:reduce){body.page-home .hero .hero-founder-label{transition:none}}
+
+/* Keep the desktop inscription clear of the hero's existing introductory line. */
+@media(min-width:1101px){body.page-home .hero .hero-founder-label{top:10px}}
