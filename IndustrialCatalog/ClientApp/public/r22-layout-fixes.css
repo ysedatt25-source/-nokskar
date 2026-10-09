@@ -2918,3 +2918,8 @@ body.page-home .featured .product-photo-wrap .gallery-arrow.next{right:10px;left
  body.warranty-admin-body .warranty-admin-heading h1{text-align:left}
  body.warranty-admin-body .warranty-heading-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
 }
+
+/* Empty headline keeps the hero media and removes its text backdrop. */
+body.page-home .hero.hero-media-only{height:550px;min-height:550px}
+body.page-home .hero.hero-media-only::before,body.page-home .hero.hero-media-only::after{display:none!important}
+@media(max-width:850px){body.page-home .hero.hero-media-only{height:clamp(320px,95vw,520px);min-height:0}}
