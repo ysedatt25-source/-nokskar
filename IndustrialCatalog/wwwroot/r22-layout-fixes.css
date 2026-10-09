@@ -2910,3 +2910,11 @@ body.page-home .featured .product-photo-wrap .gallery-arrow.next{right:10px;left
   body.warranty-public-body .site-header{width:100%;max-width:100%;box-sizing:border-box}
   body .content-page.references-public{min-height:0}
 }
+
+@media(max-width:1100px){
+ body.warranty-public-body.app-shell-enabled .site-header{width:100%!important;max-width:100%!important;min-width:0!important}
+ body .content-page.references-public{padding-bottom:24px}
+ body.warranty-admin-body .warranty-admin-heading{display:grid;grid-template-columns:1fr;justify-items:stretch;text-align:left}
+ body.warranty-admin-body .warranty-admin-heading h1{text-align:left}
+ body.warranty-admin-body .warranty-heading-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%}
+}
