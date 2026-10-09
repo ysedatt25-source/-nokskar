@@ -2935,3 +2935,5 @@ body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;ma
  body.page-home .hero .hero-content{position:absolute!important;left:24px!important;right:auto!important;top:auto!important;bottom:16px!important;margin:0!important}
  body.page-home .hero .hero-content h1{max-width:min(12ch,100%);padding:10px 12px}
 }
+
+@media(min-width:851px){body.page-home .hero .hero-content{margin:56px 52px!important;max-width:calc(100% - 104px)!important}body.page-home .hero .hero-content h1{max-width:min(calc(14ch + 32px),100%)}}
