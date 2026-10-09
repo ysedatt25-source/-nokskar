@@ -139,3 +139,12 @@
 .support-center .support-file-row>span>small{display:block;color:#738ba0;font-size:.67rem;font-weight:550;margin-top:3px}
 .support-center .support-file-row>button{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;min-height:32px;padding:0;border:1px solid #d6e3ef;border-radius:9px;background:#f5f8fc;color:#42617b;cursor:pointer}
 @media(max-width:600px){.support-center .support-file-card{padding:11px;gap:9px}.support-center .support-file-heading strong{font-size:.82rem}.support-center .support-file-card>p{font-size:.75rem}.support-center .support-file-row{padding:8px}}
+
+/* Request tracking stays in the existing heading, independent of request type. */
+.support-center .support-form-heading{position:relative}
+.support-center .support-form-heading>div{min-width:0;padding-right:142px}
+.support-center .support-track-link{position:absolute;right:20px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;gap:6px;width:132px;min-height:40px;padding:7px 9px;box-sizing:border-box;border:1px solid #c4d9ef;border-radius:10px;background:#fff;color:#195e9e;font-size:.75rem;font-weight:800;line-height:1.2;text-decoration:none;white-space:nowrap;box-shadow:0 2px 5px #174a7d08}
+.support-center .support-track-link svg{flex:0 0 15px}
+.support-center .support-track-link:hover{background:#eaf4ff;border-color:#80b5e8;color:#124f8c}
+.support-center .support-track-link:focus-visible{outline:3px solid #84bafa;outline-offset:2px}
+@media(max-width:600px){.support-center .support-form-heading>div{padding-right:116px}.support-center .support-form-heading h2{font-size:clamp(.78rem,3.6vw,1rem);white-space:nowrap;letter-spacing:-.02em}.support-center .support-track-link{right:15px;width:108px;min-height:40px;padding:6px;gap:5px;font-size:.69rem;white-space:normal}.support-center .support-track-link span{max-width:68px;text-align:left}}

@@ -1,5 +1,5 @@
 import {useState,type FormEvent} from 'react';
-import {ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
+import {Search, ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
 import type {Catalog} from '../lib/model';
 
 type Purpose = 'genel' | 'teklif' | 'servis' | 'proje';
@@ -77,7 +77,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
     </div>
     <div className="support-layout">
       <div className="support-form-shell" id="destek-formu">
-        <div className="support-form-heading"><div><span>TALEP OLUŞTUR</span><h2>{selected.label}</h2></div><selected.Icon size={23} aria-hidden="true"/></div>
+        <div className="support-form-heading"><div><span>TALEP OLUŞTUR</span><h2>{selected.label}</h2></div><a className="support-track-link" href="/talep-sorgula"><Search size={15} aria-hidden="true"/><span>Talebimi sorgula</span></a></div>
         {sent?<div className="support-success" role="status">
           <CheckCircle2 size={40}/><h3>Talebiniz oluşturuldu.</h3>
           <p><strong>{sentPhone}</strong> numaralı telefonunuzla <strong>Talep Takibi</strong> ekranından süreci takip edebilirsiniz.</p>
