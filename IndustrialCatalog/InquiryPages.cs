@@ -408,7 +408,7 @@ public static class InquiryPages
     letter-spacing:-.035em;
   }
 }
-</style></style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-32">
+</style></style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-33">
 <style>
 /* R22.14: Inquiry detail header only. Place the delete action beside the title,
    keeping the six information cards immediately below the heading. */
