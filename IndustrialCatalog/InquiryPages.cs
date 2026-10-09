@@ -12,7 +12,7 @@ public static class InquiryPages
     static string DateText(JsonObject inquiry)
     {
         return DateTimeOffset.TryParse(inquiry["created"]?.ToString(), out var created)
-            ? created.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss") : inquiry["created"]?.ToString() ?? "—";
+            ? created.ToOffset(TimeSpan.FromHours(3)).ToString("dd.MM.yyyy HH:mm:ss") : inquiry["created"]?.ToString() ?? "—";
     }
     static string Field(string label, string? value, bool multiline = false)
     {
@@ -85,7 +85,7 @@ public static class InquiryPages
         var html = rows.OfType<JsonObject>().TakeLast(30).Reverse().Select(row =>
         {
             var at = DateTimeOffset.TryParse(row["created"]?.ToString(), out var date) ?
-                date.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : "—";
+                date.ToOffset(TimeSpan.FromHours(3)).ToString("dd.MM.yyyy HH:mm") : "—";
             return "<article class='icw-history-item'><div><strong>İnokskar yanıtı</strong><time>" + E(at) + "</time></div><p>" +
                 E(row["text"]?.ToString()) + "</p></article>";
         });
@@ -116,7 +116,7 @@ public static class InquiryPages
         if (audit == null || audit.Count == 0) return "<section class='inquiry-card inquiry-audit'><div class='audit-heading'><div><p>İŞLEM GEÇMİŞİ</p><h2>Talep zaman çizelgesi</h2></div></div><div class='audit-empty'>Bu talep için henüz işlem kaydı yok.</div></section>";
         var rows = audit.OfType<JsonObject>().Take(30).Select(row =>
         {
-            var created = DateTimeOffset.TryParse(row["created"]?.ToString(), out var dt) ? dt.ToLocalTime().ToString("dd.MM.yyyy HH:mm") : row["created"]?.ToString() ?? "—";
+            var created = DateTimeOffset.TryParse(row["created"]?.ToString(), out var dt) ? dt.ToOffset(TimeSpan.FromHours(3)).ToString("dd.MM.yyyy HH:mm") : row["created"]?.ToString() ?? "—";
             var action = row["action"]?.ToString() ?? "İşlem";
             var actor = row["actor"]?.ToString() ?? "Sistem";
             var detail = row["detail"]?.ToString() ?? "";
@@ -408,7 +408,7 @@ public static class InquiryPages
     letter-spacing:-.035em;
   }
 }
-</style></style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-30">
+</style></style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=r22-31">
 <style>
 /* R22.14: Inquiry detail header only. Place the delete action beside the title,
    keeping the six information cards immediately below the heading. */

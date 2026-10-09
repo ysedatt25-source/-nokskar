@@ -2802,3 +2802,53 @@ body .admin-app-item[data-admin-dock="prices"].active{
 body .app-bottom-nav .app-bottom-item[data-app-key="service"].active{
   color:#8b3d07;
 }
+
+/* Live desktop review: reserve action widths without changing the public theme. */
+@media(min-width:1101px){
+  body .site-header.r22-site-header .header-actions.r22-header-actions{width:100%;gap:10px}
+  body .site-header.r22-site-header .header-search{flex:1 1 160px;min-width:100px;width:auto}
+  body .site-header.r22-site-header .header-util-links,
+  body .site-header.r22-site-header .header-cta{flex:0 0 auto}
+  body.page-home .hero .hero-founder-label{top:10px}
+
+  /* Drawer headings belong to the small-screen menu, not the desktop navigation. */
+  body .site-header .mobile-menu-sheet-head,
+  body .admin-sidebar .admin-menu-sheet-head{display:none}
+  body.warranty-public-body .site-header:not(.r22-site-header){
+    width:100%;max-width:100%;display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(180px,250px) minmax(0,1fr);
+    grid-template-rows:44px auto;gap:0;padding:6px 20px 0;align-items:center;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) > .brand.brand-image-link{
+    position:static;transform:none;grid-column:2;grid-row:1;
+    width:100%;max-width:250px;height:44px;margin:0;padding:0;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) .header-brand-image{
+    width:auto;height:42px;max-height:42px;max-width:100%;object-fit:contain;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) > .header-actions{
+    grid-column:3;grid-row:1;width:100%;min-width:0;margin:0;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) .header-search{
+    flex:1 1 160px;min-width:100px;width:auto;
+  }
+  body.warranty-public-body .site-header:not(.r22-site-header) > .main-nav{
+    grid-column:1/-1;grid-row:2;position:static;display:flex;
+    align-items:center;justify-content:center;flex-wrap:wrap;margin:0;
+  }
+
+  /* A fixed sidebar remains reachable when the document's long forms scroll. */
+  body .admin-shell > .admin-sidebar{position:fixed;top:0;left:0;height:100dvh;width:250px}
+  body .admin-shell > .admin-main{margin-left:250px}
+  body .admin-sidebar .admin-nav-group > a{
+    display:flex;align-items:center;gap:12px;min-height:48px;
+    padding:12px 13px;border-radius:8px;text-decoration:none;
+    color:#c6d8f3;font-size:.9375rem;
+  }
+  body .admin-sidebar .admin-nav-group > a svg{flex:0 0 19px}
+  body .admin-sidebar .admin-nav-group > a:hover{background:#303944;color:#fff}
+}
+
+/* Bound portrait reference images to their thumbnail, keeping controls clear. */
+body .reference-admin-image{overflow:hidden;min-width:0;min-height:0}
+body .reference-admin-image img{display:block;width:100%;height:100%;min-width:0;min-height:0;object-fit:contain}
