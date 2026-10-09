@@ -2937,3 +2937,10 @@ body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;ma
 }
 
 @media(min-width:851px){body.page-home .hero .hero-content{margin:56px 52px!important;max-width:calc(100% - 104px)!important}body.page-home .hero .hero-content h1{max-width:min(calc(14ch + 32px),100%)}}
+
+/* Full white logo backing; fade begins outside the complete image bounds. */
+@media(max-width:1100px){
+ body.app-shell-enabled .site-header,.private-brand-header{background:#293038!important}
+ body.app-shell-enabled .site-header>.brand,.private-brand-header>.private-brand-link{background:#fff!important;box-shadow:0 0 18px 18px #fff!important;clip-path:inset(-3px -52px);border-radius:0!important}
+ body.app-shell-enabled .site-header .header-brand-image,.private-brand-header .private-brand-image{background:#fff!important}
+}
