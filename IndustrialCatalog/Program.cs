@@ -60,7 +60,7 @@ app.Use(async(ctx,next)=>{
     try{await next();}catch(Exception e) when(e is ArgumentException or InvalidOperationException or InvalidDataException or System.Text.Json.JsonException or System.Xml.XmlException or FormatException or OverflowException or NullReferenceException){ctx.Response.StatusCode=400;await ctx.Response.WriteAsJsonAsync(new{error=e is ArgumentException?e.Message:"İçerik veya dosya biçimi geçersiz."});}
 });
 app.UseStaticFiles(new StaticFileOptions{OnPrepareResponse=ctx=>{
-    var versioned=ctx.Context.Request.Query.ContainsKey("v")||ctx.Context.Request.Path.StartsWithSegments("/assets");
+    var versioned=ctx.Context.Request.Path.StartsWithSegments("/assets");
     ctx.Context.Response.Headers.CacheControl=versioned?"public,max-age=604800,immutable":"no-cache";
 }});
 app.UseMiddleware<LogoNavigationMiddleware>();

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 
 // Add the common logo behavior to server-rendered HTML, including future pages.
@@ -63,6 +64,8 @@ public sealed class LogoNavigationMiddleware
                 html = html.Replace("/r125-customer.js\"", "/r125-customer.js?v=profile-consent-2\"");
                 // Refresh the shared close-control styles on every HTML page.
                 html = html.Replace("/r129-feedback.css?v=1", "/r129-feedback.css?v=close-controls-2");
+                // Shared hand-written assets change independently of the hashed Vite bundle.
+                html = Regex.Replace(html, @"/(r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=qa-20261010-1");
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;
                 context.Response.Body = original;
