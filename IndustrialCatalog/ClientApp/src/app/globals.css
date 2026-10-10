@@ -381,3 +381,18 @@ body[data-ui-page="admin-settings"] .settings-save-hint{display:flex;align-items
  html body .support-info-heading>.support-menu-toggle::before,html body .support-info-heading>.support-menu-toggle::after{content:none}
  .support-menu-toggle svg{display:block;width:23px;height:23px;pointer-events:none}
 }
+
+/* Compact legal reading card with short navigation controls. */
+html body .legal-pro .legal-actions{margin-top:16px;padding-top:14px}
+html body .legal-pro .legal-actions a{min-height:64px;padding:9px 7px;gap:5px;border-radius:12px;line-height:1.25}
+html body .legal-pro .legal-actions a svg{width:19px!important;height:19px!important}
+@media(max-width:600px){
+ html body .legal-pro{margin:12px auto 16px;padding:18px 16px;border-radius:18px}
+ html body .legal-pro .legal-eyebrow{margin-bottom:8px;font-size:10px}
+ html body .legal-pro h1{font-size:24px!important;line-height:1.2}
+ html body .legal-pro .legal-text{margin-top:12px!important}
+ html body .legal-pro .legal-text p{margin:0 0 11px;font-size:14px;line-height:1.6}
+ html body .legal-pro .legal-text p:last-child{margin-bottom:0}
+ html body .legal-pro .legal-actions{gap:6px;margin-top:14px;padding-top:12px}
+ html body .legal-pro .legal-actions a{min-height:58px;padding:7px 4px;gap:4px;font-size:10.5px}
+}
