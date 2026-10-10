@@ -141,7 +141,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
             <div className="support-file-heading"><FileText size={21} aria-hidden="true"/><div><strong>Proje belgeleri ve görseller</strong><span>İsteğe bağlı</span></div></div>
             <p>Hazır çizim, ölçü planı veya örnek görsellerinizi paylaşarak teklif sürecini kolaylaştırabilirsiniz.</p>
             <label className="support-file-pick"><CloudUpload size={22} aria-hidden="true"/><span>PDF veya görsel ekle</span>
-              <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" multiple
+              <input type="file" disabled={sending} accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" multiple
                 aria-label="Proje için PDF veya görsel seç"
                 onChange={e=>{
                   const selected=Array.from(e.target.files||[]);
@@ -157,7 +157,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
               {projectFiles.map((file,index)=><div className="support-file-row" key={index}>
                 {file.name.toLowerCase().endsWith('.pdf')?<FileText size={19} aria-hidden="true"/>:<ImageIcon size={19} aria-hidden="true"/>}
                 <span title={file.name}>{file.name}<small>{(file.size/1024/1024).toFixed(1)} MB</small></span>
-                <button type="button" aria-label={file.name+' dosyasını kaldır'} onClick={()=>setProjectFiles(files=>files.filter((_,i)=>i!==index))}><X size={17}/></button>
+                <button type="button" disabled={sending} aria-label={file.name+' dosyasını kaldır'} onClick={()=>setProjectFiles(files=>files.filter((_,i)=>i!==index))}><X size={17}/></button>
               </div>)}
             </div>}
           </section>}
