@@ -46,7 +46,7 @@ public sealed class LogoNavigationMiddleware
                 if (!html.Contains("/membership.js", StringComparison.Ordinal) && (context.Request.Path == "/admin" || context.Request.Path == "/admin/users"))
                 {
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
-                    if (headEnd >= 0) html = html.Insert(headEnd, "<script defer src=\"/membership.js?v=1\"></script>");
+                    if (headEnd >= 0) html = html.Insert(headEnd, "<script defer src=\"/membership.js?v=membership-5\"></script>");
                 }
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;
