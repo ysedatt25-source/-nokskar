@@ -9,8 +9,8 @@
 .references-public-grid>*{min-width:0;max-width:100%}
 .references-public-card{min-width:0;max-width:100%;display:flex;flex-direction:column;justify-content:flex-start;gap:0;border:1px solid #dce6f0;border-radius:16px;background:#fff;box-shadow:0 7px 20px rgba(9,43,75,.06);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
 .references-public-card:hover{transform:translateY(-2px);border-color:#b9d4ec;box-shadow:0 13px 30px rgba(9,43,75,.11)}
-.references-public-logo{display:grid;place-items:center;min-width:0;height:clamp(100px,13vw,176px);padding:clamp(10px,2vw,20px);background:linear-gradient(145deg,#fff,#fafcff)}
-.references-public-logo img{display:block;width:100%;height:100%;min-width:0;max-width:100%;max-height:135px;object-fit:contain;object-position:center}
+.references-public-logo{display:grid;grid-template-rows:minmax(0,1fr);place-items:center;min-width:0;min-height:0;overflow:hidden;height:clamp(100px,13vw,176px);padding:clamp(10px,2vw,20px);background:linear-gradient(145deg,#fff,#fafcff)}
+.references-public-logo img{display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;object-fit:contain;object-position:center}
 .references-public-contacts{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:nowrap;min-width:0;max-width:100%;padding:9px 5px 12px;margin-top:auto;border-top:1px solid #edf2f7}
 .references-public-contact-link{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;min-height:36px;border:1px solid #d5e4f4;border-radius:10px;background:linear-gradient(145deg,#f8fbff,#eef5fc);color:#2169b5;text-decoration:none;transition:background .18s,border-color .18s,transform .18s}
 .references-public-contact-link:hover{background:#e7f1fe;border-color:#80aee0;transform:translateY(-1px)}
@@ -79,7 +79,7 @@
   body .references-public .references-public-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;width:100%;max-width:100%;min-width:0}
   .references-public-card{border-radius:11px}
   .references-public-logo{height:96px;padding:9px 6px}
-  .references-public-logo img{max-height:78px}
+  .references-public-logo img{max-height:100%}
   .references-public-contacts{padding:7px 3px 9px;gap:5px}
   .references-public-contact-link{flex:0 0 34px;width:34px;height:34px;min-height:34px;border-radius:9px}
   .references-public-contact-link svg{width:15px;height:15px}

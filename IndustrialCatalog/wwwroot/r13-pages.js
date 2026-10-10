@@ -194,7 +194,7 @@ document.addEventListener('submit',event=>{
     const p=path(),eligible=p==='/'||p==='/urunler'||p.startsWith('/kategori/');
     const old=document.querySelector('.app-mobile-search');
     if(!eligible){old?.remove();return}
-    if(old)return;
+    if(old){const input=old.querySelector('input[name="q"]');if(input)input.value=new URLSearchParams(location.search).get('q')||'';return;}
     const header=document.querySelector('.site-header');if(!header)return;
     const form=document.createElement('form');form.className='app-mobile-search';form.action='/urunler';form.method='get';form.setAttribute('role','search');
     const q=new URLSearchParams(location.search).get('q')||'';
