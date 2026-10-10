@@ -1,5 +1,5 @@
 /* Page-specific visual scopes; does not alter forms, navigation or requests. */
-(()=>{const tabs={'Genel bakış':'overview','Ürünler':'products','Kategoriler':'categories','Fiyat yönetimi':'prices','Site ayarları':'settings','Güvenlik':'security','İstatistikler':'stats','Geçmiş & yedek':'history','Müşteri talepleri':'inquiries'};
+(()=>{const tabs={'Genel bakış':'overview','Ürünler':'products','Kategoriler':'categories','Fiyat yönetimi':'prices','Site ayarları':'settings','Güvenlik':'security','İstatistikler':'stats','Geçmiş & yedek':'history','Müşteri talepleri':'inquiries','Referanslar':'references'};
 function scope(){const p=location.pathname.replace(/\/$/,'')||'/';let key=p==='/'?'home':p.replace(/^\//,'').replace(/\//g,'-');if(p.startsWith('/kategori/'))key='category';if(p.startsWith('/urun/'))key='product';if(p.startsWith('/hesabim'))key='hesabim';if(p.startsWith('/admin/inquiries/'))key='inquiry';if(p.startsWith('/teknik/cihaz/'))key='device';if(/\/admin\/warranties\/.*\/certificate$/.test(p))key='certificate';if(p==='/admin'){const active=document.querySelector('.admin-sidebar nav button.active');const requested=new URLSearchParams(location.search).get('tab');const fromUrl=Object.values(tabs).includes(requested)?requested:null;key='admin-'+(fromUrl||tabs[active?.textContent.trim()]||'overview');}if(document.body.dataset.uiPage!==key)document.body.dataset.uiPage=key;}
 const start=()=>{scope();window.addEventListener('popstate',scope);window.addEventListener('pageshow',scope);window.addEventListener('inokskar:navigation',scope);document.addEventListener('click',()=>requestAnimationFrame(scope),true);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
 /* R14: complete shared navigation on server-rendered public pages. */
@@ -55,9 +55,50 @@ document.addEventListener('submit',event=>{
     backdrop.type='button';backdrop.className='admin-drawer-backdrop';backdrop.setAttribute('aria-label','Yönetim menüsünü kapat');backdrop.hidden=true;
     document.body.append(backdrop);
     let previousFocus=null;
+    const drawerHome=nav.parentNode;
+    const drawerAfter=nav.nextSibling;
     const focusables=()=>[...nav.querySelectorAll('button:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])')].filter(x=>x.getClientRects().length);
-    const close=()=>{side.classList.remove('menu-open');document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Yönetim menüsünü aç');try{previousFocus?.focus?.({preventScroll:true});}catch{}previousFocus=null;};
-    const open=()=>{previousFocus=document.activeElement;side.classList.add('menu-open');document.body.classList.add('admin-drawer-open');backdrop.hidden=false;document.querySelector('.admin-main')?.setAttribute('inert','');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Yönetim menüsünü kapat');requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));};
+    const returnDrawer=()=>{
+      if(nav.parentNode!==drawerHome && drawerHome?.isConnected){
+        if(drawerAfter && drawerAfter.parentNode===drawerHome)drawerHome.insertBefore(nav,drawerAfter);
+        else drawerHome.appendChild(nav);
+      }
+      nav.classList.remove('admin-viewport-drawer');
+      nav.removeAttribute('aria-modal');
+      nav.removeAttribute('role');
+    };
+    const close=()=>{
+      const wasOpen=side.classList.contains('menu-open');
+      side.classList.remove('menu-open');
+      document.body.classList.remove('admin-drawer-open');
+      backdrop.hidden=true;
+      returnDrawer();
+      document.querySelector('.admin-main')?.removeAttribute('inert');
+      toggle.setAttribute('aria-expanded','false');
+      toggle.setAttribute('aria-label','Yönetim menüsünü aç');
+      if(wasOpen)try{previousFocus?.focus?.({preventScroll:true});}catch{}
+      previousFocus=null;
+    };
+    const open=()=>{
+      if(side.classList.contains('menu-open'))return;
+      previousFocus=document.activeElement;
+      // Put the sheet directly under the React root. This escapes the compact
+      // logo/header stacking context while retaining React's delegated clicks.
+      const host=document.getElementById('root');
+      if(!host)return;
+      host.appendChild(nav);
+      nav.classList.add('admin-viewport-drawer');
+      nav.setAttribute('role','dialog');
+      nav.setAttribute('aria-modal','true');
+      side.classList.add('menu-open');
+      document.body.classList.add('admin-drawer-open');
+      backdrop.hidden=false;
+      document.querySelector('.admin-main')?.setAttribute('inert','');
+      toggle.setAttribute('aria-expanded','true');
+      toggle.setAttribute('aria-label','Yönetim menüsünü kapat');
+      nav.scrollTop=0;
+      requestAnimationFrame(()=>focusables()[0]?.focus({preventScroll:true}));
+    };
     toggle.addEventListener('click',()=>side.classList.contains('menu-open')?close():open());
     sheetHead.querySelector('.admin-menu-sheet-close')?.addEventListener('click',close);
     backdrop.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();close()});
@@ -79,7 +120,7 @@ document.addEventListener('submit',event=>{
     home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
     products:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>',
     categories:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-    service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.2 2.2-3-3z"/></svg>',
+    service:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M3 12v5a3 3 0 0 0 3 3h2v-8H6a3 3 0 0 0-3 3M21 12v5a3 3 0 0 1-3 3h-2v-8h2a3 3 0 0 1 3 3"/><path d="M16 20a4 4 0 0 1-4 2h-2"/></svg>',
     account:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
     search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>',
     close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>'
@@ -89,7 +130,7 @@ document.addEventListener('submit',event=>{
     if(p==='/')return'home';
     if(p==='/urunler'||p.startsWith('/urun/'))return'products';
     if(p.startsWith('/kategori/'))return'categories';
-    if(p==='/servis-talebi')return'service';
+    if(p==='/iletisim')return'service';
     if(p.startsWith('/hesabim'))return'account';
     return'';
   };
@@ -140,7 +181,7 @@ document.addEventListener('submit',event=>{
       ['home','/','Ana Sayfa','home'],
       ['products','/urunler','Ürünler','products'],
       ['categories','#','Kategoriler','categories'],
-      ['service','/servis-talebi','Servis','service'],
+      ['service','/iletisim','Destek','service'],
       ['account','/hesabim','Hesabım','account']
     ];
     nav.innerHTML=items.map(([key,href,label,ic])=>key==='categories'
@@ -339,30 +380,10 @@ document.addEventListener('submit',event=>{
     const welcome=document.querySelector('.welcome');
     const readonly=profile.querySelector('input[readonly]'),name=profile.querySelector('input[name="name"]');
     const summary=document.createElement('section');summary.className='customer-profile-summary';const initials=(name?.value||'İ').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toLocaleUpperCase('tr-TR');
-    summary.innerHTML='<span class="avatar">'+(initials||'İ')+'</span><div><strong>'+String(name?.value||'Müşteri').replace(/[&<>]/g,'')+'</strong><small>'+String(readonly?.value||'').replace(/[&<>]/g,'')+'</small></div><a href="/servis-talebi">Yeni servis talebi</a>';
+    summary.innerHTML='<span class="avatar">'+(initials||'İ')+'</span><div><strong>'+String(name?.value||'Müşteri').replace(/[&<>]/g,'')+'</strong><small>'+String(readonly?.value||'').replace(/[&<>]/g,'')+'</small></div><a href="/iletisim?amac=servis">Yeni teknik servis talebi</a>';
     welcome?.insertAdjacentElement('afterend',summary);summary.insertAdjacentElement('afterend',tabs);
     const select=key=>{tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.tab===key));layout.querySelectorAll('.customer-tab-panel').forEach(p=>p.hidden=p.dataset.customerTab!==key);};
     tabs.addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)select(b.dataset.tab)});select('profile');
-  };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-})();
-
-/* R16 — service request: three-step mobile-friendly wizard without changing POST payload. */
-(()=>{
-  if(location.pathname!='/servis-talebi')return;
-  const mount=()=>{
-    const form=document.getElementById('service-request-form');if(!form||form.dataset.r16Wizard)return;form.dataset.r16Wizard='1';
-    const children=[...form.children],product=form.querySelector('.service-product-box'),message=[...form.querySelectorAll('label')].find(l=>l.querySelector('textarea[name="message"]'));
-    if(!product||!message)return;
-    const step1=document.createElement('section'),step2=document.createElement('section'),step3=document.createElement('section');[step1,step2,step3].forEach((x,i)=>{x.className='service-step-panel';x.dataset.step=String(i+1)});
-    children.forEach(node=>{if(node===product)step2.append(node);else if(node===message||node.matches?.('.service-honeypot,.service-note,.service-save-profile,#service-request-message')||node.tagName==='BUTTON')step3.append(node);else step1.append(node)});
-    form.append(step1,step2,step3);
-    const hint=document.createElement('div');hint.className='service-scan-hint';hint.innerHTML='<strong>İpucu:</strong><span>Ürün kodu veya seri numarası cihaz etiketinde yer alır. Garanti sorgulamasından geldiyseniz bu alanlar otomatik doldurulur.</span>';step2.insertBefore(hint,step2.firstChild);
-    const stepper=document.createElement('nav');stepper.className='service-stepper';stepper.setAttribute('aria-label','Servis talebi adımları');stepper.innerHTML='<button type="button" data-step="1"><b>1</b><span>İletişim</span></button><button type="button" data-step="2"><b>2</b><span>Cihaz</span></button><button type="button" data-step="3"><b>3</b><span>Arıza</span></button>';form.before(stepper);
-    const actions=document.createElement('div');actions.className='service-step-actions';actions.innerHTML='<button type="button" class="back">← Geri</button><button type="button" class="next">Devam →</button>';form.append(actions);let current=1;
-    const validate=()=>{for(const el of [...form.querySelectorAll('.service-step-panel[data-step="'+current+'"] input[required],.service-step-panel[data-step="'+current+'"] textarea[required],.service-step-panel[data-step="'+current+'"] select[required]')]){if(!el.checkValidity()){el.reportValidity();el.focus();return false;}}return true;};
-    const show=n=>{current=Math.max(1,Math.min(3,n));form.querySelectorAll('.service-step-panel').forEach(p=>p.hidden=Number(p.dataset.step)!==current);stepper.querySelectorAll('button').forEach(b=>b.classList.toggle('active',Number(b.dataset.step)===current));actions.querySelector('.back').hidden=current===1;actions.querySelector('.next').hidden=current===3;window.scrollTo({top:Math.max(0,form.getBoundingClientRect().top+scrollY-150),behavior:'smooth'});};
-    stepper.addEventListener('click',e=>{const b=e.target.closest('button[data-step]');if(!b)return;const n=Number(b.dataset.step);if(n<current||validate())show(n)});actions.querySelector('.back').addEventListener('click',()=>show(current-1));actions.querySelector('.next').addEventListener('click',()=>{if(validate())show(current+1)});form.addEventListener('submit',e=>{if(current!==3){e.preventDefault();e.stopImmediatePropagation();if(validate())show(current+1);}});show(1);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
@@ -371,13 +392,6 @@ document.addEventListener('submit',event=>{
 (()=>{
   if(location.pathname!='/garanti-sorgulama')return;
   const mount=()=>{const form=document.getElementById('warranty-query-form');if(!form||form.dataset.r16Help)return;form.dataset.r16Help='1';const button=document.createElement('button');button.type='button';button.className='warranty-help-trigger';button.textContent='Bu bilgiler nerede?';const hint=document.createElement('div');hint.className='warranty-label-hint';hint.hidden=true;hint.innerHTML='<strong>Seri numarası:</strong><span>Cihazın ürün etiketinde bulunur. Garanti doğrulama kodu ise size verilen garanti belgesinde yer alır. Güvenlik nedeniyle yalnız seri numarasıyla sorgulama yapılamaz.</span>';form.querySelector('label:last-of-type')?.after(button,hint);button.addEventListener('click',()=>{hint.hidden=!hint.hidden;button.textContent=hint.hidden?'Bu bilgiler nerede?':'Yardımı kapat'});};
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-})();
-
-/* R16 — access management: one primary add button, role chosen after tap. */
-(()=>{
-  if(location.pathname!='/admin/users')return;
-  const mount=()=>{const actions=document.querySelector('.access-actions'),admin=document.getElementById('add-admin'),tech=document.getElementById('add-tech');if(!actions||!admin||!tech||actions.dataset.r16Add)return;actions.dataset.r16Add='1';admin.hidden=true;tech.hidden=true;const wrap=document.createElement('div');wrap.className='access-add-menu';wrap.innerHTML='<button type="button" class="button" aria-expanded="false">+ Kullanıcı ekle</button><div class="access-add-popover" hidden><button type="button" data-role="admin">Admin hesabı</button><button type="button" data-role="tech">Teknik servis hesabı</button></div>';actions.prepend(wrap);const main=wrap.firstElementChild,pop=wrap.lastElementChild;const close=()=>{pop.hidden=true;main.setAttribute('aria-expanded','false')};main.addEventListener('click',()=>{pop.hidden=!pop.hidden;main.setAttribute('aria-expanded',String(!pop.hidden))});pop.addEventListener('click',e=>{const b=e.target.closest('button[data-role]');if(!b)return;(b.dataset.role==='admin'?admin:tech).click();close()});document.addEventListener('pointerdown',e=>{if(!pop.hidden&&!wrap.contains(e.target)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();close()}},{capture:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
 
