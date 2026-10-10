@@ -127,7 +127,7 @@ public static class InquiryStatusPages
 </style>
 </head>
 <body>
-<header class="top"><a href="/" aria-label="Ana sayfa" style="padding:0;border:0;background:transparent"><img src="/inokskar-header-brand.png" alt="İNOKSKAR"></a><a href="/">Ana sayfa</a></header>
+<header class="top" data-brand-header><a data-brand-logo href="/" aria-label="Ana sayfa" style="padding:0;border:0;background:transparent"><img src="/inokskar-header-brand.png" alt="İNOKSKAR"></a><a href="/">Ana sayfa</a></header>
 <main class="wrap">
 <section class="hero">
 <div class="intro"><p class="eyebrow">TALEP TAKİBİ</p><h1>Talep durumunuzu takip edin</h1><p>Talebinizin güncel durumunu, planlanan işlemleri ve ekibimizin yanıtlarını görüntüleyin.</p></div>

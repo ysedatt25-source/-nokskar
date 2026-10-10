@@ -2944,3 +2944,10 @@ body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;ma
  body.app-shell-enabled .site-header>.brand,.private-brand-header>.private-brand-link{background:#fff!important;box-shadow:0 0 18px 18px #fff!important;clip-path:inset(-3px -52px);border-radius:0!important}
  body.app-shell-enabled .site-header .header-brand-image,.private-brand-header .private-brand-image{background:#fff!important}
 }
+
+/* Shared brand treatment for server-rendered public headers. */
+header.top[data-brand-header]{background:#293038!important}
+header.top[data-brand-header] [data-brand-logo]{background:#fff!important;border:0!important;border-radius:0!important;box-shadow:0 0 18px 18px #fff!important;clip-path:inset(-3px -52px)}
+header.top[data-brand-header] [data-brand-logo] img{background:#fff!important}
+[data-brand-header].logo-mirror-host{isolation:isolate}
+[data-brand-header].logo-mirror-host::after{border-radius:0!important}
