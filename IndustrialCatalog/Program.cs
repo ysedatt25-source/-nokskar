@@ -12,7 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
-if(args.Contains("--membership-self-test")){MembershipChecks.Run(args.Contains("--membership-visual-review"));return;}
+if(args.Contains("--membership-self-test")){MembershipChecks.Run();return;}
 if(args.Contains("--hash-password"))
 {
     Console.Write("Yeni yönetici parolası (en az 8 karakter): ");var password="";
@@ -145,7 +145,7 @@ app.MapPost("/reset-password",async(HttpContext ctx,IConfiguration config,Passwo
         else if(target.Kind=="staff")directory.ResetPasswordByEmail(target.Email,next);
         else if(target.Kind is "customer" or "customer-assist")customers.ResetPasswordByEmail(target.Email,next);
         else throw new ArgumentException("Şifre yenileme hedefi geçersiz.");
-        store.RecordAudit("Şifre e-posta bağlantısıyla yenilendi","password-reset","",target.Email);
+        store.RecordAudit(target.Kind=="customer-assist"?"Müşteri şifresi tek kullanımlık giriş desteğiyle belirlendi":"Şifre e-posta bağlantısıyla yenilendi","password-reset","",target.Email);
         return Results.Redirect("/login?reset=1");
     }
     catch(ArgumentException e){return Results.Content(ResetPasswordPage(token,e.Message,true),"text/html; charset=utf-8",statusCode:400);}

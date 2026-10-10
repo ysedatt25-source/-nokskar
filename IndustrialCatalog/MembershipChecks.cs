@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 public static class MembershipChecks
 {
     static void Check(bool value,string name){if(!value)throw new InvalidOperationException("Membership check failed: "+name);}
-    public static void Run(bool visualReview=false)
+    public static void Run()
     {
         var temp=Path.Combine(Path.GetTempPath(),"inokskar-membership-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(temp);
         try{
@@ -27,6 +27,7 @@ public static class MembershipChecks
             Check(resets.Validate(token)?.Kind=="customer-assist","assistance token target");
             var serialized=File.ReadAllText(Path.Combine(temp,"password-reset-tokens.json"));Check(!serialized.Contains(token),"only token hash persisted");
             Check(resets.ConsumeTarget(token)!=null&&resets.ConsumeTarget(token)==null,"one use token");
+            var expired=resets.Create(first.Email,"customer-assist");var tokenFile=Path.Combine(temp,"password-reset-tokens.json");var tokens=JsonNode.Parse(File.ReadAllText(tokenFile))!.AsArray();tokens[0]!["expiresUtc"]=DateTimeOffset.UtcNow.AddMinutes(-1).ToString("O");File.WriteAllText(tokenFile,tokens.ToJsonString());Check(resets.Validate(expired)==null&&resets.ConsumeTarget(expired)==null,"expired code rejected");
             token=resets.Create(first.Email,"customer-assist");var replacement=resets.Create(first.Email,"customer-assist");Check(resets.Validate(token)==null&&resets.Validate(replacement)!=null,"new assistance invalidates previous code");
             customers.BindWarranty(first.Id,"test-warranty");var blocked=false;try{customers.BindWarranty(second.Id,"test-warranty");}catch(ArgumentException){blocked=true;}Check(blocked,"device cannot belong to multiple customer accounts");
             customers.UpdateProfile(first.Id,new JsonObject{["profileKind"]="company",["businessName"]="Test Firma"});Check(customers.ById(first.Id)!.ProfileKind=="company","company profile persists");
@@ -41,7 +42,6 @@ public static class MembershipChecks
             Check(!html.Contains("PRIVATE-INTERNAL-SENTINEL")&&!html.Contains("OTHER-CUSTOMER-SENTINEL")&&!html.Contains("LEGACY-EMAIL-SENTINEL"),"request isolation and private notes");
             member.EmailVerified=true;Check(Membership.Profile(member,store).Contains("LEGACY-EMAIL-SENTINEL"),"verified legacy email requests");
             member.Name="<script>alert(1)</script>";Check(!Membership.Profile(member,store).Contains("<script>alert(1)</script>"),"profile HTML encoding");
-            if(visualReview){member.Name="Ayşe Yılmaz";member.EmailVerified=false;var preview=Membership.Profile(member,store).Replace("<body class='membership-page'>","<body class='membership-page' data-visual-review='true'>").Replace("</head>","<link rel='stylesheet' href='/r22-layout-fixes.css?v=central-brand-3'><script defer src='/logo-navigation.js?v=central-header-3'></script></head>");File.WriteAllText("/app/wwwroot/member-sample.html",preview);File.WriteAllText("/app/wwwroot/member-review.html","<!doctype html><html><head><meta name='viewport' content='width=device-width'><title>Membership layout review</title></head><body style='margin:0;background:#dfe7ed;display:flex;gap:16px;padding:16px'><iframe title='Mobil 390' src='/member-sample.html' style='width:390px;height:900px;border:0;flex:none'></iframe><iframe title='Tablet 768' src='/member-sample.html' style='width:768px;height:900px;border:0;flex:none'></iframe></body></html>");}
             Console.WriteLine("Membership security checks: PASS (isolated temporary data)");
         }finally{Directory.Delete(temp,true);}
     }

@@ -40,7 +40,7 @@ public static class Membership
             await File.WriteAllBytesAsync(Path.Combine(folder,name),bytes,c.RequestAborted);
             try{customers.SetAvatar(AccessControl.UserId(c.User),name);}catch{File.Delete(Path.Combine(folder,name));throw;}
             return Results.Json(new{ok=true});
-        }).RequireAuthorization().RequireRateLimiting("public-write");
+        }).RequireAuthorization().RequireRateLimiting("recovery");
         app.MapDelete("/api/customer/avatar",(HttpContext c,CustomerDirectory customers)=>{
             if(AccessControl.Role(c.User)!="Customer")return Results.Forbid();customers.SetAvatar(AccessControl.UserId(c.User),"");return Results.Json(new{ok=true});
         }).RequireAuthorization();
