@@ -3,3 +3,21 @@
 .support-center .inquiry-form label.customer-save-profile input[type=checkbox]{appearance:auto!important;display:block!important;flex:0 0 18px!important;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;min-height:18px!important;max-height:18px!important;margin:1px 0 0!important;padding:0!important;accent-color:#246db4;box-shadow:none!important;border-radius:4px}
 .support-center .inquiry-form label.customer-save-profile span{flex:1;min-width:0;color:inherit!important;font-size:inherit!important;font-weight:inherit!important;line-height:inherit!important;overflow-wrap:anywhere}
 .customer-save-profile:focus-within{outline:2px solid #8db9df;outline-offset:2px}
+
+/* Legal pages share the brand treatment without cropping the image. */
+body.legal-public-body .site-header .brand{width:clamp(160px,38vw,240px)!important;max-width:calc(100% - 100px)!important;min-width:0!important;height:auto!important;overflow:visible!important;clip-path:none!important;padding:0!important}
+body.legal-public-body .site-header .brand img{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;max-height:58px!important;object-fit:contain!important;object-position:center!important;clip-path:none!important;transform:none!important}
+body.legal-public-body .legal-page{box-sizing:border-box;width:calc(100% - 32px)!important;max-width:920px!important;margin:24px auto 32px!important;padding:28px!important;border:1px solid #dce5ef!important;border-top:3px solid #2976bc!important;border-radius:22px!important;background:linear-gradient(145deg,#fff,#f9fcff)!important;box-shadow:0 12px 35px #17365408!important}
+body.legal-public-body .legal-page .eyebrow{margin:0 0 9px;color:#2c719d;font-size:11px;font-weight:800;letter-spacing:.12em}
+body.legal-public-body .legal-page h1{margin:0;font-size:clamp(25px,4vw,34px);line-height:1.2;letter-spacing:-.03em;color:#1c394d}
+body.legal-public-body .legal-summary{margin:12px 0 24px;color:#667c8e;font-size:14px;line-height:1.6}
+body.legal-public-body .legal-page h2{margin:0 0 12px;font-size:17px;line-height:1.4;color:#24485f}
+body.legal-public-body .legal-copy p{margin:0;color:#536c7e;font-size:15px;line-height:1.85;overflow-wrap:anywhere}
+body.legal-public-body .legal-contact{margin-top:24px;padding:18px;border:1px solid #dbe7f1;border-radius:14px;background:#f0f6fc}
+body.legal-public-body .legal-contact p{margin:8px 0 0;font-size:14px;line-height:1.75;color:#536c7e;overflow-wrap:anywhere}
+body.legal-public-body .legal-contact strong{color:#294d64}
+body.legal-public-body .legal-contact a{color:#1768a9;text-underline-offset:3px}
+body.legal-public-body .legal-related{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+body.legal-public-body .legal-related a{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;box-sizing:border-box;padding:12px 14px;border:1px solid #d6e3ef;border-radius:12px;background:#fff;color:#28658f;font-size:13px;font-weight:700;text-decoration:none}
+body.legal-public-body .legal-related a:hover{background:#eaf4ff;border-color:#91b8da}
+@media(max-width:600px){body.legal-public-body .legal-page{width:calc(100% - 24px)!important;margin:14px auto 24px!important;padding:20px 16px!important;border-radius:18px!important}body.legal-public-body .legal-summary{font-size:13px;margin-bottom:20px}body.legal-public-body .legal-copy p{font-size:14px;line-height:1.8}body.legal-public-body .legal-contact{padding:14px;margin-top:20px}body.legal-public-body .legal-related{grid-template-columns:1fr}}
