@@ -33,6 +33,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
   const selected=choices.find(c=>c.key===purpose)!;
   const product=query.get('urun')||'';
   const code=query.get('kod')||'';
+  const serial=query.get('seri')||query.get('serial')||'';
   const switchPurpose=(next:Purpose)=>{
     setPurpose(next);setSent(false);setSentCode('');setSentPhone('');setError('');setProjectFiles([]);
     const url=new URL(window.location.href);url.searchParams.set('amac',next);url.searchParams.delete('urun');url.searchParams.delete('kod');
@@ -70,7 +71,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
   };
   return <section className="wrap content-page contact-pro support-center" aria-label="İNOKSKAR Destek Merkezi">
     <div className="contact-purpose support-purpose" role="group" aria-label="Talep amacı seçin">
-      {choices.map(({key,label,detail,Icon})=><button type="button" key={key} className={'support-choice '+(purpose===key?'active':'')} onClick={()=>switchPurpose(key)} aria-pressed={purpose===key} aria-label={label+' — '+detail}>
+      {choices.map(({key,label,detail,Icon})=><button type="button" key={key} className={'support-choice '+(purpose===key?'active':'')} onClick={()=>switchPurpose(key)} disabled={sending} aria-pressed={purpose===key} aria-label={label+' — '+detail}>
         <Icon className="support-choice-icon" size={19} strokeWidth={2} aria-hidden="true"/>
         <span className="support-choice-label">{label}</span>
         <ChevronRight className="support-choice-chevron" size={16} aria-hidden="true"/>
@@ -115,9 +116,9 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
             </select></label>
             <label>İşletme adı  *<input name="businessName" maxLength={180} required minLength={2} placeholder="İşletme / firma adı"/></label>
             <label>Servis adresi  *<textarea name="address" rows={2} maxLength={1200} minLength={5} required placeholder="Açık servis adresi, il ve ilçe"/></label>
-            <div className="support-fields-pair"><label>Cihaz / ürün adı<input name="productName" maxLength={180} placeholder="Cihaz modeli"/></label>
-            <label>Seri numarası<input name="serialNumber" maxLength={100} placeholder="Varsa seri no"/></label></div>
-            <label>Ürün kodu<input name="productCode" maxLength={100} placeholder="Varsa ürün kodu"/></label>
+            <div className="support-fields-pair"><label>Cihaz / ürün adı<input name="productName" defaultValue={product} maxLength={180} placeholder="Cihaz modeli"/></label>
+            <label>Seri numarası<input name="serialNumber" defaultValue={serial} maxLength={100} placeholder="Varsa seri no"/></label></div>
+            <label>Ürün kodu<input name="productCode" defaultValue={code} maxLength={100} placeholder="Varsa ürün kodu"/></label>
           </>}
           {purpose==='proje'&&<>
             <label>Proje türü  *<select name="projectType" required defaultValue="">
@@ -171,7 +172,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
         <div className="contact-quick-list">
           {s.phone&&<a href={'tel:'+s.phone}><Phone/><span><small>TELEFON</small><strong>{s.phone}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.email&&<a href={'mailto:'+s.email}><Mail/><span><small>E-POSTA</small><strong>{s.email}</strong></span><ArrowRight className="support-info-arrow"/></a>}
-          {s.address&&<a href={s.mapUrl||undefined} target="_blank" rel="noreferrer"><MapPin/><span><small>ADRES</small><strong>{s.address}</strong></span><ArrowRight className="support-info-arrow"/></a>}
+          {s.address&&<a href={s.mapUrl||'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.address)} target="_blank" rel="noreferrer"><MapPin/><span><small>ADRES</small><strong>{s.address}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.hours&&<div><Clock3/><span><small>ÇALIŞMA SAATLERİ</small><strong>{s.hours}</strong></span></div>}
         </div>
       </aside>

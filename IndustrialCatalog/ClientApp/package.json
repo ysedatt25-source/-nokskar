@@ -6,7 +6,8 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "node scripts/clean-output.mjs && vite build"
+    "build": "node scripts/clean-output.mjs && tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",

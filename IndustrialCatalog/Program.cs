@@ -42,22 +42,6 @@ builder.Services.AddRateLimiter(o=>{
     o.AddPolicy("warranty-query",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=12,Window=TimeSpan.FromMinutes(5)}));
 });
 var app=builder.Build();
-// One-time, user-requested restoration of the cooling category's original home image.
-var coolingRestoreMarker=Path.Combine(dataPath,"home-cooling-restore-20261011.done");
-if(!File.Exists(coolingRestoreMarker))
-{
-    var catalogStore=app.Services.GetRequiredService<Store>();
-    var snapshot=catalogStore.Snapshot();
-    var restored=snapshot["data"]!.DeepClone().AsObject();
-    var cooling=restored["categories"]!.AsArray().OfType<JsonObject>().FirstOrDefault(c=>c["id"]?.ToString()=="sogutma");
-    if(cooling!=null&&!string.IsNullOrEmpty(cooling["image"]?.ToString()))
-    {
-        cooling["image"]="";
-        catalogStore.Save(new JsonObject{["revision"]=snapshot["revision"]!.DeepClone(),["data"]=restored,["label"]="Sanayi Soğutma ana sayfa görseli ilk tasarıma döndürüldü"});
-    }
-    File.WriteAllText(coolingRestoreMarker,DateTimeOffset.UtcNow.ToString("O"));
-}
-
 Membership.Map(app,dataPath);
 if(!app.Environment.IsDevelopment()){app.UseExceptionHandler("/error");app.UseHsts();if(string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")))app.UseHttpsRedirection();}
 app.Use(async(ctx,next)=>{try{await next();}catch(Exception ex){app.Services.GetRequiredService<OperationalLog>().Error(ex,ctx);throw;}});
