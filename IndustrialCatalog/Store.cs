@@ -13,6 +13,14 @@ public sealed class Store
         Directory.CreateDirectory(directory);
         file = Path.Combine(directory, "catalog-store.json");
         state = File.Exists(file) ? JsonNode.Parse(File.ReadAllText(file))!.AsObject() : new JsonObject { ["revision"] = 0, ["data"] = JsonNode.Parse(File.ReadAllText(Path.Combine(env.ContentRootPath, "seed.json"))), ["history"] = new JsonArray(), ["events"] = new JsonArray(), ["inquiries"] = new JsonArray(), ["warranties"] = new JsonArray(), ["warrantyHistory"] = new JsonArray(), ["auditLog"] = new JsonArray() };
+        var initialSettings = state["data"]?["settings"]?.AsObject();
+        if (initialSettings != null && initialSettings["mapUrl"] == null)
+        {
+            var address = initialSettings["address"]?.ToString() ?? "";
+            var knownAddress = address.Contains("küçükköy", StringComparison.OrdinalIgnoreCase) || address.Contains("Paşa Çayırı", StringComparison.OrdinalIgnoreCase);
+            initialSettings["mapUrl"] = knownAddress ? "https://maps.app.goo.gl/dgRHeqdNXzQcY6np9?g_st=ac" : "";
+            if (knownAddress) initialSettings["address"] = "Yeni Mahalle, Paşa Çayırı Cd. NO:158 D:160/A, 34250 Gaziosmanpaşa/İstanbul";
+        }
         NormalizeState(state);
         ApplyStoredPricePolicy(state["data"]!.AsObject());
         Persist(state);
@@ -70,6 +78,7 @@ public sealed class Store
     {
         var settings = data?["settings"]?.AsObject();
         if (settings == null) return;
+        settings["mapUrl"] ??= "";
         settings.Remove("logo");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
         settings["founderLabelText"] ??= "BİR YİĞİTKAR DEKOR KURULUŞUDUR";

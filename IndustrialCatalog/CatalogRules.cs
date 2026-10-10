@@ -11,6 +11,11 @@ public static class CatalogRules
         var settings=d["settings"]?.AsObject() ?? throw new ArgumentException("Ayarlar gerekli.");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
         settings["notificationEmail"] ??= "";
+        settings["mapUrl"] ??= "";
+        var mapUrl = Text(settings,"mapUrl").Trim();
+        if (mapUrl != "" && (!Uri.TryCreate(mapUrl,UriKind.Absolute,out var mapUri) || mapUri.Scheme != "https" || !(mapUri.Host == "maps.app.goo.gl" || mapUri.Host == "maps.google.com" || ((mapUri.Host == "www.google.com" || mapUri.Host == "google.com") && mapUri.AbsolutePath.StartsWith("/maps"))))) throw new ArgumentException("Harita konumu için Google Haritalar Paylaş bağlantısını girin.");
+        if (Text(settings,"address").Trim() != "" && mapUrl == "") throw new ArgumentException("Adres için Google Haritalar konum bağlantısını da ekleyin.");
+        settings["mapUrl"] = mapUrl;
         settings["heroHeading"] ??= "Endüstriyel\nMutfaklarda";
         settings["heroAccent"] ??= "Güçlü Partneriniz";
         foreach(var key in new[]{"heroHeading","heroAccent"})if(Text(settings,key).Length>160)throw new ArgumentException("Ana sayfa başlığı en fazla 160 karakter olabilir.");

@@ -2,8 +2,6 @@ import {useState,type FormEvent} from 'react';
 import {Search, ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
 import type {Catalog} from '../lib/model';
 
-const navigationAddress=(value:string)=>value.trim().toLocaleLowerCase('tr-TR')==='yeni mahalle küçükköy gaziosmanpaşa istanbul'?'Yeni Mahalle, Paşa Çayırı Cd. NO:158 D:160/A, 34250 Gaziosmanpaşa/İstanbul':value;
-
 type Purpose = 'genel' | 'teklif' | 'servis' | 'proje';
 const choices = [
   {key:'genel' as Purpose,label:'Genel Destek',detail:'Sorularınız, görüşleriniz ve önerileriniz',Icon:Headphones},
@@ -172,7 +170,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
         <div className="contact-quick-list">
           {s.phone&&<a href={'tel:'+s.phone}><Phone/><span><small>TELEFON</small><strong>{s.phone}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.email&&<a href={'mailto:'+s.email}><Mail/><span><small>E-POSTA</small><strong>{s.email}</strong></span><ArrowRight className="support-info-arrow"/></a>}
-          {s.address&&<a href={'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(navigationAddress(s.address))} target="_blank" rel="noreferrer"><MapPin/><span><small>ADRES</small><strong>{navigationAddress(s.address)}</strong></span><ArrowRight className="support-info-arrow"/></a>}
+          {s.address&&<a href={s.mapUrl||undefined} target="_blank" rel="noreferrer"><MapPin/><span><small>ADRES</small><strong>{s.address}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.hours&&<div><Clock3/><span><small>ÇALIŞMA SAATLERİ</small><strong>{s.hours}</strong></span></div>}
         </div>
       </aside>
