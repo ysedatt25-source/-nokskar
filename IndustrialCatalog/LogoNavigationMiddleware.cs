@@ -48,6 +48,13 @@ public sealed class LogoNavigationMiddleware
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     if (headEnd >= 0) html = html.Insert(headEnd, "<script defer src=\"/membership.js?v=membership-5\"></script>");
                 }
+                // Load the server menu reset last so page-specific desktop rules
+                // cannot leak into the shared mobile sheet on current or future pages.
+                if (!html.Contains("/public-menu.css", StringComparison.Ordinal))
+                {
+                    var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
+                    if (headEnd >= 0) html = html.Insert(headEnd, "<link rel=\"stylesheet\" href=\"/public-menu.css?v=menu-1\">");
+                }
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;
                 context.Response.Body = original;

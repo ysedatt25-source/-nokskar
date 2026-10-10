@@ -1,0 +1,103 @@
+/* Shared server-rendered navigation; React's separate drawer is unchanged. */
+@media (max-width:1100px) {
+  html body .site-header nav.main-nav.public-mobile-menu-sheet {display:none}
+  html body .site-header nav.main-nav.public-mobile-menu-sheet.open {
+    box-sizing:border-box;
+    display:flex;
+    flex-flow:column nowrap;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:6px;
+    position:fixed;
+    top:var(--public-menu-top,86px);
+    left:50%;
+    right:auto;
+    bottom:auto;
+    width:min(680px,calc(100vw - 20px));
+    min-width:0;
+    height:auto;
+    min-height:0;
+    max-height:calc(100dvh - var(--public-menu-top,86px) - var(--app-dock-h,72px) - env(safe-area-inset-bottom,0px) - 20px);
+    margin:0;
+    padding:10px;
+    transform:translateX(-50%);
+    overflow:auto;
+    overscroll-behavior:contain;
+    border:1px solid #d7e2ed;
+    border-radius:18px;
+    background:#fff;
+    color:#173553;
+    box-shadow:0 24px 78px rgba(5,18,34,.30);
+    z-index:1030;
+  }
+  html body .site-header nav.main-nav.public-mobile-menu-sheet * {box-sizing:border-box}
+  html body .site-header .public-mobile-menu-sheet .mobile-menu-sheet-head {
+    position:sticky;
+    top:-10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex:0 0 auto;
+    gap:12px;
+    margin:0 0 4px;
+    padding:6px 2px 12px;
+    border-bottom:1px solid #e4ebf2;
+    background:#fff;
+    z-index:4;
+  }
+  html body .site-header .public-mobile-menu-sheet .mobile-menu-sheet-head>div {display:grid;gap:3px;text-align:left}
+  html body .site-header .public-mobile-menu-sheet .mobile-menu-sheet-head span {color:#b65819;font-size:11px;font-weight:800;letter-spacing:.12em;line-height:1.3}
+  html body .site-header .public-mobile-menu-sheet .mobile-menu-sheet-head strong {color:#173553;font-size:20px;font-weight:800;line-height:1.2}
+  html body .site-header .public-mobile-menu-sheet .mobile-menu-sheet-close {
+    display:grid;
+    place-items:center;
+    flex:0 0 44px;
+    width:44px;
+    height:44px;
+    min-height:44px;
+    margin:0;
+    padding:0;
+    border:1px solid #d7e1ec;
+    border-radius:12px;
+    background:#f6f9fc;
+    color:#405b78;
+    box-shadow:none;
+    cursor:pointer;
+  }
+  html body .site-header .public-mobile-menu-sheet .mobile-menu-sheet-close svg {display:block;width:22px;height:22px}
+  html body .site-header .public-mobile-menu-sheet .mobile-menu-sheet-close::after {content:none}
+  html body .site-header nav.main-nav.public-mobile-menu-sheet>a,
+  html body .site-header nav.main-nav.public-mobile-menu-sheet .nav-category-link {
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    flex:0 0 auto;
+    width:100%;
+    min-width:0;
+    min-height:44px;
+    height:auto;
+    margin:0;
+    padding:11px 13px;
+    border:1px solid #e1e8f1;
+    border-radius:11px;
+    background:#f8fbfe;
+    color:#203f5e;
+    opacity:1;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:750;
+    line-height:1.4;
+    text-align:left;
+    text-decoration:none;
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+  html body .site-header nav.main-nav.public-mobile-menu-sheet>a.active {color:#1455c0;background:#edf4ff;border-color:#c6daf6}
+  html body .site-header nav.main-nav.public-mobile-menu-sheet>a:hover,
+  html body .site-header nav.main-nav.public-mobile-menu-sheet .nav-category-link:hover {color:#1455c0;background:#edf4ff}
+  html body .site-header .public-mobile-menu-sheet>.nav-category {flex:0 0 auto;width:100%;min-width:0;margin:0}
+  html body .site-header .public-mobile-menu-sheet .nav-category-head {display:flex;align-items:center;gap:6px;width:100%}
+  html body .site-header .public-mobile-menu-sheet .nav-category-link {flex:1 1 auto}
+  html body .site-header .public-mobile-menu-sheet .nav-category-toggle {flex:0 0 44px;width:44px;min-height:44px;border:1px solid #d7e1ec;border-radius:11px;background:#f6f9fc;color:#405b78}
+  html body .site-header .public-mobile-menu-sheet :is(a,button):focus-visible {outline:2px solid #1767d4;outline-offset:2px}
+}
