@@ -156,3 +156,5 @@
 }
 
 @media(max-width:1100px){html body .support-center.direct-contact-active{padding-bottom:max(24px,calc(100dvh - var(--direct-contact-height,480px) + 24px))!important}html body #dogrudan-iletisim{scroll-margin-top:8px!important}}
+
+@media(max-width:1100px){html:has(.support-center.direct-contact-active){scroll-padding-top:0!important}}
