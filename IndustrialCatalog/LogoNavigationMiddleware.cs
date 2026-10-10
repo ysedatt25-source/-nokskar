@@ -61,6 +61,8 @@ public sealed class LogoNavigationMiddleware
                     if (headEnd >= 0) html = html.Insert(headEnd, "<link rel='stylesheet' href='/customer-ui.css?v=customer-ui-8'><script defer src='/customer-ui.js?v=customer-ui-8'></script>");
                 }
                 html = html.Replace("/r125-customer.js\"", "/r125-customer.js?v=profile-consent-2\"");
+                // Refresh the shared close-control styles on every HTML page.
+                html = html.Replace("/r129-feedback.css?v=1", "/r129-feedback.css?v=close-controls-2");
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;
                 context.Response.Body = original;
