@@ -90,7 +90,8 @@ public sealed class MailQueue : BackgroundService
 
     async Task ProcessPending(CancellationToken token)
     {
-        foreach (var file in Directory.EnumerateFiles(outbox, "*.json", SearchOption.TopDirectoryOnly).OrderBy(x => x).Take(20))
+        var processed = 0;
+        foreach (var file in Directory.EnumerateFiles(outbox, "*.json", SearchOption.TopDirectoryOnly).OrderBy(x => x))
         {
             token.ThrowIfCancellationRequested();
             JsonObject job;
@@ -99,6 +100,7 @@ public sealed class MailQueue : BackgroundService
 
             var attempts = job["attempts"]?.GetValue<int>() ?? 0;
             if (attempts >= 20) continue;
+            if (processed++ >= 20) break;
             try
             {
                 await Send(job, settings.Snapshot(), token);
