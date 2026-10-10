@@ -183,7 +183,7 @@ app.MapPost("/admin/security/password",(HttpContext c)=>Results.Redirect("/accou
 app.MapGet("/garanti-sorgulama",(Store store)=>Results.Content(WarrantyPages.Public(CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
 // Retired legacy service form: old bookmarks go to the unified technical-service form.
 app.MapGet("/servis-talebi",()=>Results.Redirect("/iletisim?amac=servis",permanent:true));
-app.MapGet("/talep-sorgula",()=>Results.Content(InquiryStatusPages.Public(),"text/html; charset=utf-8"));
+
 app.MapGet("/gizlilik",(Store store)=>Results.Content(LegalPages.Render("gizlilik",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
 app.MapGet("/kvkk",(Store store)=>Results.Content(LegalPages.Render("kvkk",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
 app.MapGet("/cerez",(Store store)=>Results.Content(LegalPages.Render("cerez",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
@@ -441,7 +441,7 @@ app.MapPost("/api/event",async(HttpContext c,Store store)=>{
 app.MapFallback((HttpContext c,Store store,IWebHostEnvironment env,IConfiguration config)=>{
     var requestPath=c.Request.Path.Value??"/";var path=requestPath.Length>1?requestPath.TrimEnd('/'):requestPath;if(path=="")path="/";
     if(path=="/blog"||path.StartsWith("/blog/"))return Results.Redirect("/urunler",false);
-    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda","/referanslar"}.Contains(path,StringComparer.OrdinalIgnoreCase);
+    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda","/referanslar","/talep-sorgula"}.Contains(path,StringComparer.OrdinalIgnoreCase);
     foreach(var (prefix,key) in new[]{("/urun/","products"),("/kategori/","categories")})
     {
         if(!path.StartsWith(prefix,StringComparison.OrdinalIgnoreCase))continue;

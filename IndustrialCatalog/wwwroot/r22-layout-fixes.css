@@ -2959,3 +2959,7 @@ header.top[data-brand-header] [data-brand-logo] img{background:#fff!important}
 [data-brand-header]>.logo-mirror-layer::after{content:"";position:absolute;pointer-events:none;top:-20%;left:-45%;width:30%;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg);opacity:0}
 [data-brand-header].logo-mirror-active>.logo-mirror-layer::after{animation:logo-mirror-sweep .85s ease-out both}
 @media(prefers-reduced-motion:reduce){[data-brand-header]>.logo-mirror-layer{display:none}}
+
+body[data-ui-page^="admin-"] .admin-header-actions{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
+.admin-customer-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 10px;border:1px solid #c8d9ee;border-radius:10px;background:#eef5ff;color:#195a9c;font-size:.76rem;font-weight:750;text-decoration:none;white-space:nowrap}
+@media(max-width:600px){.admin-customer-link{font-size:.7rem;padding:6px 8px;gap:5px}}
