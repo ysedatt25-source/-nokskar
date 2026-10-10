@@ -189,9 +189,6 @@ app.MapPost("/admin/security/password",(HttpContext c)=>Results.Redirect("/accou
 // Retired legacy service form: old bookmarks go to the unified technical-service form.
 app.MapGet("/servis-talebi",()=>Results.Redirect("/iletisim?amac=servis",permanent:true));
 
-app.MapGet("/gizlilik",(Store store)=>Results.Content(LegalPages.Render("gizlilik",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
-app.MapGet("/kvkk",(Store store)=>Results.Content(LegalPages.Render("kvkk",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
-app.MapGet("/cerez",(Store store)=>Results.Content(LegalPages.Render("cerez",CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
 app.MapGet("/admin/users",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.Users,"view")?Results.Content(AccessPages.Users(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/teknik",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.Technical,"view")?Results.Content(TechnicalPages.Dashboard(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/teknik/cihaz/{id}",(string id,HttpContext c,Store store)=>!AccessControl.Has(c.User,AccessPermissions.Technical,"view")?Results.Forbid():store.WarrantyById(id)==null?Results.NotFound():Results.Content(TechnicalPages.Device(id),"text/html; charset=utf-8")).RequireAuthorization();
@@ -446,7 +443,7 @@ app.MapPost("/api/event",async(HttpContext c,Store store)=>{
 app.MapFallback((HttpContext c,Store store,IWebHostEnvironment env,IConfiguration config)=>{
     var requestPath=c.Request.Path.Value??"/";var path=requestPath.Length>1?requestPath.TrimEnd('/'):requestPath;if(path=="")path="/";
     if(path=="/blog"||path.StartsWith("/blog/"))return Results.Redirect("/urunler",false);
-    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda","/referanslar","/talep-sorgula","/garanti-sorgulama"}.Contains(path,StringComparer.OrdinalIgnoreCase);
+    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda","/referanslar","/talep-sorgula","/garanti-sorgulama","/gizlilik","/kvkk","/cerez"}.Contains(path,StringComparer.OrdinalIgnoreCase);
     foreach(var (prefix,key) in new[]{("/urun/","products"),("/kategori/","categories")})
     {
         if(!path.StartsWith(prefix,StringComparison.OrdinalIgnoreCase))continue;

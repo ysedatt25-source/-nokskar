@@ -47,3 +47,17 @@ body .about-pro .about-value-grid p{font-size:12px;line-height:1.6;color:#6a7e8e
 @media(max-width:600px){body .about-pro{width:calc(100% - 24px)!important;margin-top:12px}body .about-pro .about-grid>div{padding:19px 16px!important;border-radius:18px}body .about-pro .preserve,body .about-pro .about-trust-copy{font-size:14px;line-height:1.75}body .about-pro .about-actions{margin-top:18px;gap:9px}body .about-pro .about-actions a{font-size:12px;gap:6px;min-height:46px}body .about-pro .about-value-grid{gap:8px!important}body .about-pro .about-value-grid article{padding:14px 7px!important;gap:7px!important;border-radius:13px}body .about-pro .about-value-grid strong{font-size:12px}body .about-pro .about-value-grid p{font-size:11px;line-height:1.5}body .about-pro .about-value-grid article>svg{width:34px;height:34px}}
 
 body .about-pro .about-value-grid article>svg{width:38px!important;height:38px!important;padding:8px!important;color:#2c73b3!important}body .about-pro .about-value-grid article:nth-child(2)>svg{color:#be752d!important}body .about-pro .about-value-grid article:nth-child(3)>svg{color:#328062!important}body .about-pro h1{font-size:clamp(26px,4vw,35px)!important}body .about-pro .preserve{font-size:15px!important;line-height:1.8!important}@media(max-width:600px){body .about-pro .about-value-grid article>svg{width:34px!important;height:34px!important}body .about-pro .preserve{font-size:14px!important;line-height:1.75!important}}
+/* Shared storefront legal pages */
+.legal-pro{box-sizing:border-box;width:calc(100% - 32px);max-width:880px;margin:24px auto 32px;padding:30px;border:1px solid #dce5ef;border-top:3px solid #2976bc;border-radius:22px;background:linear-gradient(145deg,#fff,#f9fcff);box-shadow:0 12px 35px #17365408}
+.legal-pro .legal-eyebrow{margin:0 0 12px;color:#2c719d;font-size:11px;font-weight:800;letter-spacing:.12em}
+.legal-pro h1{margin:0!important;color:#1c394d;font-size:clamp(25px,4vw,34px)!important;line-height:1.25;letter-spacing:-.03em}
+.legal-pro .legal-intro{margin:14px 0 26px;font-size:14px;line-height:1.65;color:#667c8e}
+.legal-pro .legal-text h2{margin:0 0 14px;font-size:18px;color:#24485f;line-height:1.4}
+.legal-pro .legal-text p{margin:0 0 16px;font-size:15px;line-height:1.8;color:#536c7e;overflow-wrap:anywhere}
+.legal-pro .legal-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:26px;padding-top:20px;border-top:1px solid #e1e9f1}
+.legal-pro .legal-actions a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:0;min-height:104px;padding:14px 8px;border:1px solid #d7e4f0;border-radius:16px;background:#f5f9fd;color:#305d7b;text-decoration:none;text-align:center;font-size:13px;font-weight:700;line-height:1.4;transition:background .18s,border-color .18s}
+.legal-pro .legal-actions a svg{width:24px!important;height:24px!important;flex-shrink:0}
+.legal-pro .legal-actions a[aria-current=page]{background:#eaf4ff;border-color:#8ab6da;color:#1465aa}
+.legal-pro .legal-actions a:hover{background:#eaf4ff;border-color:#8ab6da}
+.legal-pro .legal-actions a:focus-visible{outline:3px solid #8ab6da;outline-offset:3px}
+@media(max-width:600px){.legal-pro{width:calc(100% - 24px);margin:16px auto 24px;padding:22px 17px;border-radius:20px}.legal-pro .legal-text p{font-size:14px;line-height:1.75}.legal-pro .legal-actions{gap:7px;margin-top:22px}.legal-pro .legal-actions a{font-size:11px;min-height:100px;padding:12px 5px;border-radius:13px}.legal-pro .legal-intro{font-size:13px;margin-bottom:22px}}
