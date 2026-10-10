@@ -25,6 +25,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
     const target=document.getElementById('dogrudan-iletisim');if(!target)return;
     const section=target.closest<HTMLElement>('.support-center');
     const measure=()=>section?.style.setProperty('--direct-contact-height',target.getBoundingClientRect().height+'px');
+    section?.classList.toggle('direct-contact-active',window.location.hash==='#dogrudan-iletisim');
     measure();const observer=new ResizeObserver(measure);observer.observe(target);
     const frame=window.location.hash==='#dogrudan-iletisim'?requestAnimationFrame(()=>{target.scrollIntoView({block:'start',behavior:'auto'});target.focus({preventScroll:true});}):0;
     return()=>{observer.disconnect();cancelAnimationFrame(frame);};
