@@ -32,14 +32,14 @@ public sealed class LogoNavigationMiddleware
                 var html = await reader.ReadToEndAsync();
                 if (!html.Contains("/logo-navigation.js", StringComparison.Ordinal))
                 {
-                    const string script = "<script defer src=\"/logo-navigation.js?v=central-header-2\"></script>";
+                    const string script = "<script defer src=\"/logo-navigation.js?v=central-header-3\"></script>";
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     html = headEnd >= 0 ? html.Insert(headEnd, script) : html + script;
                 }
                 // Some legacy server pages omit the shared layout stylesheet.
                 if (!html.Contains("/r22-layout-fixes.css", StringComparison.Ordinal))
                 {
-                    const string style = "<link rel=\"stylesheet\" href=\"/r22-layout-fixes.css?v=central-brand-2\">";
+                    const string style = "<link rel=\"stylesheet\" href=\"/r22-layout-fixes.css?v=central-brand-3\">";
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     if (headEnd >= 0) html = html.Insert(headEnd, style);
                 }
