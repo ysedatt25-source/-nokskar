@@ -323,7 +323,15 @@ public static class CatalogPermissionGuard
     {
         if (AccessControl.IsSuperAdmin(user)) return true;
         if (!JsonNode.DeepEquals(before["settings"], after["settings"]) && !AccessControl.Has(user, AccessPermissions.Settings, "edit")) return false;
-        if (!JsonNode.DeepEquals(before["categories"], after["categories"]) && !AccessControl.Has(user, AccessPermissions.Catalog, "edit")) return false;
+        if (!JsonNode.DeepEquals(before["categories"], after["categories"]) && !AccessControl.Has(user, AccessPermissions.Catalog, "edit"))
+        {
+            if (!AccessControl.Has(user, AccessPermissions.Settings, "edit")) return false;
+            var original = before["categories"]?.DeepClone().AsArray() ?? new JsonArray();
+            var updated = after["categories"]?.DeepClone().AsArray() ?? new JsonArray();
+            foreach (var row in original) if (row is JsonObject category) category.Remove("image");
+            foreach (var row in updated) if (row is JsonObject category) category.Remove("image");
+            if (!JsonNode.DeepEquals(original, updated)) return false;
+        }
         var oldProducts = before["products"] as JsonArray ?? new JsonArray();
         var newProducts = after["products"] as JsonArray ?? new JsonArray();
         if (!JsonNode.DeepEquals(ProductProjection(oldProducts, includePrices: false), ProductProjection(newProducts, includePrices: false)) && !AccessControl.Has(user, AccessPermissions.Catalog, "edit")) return false;
