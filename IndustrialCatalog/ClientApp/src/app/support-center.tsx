@@ -25,10 +25,11 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
     const target=document.getElementById('dogrudan-iletisim');if(!target)return;
     const section=target.closest<HTMLElement>('.support-center');
     const measure=()=>section?.style.setProperty('--direct-contact-height',target.getBoundingClientRect().height+'px');
-    section?.classList.toggle('direct-contact-active',window.location.hash==='#dogrudan-iletisim');
+    const sync=()=>section?.classList.toggle('direct-contact-active',window.location.hash==='#dogrudan-iletisim');
+    sync();window.addEventListener('inokskar:navigation',sync);window.addEventListener('hashchange',sync);
     measure();const observer=new ResizeObserver(measure);observer.observe(target);
     const frame=window.location.hash==='#dogrudan-iletisim'?requestAnimationFrame(()=>{target.scrollIntoView({block:'start',behavior:'auto'});target.focus({preventScroll:true});}):0;
-    return()=>{observer.disconnect();cancelAnimationFrame(frame);};
+    return()=>{observer.disconnect();cancelAnimationFrame(frame);window.removeEventListener('inokskar:navigation',sync);window.removeEventListener('hashchange',sync);};
   },[]);
   const query=new URLSearchParams(typeof window!=='undefined'?window.location.search:'');
   const [purpose,setPurpose]=useState<Purpose>(()=>validPurpose(query.get('amac')));
