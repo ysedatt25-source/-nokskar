@@ -92,6 +92,7 @@ useEffect(()=>{setPage(1);},[path,search,filter,sort,pageSize]);
   {menuLinks.map((m,i)=><a className="r22-menu-link" key={i} href={m.url} onClick={closePublicLayers}>{m.name}</a>)}
   <a className="r22-menu-link" href="/referanslar" onClick={closePublicLayers}>Referanslarımız</a><a className="r22-menu-link" href="/garanti-sorgulama" onClick={closePublicLayers}>Garanti Sorgula</a>
   <a className="r22-menu-link r22-service-link" href="/iletisim" onClick={closePublicLayers}>Destek Merkezi</a>
+  <a className="r22-menu-link" href="/gizlilik" onClick={closePublicLayers}>Gizlilik</a>
   <a className="r22-menu-link r22-account-link" href="/hesabim" onClick={closePublicLayers}>Hesabım / Giriş</a>
  </div>
 </aside>}

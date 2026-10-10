@@ -12,7 +12,7 @@
     const note=form.querySelector('.muted')||form.querySelector('button[type="submit"]');
     const label=document.createElement('label');
     label.className='customer-save-profile';
-    label.innerHTML='<input type="checkbox" name="saveProfile" value="true"><span>Bu talepte değiştirdiğim ad ve telefon bilgilerimi profilime de kaydet</span>';
+    label.innerHTML='<input type="checkbox" name="saveProfile" value="true"><span>Ad ve telefon bilgilerimi profilimde de güncelle</span>';
     if(note)note.insertAdjacentElement('beforebegin',label);else form.append(label);
   }
   async function apply(){
