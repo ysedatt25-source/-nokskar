@@ -467,6 +467,7 @@ static string RoleLanding(ClaimsPrincipal user)
     if(AccessControl.IsSuperAdmin(user))return "/admin";
     if(AccessControl.Role(user)=="TechnicalService")return "/teknik";
     if(AccessControl.Has(user,AccessPermissions.Catalog,"view"))return "/admin";
+    if(AccessControl.Role(user)=="Admin"&&AccessControl.Has(user,AccessPermissions.CustomerSupport,"view"))return "/admin/customers";
     if(AccessControl.Has(user,AccessPermissions.Warranties,"view"))return "/admin/warranties/list";
     if(AccessControl.Has(user,AccessPermissions.Technical,"view"))return "/teknik";
     return "/account/security";
