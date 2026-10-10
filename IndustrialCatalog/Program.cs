@@ -12,7 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
-if(args.Contains("--membership-self-test")){MembershipChecks.Run(args.Contains("--visual-review")?"/app/wwwroot":null);return;}
+if(args.Contains("--membership-self-test")){MembershipChecks.Run();return;}
 if(args.Contains("--hash-password"))
 {
     Console.Write("Yeni yönetici parolası (en az 8 karakter): ");var password="";
