@@ -21,6 +21,8 @@ public sealed class Store
             initialSettings["mapUrl"] = knownAddress ? "https://maps.app.goo.gl/dgRHeqdNXzQcY6np9?g_st=ac" : "";
             if (knownAddress) initialSettings["address"] = "Yeni Mahalle, Paşa Çayırı Cd. NO:158 D:160/A, 34250 Gaziosmanpaşa/İstanbul";
         }
+        if (initialSettings?["mapUrl"]?.ToString() == "https://maps.app.goo.gl/dgRHeqdNXzQcY6np9?g_st=ac")
+            initialSettings["mapUrl"] = "https://www.google.com/maps/dir/?api=1&destination=41.0736389%2C28.8971865";
         NormalizeState(state);
         ApplyStoredPricePolicy(state["data"]!.AsObject());
         Persist(state);
