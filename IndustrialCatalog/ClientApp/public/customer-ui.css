@@ -21,3 +21,5 @@ body.legal-public-body .legal-related{display:grid;grid-template-columns:1fr 1fr
 body.legal-public-body .legal-related a{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;box-sizing:border-box;padding:12px 14px;border:1px solid #d6e3ef;border-radius:12px;background:#fff;color:#28658f;font-size:13px;font-weight:700;text-decoration:none}
 body.legal-public-body .legal-related a:hover{background:#eaf4ff;border-color:#91b8da}
 @media(max-width:600px){body.legal-public-body .legal-page{width:calc(100% - 24px)!important;margin:14px auto 24px!important;padding:20px 16px!important;border-radius:18px!important}body.legal-public-body .legal-summary{font-size:13px;margin-bottom:20px}body.legal-public-body .legal-copy p{font-size:14px;line-height:1.8}body.legal-public-body .legal-contact{padding:14px;margin-top:20px}body.legal-public-body .legal-related{grid-template-columns:1fr}}
+
+body.legal-public-body .legal-copy{margin:0!important;padding:0!important;width:100%!important;max-width:none!important}
