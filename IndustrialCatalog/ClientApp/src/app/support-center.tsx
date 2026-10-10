@@ -21,7 +21,14 @@ const displayTrackingPhone=(value:string):string=>{
 };
 
 export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings:Catalog['settings'];onOpenMenu:()=>void;menuOpen:boolean}) {
-  useEffect(()=>{if(window.location.hash!=='#dogrudan-iletisim')return;const frame=requestAnimationFrame(()=>{const target=document.getElementById('dogrudan-iletisim');target?.scrollIntoView({block:'start',behavior:'auto'});target?.focus({preventScroll:true});});return()=>cancelAnimationFrame(frame);},[]);
+  useEffect(()=>{
+    const target=document.getElementById('dogrudan-iletisim');if(!target)return;
+    const section=target.closest<HTMLElement>('.support-center');
+    const measure=()=>section?.style.setProperty('--direct-contact-height',target.getBoundingClientRect().height+'px');
+    measure();const observer=new ResizeObserver(measure);observer.observe(target);
+    const frame=window.location.hash==='#dogrudan-iletisim'?requestAnimationFrame(()=>{target.scrollIntoView({block:'start',behavior:'auto'});target.focus({preventScroll:true});}):0;
+    return()=>{observer.disconnect();cancelAnimationFrame(frame);};
+  },[]);
   const query=new URLSearchParams(typeof window!=='undefined'?window.location.search:'');
   const [purpose,setPurpose]=useState<Purpose>(()=>validPurpose(query.get('amac')));
   const [sentCode,setSentCode]=useState('');
