@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 public static class MembershipChecks
 {
     static void Check(bool value,string name){if(!value)throw new InvalidOperationException("Membership check failed: "+name);}
-    public static void Run()
+    public static void Run(string? previewPath=null)
     {
         var temp=Path.Combine(Path.GetTempPath(),"inokskar-membership-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(temp);
         try{
@@ -42,6 +42,14 @@ public static class MembershipChecks
             Check(!html.Contains("PRIVATE-INTERNAL-SENTINEL")&&!html.Contains("OTHER-CUSTOMER-SENTINEL")&&!html.Contains("LEGACY-EMAIL-SENTINEL"),"request isolation and private notes");
             member.EmailVerified=true;Check(Membership.Profile(member,store).Contains("LEGACY-EMAIL-SENTINEL"),"verified legacy email requests");
             member.Name="<script>alert(1)</script>";Check(!Membership.Profile(member,store).Contains("<script>alert(1)</script>"),"profile HTML encoding");
+            if(previewPath!=null){
+                Directory.CreateDirectory(previewPath);
+                var sample=customers.Create("ÖRNEK FİRMA DEKORASYON","preview@example.invalid","Preview-test-123",businessName:"Örnek Firma");
+                sample.ProfileKind="company";sample.EmailVerified=true;
+                string Preview(bool verified){sample.EmailVerified=verified;return Membership.Profile(sample,store,!verified).Replace("<body class='membership-page'>","<body class='membership-page' data-visual-review='true'>").Replace("</head>","<link rel='stylesheet' href='/r22-layout-fixes.css?v=central-brand-3'><script defer src='/logo-navigation.js?v=central-header-3'></script></head>");}
+                File.WriteAllText(Path.Combine(previewPath,"member-sample.html"),Preview(true));
+                File.WriteAllText(Path.Combine(previewPath,"member-sample-unverified.html"),Preview(false));
+            }
             Console.WriteLine("Membership security checks: PASS (isolated temporary data)");
         }finally{Directory.Delete(temp,true);}
     }

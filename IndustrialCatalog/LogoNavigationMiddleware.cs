@@ -46,7 +46,7 @@ public sealed class LogoNavigationMiddleware
                 if (!html.Contains("/membership.js", StringComparison.Ordinal) && (context.Request.Path == "/admin" || context.Request.Path == "/admin/users"))
                 {
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
-                    if (headEnd >= 0) html = html.Insert(headEnd, "<script defer src=\"/membership.js?v=membership-5\"></script>");
+                    if (headEnd >= 0) html = html.Insert(headEnd, "<script defer src=\"/membership.js?v=membership-6\"></script>");
                 }
                 // Load the server menu reset last so page-specific desktop rules
                 // cannot leak into the shared mobile sheet on current or future pages.
