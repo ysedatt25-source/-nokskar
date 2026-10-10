@@ -38,7 +38,8 @@ public static class AccessPermissions
     public const string Backup = "backup";
     public const string System = "system";
     public const string Users = "users";
-    public static readonly string[] Modules = { Catalog, Prices, Settings, Warranties, Technical, Service, Inquiries, Backup, System, Users };
+    public const string CustomerSupport = "customerSupport";
+    public static readonly string[] Modules = { Catalog, Prices, Settings, Warranties, Technical, Service, Inquiries, Backup, System, Users, CustomerSupport };
 
     public static string Claim(string module, string action) => module + "." + action;
 }

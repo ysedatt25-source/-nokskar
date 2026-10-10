@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-public sealed record PasswordResetTarget(string Email, string Kind);
+public sealed record PasswordResetTarget(string Email, string Kind, string Stamp);
 
 public sealed class PasswordResetStore
 {
@@ -11,6 +11,7 @@ public sealed class PasswordResetStore
         public string TokenHash { get; set; } = "";
         public string Email { get; set; } = "";
         public string Kind { get; set; } = "";
+        public string Stamp { get; set; } = "";
         public string ExpiresUtc { get; set; } = "";
         public string CreatedUtc { get; set; } = "";
     }
@@ -27,13 +28,13 @@ public sealed class PasswordResetStore
         if (!File.Exists(file)) Persist(new List<Entry>());
     }
 
-    public string Create(string email, string kind)
+    public string Create(string email, string kind, string stamp="")
     {
         lock (gate)
         {
             var normalized = (email ?? "").Trim();
             if (!System.Net.Mail.MailAddress.TryCreate(normalized, out var parsed)) throw new ArgumentException("Geçerli bir e-posta adresi girin.");
-            if (kind is not ("superadmin" or "staff" or "customer")) throw new ArgumentException("Şifre yenileme hedefi geçersiz.");
+            if (kind is not ("superadmin" or "staff" or "customer" or "customer-assist" or "customer-verify")) throw new ArgumentException("Şifre yenileme hedefi geçersiz.");
 
             var rows = Load();
             var now = DateTimeOffset.UtcNow;
@@ -47,8 +48,9 @@ public sealed class PasswordResetStore
                 TokenHash = Hash(token),
                 Email = parsed.Address,
                 Kind = kind,
+                Stamp = stamp,
                 CreatedUtc = now.ToString("O"),
-                ExpiresUtc = now.AddMinutes(30).ToString("O")
+                ExpiresUtc = now.AddMinutes(kind=="customer-assist"?15:30).ToString("O")
             });
             Persist(rows);
             return token;
@@ -65,7 +67,7 @@ public sealed class PasswordResetStore
             var rows = Load();
             var row = rows.FirstOrDefault(x => string.Equals(x.TokenHash, hash, StringComparison.Ordinal)
                 && DateTimeOffset.TryParse(x.ExpiresUtc, out var expires) && expires > now);
-            return row == null ? null : new PasswordResetTarget(row.Email, row.Kind);
+            return row == null ? null : new PasswordResetTarget(row.Email, row.Kind, row.Stamp);
         }
     }
 
@@ -85,7 +87,7 @@ public sealed class PasswordResetStore
             var row = rows[index];
             rows.RemoveAt(index);
             Persist(rows);
-            return new PasswordResetTarget(row.Email, row.Kind);
+            return new PasswordResetTarget(row.Email, row.Kind, row.Stamp);
         }
     }
 

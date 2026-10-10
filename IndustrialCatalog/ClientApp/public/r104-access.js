@@ -7,7 +7,7 @@ const deleteForm=$('access-delete-form'),deleteDialog=$('access-delete-dialog');
 const list=$('access-list'),search=$('access-search'),notice=$('access-notice'),status=$('access-status');
 const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[ch]));
 const field=(f,name)=>f.elements.namedItem(name);
-const modules=[['catalog','Ürünler ve kategoriler'],['prices','Fiyat yönetimi'],['settings','Site ayarları'],['warranties','Garanti kayıtları'],['technical','Teknik cihaz dosyası'],['service','Servis talepleri'],['inquiries','Destek talepleri'],['backup','Yedekleme'],['system','Sistem yönetimi'],['users','Kullanıcılar ve yetkiler']];
+const modules=[['catalog','Ürünler ve kategoriler'],['prices','Fiyat yönetimi'],['settings','Site ayarları'],['warranties','Garanti kayıtları'],['technical','Teknik cihaz dosyası'],['service','Servis talepleri'],['inquiries','Destek talepleri'],['backup','Yedekleme'],['system','Sistem yönetimi'],['users','Kullanıcılar ve yetkiler'],['customerSupport','Müşteri üyelikleri ve giriş desteği (kurucu yetkisi)']];
 let rows=[],filter='all',busy=false;
 const labelRole=role=>role==='SuperAdmin'?'Kurucu Süper Admin':role==='Admin'?'Yönetici':'Teknik Servis';
 function feedback(message,type){notice.textContent=message||'';notice.className=message?'access-notice '+(type||'info'):'access-notice';}

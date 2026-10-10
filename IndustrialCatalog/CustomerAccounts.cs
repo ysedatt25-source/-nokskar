@@ -16,6 +16,11 @@ public sealed class CustomerAccountRecord
     public string TaxOffice { get; set; } = "";
     public string TaxNumber { get; set; } = "";
     public bool Active { get; set; } = true;
+    public bool EmailVerified { get; set; }
+    public string SecurityStamp { get; set; } = "";
+    public string ProfileKind { get; set; } = "individual";
+    public string AvatarFile { get; set; } = "";
+    public List<string> WarrantyIds { get; set; } = new();
     public string CreatedUtc { get; set; } = "";
     public string UpdatedUtc { get; set; } = "";
     public string LastLoginUtc { get; set; } = "";
@@ -57,7 +62,7 @@ public sealed class CustomerDirectory
             var rows=LoadUnsafe(); var normalized=CleanEmail(email);
             if(rows.Any(x=>string.Equals(x.Email,normalized,StringComparison.OrdinalIgnoreCase))) throw new ArgumentException("Bu e-posta adresiyle daha önce müşteri hesabı oluşturulmuş. Giriş yapabilir veya şifrenizi yenileyebilirsiniz.");
             ValidatePassword(password); var now=DateTimeOffset.UtcNow.ToString("O");
-            var row=new CustomerAccountRecord{Id=Guid.NewGuid().ToString("N"),Name=CleanName(name),Email=normalized,PasswordHash=Passwords.Hash(password),Phone=Clean(phone,40,"Telefon"),BusinessName=Clean(businessName,180,"Firma"),Active=true,CreatedUtc=now,UpdatedUtc=now};
+            var row=new CustomerAccountRecord{Id=Guid.NewGuid().ToString("N"),Name=CleanName(name),Email=normalized,PasswordHash=Passwords.Hash(password),Phone=Clean(phone,40,"Telefon"),BusinessName=Clean(businessName,180,"Firma"),SecurityStamp=Guid.NewGuid().ToString("N"),Active=true,CreatedUtc=now,UpdatedUtc=now};
             rows.Add(row); Persist(rows); return Clone(row);
         }
     }
@@ -68,7 +73,7 @@ public sealed class CustomerDirectory
         {
             var rows=LoadUnsafe(); var user=rows.FirstOrDefault(x=>x.Active&&string.Equals(x.Email,(email??"").Trim(),StringComparison.OrdinalIgnoreCase));
             if(user==null||!Passwords.Verify(password??"",user.PasswordHash)) return null;
-            user.LastLoginUtc=DateTimeOffset.UtcNow.ToString("O"); user.UpdatedUtc=user.UpdatedUtc;
+            user.LastLoginUtc=DateTimeOffset.UtcNow.ToString("O");
             Persist(rows); return Clone(user);
         }
     }
@@ -82,7 +87,7 @@ public sealed class CustomerDirectory
         lock(gate)
         {
             var rows=LoadUnsafe(); var index=rows.FindIndex(x=>x.Id==id&&x.Active); if(index<0) throw new ArgumentException("Müşteri hesabı bulunamadı.");
-            var row=rows[index]; if(input.ContainsKey("name"))row.Name=CleanName(input["name"]?.ToString()??row.Name); if(input.ContainsKey("phone"))row.Phone=Clean(input["phone"]?.ToString(),40,"Telefon"); if(input.ContainsKey("businessName"))row.BusinessName=Clean(input["businessName"]?.ToString(),180,"Firma"); if(input.ContainsKey("address"))row.Address=Clean(input["address"]?.ToString(),1200,"Adres"); if(input.ContainsKey("city"))row.City=Clean(input["city"]?.ToString(),100,"İl"); if(input.ContainsKey("district"))row.District=Clean(input["district"]?.ToString(),100,"İlçe"); if(input.ContainsKey("taxOffice"))row.TaxOffice=Clean(input["taxOffice"]?.ToString(),120,"Vergi dairesi"); if(input.ContainsKey("taxNumber"))row.TaxNumber=Clean(input["taxNumber"]?.ToString(),40,"Vergi numarası"); row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O"); rows[index]=row; Persist(rows); return Clone(row);
+            var row=rows[index]; if(input.ContainsKey("profileKind")){var kind=input["profileKind"]?.ToString();if(kind is not ("individual" or "company"))throw new ArgumentException("Geçersiz profil türü.");row.ProfileKind=kind;} if(input.ContainsKey("name"))row.Name=CleanName(input["name"]?.ToString()??row.Name); if(input.ContainsKey("phone"))row.Phone=Clean(input["phone"]?.ToString(),40,"Telefon"); if(input.ContainsKey("businessName"))row.BusinessName=Clean(input["businessName"]?.ToString(),180,"Firma"); if(input.ContainsKey("address"))row.Address=Clean(input["address"]?.ToString(),1200,"Adres"); if(input.ContainsKey("city"))row.City=Clean(input["city"]?.ToString(),100,"İl"); if(input.ContainsKey("district"))row.District=Clean(input["district"]?.ToString(),100,"İlçe"); if(input.ContainsKey("taxOffice"))row.TaxOffice=Clean(input["taxOffice"]?.ToString(),120,"Vergi dairesi"); if(input.ContainsKey("taxNumber"))row.TaxNumber=Clean(input["taxNumber"]?.ToString(),40,"Vergi numarası"); row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O"); rows[index]=row; Persist(rows); return Clone(row);
         }
     }
 
@@ -94,7 +99,7 @@ public sealed class CustomerDirectory
             var rows=LoadUnsafe(); var index=rows.FindIndex(x=>x.Id==id&&x.Active); if(index<0) throw new ArgumentException("Müşteri hesabı bulunamadı.");
             if(!Passwords.Verify(currentPassword??"",rows[index].PasswordHash)) throw new ArgumentException("Mevcut şifre hatalı.");
             if(Passwords.Verify(newPassword,rows[index].PasswordHash)) throw new ArgumentException("Yeni şifre mevcut şifreyle aynı olamaz.");
-            rows[index].PasswordHash=Passwords.Hash(newPassword); rows[index].UpdatedUtc=DateTimeOffset.UtcNow.ToString("O"); Persist(rows);
+            rows[index].SecurityStamp=Guid.NewGuid().ToString("N"); rows[index].PasswordHash=Passwords.Hash(newPassword); rows[index].UpdatedUtc=DateTimeOffset.UtcNow.ToString("O"); Persist(rows);
         }
     }
 
@@ -106,13 +111,20 @@ public sealed class CustomerDirectory
         {
             var rows=LoadUnsafe(); var index=rows.FindIndex(x=>x.Active&&string.Equals(x.Email,value,StringComparison.OrdinalIgnoreCase));
             if(index<0) throw new ArgumentException("Müşteri hesabı bulunamadı.");
-            rows[index].PasswordHash=Passwords.Hash(newPassword);
+            rows[index].SecurityStamp=Guid.NewGuid().ToString("N"); rows[index].PasswordHash=Passwords.Hash(newPassword);
             rows[index].UpdatedUtc=DateTimeOffset.UtcNow.ToString("O");
             Persist(rows);
         }
     }
 
+    public List<CustomerAccountRecord> List(){lock(gate)return LoadUnsafe().Select(Clone).ToList();}
+    public void SetAvatar(string id,string fileName)=>Mutate(id,row=>row.AvatarFile=fileName);
+    public void VerifyEmail(string id)=>Mutate(id,row=>row.EmailVerified=true);
+    public void RevokeSessions(string id)=>Mutate(id,row=>row.SecurityStamp=Guid.NewGuid().ToString("N"));
+    public void BindWarranty(string id,string warrantyId){lock(gate){var rows=LoadUnsafe();var row=rows.FirstOrDefault(x=>x.Id==id&&x.Active)??throw new ArgumentException("Müşteri hesabı bulunamadı.");if(rows.Any(x=>x.Id!=id&&(x.WarrantyIds??new()).Contains(warrantyId)))throw new ArgumentException("Bu garanti kaydı başka bir müşteri hesabına bağlı.");row.WarrantyIds??=new();if(!row.WarrantyIds.Contains(warrantyId))row.WarrantyIds.Add(warrantyId);row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O");Persist(rows);}}
+    void Mutate(string id,Action<CustomerAccountRecord> change){lock(gate){var rows=LoadUnsafe();var row=rows.FirstOrDefault(x=>x.Id==id&&x.Active)??throw new ArgumentException("Müşteri hesabı bulunamadı.");change(row);row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O");Persist(rows);}}
+
     public static ClaimsPrincipal Principal(CustomerAccountRecord user)=>new(new ClaimsIdentity(new[]{
-        new Claim(ClaimTypes.Name,user.Email),new Claim(ClaimTypes.Email,user.Email),new Claim(ClaimTypes.Role,"Customer"),new Claim("inokskar:user-id",user.Id),new Claim("inokskar:display-name",user.Name)
+        new Claim(ClaimTypes.Name,user.Email),new Claim(ClaimTypes.Email,user.Email),new Claim(ClaimTypes.Role,"Customer"),new Claim("inokskar:user-id",user.Id),new Claim("inokskar:display-name",user.Name),new Claim("inokskar:security-stamp",user.SecurityStamp)
     },CookieAuthenticationDefaults.AuthenticationScheme));
 }
