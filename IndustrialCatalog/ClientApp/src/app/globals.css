@@ -495,8 +495,8 @@ html body .settings-section-save{display:flex;align-items:center;justify-content
 @media(prefers-reduced-motion:reduce){.settings-slide,.settings-section-button>svg:last-child{transition:none}}
 
 /* Drawer headings belong to the mobile drawer, not the desktop sidebar. */
-@media(min-width:1101px){html body .admin-menu-sheet-head{display:none!important}}
+
 
 @media(min-width:701px) and (max-width:1100px){body[data-ui-page="admin-stats"] .table-box table{width:100%;min-width:0;table-layout:fixed}body[data-ui-page="admin-stats"] .table-box :is(th,td){white-space:normal;overflow-wrap:anywhere}}
 
-@media(max-width:1100px){.support-center.direct-contact-active{padding-bottom:max(24px,calc(100dvh - var(--direct-contact-height,480px) + 24px))!important}#dogrudan-iletisim{scroll-margin-top:8px!important}}
+

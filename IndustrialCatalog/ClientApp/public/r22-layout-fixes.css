@@ -2966,3 +2966,5 @@ body[data-ui-page^="admin-"] .admin-header-actions{display:flex!important;align-
 
 /* Keep the private desktop logo inside its header at every image ratio. */
 @media(min-width:1101px){body .private-brand-header:not(.site-header)>a.private-brand-link{height:50px;max-height:50px}body .private-brand-header:not(.site-header)>a.private-brand-link .private-brand-image{width:100%;height:50px;max-height:50px;object-fit:contain;transform:none}body.warranty-admin-body .warranty-admin-heading{flex-direction:row;align-items:center;text-align:left}body.warranty-admin-body .warranty-heading-actions{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));width:auto;flex:none}}
+
+@media(min-width:1101px){html body .admin-menu-sheet-head{display:none!important}}
