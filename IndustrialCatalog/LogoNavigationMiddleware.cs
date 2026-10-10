@@ -58,7 +58,7 @@ public sealed class LogoNavigationMiddleware
                 if (!html.Contains("/customer-ui.js", StringComparison.Ordinal))
                 {
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
-                    if (headEnd >= 0) html = html.Insert(headEnd, "<link rel='stylesheet' href='/customer-ui.css?v=customer-ui-6'><script defer src='/customer-ui.js?v=customer-ui-6'></script>");
+                    if (headEnd >= 0) html = html.Insert(headEnd, "<link rel='stylesheet' href='/customer-ui.css?v=customer-ui-7'><script defer src='/customer-ui.js?v=customer-ui-7'></script>");
                 }
                 html = html.Replace("/r125-customer.js\"", "/r125-customer.js?v=profile-consent-2\"");
                 var bytes = Encoding.UTF8.GetBytes(html);
