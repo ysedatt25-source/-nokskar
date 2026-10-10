@@ -1,5 +1,5 @@
 import {useEffect,useState,type FormEvent} from 'react';
-import {Search, ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
+import {Search, ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Menu, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
 import type {Catalog} from '../lib/model';
 
 type Purpose = 'genel' | 'teklif' | 'servis' | 'proje';
@@ -20,7 +20,7 @@ const displayTrackingPhone=(value:string):string=>{
     :value.trim();
 };
 
-export default function SupportCenter({settings:s}:{settings:Catalog['settings']}) {
+export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings:Catalog['settings'];onOpenMenu:()=>void;menuOpen:boolean}) {
   useEffect(()=>{if(window.location.hash!=='#dogrudan-iletisim')return;const frame=requestAnimationFrame(()=>{const target=document.getElementById('dogrudan-iletisim');target?.scrollIntoView({block:'start',behavior:'auto'});target?.focus({preventScroll:true});});return()=>cancelAnimationFrame(frame);},[]);
   const query=new URLSearchParams(typeof window!=='undefined'?window.location.search:'');
   const [purpose,setPurpose]=useState<Purpose>(()=>validPurpose(query.get('amac')));
@@ -167,7 +167,7 @@ export default function SupportCenter({settings:s}:{settings:Catalog['settings']
         </form>}
       </div>
       <aside id="dogrudan-iletisim" tabIndex={-1} style={{scrollMarginTop:110,outline:'none'}} className="support-info" aria-label="Diğer iletişim yolları">
-        <div className="support-info-heading"><span>DOĞRUDAN İLETİŞİM</span><h2>Biz buradayız.</h2><p>Form doldurmak istemezseniz aşağıdaki kanallardan da ulaşabilirsiniz.</p></div>
+        <div className="support-info-heading"><button type="button" className="support-menu-toggle" aria-label="Site menüsünü aç" aria-controls="r22-mobile-drawer" aria-expanded={menuOpen} onClick={onOpenMenu}><Menu size={23} aria-hidden="true"/></button><span>DOĞRUDAN İLETİŞİM</span><h2>Biz buradayız.</h2><p>Form doldurmak istemezseniz aşağıdaki kanallardan da ulaşabilirsiniz.</p></div>
         <div className="contact-quick-list">
           {s.phone&&<a href={'tel:'+s.phone}><Phone/><span><small>TELEFON</small><strong>{s.phone}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.email&&<a href={'mailto:'+s.email}><Mail/><span><small>E-POSTA</small><strong>{s.email}</strong></span><ArrowRight className="support-info-arrow"/></a>}

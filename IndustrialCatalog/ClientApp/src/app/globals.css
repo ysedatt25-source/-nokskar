@@ -368,3 +368,16 @@ body[data-ui-page="admin-settings"] .settings-save-hint{display:flex;align-items
  body.page-listing .page-intro .catalog-mobile-toolbar button b{min-width:16px;height:16px;font-size:.6rem}
  body.page-listing .page-intro .catalog-mobile-toolbar>span{justify-self:center;font-size:.68rem;line-height:1.3;padding-top:2px;white-space:nowrap}
 }
+
+/* A second entry to the shared site menu beside the direct contact heading. */
+.support-info-heading{position:relative}
+.support-menu-toggle{display:none}
+@media(max-width:1100px){
+ .support-info-heading>span,.support-info-heading>h2{padding-right:58px}
+ html body .support-info-heading>.support-menu-toggle{position:absolute;top:0;right:0;display:grid;place-items:center;box-sizing:border-box;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;margin:0;border:1px solid #a8c9ea66;border-radius:14px;background:linear-gradient(145deg,#ffffff24,#ffffff10);color:#fff;box-shadow:inset 0 1px 0 #ffffff20,0 4px 12px #06192a18;cursor:pointer;transform:none;touch-action:manipulation;transition:background-color .16s,border-color .16s}
+ html body .support-info-heading>.support-menu-toggle:hover{background:#ffffff30;border-color:#c5dfff;transform:none}
+ html body .support-info-heading>.support-menu-toggle:active{background:#ffffff3d;transform:none}
+ html body .support-info-heading>.support-menu-toggle:focus-visible{outline:3px solid #aed8ff;outline-offset:3px}
+ html body .support-info-heading>.support-menu-toggle::before,html body .support-info-heading>.support-menu-toggle::after{content:none}
+ .support-menu-toggle svg{display:block;width:23px;height:23px;pointer-events:none}
+}

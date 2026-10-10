@@ -123,7 +123,7 @@ useEffect(()=>{setPage(1);},[path,search,filter,sort,pageSize]);
       </div>}
     </article>)}</div>:<div className="references-public-empty"><Building2 size={33}/><p>Referanslarımız çok yakında burada yayınlanacak.</p></div>}
   </section>}
- {contact&&<SupportCenter settings={s}/>}
+ {contact&&<SupportCenter settings={s} onOpenMenu={openHeaderMenu} menuOpen={menu}/>}
  {tracking&&<RequestTracking/>}
  {warranty&&<WarrantyCenter/>}
  {legal&&<LegalCenter path={path} name={s.name}/>}
