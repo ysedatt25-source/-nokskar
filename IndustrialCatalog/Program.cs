@@ -46,6 +46,7 @@ Membership.Map(app,dataPath);
 if(!app.Environment.IsDevelopment()){app.UseExceptionHandler("/error");app.UseHsts();if(string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")))app.UseHttpsRedirection();}
 app.Use(async(ctx,next)=>{try{await next();}catch(Exception ex){app.Services.GetRequiredService<OperationalLog>().Error(ex,ctx);throw;}});
 app.Use(async(ctx,next)=>{
+    if(ctx.Request.Path=="/api/customer/avatar"){var avatarLimit=ctx.Features.Get<IHttpMaxRequestBodySizeFeature>();if(avatarLimit is {IsReadOnly:false})avatarLimit.MaxRequestBodySize=3*1024*1024;}
     if(ctx.Request.Path=="/api/customer/avatar"&&ctx.Request.ContentLength>3*1024*1024){ctx.Response.StatusCode=413;await ctx.Response.WriteAsJsonAsync(new{error="Görsel en fazla 2 MB olabilir."});return;}
     ctx.Response.Headers["X-Content-Type-Options"]="nosniff";ctx.Response.Headers["X-Frame-Options"]="SAMEORIGIN";ctx.Response.Headers["Referrer-Policy"]="strict-origin-when-cross-origin";ctx.Response.Headers["Permissions-Policy"]="camera=(), microphone=(), geolocation=(), payment=(), usb=()";
     ctx.Response.Headers["Cross-Origin-Opener-Policy"]="same-origin";ctx.Response.Headers["Cross-Origin-Resource-Policy"]="same-site";
