@@ -185,7 +185,7 @@ app.MapPost("/api/account/password",async(HttpContext c,IConfiguration config,Us
 app.MapGet("/account/security",(HttpContext c)=>Results.Content(AccessPages.AccountSecurity(c.User.Identity?.Name??"",AccessControl.Role(c.User)),"text/html; charset=utf-8")).RequireAuthorization();
 app.MapGet("/admin/security",(HttpContext c)=>Results.Redirect("/account/security")).RequireAuthorization();
 app.MapPost("/admin/security/password",(HttpContext c)=>Results.Redirect("/account/security")).RequireAuthorization();
-app.MapGet("/garanti-sorgulama",(Store store)=>Results.Content(WarrantyPages.Public(CatalogRules.Public(store.Snapshot()["data"]!.AsObject())),"text/html; charset=utf-8"));
+// Warranty query uses the same Storefront header, menu and navigation as all catalogue pages.
 // Retired legacy service form: old bookmarks go to the unified technical-service form.
 app.MapGet("/servis-talebi",()=>Results.Redirect("/iletisim?amac=servis",permanent:true));
 
@@ -446,7 +446,7 @@ app.MapPost("/api/event",async(HttpContext c,Store store)=>{
 app.MapFallback((HttpContext c,Store store,IWebHostEnvironment env,IConfiguration config)=>{
     var requestPath=c.Request.Path.Value??"/";var path=requestPath.Length>1?requestPath.TrimEnd('/'):requestPath;if(path=="")path="/";
     if(path=="/blog"||path.StartsWith("/blog/"))return Results.Redirect("/urunler",false);
-    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda","/referanslar","/talep-sorgula"}.Contains(path,StringComparer.OrdinalIgnoreCase);
+    var data=CatalogRules.Public(store.Snapshot()["data"]!.AsObject());var valid=new[]{"/","/urunler","/iletisim","/hakkimizda","/referanslar","/talep-sorgula","/garanti-sorgulama"}.Contains(path,StringComparer.OrdinalIgnoreCase);
     foreach(var (prefix,key) in new[]{("/urun/","products"),("/kategori/","categories")})
     {
         if(!path.StartsWith(prefix,StringComparison.OrdinalIgnoreCase))continue;
