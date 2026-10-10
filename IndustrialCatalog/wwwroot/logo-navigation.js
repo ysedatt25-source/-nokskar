@@ -28,7 +28,10 @@
         }
         const logo = img.closest('a') || img.parentElement;
         const header = img.closest('[data-brand-header],.site-header,.private-brand-header,header.top');
-        if(header){header.setAttribute('data-brand-header','');logo.setAttribute('data-brand-logo','');}
+        if(header){
+          header.setAttribute('data-brand-header','');logo.setAttribute('data-brand-logo','');
+          if(!header.querySelector(':scope > .logo-mirror-layer')){const layer=document.createElement('span');layer.className='logo-mirror-layer';layer.setAttribute('aria-hidden','true');header.append(layer);}
+        }
         const host = header || logo;
         host.classList.add('logo-mirror-host');
         if (getComputedStyle(host).position === 'static') host.style.position = 'relative';

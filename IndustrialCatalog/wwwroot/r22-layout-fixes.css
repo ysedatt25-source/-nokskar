@@ -2951,3 +2951,11 @@ header.top[data-brand-header] [data-brand-logo]{background:#fff!important;border
 header.top[data-brand-header] [data-brand-logo] img{background:#fff!important}
 [data-brand-header].logo-mirror-host{isolation:isolate}
 [data-brand-header].logo-mirror-host::after{border-radius:0!important}
+
+/* The shine has its own clipped layer, leaving header menus unobstructed. */
+[data-brand-header].logo-mirror-host{overflow:visible!important}
+[data-brand-header].logo-mirror-host::after{display:none!important}
+[data-brand-header]>.logo-mirror-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:9}
+[data-brand-header]>.logo-mirror-layer::after{content:"";position:absolute;pointer-events:none;top:-20%;left:-45%;width:30%;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg);opacity:0}
+[data-brand-header].logo-mirror-active>.logo-mirror-layer::after{animation:logo-mirror-sweep .85s ease-out both}
+@media(prefers-reduced-motion:reduce){[data-brand-header]>.logo-mirror-layer{display:none}}
