@@ -33,7 +33,7 @@ public sealed class LogoNavigationMiddleware
                 var html = await reader.ReadToEndAsync();
                 if (!html.Contains("/logo-navigation.js", StringComparison.Ordinal))
                 {
-                    const string script = "<script defer src=\"/logo-navigation.js?v=providers-menu-20261011\"></script>";
+                    const string script = "<script defer src=\"/logo-navigation.js?v=warranty-print-20261011\"></script>";
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     html = headEnd >= 0 ? html.Insert(headEnd, script) : html + script;
                 }
@@ -65,7 +65,7 @@ public sealed class LogoNavigationMiddleware
                 // Refresh the shared close-control styles on every HTML page.
                 html = html.Replace("/r129-feedback.css?v=1", "/r129-feedback.css?v=close-controls-2");
                 // Shared hand-written assets change independently of the hashed Vite bundle.
-                html = Regex.Replace(html, @"/(r104-admin-runtime\.js|logo-navigation\.js|r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=providers-menu-20261011");
+                html = Regex.Replace(html, @"/(r95-warranty-admin\.js|r104-admin-runtime\.js|logo-navigation\.js|r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=warranty-print-20261011");
                 html = SmsVisibility.Apply(html,context,context.RequestServices.GetRequiredService<SmsSettingsStore>());
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;

@@ -62,6 +62,13 @@ public static class WarrantyRules
 
         if (!DateOnly.TryParseExact(input["deliveryDate"]?.ToString(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var delivery))
             throw new ArgumentException("Geçerli teslim tarihi girin.");
+        var manufacturingDate = input["manufacturingDate"]?.ToString() ?? existing?["manufacturingDate"]?.ToString() ?? "";
+        if (manufacturingDate.Length > 0)
+        {
+            if (!DateOnly.TryParseExact(manufacturingDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var manufacturing) || manufacturing > delivery)
+                throw new ArgumentException("İmalat tarihi geçerli olmalı ve teslim tarihinden sonra olmamalıdır.");
+            manufacturingDate = manufacturing.ToString("yyyy-MM-dd");
+        }
         var months = input["warrantyMonths"]?.GetValue<int>() ?? 0;
         if (months is < 1 or > 120) throw new ArgumentException("Garanti süresi 1 ile 120 ay arasında olmalıdır.");
         var end = delivery.AddMonths(months);
@@ -139,6 +146,7 @@ public static class WarrantyRules
             ["verificationHint"] = verificationHint,
             ["verificationCode"] = storedVerificationCode,
             ["deliveryDate"] = delivery.ToString("yyyy-MM-dd"),
+            ["manufacturingDate"] = manufacturingDate,
             ["warrantyMonths"] = months,
             ["warrantyEndDate"] = end.ToString("yyyy-MM-dd"),
             ["components"] = components,

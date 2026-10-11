@@ -2970,3 +2970,6 @@ body .brand-mirror-host>.brand-mirror-layer{position:absolute;pointer-events:non
 @media(min-width:1101px){body .site-header.brand-unified-header .main-nav a,body .site-header.brand-unified-header .header-actions a:not(.button){color:#f2f6fa!important}body .site-header.brand-unified-header .main-nav a:hover{color:#90c7ff!important}}
 
 body.r126-auth .brand-mirror-host{background:radial-gradient(ellipse 100% 130% at 50% 50%,#fff 0%,#fff 55%,#eef0f2 72%,#aeb3b8 90%,#626a72 100%)!important;border-radius:8px;padding:8px;box-sizing:content-box;width:fit-content;max-width:calc(100% - 16px);margin-inline:auto}
+
+/* Fill only the existing image area; card geometry remains unchanged. */
+html body .product-card .product-photo>img,html body .home-design-featured .product-card .product-photo>.home-design-photo{padding:0!important;object-fit:contain!important;object-position:center;transform:none!important}
