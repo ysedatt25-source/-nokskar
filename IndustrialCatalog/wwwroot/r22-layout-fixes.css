@@ -2954,7 +2954,7 @@ body .private-brand-header:not(.site-header) .private-brand-image{background:tra
 body .private-brand-header:not(.site-header)>.private-header-toggle{position:relative;z-index:4;background:linear-gradient(180deg,#39434e,#252c34)!important;color:#fff!important}
 
 /* Canonical logo treatment: identical colours and a full image-width sweep. */
-body :is(.site-header,.private-brand-header,header.top).brand-unified-header{background:radial-gradient(ellipse 260px var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}
+body :is(.site-header,.private-brand-header,header.top).brand-unified-header{background:radial-gradient(ellipse var(--brand-fade-width,260px) var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}
 body .brand-mirror-host{position:relative;isolation:isolate;background:transparent!important;box-shadow:none!important;clip-path:none!important;overflow:visible!important}
 body .brand-mirror-host>img{background:transparent!important;opacity:1!important;filter:none!important;mix-blend-mode:normal!important}
 body .brand-mirror-host.brand-mirror-host::after{display:none!important}
@@ -2962,7 +2962,7 @@ body .brand-mirror-host>.brand-mirror-layer{position:absolute;pointer-events:non
 .brand-mirror-layer::after{content:"";position:absolute;pointer-events:none;top:-25%;height:150%;width:40%;left:-50%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg);opacity:0}
 .brand-mirror-layer.brand-mirror-active::after{animation:inokskar-brand-sweep .95s linear both}
 @keyframes inokskar-brand-sweep{0%{left:-50%;opacity:0}8%,92%{opacity:1}100%{left:110%;opacity:0}}
-@media(max-width:1100px){body .admin-sidebar.brand-unified-header{background:radial-gradient(ellipse 260px var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}}
+@media(max-width:1100px){body .admin-sidebar.brand-unified-header{background:radial-gradient(ellipse var(--brand-fade-width,260px) var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}}
 @media(prefers-reduced-motion:reduce){.brand-mirror-layer{display:none!important}}
 
 @media(min-width:1101px){body .admin-sidebar.brand-unified-header>.brand.brand-mirror-host{border:0!important;border-radius:0!important;background:radial-gradient(ellipse 140px 64px at 50% 50%,#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}}
