@@ -9,7 +9,7 @@ public static class SmsEndpoints
     public static void Map(WebApplication app)
     {
         app.MapGet("/api/contact-capabilities",(SmsSettingsStore sms)=>Results.Json(new{phoneMembership=sms.Active}));
-        app.MapGet("/admin/sms",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Html(SmsPages.Settings()):Results.Forbid()).RequireAuthorization();
+        app.MapGet("/admin/sms",(HttpContext c,SmsSettingsStore sms)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Html(SmsPages.Settings(sms.Active)):Results.Forbid()).RequireAuthorization();
         app.MapGet("/api/admin/sms/settings",(HttpContext c,SmsSettingsStore sms)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Json(sms.PublicSettings()):Results.Forbid()).RequireAuthorization();
         app.MapPost("/api/admin/sms/settings",async(HttpContext c,SmsSettingsStore sms,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.System,"edit"))return Results.Forbid();var body=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Sağlayıcı bilgileri gerekli.");sms.Save(body);store.RecordAudit("Sağlayıcı ayarı güncellendi","sms","",AccessControl.DisplayName(c.User));return Results.Json(sms.PublicSettings());}).RequireAuthorization();
         app.MapGet("/telefon-kayit",(SmsSettingsStore sms)=>sms.Active?Html(SmsPages.Phone("register")):Results.NotFound());

@@ -39,6 +39,6 @@ public sealed class SmsGateway
 }
 public static class SmsPhone
 {
-    public static string? TryNormalize(string? phone){var raw=(phone??"").Trim();if(raw.Any(c=>!char.IsAsciiDigit(c)&&c!='+'&&c!=' '&&c!='-'&&c!='('&&c!=')'))return null;var v=new string(raw.Where(char.IsAsciiDigit).ToArray());if(v.StartsWith("0090",StringComparison.Ordinal))v=v[2..];if(v.Length==11&&v[0]=='0')v="9"+v;if(v.Length==10)v="90"+v;return v.Length==12&&v.StartsWith("905",StringComparison.Ordinal)?v:null;}
+    public static string? TryNormalize(string? phone){var raw=(phone??"").Trim();if(raw.Length>40)return null;if(raw.Any(c=>!char.IsAsciiDigit(c)&&c!='+'&&c!=' '&&c!='-'&&c!='('&&c!=')'))return null;var v=new string(raw.Where(char.IsAsciiDigit).ToArray());if(v.StartsWith("0090",StringComparison.Ordinal))v=v[2..];if(v.Length==11&&v[0]=='0')v="9"+v;if(v.Length==10)v="90"+v;return v.Length==12&&v.StartsWith("905",StringComparison.Ordinal)?v:null;}
     public static string Normalize(string? phone)=>TryNormalize(phone)??throw new ArgumentException("Geçerli bir cep telefonu girin. Örnek: 542 123 45 67.");
 }
