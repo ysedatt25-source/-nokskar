@@ -29,11 +29,11 @@
      const copy=(label?thermal:root.querySelector('.certificate')).cloneNode(true);
      copy.querySelectorAll('.brand-mirror-layer').forEach(e=>e.remove());
      copy.removeAttribute('id');
-     const css=new URL('/warranty-document.css?v=20261011-2',location.origin).href;
+     const css=new URL('/warranty-document.css?v=20261011-3',location.origin).href;
      frame=document.createElement('iframe');frame.title='Yazdırma belgesi';
      frame.style.cssText='position:fixed;left:-10000px;top:0;border:0;width:'+(label?width+'mm':'210mm')+';height:'+(label?'50mm':'297mm')+';';
      const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=()=>reject(Error('Yazdırma belgesi hazırlanamadı.'));});
-     frame.srcdoc='<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>İNOKSKAR '+(label?'Termal Etiket':'Garanti Belgesi')+'</title><link rel="stylesheet" href="'+css+'">'+(label?'<style>@page{size:'+width+'mm 50mm;margin:0}html,body{margin:0;padding:0;background:white}.thermal-label{border:0}</style>':'')+'</head><body class="warranty-certificate-body">'+copy.outerHTML+'</body></html>';
+     frame.srcdoc='<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>İNOKSKAR '+(label?'Termal Etiket':'Garanti Belgesi')+'</title><link rel="stylesheet" href="'+css+'">'+(label?'<style>@page{size:'+width+'mm 50mm;margin:0}html,body{margin:0;padding:0;background:white}.thermal-label{border:0}</style>':'')+'</head><body class="warranty-certificate-body warranty-print-document">'+copy.outerHTML+'</body></html>';
      document.body.append(frame);await loaded;
      await Promise.all([...frame.contentDocument.images].map(i=>i.decode().catch(()=>{throw Error('Belge logosu yüklenemedi. Tekrar deneyin.');})));
      await frame.contentDocument.fonts.ready;
@@ -43,7 +43,6 @@
      }
      if(!label){
        const sheet=frame.contentDocument.querySelector('.certificate');
-       const available=frame.contentDocument.documentElement.clientWidth;
        const maxHeight=133/25.4*96;
        let size=10;sheet.style.setProperty('--certificate-font',size+'px');
        while(sheet.getBoundingClientRect().height>maxHeight&&size>8){size-=.25;sheet.style.setProperty('--certificate-font',size+'px');}

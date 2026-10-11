@@ -83,7 +83,7 @@ public static class WarrantyPages
         var dated = Date("manufacturingDate") != "—";
         var coded = !string.IsNullOrWhiteSpace(warranty["verificationCode"]?.ToString());
         var html = """
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Garanti Belgesi | İNOKSKAR</title><link rel="stylesheet" href="/warranty-document.css?v=20261011-2"><script defer src="/warranty-document.js?v=20261011-2"></script></head><body class="warranty-certificate-body"><main class="certificate-shell">
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Garanti Belgesi | İNOKSKAR</title><link rel="stylesheet" href="/warranty-document.css?v=20261011-3"><script defer src="/warranty-document.js?v=20261011-3"></script></head><body class="warranty-certificate-body"><main class="certificate-shell">
 <article class="certificate" id="warranty-document" aria-label="Garanti belgesi">
 <header class="certificate-head"><a class="certificate-brand" href="/" aria-label="İNOKSKAR ana sayfa"><img src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><div class="certificate-heading"><span>Ürün güvence belgesi</span><h1>Garanti Belgesi</h1><p>Seri no · @@SERIAL@@</p></div></header>
 <section class="certificate-product"><span class="certificate-section-title">Ürün bilgileri</span><h2>@@PRODUCT@@</h2><p>Ürün kodu: @@PRODUCT_CODE@@</p></section>

@@ -93,3 +93,11 @@
  .certificate h3{margin:4px 0 3px}.certificate th,.certificate td{padding:3px 4px}
  .certificate-note{margin-top:4px;padding:4px}.certificate-signatures{margin-top:9px}.certificate-footer{margin-top:3px;padding-top:3px}
 }
+
+/* Use the print layout while preparing and measuring the isolated document. */
+ .warranty-print-document .certificate{--certificate-font:10px;width:196mm;max-width:100%;padding:2mm;border:1px solid #a7b9c8;border-top:3px solid #246fa9;line-height:1.2}
+ .warranty-print-document .certificate-head{padding-bottom:4px}.certificate-brand img{height:30px}.certificate-brand{width:145px}
+ .warranty-print-document .certificate-heading span,.warranty-print-document .certificate-section-title{font-size:.75em}.certificate-heading p,.certificate-product p{font-size:.85em}
+ .warranty-print-document .certificate-product{padding:4px 0}.certificate-meta{margin:4px 0}.certificate-meta div{padding:3px 5px}
+ .warranty-print-document .certificate h3{margin:4px 0 3px}.certificate th,.certificate td{padding:3px 4px}
+ .warranty-print-document .certificate-note{margin-top:4px;padding:4px}.certificate-signatures{margin-top:9px}.certificate-footer{margin-top:3px;padding-top:3px}
