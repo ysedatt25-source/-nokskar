@@ -17,6 +17,7 @@ public sealed class CustomerAccountRecord
     public string TaxNumber { get; set; } = "";
     public bool Active { get; set; } = true;
     public bool EmailVerified { get; set; }
+    public bool PhoneVerified { get; set; }
     public string SecurityStamp { get; set; } = "";
     public string ProfileKind { get; set; } = "individual";
     public string AvatarFile { get; set; } = "";
@@ -60,6 +61,7 @@ public sealed class CustomerDirectory
         lock(gate)
         {
             var rows=LoadUnsafe(); var normalized=CleanEmail(email);
+            EnsurePhoneAvailable(rows,phone);
             if(rows.Any(x=>string.Equals(x.Email,normalized,StringComparison.OrdinalIgnoreCase))) throw new ArgumentException("Bu e-posta adresiyle daha önce müşteri hesabı oluşturulmuş. Giriş yapabilir veya şifrenizi yenileyebilirsiniz.");
             ValidatePassword(password); var now=DateTimeOffset.UtcNow.ToString("O");
             var row=new CustomerAccountRecord{Id=Guid.NewGuid().ToString("N"),Name=CleanName(name),Email=normalized,PasswordHash=Passwords.Hash(password),Phone=Clean(phone,40,"Telefon"),BusinessName=Clean(businessName,180,"Firma"),SecurityStamp=Guid.NewGuid().ToString("N"),Active=true,CreatedUtc=now,UpdatedUtc=now};
@@ -87,7 +89,7 @@ public sealed class CustomerDirectory
         lock(gate)
         {
             var rows=LoadUnsafe(); var index=rows.FindIndex(x=>x.Id==id&&x.Active); if(index<0) throw new ArgumentException("Müşteri hesabı bulunamadı.");
-            var row=rows[index]; if(input.ContainsKey("profileKind")){var kind=input["profileKind"]?.ToString();if(kind is not ("individual" or "company"))throw new ArgumentException("Geçersiz profil türü.");row.ProfileKind=kind;} if(input.ContainsKey("name"))row.Name=CleanName(input["name"]?.ToString()??row.Name); if(input.ContainsKey("phone"))row.Phone=Clean(input["phone"]?.ToString(),40,"Telefon"); if(input.ContainsKey("businessName"))row.BusinessName=Clean(input["businessName"]?.ToString(),180,"Firma"); if(input.ContainsKey("address"))row.Address=Clean(input["address"]?.ToString(),1200,"Adres"); if(input.ContainsKey("city"))row.City=Clean(input["city"]?.ToString(),100,"İl"); if(input.ContainsKey("district"))row.District=Clean(input["district"]?.ToString(),100,"İlçe"); if(input.ContainsKey("taxOffice"))row.TaxOffice=Clean(input["taxOffice"]?.ToString(),120,"Vergi dairesi"); if(input.ContainsKey("taxNumber"))row.TaxNumber=Clean(input["taxNumber"]?.ToString(),40,"Vergi numarası"); row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O"); rows[index]=row; Persist(rows); return Clone(row);
+            var row=rows[index]; if(input.ContainsKey("profileKind")){var kind=input["profileKind"]?.ToString();if(kind is not ("individual" or "company"))throw new ArgumentException("Geçersiz profil türü.");row.ProfileKind=kind;} if(input.ContainsKey("name"))row.Name=CleanName(input["name"]?.ToString()??row.Name); if(input.ContainsKey("phone")){var nextPhone=Clean(input["phone"]?.ToString(),40,"Telefon");EnsurePhoneAvailable(rows,nextPhone,id);if(SmsPhone.TryNormalize(row.Phone)!=SmsPhone.TryNormalize(nextPhone))row.PhoneVerified=false;row.Phone=nextPhone;} if(input.ContainsKey("businessName"))row.BusinessName=Clean(input["businessName"]?.ToString(),180,"Firma"); if(input.ContainsKey("address"))row.Address=Clean(input["address"]?.ToString(),1200,"Adres"); if(input.ContainsKey("city"))row.City=Clean(input["city"]?.ToString(),100,"İl"); if(input.ContainsKey("district"))row.District=Clean(input["district"]?.ToString(),100,"İlçe"); if(input.ContainsKey("taxOffice"))row.TaxOffice=Clean(input["taxOffice"]?.ToString(),120,"Vergi dairesi"); if(input.ContainsKey("taxNumber"))row.TaxNumber=Clean(input["taxNumber"]?.ToString(),40,"Vergi numarası"); row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O"); rows[index]=row; Persist(rows); return Clone(row);
         }
     }
 
@@ -106,7 +108,7 @@ public sealed class CustomerDirectory
     public void ResetPasswordByEmail(string email,string newPassword)
     {
         ValidatePassword(newPassword);
-        var value=(email??"").Trim();
+        var value=(email??"").Trim();if(string.IsNullOrWhiteSpace(value))throw new ArgumentException("E-posta adresi gerekli.");
         lock(gate)
         {
             var rows=LoadUnsafe(); var index=rows.FindIndex(x=>x.Active&&string.Equals(x.Email,value,StringComparison.OrdinalIgnoreCase));
@@ -117,6 +119,14 @@ public sealed class CustomerDirectory
         }
     }
 
+    static void EnsurePhoneAvailable(List<CustomerAccountRecord> rows,string phone,string except="") {var n=SmsPhone.TryNormalize(phone);if(n!=null&&rows.Any(x=>x.Id!=except&&SmsPhone.TryNormalize(x.Phone)==n))throw new ArgumentException("Bu telefon başka bir hesaba kayıtlı. Mevcut hesabınıza giriş yapın veya şifrenizi yenileyin.");}
+    public CustomerAccountRecord? ByPhone(string phone){var n=SmsPhone.Normalize(phone);lock(gate){var matches=LoadUnsafe().Where(x=>x.Active&&SmsPhone.TryNormalize(x.Phone)==n).ToList();return matches.Count==1?Clone(matches[0]):null;}}
+    public bool PhoneExists(string phone){var n=SmsPhone.Normalize(phone);lock(gate)return LoadUnsafe().Any(x=>SmsPhone.TryNormalize(x.Phone)==n);}
+    public CustomerAccountRecord CreateByPhone(string name,string phone,string password,string businessName=""){
+        phone=SmsPhone.Normalize(phone);ValidatePassword(password);lock(gate){var rows=LoadUnsafe();EnsurePhoneAvailable(rows,phone);var now=DateTimeOffset.UtcNow.ToString("O");var row=new CustomerAccountRecord{Id=Guid.NewGuid().ToString("N"),Name=CleanName(name),Phone=phone,PhoneVerified=true,PasswordHash=Passwords.Hash(password),BusinessName=Clean(businessName,180,"Firma"),SecurityStamp=Guid.NewGuid().ToString("N"),CreatedUtc=now,UpdatedUtc=now};rows.Add(row);Persist(rows);return Clone(row);}}
+    public void ResetPasswordByPhone(string id,string phone,string stamp,string password){phone=SmsPhone.Normalize(phone);ValidatePassword(password);lock(gate){var rows=LoadUnsafe();var matches=rows.Where(x=>x.Active&&SmsPhone.TryNormalize(x.Phone)==phone).ToList();if(matches.Count!=1||matches[0].Id!=id||matches[0].SecurityStamp!=stamp)throw new ArgumentException("Doğrulama artık geçerli değil. Yeni kod isteyin.");var row=matches[0];row.PhoneVerified=true;row.PasswordHash=Passwords.Hash(password);row.SecurityStamp=Guid.NewGuid().ToString("N");row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O");Persist(rows);}}
+    public CustomerAccountRecord? VerifyPhone(string phone,string password){var n=SmsPhone.TryNormalize(phone);if(n==null)return null;lock(gate){var rows=LoadUnsafe();var matches=rows.Where(x=>x.Active&&x.PhoneVerified&&SmsPhone.TryNormalize(x.Phone)==n).ToList();if(matches.Count!=1||!Passwords.Verify(password??"",matches[0].PasswordHash))return null;matches[0].LastLoginUtc=DateTimeOffset.UtcNow.ToString("O");Persist(rows);return Clone(matches[0]);}}
+
     public List<CustomerAccountRecord> List(){lock(gate)return LoadUnsafe().Select(Clone).ToList();}
     public void SetAvatar(string id,string fileName)=>Mutate(id,row=>row.AvatarFile=fileName);
     public void VerifyEmail(string id)=>Mutate(id,row=>row.EmailVerified=true);
@@ -125,6 +135,6 @@ public sealed class CustomerDirectory
     void Mutate(string id,Action<CustomerAccountRecord> change){lock(gate){var rows=LoadUnsafe();var row=rows.FirstOrDefault(x=>x.Id==id&&x.Active)??throw new ArgumentException("Müşteri hesabı bulunamadı.");change(row);row.UpdatedUtc=DateTimeOffset.UtcNow.ToString("O");Persist(rows);}}
 
     public static ClaimsPrincipal Principal(CustomerAccountRecord user)=>new(new ClaimsIdentity(new[]{
-        new Claim(ClaimTypes.Name,user.Email),new Claim(ClaimTypes.Email,user.Email),new Claim(ClaimTypes.Role,"Customer"),new Claim("inokskar:user-id",user.Id),new Claim("inokskar:display-name",user.Name),new Claim("inokskar:security-stamp",user.SecurityStamp)
+        new Claim(ClaimTypes.Name,string.IsNullOrWhiteSpace(user.Email)?user.Phone:user.Email),new Claim(ClaimTypes.Email,user.Email),new Claim(ClaimTypes.Role,"Customer"),new Claim("inokskar:user-id",user.Id),new Claim("inokskar:display-name",user.Name),new Claim("inokskar:security-stamp",user.SecurityStamp)
     },CookieAuthenticationDefaults.AuthenticationScheme));
 }

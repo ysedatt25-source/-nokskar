@@ -42,6 +42,7 @@ public static class MembershipChecks
             Check(!html.Contains("PRIVATE-INTERNAL-SENTINEL")&&!html.Contains("OTHER-CUSTOMER-SENTINEL")&&!html.Contains("LEGACY-EMAIL-SENTINEL"),"request isolation and private notes");
             member.EmailVerified=true;Check(Membership.Profile(member,store).Contains("LEGACY-EMAIL-SENTINEL"),"verified legacy email requests");
             member.Name="<script>alert(1)</script>";Check(!Membership.Profile(member,store).Contains("<script>alert(1)</script>"),"profile HTML encoding");
+            SmsChecks.Run();
             Console.WriteLine("Membership security checks: PASS (isolated temporary data)");
         }finally{Directory.Delete(temp,true);}
     }

@@ -13,7 +13,7 @@ public sealed class LogoNavigationMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (!HttpMethods.IsGet(context.Request.Method) ||
+        if (!(HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsPost(context.Request.Method)&&new[]{"/login","/kayit","/forgot-password"}.Contains(context.Request.Path.Value)) ||
             context.Request.Path.StartsWithSegments("/api") ||
             Path.HasExtension(context.Request.Path.Value))
         {
@@ -66,6 +66,7 @@ public sealed class LogoNavigationMiddleware
                 html = html.Replace("/r129-feedback.css?v=1", "/r129-feedback.css?v=close-controls-2");
                 // Shared hand-written assets change independently of the hashed Vite bundle.
                 html = Regex.Replace(html, @"/(r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=qa-20261010-3");
+                html = SmsVisibility.Apply(html,context,context.RequestServices.GetRequiredService<SmsSettingsStore>());
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;
                 context.Response.Body = original;

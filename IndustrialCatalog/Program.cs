@@ -23,7 +23,7 @@ var builder=WebApplication.CreateBuilder(args);
 if(builder.Environment.IsDevelopment())builder.WebHost.UseUrls("http://127.0.0.1:5093");
 builder.Services.AddSingleton<Store>();builder.Services.AddHttpClient();builder.Services.AddHostedService<RateUpdater>();builder.Services.AddHostedService<BackupScheduler>();
 builder.Services.AddAntiforgery(o=>{o.HeaderName="X-INOKSKAR-CSRF";o.FormFieldName="__inokskar_csrf";o.Cookie.Name="Inokskar.Antiforgery";o.Cookie.HttpOnly=true;o.Cookie.SameSite=SameSiteMode.Strict;o.Cookie.SecurePolicy=CookieSecurePolicy.SameAsRequest;});
-builder.Services.AddSingleton<MailSettingsStore>();builder.Services.AddSingleton<MailQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<MailQueue>());builder.Services.AddSingleton<OperationalLog>();builder.Services.AddSingleton<AdminLoginGuard>();builder.Services.AddSingleton<UserDirectory>();builder.Services.AddSingleton<CustomerDirectory>();builder.Services.AddSingleton<PasswordResetStore>();
+builder.Services.AddSingleton<SmsSettingsStore>();builder.Services.AddSingleton<SmsCodes>();builder.Services.AddSingleton<SmsGateway>();builder.Services.AddSingleton<SmsQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<SmsQueue>());builder.Services.AddSingleton<MailSettingsStore>();builder.Services.AddSingleton<MailQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<MailQueue>());builder.Services.AddSingleton<OperationalLog>();builder.Services.AddSingleton<AdminLoginGuard>();builder.Services.AddSingleton<UserDirectory>();builder.Services.AddSingleton<CustomerDirectory>();builder.Services.AddSingleton<PasswordResetStore>();
 var dataPath=Path.GetFullPath(builder.Configuration["Storage:Path"]??"App_Data",builder.Environment.ContentRootPath);
 Directory.CreateDirectory(dataPath);
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataPath,"keys")));
@@ -36,13 +36,16 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 });builder.Services.AddAuthorization();
 builder.Services.AddRateLimiter(o=>{
     o.RejectionStatusCode=429;
+    o.AddPolicy("sms-request",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=5,Window=TimeSpan.FromMinutes(15)}));
+    o.AddPolicy("sms-verify",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=20,Window=TimeSpan.FromMinutes(15)}));
+    o.AddPolicy("sms-admin",ctx=>RateLimitPartition.GetFixedWindowLimiter((AccessControl.UserId(ctx.User)+":"+ctx.Connection.RemoteIpAddress),_=>new FixedWindowRateLimiterOptions{PermitLimit=10,Window=TimeSpan.FromMinutes(1)}));
     o.AddPolicy("login",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=10,Window=TimeSpan.FromMinutes(5)}));
     o.AddPolicy("recovery",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=5,Window=TimeSpan.FromMinutes(15)}));
     o.AddPolicy("public-write",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=30,Window=TimeSpan.FromMinutes(1)}));
     o.AddPolicy("warranty-query",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=12,Window=TimeSpan.FromMinutes(5)}));
 });
 var app=builder.Build();
-Membership.Map(app,dataPath);
+Membership.Map(app,dataPath);SmsEndpoints.Map(app);
 if(!app.Environment.IsDevelopment()){app.UseExceptionHandler("/error");app.UseHsts();if(string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")))app.UseHttpsRedirection();}
 app.Use(async(ctx,next)=>{try{await next();}catch(Exception ex){app.Services.GetRequiredService<OperationalLog>().Error(ex,ctx);throw;}});
 app.Use(async(ctx,next)=>{
@@ -52,7 +55,7 @@ app.Use(async(ctx,next)=>{
     ctx.Response.Headers["Cross-Origin-Opener-Policy"]="same-origin";ctx.Response.Headers["Cross-Origin-Resource-Policy"]="same-site";
     var csp="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'";
     if(!app.Environment.IsDevelopment())csp+="; upgrade-insecure-requests";ctx.Response.Headers["Content-Security-Policy"]=csp;
-    if(ctx.Request.Path.StartsWithSegments("/api")||ctx.Request.Path.StartsWithSegments("/admin")||ctx.Request.Path.StartsWithSegments("/hesabim")||ctx.Request.Path.StartsWithSegments("/account")||ctx.Request.Path=="/uyelik-dogrula"||ctx.Request.Path=="/giris-destegi"||ctx.Request.Path=="/login"||(ctx.Request.Path=="/forgot-password"||ctx.Request.Path=="/reset-password"))ctx.Response.Headers.CacheControl="no-store";
+    if(ctx.Request.Path.StartsWithSegments("/api")||ctx.Request.Path.StartsWithSegments("/admin")||ctx.Request.Path.StartsWithSegments("/hesabim")||ctx.Request.Path.StartsWithSegments("/account")||ctx.Request.Path=="/uyelik-dogrula"||ctx.Request.Path=="/giris-destegi"||ctx.Request.Path.StartsWithSegments("/telefon")||ctx.Request.Path=="/kayit"||ctx.Request.Path=="/login"||(ctx.Request.Path=="/forgot-password"||ctx.Request.Path=="/reset-password"))ctx.Response.Headers.CacheControl="no-store";
     if(HttpMethods.IsPost(ctx.Request.Method)||HttpMethods.IsPut(ctx.Request.Method)||HttpMethods.IsPatch(ctx.Request.Method)||HttpMethods.IsDelete(ctx.Request.Method)){
         var origin=ctx.Request.Headers.Origin.ToString();var expected=$"{ctx.Request.Scheme}://{ctx.Request.Host}";
         if(origin!=expected){ctx.Response.StatusCode=403;await ctx.Response.WriteAsJsonAsync(new{error="Geçersiz istek kaynağı."});return;}
