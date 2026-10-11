@@ -2964,3 +2964,5 @@ body .brand-mirror-host>.brand-mirror-layer{position:absolute;pointer-events:non
 @keyframes inokskar-brand-sweep{0%{left:-50%;opacity:0}8%,92%{opacity:1}100%{left:110%;opacity:0}}
 @media(max-width:1100px){body .admin-sidebar.brand-unified-header{background:radial-gradient(ellipse 260px var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}}
 @media(prefers-reduced-motion:reduce){.brand-mirror-layer{display:none!important}}
+
+@media(min-width:1101px){body .admin-sidebar.brand-unified-header>.brand.brand-mirror-host{border:0!important;border-radius:0!important;background:radial-gradient(ellipse 140px 64px at 50% 50%,#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}}
