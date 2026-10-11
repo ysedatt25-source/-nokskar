@@ -30,6 +30,8 @@ public static class WarrantyDocumentChecks
         Check(html.Contains("id=\"certificate-thermal-wide-panel\" hidden"),"second thermal panel initially closed");
         Check(html.IndexOf("id=\"warranty-document\"",StringComparison.Ordinal)>html.IndexOf("id=\"certificate-pdf-panel\" hidden",StringComparison.Ordinal),"certificate belongs to the closed PDF panel");
         Check(!html.Contains("onclick=\"window.print()\""),"printing uses an isolated document");
+        Check(html.Contains("data-serial=\"DEMO-001\"")&&html.Contains("data-warranty-qr"),"QR has the record serial and its own preview");
+        Check(html.IndexOf("/warranty-print-vendor.js",StringComparison.Ordinal)<html.IndexOf("/warranty-document.js",StringComparison.Ordinal),"PDF and QR tools load before print controls");
         Console.WriteLine("Warranty document and manufacturing date checks: PASS (no live records)");
     }
 }

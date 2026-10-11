@@ -117,3 +117,19 @@
 .certificate-status:empty{display:none}
 @media(max-width:380px){.warranty-certificate-body .certificate-tabs button{font-size:11px;padding:9px 4px;min-height:76px}.certificate-tabs{gap:6px}}
 @media print{.certificate-navigation{display:none!important}.warranty-print-document .certificate{margin:0}}
+
+/* Physical label grid, including a quiet zone around the direct query QR. */
+.thermal-label{grid-template-rows:4mm 23mm 9mm 5mm;gap:1mm}
+.thermal-main{display:grid;grid-template-columns:minmax(0,1fr) 23mm;gap:2mm;min-height:0}
+.thermal-details{display:grid;grid-template-rows:minmax(0,1fr) 5mm;gap:1mm;min-width:0;min-height:0}
+.thermal-product{height:100%;min-width:0}
+.thermal-date{font-size:7pt;line-height:1.1;overflow-wrap:anywhere}
+.thermal-qr{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0}
+.thermal-qr img{display:block;width:21mm;height:21mm;background:white;image-rendering:pixelated}
+.thermal-qr span{font-size:5.5pt;line-height:1;height:2mm}
+.thermal-codes strong{height:6mm}
+.thermal-query{padding-top:.5mm;font-size:6pt;line-height:1.05;min-height:0}
+.thermal-query strong{font-size:6pt;line-height:1.05}
+.certificate-pdf-download{display:block;padding:10px 0;font-weight:700;color:#1456ad;font-size:12px}
+.warranty-print-document{margin:0!important;padding:0!important;background:white!important}
+.warranty-print-document .thermal-label{outline:0;border:0}

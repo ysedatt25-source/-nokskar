@@ -18,4 +18,15 @@
     card.append(scope);const foot=el('div','warranty-record-foot');foot.append(el('p','', 'Bu ekran yalnız ürün ve garanti durumunu gösterir; müşteri kişisel bilgileri yayımlanmaz.'));const a=el('a','button','Servis talebi oluştur');const q=new URLSearchParams({productName:String(w.productName||''),productCode:String(w.productCode||''),serial:String(w.serialNumber||'')});a.href='/servis-talebi?'+q.toString();foot.append(a);card.append(foot);result.append(card);
   }
   form.addEventListener('submit',async e=>{e.preventDefault();const button=form.querySelector('button[type="submit"]');const data=new FormData(form);button.disabled=true;button.textContent='Sorgulanıyor…';clear();const loading=el('div','warranty-message');loading.textContent='Garanti kaydı güvenli şekilde kontrol ediliyor…';result.append(loading);try{const r=await fetch('/api/warranty/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({serialNumber:String(data.get('serialNumber')||''),verificationCode:String(data.get('verificationCode')||'')})});const b=await r.json().catch(()=>({}));if(!r.ok)throw new Error('Sorgulama şu anda tamamlanamadı.');if(!b.found){showError(b.message);return;}render(b.warranty||{});}catch(err){showError(err&&err.message?err.message:'Sorgulama şu anda tamamlanamadı.');}finally{button.disabled=false;button.textContent='Garantiyi sorgula';}});
+  // The QR carries public query credentials in the fragment, not server logs.
+  const qr=new URLSearchParams(location.hash.slice(1));
+  const serial=qr.get('s'),code=qr.get('c');
+  if(serial!==null||code!==null){
+    history.replaceState(null,'',location.pathname+location.search);
+    if(serial&&serial.length<=100&&code&&/^[A-Za-z0-9\s-]{8,32}$/.test(code)){
+      form.elements.namedItem('serialNumber').value=serial;
+      form.elements.namedItem('verificationCode').value=code;
+      form.requestSubmit();
+    }else showError('QR kodundaki garanti bilgileri geçersiz. Seri numarası ve doğrulama kodunu kontrol edin.');
+  }
 })();

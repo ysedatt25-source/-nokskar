@@ -1,7 +1,7 @@
 FROM node:22-bookworm-slim AS client-build
 WORKDIR /src/IndustrialCatalog/ClientApp
-COPY IndustrialCatalog/ClientApp/package.json ./
-RUN npm install --no-audit --no-fund
+COPY IndustrialCatalog/ClientApp/package.json IndustrialCatalog/ClientApp/package-lock.json ./
+RUN npm ci --no-audit --no-fund
 COPY IndustrialCatalog/ClientApp/ ./
 RUN npm run build
 
