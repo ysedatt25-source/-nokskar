@@ -20,5 +20,19 @@ export function initializeWarranty(root){
   let controller;let disposed=false;
   const submit=async e=>{e.preventDefault();if(controller)return;controller=new AbortController();const timer=setTimeout(()=>controller?.abort(),20000);const button=form.querySelector('button[type="submit"]');const data=new FormData(form);button.disabled=true;button.textContent='Sorgulanıyor…';clear();const loading=el('div','warranty-message');loading.textContent='Garanti kaydı güvenli şekilde kontrol ediliyor…';result.append(loading);try{const csrfResponse=await fetch('/api/security/csrf',{signal:controller.signal,cache:'no-store'});const csrf=csrfResponse.ok?String((await csrfResponse.json()).token||''):'';const r=await fetch('/api/warranty/query',{method:'POST',signal:controller.signal,headers:{'Content-Type':'application/json',...(csrf?{'X-INOKSKAR-CSRF':csrf}:{})},body:JSON.stringify({serialNumber:String(data.get('serialNumber')||''),verificationCode:String(data.get('verificationCode')||'')})});const b=await r.json().catch(()=>({}));if(!r.ok)throw new Error(b.error||(r.status===429?'Çok sık sorgulama yaptınız. Biraz bekleyip tekrar deneyin.':'Sorgulama şu anda tamamlanamadı.'));if(!b.found){showError(b.message);return;}render(b.warranty||{});}catch(err){if(disposed)return;showError(controller.signal.aborted?'Sorgulama zaman aşımına uğradı. Lütfen tekrar deneyin.':err&&err.message?err.message:'Sorgulama şu anda tamamlanamadı.');}finally{clearTimeout(timer);controller=undefined;if(disposed)return;button.disabled=false;button.textContent='Garantiyi sorgula';}};
   form.addEventListener('submit',submit);
-  return ()=>{disposed=true;controller?.abort();form.removeEventListener('submit',submit);};
+  const queryQR=()=>{
+    if(disposed)return;
+    const qr=new URLSearchParams(location.hash.slice(1));
+    const serial=qr.get('s'),code=qr.get('c');
+    if(serial===null&&code===null)return;
+    history.replaceState(null,'',location.pathname+location.search);
+    if(serial&&serial.length<=100&&code&&/^[A-Za-z0-9\s-]{8,32}$/.test(code)){
+      form.elements.namedItem('serialNumber').value=serial;
+      form.elements.namedItem('verificationCode').value=code;
+      form.requestSubmit();
+    }else showError('QR kodundaki garanti bilgileri geçersiz. Seri numarası ve doğrulama kodunu kontrol edin.');
+  };
+  // Wait for React's effect setup/cleanup to finish before consuming the link.
+  queueMicrotask(queryQR);window.addEventListener('hashchange',queryQR);
+  return ()=>{disposed=true;controller?.abort();form.removeEventListener('submit',submit);window.removeEventListener('hashchange',queryQR);};
 }
