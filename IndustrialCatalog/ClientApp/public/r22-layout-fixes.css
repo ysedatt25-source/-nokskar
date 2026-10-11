@@ -2973,3 +2973,19 @@ body.r126-auth .brand-mirror-host{background:radial-gradient(ellipse 100% 130% a
 
 /* Fill only the existing image area; card geometry remains unchanged. */
 html body .product-card .product-photo>img,html body .home-design-featured .product-card .product-photo>.home-design-photo{padding:0!important;object-fit:contain!important;object-position:center;transform:none!important}
+
+/* Keep navigation readable throughout the shared logo reflection. */
+@media(min-width:1101px){
+ body .site-header.brand-unified-header .main-nav{background:rgba(24,35,47,.9)!important}
+ body .site-header.brand-unified-header .header-util-links .util-link{background:#263748!important;border-radius:8px;color:#fff!important}
+}
+@media(min-width:601px){
+ body.page-home .hero .hero-content::before,body.page-home .hero .hero-kicker,body.page-home .hero .hero-content>p{background:rgba(5,20,37,.88)!important;border-radius:8px;padding:7px 10px;color:#fff!important;max-width:48ch;box-sizing:border-box;text-shadow:none}
+}
+/* Backup actions wrap rather than squeezing their explanation into a column. */
+body .admin-box.backup-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+body .admin-box.backup-toolbar>div:first-child{flex:1 0 100%;min-width:0}
+body .admin-box.backup-toolbar>.button,body .admin-box.backup-toolbar>.upload-button{flex:0 1 auto}
+body .admin-box.backup-toolbar .backup-full-actions{display:flex;flex-wrap:wrap;gap:12px;min-width:0;margin:0}
+body .copy-feedback{font-size:13px;line-height:1.5;color:#24577c;overflow-wrap:anywhere;margin:6px 0}
+@media(max-width:600px){body .admin-box.backup-toolbar>.button,body .admin-box.backup-toolbar>.upload-button,body .admin-box.backup-toolbar .backup-full-actions{width:100%;flex-basis:100%}}

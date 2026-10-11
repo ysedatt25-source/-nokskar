@@ -350,7 +350,7 @@ public sealed class Store
             var index = list.ToList().FindIndex(x => x?["id"]?.ToString() == id);
             if (index < 0) return null;
             var row = list[index]!.AsObject();
-            var parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject();
+            var parsed = InquiryPages.Data(row);
             if (!string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("Yalnız servis taleplerinin iş akışı güncellenebilir.");
             var status = (input["status"]?.ToString() ?? "new").Trim();
             var allowed = new[] { "new", "review", "scheduled", "parts", "completed", "cancelled" };
@@ -426,7 +426,7 @@ public sealed class Store
             var next = state.DeepClone().AsObject();
             var row = next["inquiries"]!.AsArray().FirstOrDefault(x => x?["id"]?.ToString() == id)?.AsObject();
             if (row == null) return null;
-            var data = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject();
+            var data = InquiryPages.Data(row);
             var status = (input["status"]?.ToString() ?? "new").Trim().ToLowerInvariant();
             if (!(new[] { "new", "review", "contacted", "callback", "answered", "resolved", "closed" }).Contains(status))
                 throw new ArgumentException("Talep süreç durumu geçersiz.");
@@ -477,7 +477,7 @@ public sealed class Store
             foreach (var node in state["inquiries"]!.AsArray())
             {
                 if (node is not JsonObject row || !row.ContainsKey("readAt") || !string.IsNullOrWhiteSpace(row["readAt"]?.ToString())) continue;
-                var parsed = JsonNode.Parse(row["data"]?.ToString() ?? "{}")?.AsObject();
+                var parsed = InquiryPages.Data(row);
                 var service = string.Equals(parsed?["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase);
                 if (service ? !includeService : !includeSupport) continue;
                 count++;
@@ -625,7 +625,7 @@ public sealed class Store
             foreach (var node in state["inquiries"]!.AsArray())
             {
                 if (node is not JsonObject inquiry) continue;
-                var parsed = JsonNode.Parse(inquiry["data"]?.ToString() ?? "{}")?.AsObject();
+                var parsed = InquiryPages.Data(inquiry);
                 if (parsed == null || !string.Equals(parsed["type"]?.ToString(), "service", StringComparison.OrdinalIgnoreCase)) continue;
                 if (WarrantyRules.NormalizeSerial(parsed["serialNumber"]?.ToString()) != serial) continue;
                 services.Add(new JsonObject

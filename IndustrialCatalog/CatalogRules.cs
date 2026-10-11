@@ -31,7 +31,7 @@ public static class CatalogRules
         if(founderLabel.Length>64)throw new ArgumentException("Kuruluş etiketi en fazla 64 karakter olabilir.");
         settings["founderLabelText"]=founderLabel;
         settings["founderLabelVisible"]!.GetValue<bool>();
-        var siteName=Text(settings,"name").Trim();if(siteName.Length<2||!Regex.IsMatch(siteName,@"[\\p{L}\\p{N}]"))siteName="İNOKSKAR";settings["name"]=siteName;
+        var siteName=Text(settings,"name").Trim();if(siteName.Length<2||!Regex.IsMatch(siteName,@"[\p{L}\p{N}]"))siteName="İNOKSKAR";settings["name"]=siteName;
         foreach(var key in new[]{"hero","headerImage","social"})if(!Safe(Text(settings,key)))throw new ArgumentException("Geçersiz bağlantı.");
         var rate=settings["rate"]!.GetValue<decimal>();if(rate<0)throw new ArgumentException("Kur negatif olamaz.");
         foreach(var key in new[]{"waEnabled","autoRate"})settings[key]!.GetValue<bool>();
@@ -81,7 +81,7 @@ public static class CatalogRules
     {
         var d=source.DeepClone().AsObject();
         d["references"] = new JsonArray((d["references"] as JsonArray??new JsonArray()).Where(x=>x?["visible"]?.GetValue<bool>()==true).Select(x=>x!.DeepClone()).ToArray());
-        var publicSettings=d["settings"]!.AsObject();publicSettings.Remove("notificationEmail");publicSettings.Remove("notificationPhone");publicSettings.Remove("notificationSmsEnabled");var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\\p{L}\\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
+        var publicSettings=d["settings"]!.AsObject();publicSettings.Remove("notificationEmail");publicSettings.Remove("notificationPhone");publicSettings.Remove("notificationSmsEnabled");var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\p{L}\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
         bool Visible(JsonNode c){var seen=new HashSet<string>();while(true){if(c["visible"]?.GetValue<bool>()!=true||!seen.Add(c["id"]!.ToString()))return false;var parent=c["parent"]!.ToString();if(parent=="")return true;if(!map.TryGetValue(parent,out var next)||next==null)return false;c=next;}}
         var allowed=cats.Where(c=>c!=null&&Visible(c)).Select(c=>c!["id"]!.ToString()).ToHashSet();
         d["categories"]=new JsonArray(cats.Where(c=>allowed.Contains(c!["id"]!.ToString())).Select(c=>c!.DeepClone()).ToArray());

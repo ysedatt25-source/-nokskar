@@ -133,3 +133,6 @@
 .certificate-pdf-download{display:block;padding:10px 0;font-weight:700;color:#1456ad;font-size:12px}
 .warranty-print-document{margin:0!important;padding:0!important;background:white!important}
 .warranty-print-document .thermal-label{outline:0;border:0}
+
+/* Screen scaling never changes the physical print layout. */
+@media print{.thermal-label{zoom:1!important}}

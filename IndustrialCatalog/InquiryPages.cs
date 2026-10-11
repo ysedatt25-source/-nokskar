@@ -4,9 +4,9 @@ using System.Text.Json.Nodes;
 public static class InquiryPages
 {
     static string E(string? value) => WebUtility.HtmlEncode(value ?? "");
-    static JsonObject Data(JsonObject inquiry)
+    public static JsonObject Data(JsonObject inquiry)
     {
-        try { return JsonNode.Parse(inquiry["data"]?.ToString() ?? "{}")?.AsObject() ?? new JsonObject(); }
+        try { return JsonNode.Parse(inquiry["data"]?.ToString() ?? "{}") as JsonObject ?? new JsonObject(); }
         catch { return new JsonObject(); }
     }
     static string DateText(JsonObject inquiry)
@@ -408,7 +408,7 @@ public static class InquiryPages
     letter-spacing:-.035em;
   }
 }
-</style></style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=responsive-audit-2">
+</style><link rel="stylesheet" href="/r13-interface.css?v=r22-clean"><link rel="stylesheet" href="/r13-pages.css?v=r22-2"><link rel="stylesheet" href="/r22-public-shell.css?v=r22-4"><link rel="stylesheet" href="/r22-layout-fixes.css?v=qa-20261011-1">
 <style>
 /* R22.14: Inquiry detail header only. Place the delete action beside the title,
    keeping the six information cards immediately below the heading. */

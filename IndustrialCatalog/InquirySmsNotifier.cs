@@ -7,6 +7,10 @@ public sealed class InquirySmsNotifier(Store store,SmsSettingsStore settings,Sms
     public static string Short(string? text,int length){var clean=Regex.Replace(text??"",@"\s+"," ").Trim();var parts=StringInfo.ParseCombiningCharacters(clean);return parts.Length<=length?clean:clean[..parts[length]]+"…";}
     public static string Message(JsonObject data,string link,bool test=false){
         var topic=data["type"]?.ToString()=="service"?"Teknik servis":data["purpose"]?.ToString() switch{"teklif"=>"Teklif","proje"=>"Proje ve danışmanlık",_=>"Destek"};
+        var detail=data["type"]?.ToString()=="service"
+            ? data["serviceTopic"]?.ToString() switch{"ariza"=>"Arıza","bakim"=>"Bakım","yedek-parca"=>"Yedek parça","kurulum"=>"Kurulum","diger"=>"Diğer",_=>""}
+            : data["topic"]?.ToString() switch{"bilgi"=>"Bilgi talebi","oneri"=>"Öneri","sikayet"=>"Şikâyet","diger"=>"Diğer",_=>""};
+        if(detail.Length>0)topic+=" · "+detail;
         var description=Short(data["message"]?.ToString(),100);
         return "İNOKSKAR · "+(test?"Test bildirimi":"Yeni talep")+"\nKonu: "+topic+"\nAçıklama: "+description+"\nKontrol: "+link;
     }
@@ -21,10 +25,10 @@ public sealed class InquirySmsNotifier(Store store,SmsSettingsStore settings,Sms
             var data=JsonNode.Parse(row["data"]?.ToString()??"{}")!.AsObject();
             var job=queue.Enqueue(new[]{phone},Message(data,origin+"/admin/inquiries/"+Uri.EscapeDataString(id)),"inquiry:"+id);
             store.RecordAudit("Telefon bildirimi kuyruğa alındı",id,job,"Sistem");
-        }catch(Exception ex) when(ex is ArgumentException or InvalidOperationException or System.Text.Json.JsonException or IOException){
+        }catch(Exception ex) when(ex is ArgumentException or InvalidOperationException or System.Text.Json.JsonException or IOException or UnauthorizedAccessException or System.Security.Cryptography.CryptographicException){
             // A saved request remains successful if its notification cannot be queued.
             log.LogWarning("Talep telefon bildirimi kuyruğa alınamadı: {InquiryId}",id);
-            try{store.RecordAudit("Telefon bildirimi kuyruğa alınamadı",id,"Sağlayıcı, bildirim numarası ve site adresini kontrol edin.","Sistem");}catch(IOException){log.LogWarning("Bildirim hata kaydı yazılamadı: {InquiryId}",id);}
+            try{store.RecordAudit("Telefon bildirimi kuyruğa alınamadı",id,"Sağlayıcı, bildirim numarası ve site adresini kontrol edin.","Sistem");}catch(Exception auditError) when(auditError is IOException or UnauthorizedAccessException){log.LogWarning("Bildirim hata kaydı yazılamadı: {InquiryId}",id);}
         }
     }
 }

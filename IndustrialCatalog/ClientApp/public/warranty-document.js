@@ -28,7 +28,18 @@
      while((item.scrollHeight>item.clientHeight+1||item.scrollWidth>item.clientWidth+1)&&size>min){size-=.25;item.style.fontSize=size+'pt';}
    }
  }
- for(const thermal of root.querySelectorAll('.thermal-label'))new ResizeObserver(()=>{if(!thermal.closest('[hidden]'))fitText(thermal);}).observe(thermal);
+ function fitPreview(thermal){
+   if(thermal.closest('[hidden]'))return;
+   const available=thermal.parentElement.clientWidth-2;
+   thermal.style.zoom=String(Math.min(1,Math.max(0.1,available/thermal.offsetWidth)));
+   fitText(thermal);
+ }
+ for(const thermal of root.querySelectorAll('.thermal-label')){
+   const previewObserver=new ResizeObserver(()=>fitPreview(thermal));
+   previewObserver.observe(thermal.parentElement);
+   previewObserver.observe(thermal);
+ }
+
  let printing=false;
  for(const button of root.querySelectorAll('[data-print-kind]'))button.addEventListener('click',async()=>{
    if(printing)return;printing=true;button.disabled=true;status.textContent='';
@@ -46,8 +57,8 @@
      const thermal=button.closest('.certificate-panel').querySelector('.thermal-label');
      const copy=(label?thermal:root.querySelector('.certificate')).cloneNode(true);
      copy.querySelectorAll('.brand-mirror-layer').forEach(e=>e.remove());
-     copy.removeAttribute('id');
-     const css=new URL('/warranty-document.css?v=20261011-5',location.origin).href;
+     copy.removeAttribute('id');copy.style.removeProperty('zoom');
+     const css=new URL('/warranty-document.css?v=20261011-qa1',location.origin).href;
      frame=document.createElement('iframe');frame.title='Yazdırma belgesi';
      frame.style.cssText='position:fixed;left:-10000px;top:0;border:0;width:'+(label?width+'mm':'210mm')+';height:'+(label?'50mm':'297mm')+';';
      const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=()=>reject(Error('Yazdırma belgesi hazırlanamadı.'));});

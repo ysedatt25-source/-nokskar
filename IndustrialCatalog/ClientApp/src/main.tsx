@@ -1,8 +1,8 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import Storefront from './app/storefront';
-import Admin from './app/admin/panel';
 import './app/globals.css';
+const Storefront=React.lazy(()=>import('./app/storefront'));
+const Admin=React.lazy(()=>import('./app/admin/panel'));
 
 class AppErrorBoundary extends React.Component<React.PropsWithChildren, {failed:boolean}> {
   state={failed:false};
@@ -15,4 +15,4 @@ class AppErrorBoundary extends React.Component<React.PropsWithChildren, {failed:
   }
 }
 
-createRoot(document.getElementById('root')!).render(<AppErrorBoundary>{location.pathname==='/admin'?<Admin/>:<Storefront/>}</AppErrorBoundary>);
+createRoot(document.getElementById('root')!).render(<AppErrorBoundary><React.Suspense fallback={<div className="load-state" role="status">Sayfa yükleniyor…</div>}>{location.pathname==='/admin'?<Admin/>:<Storefront/>}</React.Suspense></AppErrorBoundary>);

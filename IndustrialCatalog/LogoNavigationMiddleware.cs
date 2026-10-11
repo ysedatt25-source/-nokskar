@@ -40,7 +40,7 @@ public sealed class LogoNavigationMiddleware
                 // Some legacy server pages omit the shared layout stylesheet.
                 if (!html.Contains("/r22-layout-fixes.css", StringComparison.Ordinal))
                 {
-                    const string style = "<link rel=\"stylesheet\" href=\"/r22-layout-fixes.css?v=central-brand-3\">";
+                    const string style = "<link rel=\"stylesheet\" href=\"/r22-layout-fixes.css?v=qa-20261011-1\">";
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     if (headEnd >= 0) html = html.Insert(headEnd, style);
                 }
