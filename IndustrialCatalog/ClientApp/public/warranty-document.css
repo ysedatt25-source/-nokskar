@@ -63,3 +63,33 @@
  thead{display:table-header-group}.certificate{print-color-adjust:exact;-webkit-print-color-adjust:exact}
  .thermal-label{margin:0;border:0;outline:0;break-inside:avoid}
 }
+
+/* Compact certificate: distinct sections without decorative empty space. */
+.certificate-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}
+.warranty-certificate-body .certificate-tabs button{padding:6px;min-height:36px;font-size:11px}
+.thermal-label-wide{width:100mm}
+.certificate{--certificate-font:12px;padding:14px;font-size:var(--certificate-font);line-height:1.25;border-radius:9px}
+.certificate-head{padding-bottom:7px;gap:10px}
+.certificate-brand{width:170px}.certificate-brand img{height:45px}
+.certificate h1{font-size:1.9em;margin:2px 0}
+.certificate-product{padding:7px 0}.certificate-product h2{font-size:1.4em;margin:2px 0}
+.certificate-meta{gap:0;margin:6px 0;border:1px solid #b8c9d8}
+.certificate-meta div{padding:5px 7px;border-bottom:1px solid #b8c9d8;background:#f8fafc}
+.certificate-meta div:nth-child(odd){border-right:1px solid #b8c9d8}
+.certificate-meta dt{font-size:.75em;color:#39556e;margin-bottom:2px}
+.certificate-meta dd{font-size:1em;color:#102d46}
+.certificate h3{margin:7px 0 4px;font-size:1.1em}
+.certificate table{font-size:.85em}.certificate th{font-size:.85em}
+.certificate th,.certificate td{padding:4px 6px;border-color:#afc2d2}
+.certificate-note{padding:6px;margin-top:6px;font-size:.85em}.certificate-note strong{margin-bottom:2px}
+.certificate-signatures{margin-top:12px;gap:16px}.certificate-signatures div{min-height:22px;padding-top:4px;font-size:.8em}
+.certificate-footer{margin-top:5px;padding-top:5px;gap:2px;font-size:.75em}
+@media print{
+ @page{size:A4;margin:7mm}
+ .certificate{--certificate-font:10px;width:196mm;max-width:100%;padding:2mm;border:1px solid #a7b9c8;border-top:3px solid #246fa9;line-height:1.2}
+ .certificate-head{padding-bottom:4px}.certificate-brand img{height:30px}.certificate-brand{width:145px}
+ .certificate-heading span,.certificate-section-title{font-size:.75em}.certificate-heading p,.certificate-product p{font-size:.85em}
+ .certificate-product{padding:4px 0}.certificate-meta{margin:4px 0}.certificate-meta div{padding:3px 5px}
+ .certificate h3{margin:4px 0 3px}.certificate th,.certificate td{padding:3px 4px}
+ .certificate-note{margin-top:4px;padding:4px}.certificate-signatures{margin-top:9px}.certificate-footer{margin-top:3px;padding-top:3px}
+}

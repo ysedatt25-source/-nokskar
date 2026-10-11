@@ -26,7 +26,8 @@ public static class WarrantyDocumentChecks
         var html=WarrantyPages.Certificate(record);
         Check(!html.Contains("<script>unsafe()")&&html.Contains("&lt;script&gt;"),"record fields HTML encoded");
         Check(html.Contains("@@CODE@@"),"field data is not expanded as another template token");
-        Check(html.Contains("id=\"certificate-pdf-panel\" hidden")&&html.Contains("id=\"certificate-thermal-panel\" hidden"),"both print panels initially closed");
+        Check(html.Contains("id=\"certificate-pdf-panel\" hidden")&&html.Contains("id=\"certificate-thermal-panel\" hidden"),"print panels initially closed");
+        Check(html.Contains("id=\"certificate-thermal-wide-panel\" hidden"),"second thermal panel initially closed");
         Check(!html.Contains("onclick=\"window.print()\""),"printing uses an isolated document");
         Console.WriteLine("Warranty document and manufacturing date checks: PASS (no live records)");
     }

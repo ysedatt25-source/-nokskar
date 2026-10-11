@@ -16,28 +16,38 @@
      while((item.scrollHeight>item.clientHeight+1||item.scrollWidth>item.clientWidth+1)&&size>min){size-=.25;item.style.fontSize=size+'pt';}
    }
  }
- const thermal=root.querySelector('.thermal-label');
- new ResizeObserver(()=>{if(!thermal.closest('[hidden]'))fitText(thermal);}).observe(thermal);
+ for(const thermal of root.querySelectorAll('.thermal-label'))new ResizeObserver(()=>{if(!thermal.closest('[hidden]'))fitText(thermal);}).observe(thermal);
  let printing=false;
  for(const button of root.querySelectorAll('[data-print-kind]'))button.addEventListener('click',async()=>{
    if(printing)return;printing=true;button.disabled=true;status.textContent='';
    let frame;
    try{
-     const label=button.dataset.printKind==='thermal';
+     const label=button.dataset.printKind.startsWith('thermal');
+     const wide=button.dataset.printKind==='thermal-wide';
+     const width=wide?100:80;
+     const thermal=button.closest('.certificate-panel').querySelector('.thermal-label');
      const copy=(label?thermal:root.querySelector('.certificate')).cloneNode(true);
      copy.querySelectorAll('.brand-mirror-layer').forEach(e=>e.remove());
      copy.removeAttribute('id');
-     const css=new URL('/warranty-document.css?v=20261011-1',location.origin).href;
+     const css=new URL('/warranty-document.css?v=20261011-2',location.origin).href;
      frame=document.createElement('iframe');frame.title='Yazdırma belgesi';
-     frame.style.cssText='position:fixed;left:-10000px;top:0;border:0;width:'+(label?'80mm':'210mm')+';height:'+(label?'50mm':'297mm')+';';
+     frame.style.cssText='position:fixed;left:-10000px;top:0;border:0;width:'+(label?width+'mm':'210mm')+';height:'+(label?'50mm':'297mm')+';';
      const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=()=>reject(Error('Yazdırma belgesi hazırlanamadı.'));});
-     frame.srcdoc='<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>İNOKSKAR '+(label?'Termal Etiket':'Garanti Belgesi')+'</title><link rel="stylesheet" href="'+css+'">'+(label?'<style>@page{size:80mm 50mm;margin:0}html,body{margin:0;padding:0;background:white}.thermal-label{border:0}</style>':'')+'</head><body class="warranty-certificate-body">'+copy.outerHTML+'</body></html>';
+     frame.srcdoc='<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>İNOKSKAR '+(label?'Termal Etiket':'Garanti Belgesi')+'</title><link rel="stylesheet" href="'+css+'">'+(label?'<style>@page{size:'+width+'mm 50mm;margin:0}html,body{margin:0;padding:0;background:white}.thermal-label{border:0}</style>':'')+'</head><body class="warranty-certificate-body">'+copy.outerHTML+'</body></html>';
      document.body.append(frame);await loaded;
      await Promise.all([...frame.contentDocument.images].map(i=>i.decode().catch(()=>{throw Error('Belge logosu yüklenemedi. Tekrar deneyin.');})));
      await frame.contentDocument.fonts.ready;
      if(label){
        const sheet=frame.contentDocument.querySelector('.thermal-label');fitText(sheet);
-       if(sheet.scrollHeight>sheet.clientHeight+1||sheet.scrollWidth>sheet.clientWidth+1||[...sheet.querySelectorAll('[data-fit-text]')].some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1))throw Error('Bu kayıttaki uzun bilgiler 80 × 50 mm etikete sığmıyor. Ürün adı ve seri numarasını kontrol edin.');
+       if(sheet.scrollHeight>sheet.clientHeight+1||sheet.scrollWidth>sheet.clientWidth+1||[...sheet.querySelectorAll('[data-fit-text]')].some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1))throw Error('Bu kayıttaki uzun bilgiler seçilen etikete sığmıyor. Ürün adı ve seri numarasını kontrol edin.');
+     }
+     if(!label){
+       const sheet=frame.contentDocument.querySelector('.certificate');
+       const available=frame.contentDocument.documentElement.clientWidth;
+       const maxHeight=133/25.4*96;
+       let size=10;sheet.style.setProperty('--certificate-font',size+'px');
+       while(sheet.getBoundingClientRect().height>maxHeight&&size>8){size-=.25;sheet.style.setProperty('--certificate-font',size+'px');}
+       if(sheet.getBoundingClientRect().height>maxHeight)throw Error('Bu kaydın kapsamı veya notları yarım A4 alanına sığmıyor. Bilgileri kısaltarak tekrar deneyin.');
      }
      frame.contentWindow.addEventListener('afterprint',()=>frame.remove(),{once:true});
      setTimeout(()=>frame.remove(),300000);
