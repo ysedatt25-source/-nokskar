@@ -2938,28 +2938,6 @@ body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;ma
 
 @media(min-width:851px){body.page-home .hero .hero-content{margin:56px 52px!important;max-width:calc(100% - 104px)!important}body.page-home .hero .hero-content h1{max-width:min(calc(14ch + 32px),100%)}}
 
-/* Full white logo backing; fade begins outside the complete image bounds. */
-@media(max-width:1100px){
- body.app-shell-enabled .site-header{background:#293038!important}
- body.app-shell-enabled .site-header>.brand{background:#fff!important;box-shadow:0 0 18px 18px #fff!important;clip-path:inset(-3px -52px);border-radius:0!important}
- body.app-shell-enabled .site-header .header-brand-image{background:#fff!important}
-}
-
-/* Shared brand treatment for server-rendered public headers. */
-header.top[data-brand-header]{background:#293038!important}
-header.top[data-brand-header] [data-brand-logo]{background:#fff!important;border:0!important;border-radius:0!important;box-shadow:0 0 18px 18px #fff!important;clip-path:inset(-3px -52px)}
-header.top[data-brand-header] [data-brand-logo] img{background:#fff!important}
-[data-brand-header].logo-mirror-host{isolation:isolate}
-[data-brand-header].logo-mirror-host::after{border-radius:0!important}
-
-/* The shine has its own clipped layer, leaving header menus unobstructed. */
-[data-brand-header].logo-mirror-host{overflow:visible!important}
-[data-brand-header].logo-mirror-host::after{display:none!important}
-[data-brand-header]>.logo-mirror-layer{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:9}
-[data-brand-header]>.logo-mirror-layer::after{content:"";position:absolute;pointer-events:none;top:-20%;left:-45%;width:30%;height:140%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg);opacity:0}
-[data-brand-header].logo-mirror-active>.logo-mirror-layer::after{animation:logo-mirror-sweep .85s ease-out both}
-@media(prefers-reduced-motion:reduce){[data-brand-header]>.logo-mirror-layer{display:none}}
-
 body[data-ui-page^="admin-"] .admin-header-actions{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
 .admin-customer-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 10px;border:1px solid #c8d9ee;border-radius:10px;background:#eef5ff;color:#195a9c;font-size:.76rem;font-weight:750;text-decoration:none;white-space:nowrap}
 @media(max-width:600px){.admin-customer-link{font-size:.7rem;padding:6px 8px;gap:5px}}
@@ -2974,3 +2952,15 @@ body .private-brand-header:not(.site-header){background:radial-gradient(ellipse 
 body .private-brand-header:not(.site-header)>a.private-brand-link{background:transparent!important;box-shadow:none!important;clip-path:none;border-radius:0!important}
 body .private-brand-header:not(.site-header) .private-brand-image{background:transparent!important}
 body .private-brand-header:not(.site-header)>.private-header-toggle{position:relative;z-index:4;background:linear-gradient(180deg,#39434e,#252c34)!important;color:#fff!important}
+
+/* Canonical logo treatment: identical colours and a full image-width sweep. */
+body :is(.site-header,.private-brand-header,header.top).brand-unified-header{background:radial-gradient(ellipse 260px var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}
+body .brand-mirror-host{isolation:isolate;background:transparent!important;box-shadow:none!important;clip-path:none!important;overflow:visible!important}
+body .brand-mirror-host>img{background:transparent!important;opacity:1!important;filter:none!important;mix-blend-mode:normal!important}
+body .brand-mirror-host::after{display:none!important}
+body .brand-mirror-host>.brand-mirror-layer{position:absolute;pointer-events:none;overflow:hidden;z-index:9;isolation:isolate;border-radius:0}
+.brand-mirror-layer::after{content:"";position:absolute;pointer-events:none;top:-25%;height:150%;width:40%;left:-50%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg);opacity:0}
+.brand-mirror-layer.brand-mirror-active::after{animation:inokskar-brand-sweep .95s linear both}
+@keyframes inokskar-brand-sweep{0%{left:-50%;opacity:0}8%,92%{opacity:1}100%{left:110%;opacity:0}}
+@media(max-width:1100px){body .admin-sidebar.brand-unified-header{background:radial-gradient(ellipse 260px var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}}
+@media(prefers-reduced-motion:reduce){.brand-mirror-layer{display:none!important}}
