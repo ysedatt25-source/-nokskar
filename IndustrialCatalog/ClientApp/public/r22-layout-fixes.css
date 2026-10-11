@@ -2955,9 +2955,9 @@ body .private-brand-header:not(.site-header)>.private-header-toggle{position:rel
 
 /* Canonical logo treatment: identical colours and a full image-width sweep. */
 body :is(.site-header,.private-brand-header,header.top).brand-unified-header{background:radial-gradient(ellipse 260px var(--brand-fade-height,64px) at var(--brand-center-x,50%) var(--brand-center-y,32px),#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}
-body .brand-mirror-host{isolation:isolate;background:transparent!important;box-shadow:none!important;clip-path:none!important;overflow:visible!important}
+body .brand-mirror-host{position:relative;isolation:isolate;background:transparent!important;box-shadow:none!important;clip-path:none!important;overflow:visible!important}
 body .brand-mirror-host>img{background:transparent!important;opacity:1!important;filter:none!important;mix-blend-mode:normal!important}
-body .brand-mirror-host::after{display:none!important}
+body .brand-mirror-host.brand-mirror-host::after{display:none!important}
 body .brand-mirror-host>.brand-mirror-layer{position:absolute;pointer-events:none;overflow:hidden;z-index:9;isolation:isolate;border-radius:0}
 .brand-mirror-layer::after{content:"";position:absolute;pointer-events:none;top:-25%;height:150%;width:40%;left:-50%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),rgba(255,255,255,.85),rgba(255,255,255,.12),transparent);transform:skewX(-20deg);opacity:0}
 .brand-mirror-layer.brand-mirror-active::after{animation:inokskar-brand-sweep .95s linear both}
@@ -2966,3 +2966,5 @@ body .brand-mirror-host>.brand-mirror-layer{position:absolute;pointer-events:non
 @media(prefers-reduced-motion:reduce){.brand-mirror-layer{display:none!important}}
 
 @media(min-width:1101px){body .admin-sidebar.brand-unified-header>.brand.brand-mirror-host{border:0!important;border-radius:0!important;background:radial-gradient(ellipse 140px 64px at 50% 50%,#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}}
+
+@media(min-width:1101px){body .site-header.brand-unified-header .main-nav a,body .site-header.brand-unified-header .header-actions a:not(.button){color:#f2f6fa!important}body .site-header.brand-unified-header .main-nav a:hover{color:#90c7ff!important}}

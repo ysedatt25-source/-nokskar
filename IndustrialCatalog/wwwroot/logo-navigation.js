@@ -22,7 +22,7 @@
         const header=img.closest('.site-header,.private-brand-header,header.top,.admin-sidebar');
         if(header){header.classList.add('brand-unified-header');header.querySelectorAll(':scope>.logo-mirror-layer').forEach(x=>x.remove());header.classList.remove('logo-mirror-host','logo-mirror-active');}
         let entry=hosts.get(host);
-        if(!entry||entry.img!==img||!entry.layer.isConnected){if(entry){resize.unobserve(entry.img);entry.layer.remove();}host.classList.add('brand-mirror-host');if(getComputedStyle(host).position==='static')host.style.position='relative';const layer=document.createElement('span');layer.className='brand-mirror-layer';layer.setAttribute('aria-hidden','true');host.append(layer);entry={host,img,header,layer,lastRoute:null};hosts.set(host,entry);resize.observe(img);resize.observe(host);}
+        if(!entry||entry.img!==img||!entry.layer.isConnected){if(entry){resize.unobserve(entry.img);entry.layer.remove();}host.classList.add('brand-mirror-host');const layer=document.createElement('span');layer.className='brand-mirror-layer';layer.setAttribute('aria-hidden','true');host.append(layer);entry={host,img,header,layer,lastRoute:null};hosts.set(host,entry);resize.observe(img);resize.observe(host);}
         layout(entry);sweep(entry);
       }
       for(const [host,entry]of hosts)if(!host.isConnected){resize.unobserve(entry.img);resize.unobserve(host);hosts.delete(host);}
