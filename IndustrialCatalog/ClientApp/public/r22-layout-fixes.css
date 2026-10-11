@@ -2940,9 +2940,9 @@ body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;ma
 
 /* Full white logo backing; fade begins outside the complete image bounds. */
 @media(max-width:1100px){
- body.app-shell-enabled .site-header,.private-brand-header{background:#293038!important}
- body.app-shell-enabled .site-header>.brand,.private-brand-header>.private-brand-link{background:#fff!important;box-shadow:0 0 18px 18px #fff!important;clip-path:inset(-3px -52px);border-radius:0!important}
- body.app-shell-enabled .site-header .header-brand-image,.private-brand-header .private-brand-image{background:#fff!important}
+ body.app-shell-enabled .site-header{background:#293038!important}
+ body.app-shell-enabled .site-header>.brand{background:#fff!important;box-shadow:0 0 18px 18px #fff!important;clip-path:inset(-3px -52px);border-radius:0!important}
+ body.app-shell-enabled .site-header .header-brand-image{background:#fff!important}
 }
 
 /* Shared brand treatment for server-rendered public headers. */
@@ -2968,3 +2968,9 @@ body[data-ui-page^="admin-"] .admin-header-actions{display:flex!important;align-
 @media(min-width:1101px){body .private-brand-header:not(.site-header)>a.private-brand-link{height:50px;max-height:50px}body .private-brand-header:not(.site-header)>a.private-brand-link .private-brand-image{width:100%;height:50px;max-height:50px;object-fit:contain;transform:none}body.warranty-admin-body .warranty-admin-heading{flex-direction:row;align-items:center;text-align:left}body.warranty-admin-body .warranty-heading-actions{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));width:auto;flex:none}}
 
 @media(min-width:1101px){html body .admin-menu-sheet-head{display:none!important}}
+
+/* Private headers share the administration gradient; no white glow over the menu. */
+body .private-brand-header:not(.site-header){background:radial-gradient(ellipse 64% 115% at 50% 50%,#fff 0%,#fff 29%,#eef0f2 46%,#aeb3b8 68%,#626a72 84%,#293038 100%)!important}
+body .private-brand-header:not(.site-header)>a.private-brand-link{background:transparent!important;box-shadow:none!important;clip-path:none;border-radius:0!important}
+body .private-brand-header:not(.site-header) .private-brand-image{background:transparent!important}
+body .private-brand-header:not(.site-header)>.private-header-toggle{position:relative;z-index:4;background:linear-gradient(180deg,#39434e,#252c34)!important;color:#fff!important}
