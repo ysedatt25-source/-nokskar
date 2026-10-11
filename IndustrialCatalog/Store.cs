@@ -80,6 +80,8 @@ public sealed class Store
     {
         var settings = data?["settings"]?.AsObject();
         if (settings == null) return;
+        settings["notificationPhone"] ??= "05426156525";
+        settings["notificationSmsEnabled"] ??= true;
         settings["mapUrl"] ??= "";
         settings.Remove("logo");
         settings["headerImage"] ??= "/inokskar-header-brand.png";

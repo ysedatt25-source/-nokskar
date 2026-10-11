@@ -23,7 +23,7 @@ var builder=WebApplication.CreateBuilder(args);
 if(builder.Environment.IsDevelopment())builder.WebHost.UseUrls("http://127.0.0.1:5093");
 builder.Services.AddSingleton<Store>();builder.Services.AddHttpClient();builder.Services.AddHostedService<RateUpdater>();builder.Services.AddHostedService<BackupScheduler>();
 builder.Services.AddAntiforgery(o=>{o.HeaderName="X-INOKSKAR-CSRF";o.FormFieldName="__inokskar_csrf";o.Cookie.Name="Inokskar.Antiforgery";o.Cookie.HttpOnly=true;o.Cookie.SameSite=SameSiteMode.Strict;o.Cookie.SecurePolicy=CookieSecurePolicy.SameAsRequest;});
-builder.Services.AddSingleton<SmsSettingsStore>();builder.Services.AddSingleton<SmsCodes>();builder.Services.AddSingleton<SmsGateway>();builder.Services.AddSingleton<SmsQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<SmsQueue>());builder.Services.AddSingleton<MailSettingsStore>();builder.Services.AddSingleton<MailQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<MailQueue>());builder.Services.AddSingleton<OperationalLog>();builder.Services.AddSingleton<AdminLoginGuard>();builder.Services.AddSingleton<UserDirectory>();builder.Services.AddSingleton<CustomerDirectory>();builder.Services.AddSingleton<PasswordResetStore>();
+builder.Services.AddSingleton<InquirySmsNotifier>();builder.Services.AddSingleton<SmsSettingsStore>();builder.Services.AddSingleton<SmsCodes>();builder.Services.AddSingleton<SmsGateway>();builder.Services.AddSingleton<SmsQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<SmsQueue>());builder.Services.AddSingleton<MailSettingsStore>();builder.Services.AddSingleton<MailQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<MailQueue>());builder.Services.AddSingleton<OperationalLog>();builder.Services.AddSingleton<AdminLoginGuard>();builder.Services.AddSingleton<UserDirectory>();builder.Services.AddSingleton<CustomerDirectory>();builder.Services.AddSingleton<PasswordResetStore>();
 var dataPath=Path.GetFullPath(builder.Configuration["Storage:Path"]??"App_Data",builder.Environment.ContentRootPath);
 Directory.CreateDirectory(dataPath);
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataPath,"keys")));
@@ -366,7 +366,7 @@ app.MapPost("/api/inquiry-status",async(HttpContext c,Store store)=>{
     var rows=InquiryStatusPages.Lookup(store,phone);
     return Results.Json(new{ok=true,count=rows.Count,inquiries=rows});
 }).RequireRateLimiting("warranty-query");
-app.MapPost("/api/inquiry",async(HttpContext c,Store store,MailQueue mail,IConfiguration config,CustomerDirectory customers)=>{
+app.MapPost("/api/inquiry",async(HttpContext c,Store store,MailQueue mail,IConfiguration config,CustomerDirectory customers,InquirySmsNotifier smsNotifier)=>{
     var sizeFeature=c.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature>();
     if(sizeFeature is {IsReadOnly:false}) sizeFeature.MaxRequestBodySize=InquiryAttachments.MaxRequestSize;
     var multipart=c.Request.HasFormContentType?await c.Request.ReadFormAsync():null;
@@ -405,7 +405,7 @@ app.MapPost("/api/inquiry",async(HttpContext c,Store store,MailQueue mail,IConfi
     JsonObject row;
     try{row=store.AddInquiry(clean);}
     catch{InquiryAttachments.Cleanup(uploaded,dataPath);throw;}
-    var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
+    smsNotifier.Notify(row);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
     var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);var notificationRecipient=(store.Snapshot()["data"]?["settings"]?["notificationEmail"]?.ToString()??"").Trim();
     if(string.IsNullOrWhiteSpace(notificationRecipient))notificationRecipient=mail.AdminAddress;
     if(mail.IsConfigured&&!string.IsNullOrWhiteSpace(notificationRecipient))
@@ -416,7 +416,7 @@ app.MapGet("/api/inquiries/{id}/attachments/{attachmentId}/view",(string id,stri
     InquiryAttachments.Open(id,attachmentId,c,store,dataPath,false)).RequireAuthorization();
 app.MapGet("/api/inquiries/{id}/attachments/{attachmentId}/download",(string id,string attachmentId,HttpContext c,Store store)=>
     InquiryAttachments.Open(id,attachmentId,c,store,dataPath,true)).RequireAuthorization();
-app.MapPost("/api/service-request",async(HttpContext c,Store store,MailQueue mail,IConfiguration config,CustomerDirectory customers)=>{
+app.MapPost("/api/service-request",async(HttpContext c,Store store,MailQueue mail,IConfiguration config,CustomerDirectory customers,InquirySmsNotifier smsNotifier)=>{
     var b=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Servis talebi formu gerekli.");if(!string.IsNullOrEmpty(b["website"]?.ToString()))return Results.Json(new{ok=true});
     var name=(b["name"]?.ToString()??"").Trim();var email=(b["email"]?.ToString()??"").Trim();var phone=(b["phone"]?.ToString()??"").Trim();var business=(b["businessName"]?.ToString()??"").Trim();var address=(b["address"]?.ToString()??"").Trim();var message=(b["message"]?.ToString()??"").Trim();
     if(name.Length is < 2 or > 100||business.Length is < 2 or > 180||address.Length is < 5 or > 1200||message.Length is < 2 or > 5000)return Results.BadRequest(new{error="Servis talebi alanlarını kontrol edin. Ad, işletme, adres ve açıklama zorunludur."});if(!System.Net.Mail.MailAddress.TryCreate(email,out var parsedEmail)||!System.Text.RegularExpressions.Regex.IsMatch(email,@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"))return Results.BadRequest(new{error="E-posta adresi eksik veya hatalı. Kişisel veya iş e-posta adresi kullanabilirsiniz (ör. ornek@gmail.com)."});var servicePhoneDigits=System.Text.RegularExpressions.Regex.Replace(phone,@"\D","");if(!System.Text.RegularExpressions.Regex.IsMatch(phone,@"^\+?[\d\s().-]+$")||servicePhoneDigits.Length is <10 or >15)return Results.BadRequest(new{error="Telefon numarası eksik veya hatalı. 10-15 rakam girin; yalnızca +, boşluk, parantez, nokta ve tire kullanılabilir."});
@@ -434,7 +434,7 @@ app.MapPost("/api/service-request",async(HttpContext c,Store store,MailQueue mai
         ["serialNumber"]=(b["serialNumber"]?.ToString()??"").Trim(),
         ["message"]=message,["serviceStatus"]="new",["appointmentDate"]="",
         ["technician"]="",["internalNote"]="",["parts"]="",["resolution"]=""};if(AccessControl.Role(c.User)=="Customer"){var customerId=AccessControl.UserId(c.User);clean["customerId"]=customerId;if(b["saveProfile"]?.ToString()=="true"||b["saveProfile"]?.ToString()=="on")customers.UpdateProfile(customerId,new JsonObject{["name"]=name,["phone"]=phone,["businessName"]=business,["address"]=address});}
-    var row=store.AddInquiry(clean);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
+    var row=store.AddInquiry(clean);smsNotifier.Notify(row);var requestCode=row["requestCode"]?.ToString()??"";clean["requestCode"]=requestCode;var count=store.InquiryCount();
     var baseUrl=SeoPages.Origin(config);var adminUrl=baseUrl==null?null:baseUrl+"/admin?tab=inquiries";var admin=MailTemplates.AdminRequest(clean,count,adminUrl);var notificationRecipient=(store.Snapshot()["data"]?["settings"]?["notificationEmail"]?.ToString()??"").Trim();
     if(string.IsNullOrWhiteSpace(notificationRecipient))notificationRecipient=mail.AdminAddress;
     if(mail.IsConfigured&&!string.IsNullOrWhiteSpace(notificationRecipient))

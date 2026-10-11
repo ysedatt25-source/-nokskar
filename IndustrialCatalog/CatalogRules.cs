@@ -11,6 +11,11 @@ public static class CatalogRules
         var settings=d["settings"]?.AsObject() ?? throw new ArgumentException("Ayarlar gerekli.");
         settings["headerImage"] ??= "/inokskar-header-brand.png";
         settings["notificationEmail"] ??= "";
+        settings["notificationPhone"] ??= "05426156525";settings["notificationSmsEnabled"] ??= true;
+        var notificationPhone=Text(settings,"notificationPhone").Trim();
+        if(notificationPhone!="")notificationPhone=SmsPhone.Normalize(notificationPhone);
+        if(settings["notificationSmsEnabled"]!.GetValue<bool>()&&notificationPhone=="")throw new ArgumentException("Telefon bildirimi için cep telefonu girin.");
+        settings["notificationPhone"]=notificationPhone;
         settings["mapUrl"] ??= "";
         var mapUrl = Text(settings,"mapUrl").Trim();
         if (mapUrl != "" && (!Uri.TryCreate(mapUrl,UriKind.Absolute,out var mapUri) || mapUri.Scheme != "https" || !(mapUri.Host == "maps.app.goo.gl" || mapUri.Host == "maps.google.com" || ((mapUri.Host == "www.google.com" || mapUri.Host == "google.com") && mapUri.AbsolutePath.StartsWith("/maps"))))) throw new ArgumentException("Harita konumu için Google Haritalar Paylaş bağlantısını girin.");
@@ -76,7 +81,7 @@ public static class CatalogRules
     {
         var d=source.DeepClone().AsObject();
         d["references"] = new JsonArray((d["references"] as JsonArray??new JsonArray()).Where(x=>x?["visible"]?.GetValue<bool>()==true).Select(x=>x!.DeepClone()).ToArray());
-        var publicSettings=d["settings"]!.AsObject();publicSettings.Remove("notificationEmail");var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\\p{L}\\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
+        var publicSettings=d["settings"]!.AsObject();publicSettings.Remove("notificationEmail");publicSettings.Remove("notificationPhone");publicSettings.Remove("notificationSmsEnabled");var publicName=(publicSettings["name"]?.ToString()??"").Trim();if(publicName.Length<2||!Regex.IsMatch(publicName,@"[\\p{L}\\p{N}]"))publicSettings["name"]="İNOKSKAR";var cats=d["categories"]!.AsArray();var map=cats.ToDictionary(c=>c!["id"]!.ToString());
         bool Visible(JsonNode c){var seen=new HashSet<string>();while(true){if(c["visible"]?.GetValue<bool>()!=true||!seen.Add(c["id"]!.ToString()))return false;var parent=c["parent"]!.ToString();if(parent=="")return true;if(!map.TryGetValue(parent,out var next)||next==null)return false;c=next;}}
         var allowed=cats.Where(c=>c!=null&&Visible(c)).Select(c=>c!["id"]!.ToString()).ToHashSet();
         d["categories"]=new JsonArray(cats.Where(c=>allowed.Contains(c!["id"]!.ToString())).Select(c=>c!.DeepClone()).ToArray());

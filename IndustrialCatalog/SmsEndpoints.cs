@@ -12,6 +12,16 @@ public static class SmsEndpoints
         app.MapGet("/admin/sms",(HttpContext c,SmsSettingsStore sms)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Html(SmsPages.Settings(sms.Active)):Results.Forbid()).RequireAuthorization();
         app.MapGet("/api/admin/sms/settings",(HttpContext c,SmsSettingsStore sms)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Json(sms.PublicSettings()):Results.Forbid()).RequireAuthorization();
         app.MapPost("/api/admin/sms/settings",async(HttpContext c,SmsSettingsStore sms,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.System,"edit"))return Results.Forbid();var body=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Sağlayıcı bilgileri gerekli.");if(body["action"]?.ToString() is string action)sms.Manage(action,body["id"]?.ToString()??"");else sms.Save(body);store.RecordAudit("Sağlayıcı ayarı güncellendi","sms","",AccessControl.DisplayName(c.User));return Results.Json(sms.PublicSettings());}).RequireAuthorization();
+        app.MapPost("/api/admin/sms/inquiry-test",async(HttpContext c,SmsSettingsStore sms,SmsGateway gateway,Store store,IConfiguration config)=>{
+            if(!AccessControl.Has(c.User,AccessPermissions.System,"edit"))return Results.Forbid();
+            if(!sms.Active)return Results.BadRequest(new{error="Önce sağlayıcıyı yapılandırıp aktif edin."});
+            var body=await c.Request.ReadFromJsonAsync<JsonObject>()??new JsonObject();
+            var phone=SmsPhone.Normalize(body["phone"]?.ToString());
+            var origin=SeoPages.Origin(config)??throw new ArgumentException("Genel site adresi tanımlanmalı.");
+            await gateway.Send(phone,InquirySmsNotifier.Message(new JsonObject{["purpose"]="destek",["message"]="Talep bildirimi bağlantı testi. Bu mesaj gerçek bir müşteri talebi değildir."},origin+"/admin?tab=inquiries",true),c.RequestAborted);
+            store.RecordAudit("Talep telefonu test bildirimi sağlayıcı tarafından kabul edildi","sms","","Sistem");
+            return Results.Json(new{ok=true,message="Test mesajı sağlayıcı tarafından kabul edildi. Telefona ulaştığını ayrıca kontrol edin."});
+        }).RequireAuthorization().RequireRateLimiting("sms-admin");
         app.MapGet("/telefon-kayit",(SmsSettingsStore sms)=>sms.Active?Html(SmsPages.Phone("register")):Results.NotFound());
         app.MapGet("/telefon-sifre",(HttpContext c,SmsSettingsStore sms)=>sms.Active?Html(SmsPages.Phone("recover",id:Guid.TryParseExact(c.Request.Query["challenge"],"N",out _)?c.Request.Query["challenge"].ToString():"")):Results.NotFound());
         app.MapPost("/telefon/kod",async(HttpContext c,SmsSettingsStore sms,SmsCodes codes,SmsGateway gateway,CustomerDirectory customers)=>{
