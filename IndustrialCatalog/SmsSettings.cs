@@ -34,7 +34,7 @@ public sealed class SmsSettingsStore
     public SmsProfile? ActiveProfile(){lock(gate){var s=Load();var p=s.Profiles.FirstOrDefault(x=>x.Id==s.Selected);return s.Enabled&&p!=null&&Configured(p)?JsonSerializer.Deserialize<SmsProfile>(JsonSerializer.Serialize(p,Options),Options):null;}}
     public bool Active=>ActiveProfile()!=null;
     public string Secret(SmsProfile p){try{return protector.Unprotect(p.ProtectedSecret);}catch{return "";}}
-    bool Configured(SmsProfile p)=>p.Endpoint.Length>0&&p.Adapter.Length>0&&p.Sender.Length>0&&Secret(p).Length>0&&(p.Auth is "bearer" or "header"||p.Username.Length>0);
+    bool Configured(SmsProfile p)=>p.Endpoint.Length>0&&p.Adapter.Length>0&&p.Sender.Length>0&&Secret(p).Length>0&&(p.Auth is "bearer" or "header"||p.Username.Length>0)&&(p.Adapter=="verimor"||p.SuccessPath.Length>0&&p.SuccessValue.Length>0)&&(p.Adapter!="generic"||p.Template.Length>0);
     public object PublicSettings(){lock(gate){var s=Load();return new{enabled=s.Enabled,active=s.Enabled&&s.Profiles.Any(x=>x.Id==s.Selected&&Configured(x)),selected=s.Selected,presets=Presets,profiles=s.Profiles.Select(p=>new{p.Id,p.Name,p.Adapter,p.Endpoint,p.Auth,p.Username,p.Sender,p.Template,p.SuccessPath,p.SuccessValue,p.HeaderName,secretConfigured=Secret(p).Length>0}).ToArray()};}}
     static string Clean(JsonObject b,string key,int max=500){var v=(b[key]?.ToString()??"").Trim();if(v.Length>max||v.Any(c=>c=='\r'||c=='\n')&&key!="template")throw new ArgumentException("Alan değeri geçersiz: "+key);return v;}
     public void Save(JsonObject b)

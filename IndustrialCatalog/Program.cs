@@ -12,6 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
+if(args.Contains("--sms-preview")){SmsChecks.Preview();return;}
 if(args.Contains("--membership-self-test")){MembershipChecks.Run();return;}
 if(args.Contains("--hash-password"))
 {
