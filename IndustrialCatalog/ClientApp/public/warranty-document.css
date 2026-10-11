@@ -97,3 +97,23 @@
 
 /* Use the print layout while preparing and measuring the isolated document. */
 .warranty-print-document .certificate{--certificate-font:10px;width:196mm;max-width:100%;padding:2mm;border:1px solid #a7b9c8;border-top:3px solid #246fa9;line-height:1.2}.warranty-print-document .certificate-head{padding-bottom:4px}.warranty-print-document .certificate-brand img{height:30px}.warranty-print-document .certificate-brand{width:145px}.warranty-print-document .certificate-heading span,.warranty-print-document .certificate-section-title{font-size:.75em}.warranty-print-document .certificate-heading p,.warranty-print-document .certificate-product p{font-size:.85em}.warranty-print-document .certificate-product{padding:4px 0}.warranty-print-document .certificate-meta{margin:4px 0}.warranty-print-document .certificate-meta div{padding:3px 5px}.warranty-print-document .certificate h3{margin:4px 0 3px}.warranty-print-document .certificate th,.warranty-print-document .certificate td{padding:3px 4px}.warranty-print-document .certificate-note{margin-top:4px;padding:4px}.warranty-print-document .certificate-signatures{margin-top:9px}.warranty-print-document .certificate-footer{margin-top:3px;padding-top:3px}
+
+/* The document is shown only inside the selected, initially closed panel. */
+.certificate-shell{margin:12px auto;padding:0 10px 20px}
+.certificate-controls{margin:0;padding:10px;background:#fff;border-radius:17px;box-shadow:0 12px 32px #1739500d}
+.certificate-navigation{position:sticky;top:0;z-index:5;background:#fff;padding:4px 0 10px;border-bottom:1px solid transparent}
+.certificate-tabs{gap:8px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.warranty-certificate-body .certificate-tabs button{position:relative;flex-direction:column;gap:6px;padding:10px 6px;min-height:74px;border:1px solid #1b6ac6;border-radius:12px;background:linear-gradient(145deg,#238be9,#1456ad);color:#fff;font-size:12px;line-height:1.3;box-shadow:0 5px 12px #1b6ac61a;transition:background .18s,box-shadow .18s}
+.warranty-certificate-body .certificate-tabs button:nth-child(2){background:linear-gradient(145deg,#e79432,#ad541a);border-color:#bd651d}
+.warranty-certificate-body .certificate-tabs button:nth-child(3){background:linear-gradient(145deg,#d9526d,#a42b44);border-color:#b93650}
+.warranty-certificate-body .certificate-tabs button[aria-expanded=true]{background:linear-gradient(145deg,#209665,#126440);border-color:#0f5839;box-shadow:0 0 0 2px #b7e8d1,0 5px 14px #12644024}
+.certificate-tabs button[aria-expanded=true]::after{content:'';position:absolute;bottom:4px;left:calc(50% - 12px);width:24px;height:3px;border-radius:9px;background:#e0fff0}
+.certificate-tabs svg{width:20px;height:20px}
+.warranty-certificate-body .certificate-return{display:flex;width:100%;margin-top:9px;min-height:38px;border-radius:11px;background:linear-gradient(145deg,#294861,#142d43);border-color:#18364e;color:#fff;font-size:12px}
+.certificate-tabs button:focus-visible,.certificate-return:focus-visible,.certificate-print-button:focus-visible{outline:3px solid #f1b658;outline-offset:3px}
+@media(hover:hover){.certificate-tabs button:hover,.certificate-return:hover,.certificate-print-button:hover{filter:brightness(1.09)}}
+.certificate-panel{padding-top:8px}.certificate-panel .certificate{margin-bottom:10px}
+.warranty-certificate-body .certificate-print-button{width:100%;min-height:38px;border-radius:10px}
+.certificate-status:empty{display:none}
+@media(max-width:380px){.warranty-certificate-body .certificate-tabs button{font-size:11px;padding:9px 4px;min-height:76px}.certificate-tabs{gap:6px}}
+@media print{.certificate-navigation{display:none!important}.warranty-print-document .certificate{margin:0}}

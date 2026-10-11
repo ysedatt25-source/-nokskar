@@ -7,6 +7,11 @@
    for(const item of buttons){const selected=item===button&&open;item.setAttribute('aria-expanded',String(selected));document.getElementById(item.getAttribute('aria-controls')).hidden=!selected;}
    status.textContent='';
  });
+ const back=root.querySelector('[data-certificate-back]');
+ back.addEventListener('click',event=>{
+   if(window.opener&&!window.opener.closed){event.preventDefault();window.close();return;}
+   try{const previous=new URL(document.referrer);if(previous.origin===location.origin&&/^\/admin\/warranties(?:\/list)?$/.test(previous.pathname)){event.preventDefault();history.back();}}catch{}
+ });
  const queryUrl=new URL('/garanti-sorgulama',location.origin);
  for(const item of root.querySelectorAll('[data-query-address]'))item.textContent=queryUrl.host+queryUrl.pathname;
  function fitText(container){
@@ -29,7 +34,7 @@
      const copy=(label?thermal:root.querySelector('.certificate')).cloneNode(true);
      copy.querySelectorAll('.brand-mirror-layer').forEach(e=>e.remove());
      copy.removeAttribute('id');
-     const css=new URL('/warranty-document.css?v=20261011-3',location.origin).href;
+     const css=new URL('/warranty-document.css?v=20261011-4',location.origin).href;
      frame=document.createElement('iframe');frame.title='Yazdırma belgesi';
      frame.style.cssText='position:fixed;left:-10000px;top:0;border:0;width:'+(label?width+'mm':'210mm')+';height:'+(label?'50mm':'297mm')+';';
      const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=()=>reject(Error('Yazdırma belgesi hazırlanamadı.'));});

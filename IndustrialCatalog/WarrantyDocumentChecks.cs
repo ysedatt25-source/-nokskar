@@ -21,13 +21,14 @@ public static class WarrantyDocumentChecks
         input["manufacturingDate"]="";
         var old=WarrantyRules.Prepare(input,catalog,null,out _);
         var oldHtml=WarrantyPages.Certificate(old);
-        Check(oldHtml.Contains("data-print-kind=\"thermal\" disabled"),"missing manufacturing date prevents misleading labels");
+        Check(!oldHtml.Contains("data-print-kind=\"thermal\" disabled")&&oldHtml.Contains("İmalat tarihi kayıtlı değil"),"missing manufacturing date is disclosed without inventing a date");
         record["productName"]="<script>unsafe()</script> @@CODE@@";
         var html=WarrantyPages.Certificate(record);
         Check(!html.Contains("<script>unsafe()")&&html.Contains("&lt;script&gt;"),"record fields HTML encoded");
         Check(html.Contains("@@CODE@@"),"field data is not expanded as another template token");
         Check(html.Contains("id=\"certificate-pdf-panel\" hidden")&&html.Contains("id=\"certificate-thermal-panel\" hidden"),"print panels initially closed");
         Check(html.Contains("id=\"certificate-thermal-wide-panel\" hidden"),"second thermal panel initially closed");
+        Check(html.IndexOf("id=\"warranty-document\"",StringComparison.Ordinal)>html.IndexOf("id=\"certificate-pdf-panel\" hidden",StringComparison.Ordinal),"certificate belongs to the closed PDF panel");
         Check(!html.Contains("onclick=\"window.print()\""),"printing uses an isolated document");
         Console.WriteLine("Warranty document and manufacturing date checks: PASS (no live records)");
     }
