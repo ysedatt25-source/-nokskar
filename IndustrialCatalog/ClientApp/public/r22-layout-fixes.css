@@ -2935,7 +2935,15 @@ body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;ma
  body.page-home .hero.hero-media-only{height:clamp(320px,83vw,460px)!important;min-height:0!important}
  body.page-home .hero .hero-content{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;margin:58px 20px 20px!important;max-width:min(420px,calc(100% - 40px))!important}
  body.page-home .hero .hero-content h1{max-width:min(12ch,100%);padding:10px 12px}
- body.page-home .hero .hero-content>p{display:block;font-size:13px;line-height:1.5;margin:10px 0;max-width:100%;height:auto;white-space:normal;overflow:visible;background:rgba(5,20,37,.88);color:#fff;padding:9px 10px;border-radius:8px;text-shadow:none}
+ body.page-home .hero .hero-content>p{display:block;font-size:13px;line-height:1.5;margin:10px 0;max-width:100%;height:auto;white-space:normal;overflow:visible;background:rgba(5,20,37,.54);color:#fff;padding:9px 10px;border-radius:8px;text-shadow:none}
+}
+
+@media(max-width:600px){
+ body.page-home.app-shell-enabled .hero{min-height:0!important}
+ body.page-home.app-shell-enabled .hero .hero-content{margin:40px 12px 12px!important;max-width:calc(100% - 24px)!important}
+ body.page-home.app-shell-enabled .hero .hero-content h1{font-size:24px;line-height:1.06;max-width:100%;padding:7px 9px;margin:0 0 6px}
+ body.page-home.app-shell-enabled .hero .hero-content>p{font-size:12px;line-height:1.4;margin:6px 0 8px;padding:7px 9px}
+ body.page-home.app-shell-enabled .hero .hero-actions .button{min-height:34px;padding:6px 12px;font-size:12px}
 }
 
 @media(min-width:1101px){body.page-home .hero .hero-content{margin:56px 52px!important;max-width:calc(100% - 104px)!important}body.page-home .hero .hero-content h1{max-width:min(calc(14ch + 32px),100%)}}
@@ -2982,7 +2990,7 @@ html body .product-card .product-photo>img,html body .home-design-featured .prod
  body .site-header.brand-unified-header .header-util-links .util-link{background:#263748!important;border-radius:8px;color:#fff!important}
 }
 @media(min-width:601px){
- body.page-home .hero .hero-content::before,body.page-home .hero .hero-kicker,body.page-home .hero .hero-content>p{background:rgba(5,20,37,.88)!important;border-radius:8px;padding:7px 10px;color:#fff!important;max-width:48ch;box-sizing:border-box;text-shadow:none}
+ body.page-home .hero .hero-content::before,body.page-home .hero .hero-kicker,body.page-home .hero .hero-content>p{background:rgba(5,20,37,.54)!important;border-radius:8px;padding:7px 10px;color:#fff!important;max-width:48ch;box-sizing:border-box;text-shadow:none}
 }
 /* Backup actions wrap rather than squeezing their explanation into a column. */
 body .admin-box.backup-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
