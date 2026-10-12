@@ -17,6 +17,8 @@
     const mount=()=>{
       scheduled=false;
       for(const img of document.querySelectorAll(selector)){
+        // Loading logos have their own surface and animation; header effects must not alter them.
+        if(img.closest('#inokskar-page-loader,.brand-loading'))continue;
         if(!img.complete||!img.naturalWidth){if(!pending.has(img)){pending.add(img);img.addEventListener('load',schedule,{once:true});}continue;}
         const host=img.closest('a')||img.parentElement;if(!host)continue;
         const header=img.closest('.site-header,.private-brand-header,header.top,.admin-sidebar');

@@ -77,6 +77,7 @@ public sealed class LogoNavigationMiddleware
                 html = Regex.Replace(html, @"/(r129-feedback\.js|live-support\.js)(?:\?[^""'<>\s]*)?", "/$1?v=support-controls-20261012-4");
                 // Shared hand-written assets change independently of the hashed Vite bundle.
                 html = Regex.Replace(html, @"/(r95-warranty-admin\.js|r104-admin-runtime\.js|logo-navigation\.js|r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=warranty-print-20261011");
+                html = Regex.Replace(html, @"/logo-navigation\.js(?:\?[^""'<>\s]*)?", "/logo-navigation.js?v=loading-scope-20261012-2");
                 html = Regex.Replace(html, @"/(r13-pages\.css|r22-layout-fixes\.css)(?:\?[^""'<>\s]*)?", "/$1?v=hero-compact-20261012-2");
                 if (!html.Contains("/live-support.js", StringComparison.Ordinal) && !new[]{"/login","/kayit","/forgot-password","/reset-password"}.Contains(context.Request.Path.Value))
                 {
