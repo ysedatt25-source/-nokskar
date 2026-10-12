@@ -3,6 +3,7 @@
   'use strict';
   if (win.InokskarFeedback) return;
 
+  var pageGeneration = 0;
   var active = null;
   var timer = null;
   var lastKey = '';
@@ -122,6 +123,13 @@
     if (e.key === 'Escape' && active && active.contains(doc.activeElement)) dismiss();
   });
 
+  // A completed operation belongs to its current page, never the next route.
+  function leavePage() { pageGeneration++; pending = []; dismiss(); }
+  win.addEventListener('inokskar:navigation', leavePage);
+  win.addEventListener('popstate', leavePage);
+  win.addEventListener('pagehide', leavePage);
+  win.addEventListener('pageshow', function (e) { if (e.persisted) dismiss(); });
+
   var originalFetch = win.fetch;
   if (typeof originalFetch !== 'function') return;
   win.fetch = async function () {
@@ -136,6 +144,7 @@
       win.location.pathname !== '/admin' &&
       !!operation(url.pathname);
     if (!enabled) return originalFetch.apply(this, args);
+    var generation = pageGeneration;
     var summary = operation(url.pathname);
     try {
       var response = await originalFetch.apply(this, args);
@@ -144,6 +153,7 @@
       if (contentType.includes('application/json')) {
         try { body = await response.clone().json(); } catch (_) { /* non-JSON response */ }
       }
+      if (generation !== pageGeneration) return response;
       if (!response.ok || (body && (body.ok === false || body.error))) {
         show({tone:'error',message:body && typeof body.error === 'string' ? body.error : response.status === 401 ? 'Oturumunuz sona erdi. Lütfen yeniden giriş yapın.' : response.status === 403 ? 'Bu işlem için yetkiniz bulunmuyor.' : 'İşlem gerçekleştirilemedi. Lütfen yeniden deneyin.'});
       } else {
@@ -151,7 +161,7 @@
       }
       return response;
     } catch (e) {
-      show({tone:'error',message:'Bağlantı kurulamadı. İnternet bağlantınızı kontrol ederek yeniden deneyin.'});
+      if (generation === pageGeneration) show({tone:'error',message:'Bağlantı kurulamadı. İnternet bağlantınızı kontrol ederek yeniden deneyin.'});
       throw e;
     }
   };

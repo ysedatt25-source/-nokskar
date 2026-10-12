@@ -68,7 +68,7 @@ app.Use(async(ctx,next)=>{
 });
 app.UseStaticFiles(new StaticFileOptions{OnPrepareResponse=ctx=>{
     var versioned=ctx.Context.Request.Path.StartsWithSegments("/assets");
-    ctx.Context.Response.Headers.CacheControl=versioned?"public,max-age=604800,immutable":"no-cache";
+    ctx.Context.Response.Headers.CacheControl=(ctx.Context.Request.Path=="/r129-feedback.js"||ctx.Context.Request.Path=="/live-support.js")?"no-store":versioned?"public,max-age=604800,immutable":"no-cache";
 }});
 app.UseMiddleware<LogoNavigationMiddleware>();
 app.UseAuthentication();
