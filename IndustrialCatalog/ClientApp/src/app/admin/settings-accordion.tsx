@@ -1,7 +1,7 @@
 'use client';
 import {Children,useEffect,useRef,useState,type ReactNode} from 'react';
 import {FolderTree,Building2,LayoutDashboard,MessageSquare,Coins,Settings,Phone,Save,ChevronDown} from 'lucide-react';
-const sections=[['Kategori görselleri',FolderTree],['Marka ve logo',Building2],['Ana sayfa',LayoutDashboard],['İletişim / WhatsApp',Phone],['Talep bildirimleri',MessageSquare],['Kur ve fiyat',Coins],['Üst menü',Settings]] as const;
+const sections=[['Kategori görselleri',FolderTree],['Marka ve logo',Building2],['Ana sayfa',LayoutDashboard],['İletişim ve destek',Phone],['Talep bildirimleri',MessageSquare],['Kur ve fiyat',Coins],['Üst menü',Settings]] as const;
 export default function SettingsAccordion({children,busy,changed,onSave}:{children:ReactNode,busy:boolean,changed:boolean[],onSave:(index:number)=>Promise<boolean>}){
  const [open,setOpen]=useState<number|null>(null),timer=useRef<ReturnType<typeof setTimeout>|null>(null),buttons=useRef<(HTMLButtonElement|null)[]>([]);
  useEffect(()=>()=>{if(timer.current)clearTimeout(timer.current);},[]);

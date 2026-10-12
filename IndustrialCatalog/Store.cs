@@ -174,6 +174,7 @@ public sealed class Store
         File.Move(temp, file, true);
         state = next;
     }
+    public bool LiveSupportEnabled { get { lock(gate) return state["data"]?["settings"]?["liveSupportEnabled"]?.GetValue<bool>() ?? true; } }
     public JsonObject Snapshot() { lock (gate) return state.DeepClone().AsObject(); }
     public void EnsureRevision(int revision) { lock (gate) if (revision != state["revision"]!.GetValue<int>()) throw new ArgumentException("Başka bir değişiklik kaydedilmiş. Sayfayı yenileyin."); }
     public JsonObject Save(JsonObject body) => SaveCore(body, false);

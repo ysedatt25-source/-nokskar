@@ -34,6 +34,8 @@ public static class CatalogRules
         var siteName=Text(settings,"name").Trim();if(siteName.Length<2||!Regex.IsMatch(siteName,@"[\p{L}\p{N}]"))siteName="İNOKSKAR";settings["name"]=siteName;
         foreach(var key in new[]{"hero","headerImage","social"})if(!Safe(Text(settings,key)))throw new ArgumentException("Geçersiz bağlantı.");
         var rate=settings["rate"]!.GetValue<decimal>();if(rate<0)throw new ArgumentException("Kur negatif olamaz.");
+        settings["liveSupportEnabled"] ??= true;
+        settings["liveSupportEnabled"]!.GetValue<bool>();
         foreach(var key in new[]{"waEnabled","autoRate"})settings[key]!.GetValue<bool>();
         var wa=Text(settings,"whatsapp");if(wa!=""&&(!Regex.IsMatch(wa,@"^\+?[\d\s()-]+$")||Regex.Replace(wa,@"\D","").Length is <8 or >15))throw new ArgumentException("WhatsApp numarası geçersiz.");
         var email=Text(settings,"email");if(email!=""&&!System.Net.Mail.MailAddress.TryCreate(email,out _))throw new ArgumentException("E-posta geçersiz.");

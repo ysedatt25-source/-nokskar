@@ -29,6 +29,10 @@ public static class LiveSupportChecks
             var store=new LiveSupportStore(env,config);var actor="guest:"+new string('a',64);var id=JsonNode.Parse(JsonSerializer.Serialize(store.Open(actor,"Test","tr")))!["id"]!.ToString();
             var m=store.Add(id,actor,false,"Test","Merhaba BNK001","tr","test-1",allowTranslation:false);Require(!store.TranslationInput(id,m.Id,actor,false,"en").Allowed,"Translation opt-out must be enforced on the server.");
             Require(store.Add(id,actor,false,"Test","Merhaba BNK001","tr","test-1").Id==m.Id,"Retries are idempotent.");
+            var blocked=false;try{store.DeleteClosed(id,"staff:founder");}catch(ArgumentException){blocked=true;}Require(blocked,"Active conversations cannot be deleted.");
+            var attachment=new string('b',32)+".pdf";File.WriteAllText(Path.Combine(path,"live-support",attachment),"%PDF-1.4 test");store.Add(id,actor,false,"Test","","tr","attachment-test",attachment,"test.pdf","application/pdf");
+            store.Close(id,"staff:founder");store.DeleteClosed(id,"staff:founder");Require(!File.Exists(Path.Combine(path,"live-support",attachment)),"Deletion removes attachments.");
+            var reload=new LiveSupportStore(env,config);var after=JsonNode.Parse(JsonSerializer.Serialize(reload.State("staff:founder",true,id,"tr",0)))!;Require(after["threadGone"]!.GetValue<bool>()&&after["threads"]!.AsArray().Count==0,"Deletion persists and stale selections recover.");
             Console.WriteLine("Live support checks: PASS (isolated store, role checks, translation contract/opt-out, encrypted key; no real provider calls).");
         }
         finally{Directory.Delete(path,true);}

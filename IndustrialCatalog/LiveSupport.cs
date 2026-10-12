@@ -96,8 +96,8 @@ public sealed class LiveSupportStore
     public SupportAgent[] Available() { lock(gate)return agents.Values.Where(a=>a.Ready&&a.Seen>DateTimeOffset.UtcNow.AddSeconds(-75)).GroupBy(a=>a.Id).Select(g=>g.OrderByDescending(a=>a.Seen).First()).ToArray(); }
     public void Presence(string actor,string name,string language,bool ready,string client)
     {lock(gate){if(!Regex.IsMatch(client,"^[a-zA-Z0-9-]{16,80}$"))throw new ArgumentException("Bağlantı kimliği geçersiz.");foreach(var key in agents.Where(x=>x.Value.Seen<DateTimeOffset.UtcNow.AddMinutes(-2)).Select(x=>x.Key).ToArray())agents.Remove(key);agents[actor+":"+client]=new(actor,name,Language(language),ready,DateTimeOffset.UtcNow);}}
-    public object Status(HttpContext c,SupportTranslation translation)
-    { return new { online=Available().Length>0,staff=Staff(c.User),canRespond=Respond(c.User),hasSession=Actor(c)!="",translationReady=translation.Ready,canConfigure=AccessControl.IsSuperAdmin(c.User),languages=Languages }; }
+    public object Status(HttpContext c,SupportTranslation translation,bool enabled=true)
+    { return new { enabled,online=Available().Length>0,staff=Staff(c.User),canRespond=Respond(c.User),hasSession=Actor(c)!="",translationReady=translation.Ready,canConfigure=AccessControl.IsSuperAdmin(c.User),languages=Languages }; }
     SupportThread Get(string id,string actor,bool staff)
     { var t=threads.Find(t=>t.Id==id);if(t==null||!staff&&t.Owner!=actor)throw new ArgumentException("Sohbet bulunamadı veya erişim yetkiniz yok.");return t; }
     public object Open(string actor,string name,string language)
@@ -108,11 +108,11 @@ public sealed class LiveSupportStore
     }
     public object State(string actor,bool staff,string id,string language,long since)
     {
-        lock(gate){var t=id!=""?Get(id,actor,staff):staff?null:threads.LastOrDefault(t=>t.Owner==actor&&!t.Closed);
+        lock(gate){var gone=id!=""&&!threads.Any(t=>t.Id==id);var t=id!=""&&!gone?Get(id,actor,staff):staff?null:threads.LastOrDefault(t=>t.Owner==actor&&!t.Closed);
             SupportCall? call=null;if(t!=null&&calls.TryGetValue(t.Id,out var found)){if(found.Status=="ringing"&&found.At<DateTimeOffset.UtcNow.AddSeconds(-45)||found.Status=="active"&&(found.AgentSeen<DateTimeOffset.UtcNow.AddSeconds(-90)||found.VisitorSeen<DateTimeOffset.UtcNow.AddSeconds(-90))){found.Status="ended";}if(staff&&found.Agent==actor)found.AgentSeen=DateTimeOffset.UtcNow;else if(!staff)found.VisitorSeen=DateTimeOffset.UtcNow;call=found;}
             var list=staff?threads.OrderBy(t=>t.Closed).ThenByDescending(t=>t.Updated).Take(150).Select(t=>new {t.Id,t.Name,t.Language,t.AssignedName,t.Closed,t.Updated,unread=t.Messages.Count(m=>!m.Staff&&!m.Read),preview=t.Messages.LastOrDefault()?.Text??"Dosya"}).ToArray():null;
             var ready=Available();
-            return new { online=ready.Length>0,agents=staff?ready.Select(a=>new{a.Id,a.Name}).ToArray():null,threads=list,
+            return new { threadGone=gone,online=ready.Length>0,agents=staff?ready.Select(a=>new{a.Id,a.Name}).ToArray():null,threads=list,
                 thread=t==null?null:new {t.Id,t.Name,t.Language,t.Assigned,t.AssignedName,t.Closed,t.Updated},
                 messages=t?.Messages.TakeLast(300).Select(m=>new {m.Id,m.Sender,m.Staff,m.Text,m.Language,m.FileName,m.FileType,hasFile=m.File!="",m.At,m.Read,m.ClientId,mine=m.Actor==actor,translationAllowed=m.AllowTranslation,translated=m.Translations.GetValueOrDefault(Language(language))}).ToArray(),
                 typing=t!=null&&typing.TryGetValue(t.Id,out var ty)&&ty.Actor!=actor&&ty.At>DateTimeOffset.UtcNow.AddSeconds(-5),
@@ -145,6 +145,14 @@ public sealed class LiveSupportStore
     public void Assign(string id,string actor,string target,string name)
     {lock(gate){var t=Get(id,actor,true);if(target!=""&&target!=actor&&!Available().Any(a=>a.Id==target))throw new ArgumentException("Seçilen yetkili şu anda uygun değil.");t.Assigned=target;t.AssignedName=target==actor?name:Available().FirstOrDefault(a=>a.Id==target)?.Name??"";Persist();}}
     public void Close(string id,string actor){lock(gate){var t=Get(id,actor,true);t.Closed=true;t.Updated=DateTimeOffset.UtcNow;if(calls.TryGetValue(id,out var call))call.Status="ended";Persist();}}
+    public void DeleteClosed(string id,string actor)
+    {
+        lock(gate){var t=Get(id,actor,true);if(!t.Closed)throw new ArgumentException("Yalnızca kapatılmış sohbetler silinebilir.");
+            var index=threads.IndexOf(t);threads.RemoveAt(index);try{Persist();}catch{threads.Insert(index,t);throw;}
+            typing.Remove(id);calls.Remove(id);signals.RemoveAll(s=>s.Thread==id);
+            foreach(var name in t.Messages.Select(m=>m.File).Where(f=>f!="").Distinct())if(Regex.IsMatch(name,@"^[a-f0-9]{32}\.(png|jpg|jpeg|webp|pdf)$"))File.Delete(Path.Combine(folder,name));
+        }
+    }
     public object StartCall(string id,string actor,string kind)
     {lock(gate){var t=Get(id,actor,true);if(t.Closed)throw new ArgumentException("Sohbet kapalı.");if(t.Assigned!=""&&t.Assigned!=actor)throw new ArgumentException("Aramayı atanan yetkili başlatabilir.");if(kind is not ("audio" or "video"))throw new ArgumentException("Arama türü geçersiz.");if(calls.TryGetValue(id,out var current)&&(current.Status=="active"||current.Status=="ringing"&&current.At>DateTimeOffset.UtcNow.AddSeconds(-45)))throw new ArgumentException("Zaten bir arama var.");if(calls.Values.Any(c=>c.Agent==actor&&(c.Status=="active"||c.Status=="ringing"&&c.At>DateTimeOffset.UtcNow.AddSeconds(-45))))throw new ArgumentException("Önce mevcut aramanızı bitirin.");var call=new SupportCall{Agent=actor,Kind=kind};calls[id]=call;signals.RemoveAll(s=>s.Thread==id);return new{id=call.Id};}}
     public bool CanUseRtc(string id,string callId,string actor,bool staff)
