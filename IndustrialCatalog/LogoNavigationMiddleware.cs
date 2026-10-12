@@ -49,7 +49,8 @@ public sealed class LogoNavigationMiddleware
                 var headStart=html.IndexOf("<head",StringComparison.OrdinalIgnoreCase);
                 if(headStart>=0){headStart=html.IndexOf('>',headStart)+1;var common="<script src=\"/dom-lifecycle.js?v=ownership-1\"></script>";if(!html.Contains("/r123-security.js",StringComparison.Ordinal))common+="<script src=\"/r123-security.js?v=ownership-1\"></script>";html=html.Insert(headStart,common);}
                 // Some legacy server pages omit the shared layout stylesheet.
-                if (!html.Contains("/r22-layout-fixes.css", StringComparison.Ordinal))
+                if (!html.Contains("/r22-layout-fixes.css", StringComparison.Ordinal) &&
+                    !html.Contains("/site-bundle.css", StringComparison.Ordinal))
                 {
                     const string style = "<link rel=\"stylesheet\" href=\"/r22-layout-fixes.css?v=qa-20261011-1\">";
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
