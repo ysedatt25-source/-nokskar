@@ -2,7 +2,7 @@
 (()=>{
   if(window.__inokskarLogoNavigation)return;window.__inokskarLogoNavigation=true;
   const start=()=>{
-    const selector='img[src*="inokskar-header-brand"],.site-header .brand img,.private-brand-link img,.admin-brand img,.admin-sidebar>a.brand img,.r126-auth .brand img,.r126-auth .mobile-brand img,.r126-auth .logo img,.shell>a img,.account-brand img';
+    const selector='img[src*="inokskar-logo"],.site-header .brand img,.private-brand-link img,.admin-brand img,.admin-sidebar>a.brand img,.r126-auth .brand img,.r126-auth .mobile-brand img,.r126-auth .logo img,.shell>a img,.account-brand img';
     const hosts=new Map(),pending=new WeakSet();let scheduled=false;
     const route=()=>location.pathname+location.search;
     const layout=entry=>{
@@ -31,7 +31,7 @@
     };
     function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(mount);}}
     for(const method of ['pushState','replaceState']){const original=history[method];history[method]=function(...args){const value=original.apply(this,args);schedule();return value;};}
-    new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+    new window.InokskarDOM.Observer(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
     window.addEventListener('popstate',schedule);window.addEventListener('inokskar:navigation',schedule);window.addEventListener('resize',schedule);window.addEventListener('pageshow',event=>{if(event.persisted){for(const entry of hosts.values())entry.lastRoute=null;schedule();}});mount();
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

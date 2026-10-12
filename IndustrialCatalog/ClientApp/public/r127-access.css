@@ -1,7 +1,7 @@
-/* R127 — INOKSKAR account & permission center: scoped, component-level responsive layout */
+@layer theme, base, components, utilities, site, layout;
+@layer site{/* R127 — INOKSKAR account & permission center: scoped, component-level responsive layout */
 body.access-management-page{color:#182f49;background:linear-gradient(180deg,#eff4fa 0%,#f6f8fc 50%,#edf3f9 100%);overflow-x:hidden}
 body.access-management-page *{box-sizing:border-box}
-body.access-management-page [hidden]{display:none!important}
 body.access-management-page .access-wrap.access-center{width:min(1180px,calc(100% - 40px));max-width:1180px;margin:22px auto 0;padding-bottom:calc(65px + env(safe-area-inset-bottom))}
 body.access-management-page .access-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 28px;margin-bottom:15px;border:1px solid #dbe5f0;border-radius:21px;background:linear-gradient(120deg,#fff,#f9fcff);box-shadow:0 8px 27px #173d6110}
 body.access-management-page .access-heading-copy{min-width:0;flex:1}
@@ -31,7 +31,7 @@ body.access-management-page .access-toolbar{display:grid;grid-template-columns:m
 body.access-management-page .access-search-wrap{display:flex;align-items:center;min-width:0;min-height:47px;gap:8px;padding:0 13px;border:1px solid #d3e0ed;border-radius:12px;background:#f8fbff;transition:border-color .2s,box-shadow .2s}
 body.access-management-page .access-search-wrap:focus-within{border-color:#64a2e4;box-shadow:0 0 0 3px #3985d51e}
 body.access-management-page .access-search-wrap>span{color:#4587c5;font-size:1.55rem}
-body.access-management-page .access-search-wrap input{min-width:0;width:100%;max-width:none;min-height:44px;border:0!important;background:transparent!important;margin:0;padding:9px 0;box-shadow:none!important;outline:none!important;font-size:.84rem;color:#193c59}
+body.access-management-page .access-search-wrap input{min-width:0;width:100%;max-width:none;min-height:44px;margin:0;padding:9px 0;font-size:.84rem;color:#193c59}
 body.access-management-page .access-search-wrap button{flex:0 0 30px;width:30px;height:30px;min-height:30px;border:0;border-radius:9px;background:#e5eff8;color:#395a78;font-size:1.2rem;cursor:pointer}
 body.access-management-page .role-filter{display:flex;flex-wrap:nowrap;justify-content:flex-end;gap:7px;overflow-x:auto;scrollbar-width:none;min-width:0;padding:2px}
 body.access-management-page .role-filter::-webkit-scrollbar{display:none}
@@ -81,7 +81,6 @@ body.access-management-page .access-modal :is(input,select):focus{border-color:#
 body.access-management-page .access-modal .two{gap:13px}
 body.access-management-page .access-modal .switch{display:flex;align-items:center;gap:9px;min-height:32px;color:#37566f;font-size:.83rem}
 body.access-management-page .access-modal .switch input{width:18px;height:18px;accent-color:#216abe}
-body.access-management-page .access-modal #password-row[hidden],body.access-management-page .access-modal #must-change-row[hidden]{display:none!important}
 body.access-management-page .access-modal .permission-section{padding:19px 0 0;margin:20px 0 0}
 body.access-management-page .access-modal .permission-section h3{font-size:1rem;color:#193f62}
 body.access-management-page .access-modal .permission-section p{font-size:.79rem;line-height:1.5}
@@ -161,4 +160,8 @@ body.access-management-page #access-delete-dialog{width:min(540px,calc(100vw - 3
  body.access-management-page #password-dialog,body.access-management-page #access-delete-dialog{width:100vw;max-width:none}
 }
 @media(max-width:380px){body.access-management-page .access-stat-icon{flex-basis:30px;width:30px;height:30px}body.access-management-page .role-filter .filter{font-size:.69rem}}
-@media(prefers-reduced-motion:reduce){body.access-management-page :is(.button,.small-btn,.filter){transition:none}}
+@media(prefers-reduced-motion:reduce){body.access-management-page :is(.button,.small-btn,.filter){transition:none}}}
+@layer layout{
+body.access-management-page [hidden]{display:none}
+body.access-management-page .access-search-wrap input{border:0;background:transparent;box-shadow:none;outline:none}
+body.access-management-page .access-modal #password-row[hidden],body.access-management-page .access-modal #must-change-row[hidden]{display:none}}

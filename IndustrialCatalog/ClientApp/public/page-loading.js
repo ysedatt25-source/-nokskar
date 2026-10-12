@@ -10,10 +10,10 @@
   const ready=()=>{appReady=true;appPending=false;finish();};
   window.InokskarLoading=Object.freeze({begin,ready});
   // Track only initial server page data. Heartbeats and later actions are not navigation.
-  const fetchOriginal=window.fetch;
-  if(fetchOriginal)window.fetch=function(input,init){let track=false;try{const url=new URL(typeof input==='string'?input:input.url,location.href);const method=String(init?.method||input?.method||'GET').toUpperCase();track=initial&&method==='GET'&&url.origin===location.origin&&url.pathname.startsWith('/api/')&&!/^\/api\/(live-support|security)(\/|$)/.test(url.pathname);}catch{}
-    if(track)requests++;return fetchOriginal.apply(this,arguments).finally(()=>{if(track){requests--;finish();}});};
-  const spaComplete=()=>{begin();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(document.getElementById('root')&&!document.querySelector('#root .brand-loading'))ready();}));};
+  const pendingRequests=new Set();
+  window.addEventListener('inokskar:http-start',e=>{const {id,method,url}=e.detail;if(initial&&method==='GET'&&new URL(url).pathname.startsWith('/api/')&&!/^\/api\/(live-support|security)(\/|$)/.test(new URL(url).pathname)){pendingRequests.add(id);requests++;}});
+  window.addEventListener('inokskar:http-end',e=>{if(pendingRequests.delete(e.detail.id)){requests--;finish();}});
+  const spaComplete=()=>{begin();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(!document.getElementById('root')||!document.querySelector('#root .brand-loading'))ready();}));};
   window.addEventListener('inokskar:navigation',spaComplete);
   window.addEventListener('popstate',spaComplete);
   window.addEventListener('pageshow',e=>{if(e.persisted){appPending=false;hide();}});

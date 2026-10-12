@@ -23,6 +23,11 @@ public sealed class Store
         }
         if (initialSettings?["mapUrl"]?.ToString() == "https://maps.app.goo.gl/dgRHeqdNXzQcY6np9?g_st=ac")
             initialSettings["mapUrl"] = "https://www.google.com/maps/dir/?api=1&destination=41.0736389%2C28.8971865";
+        if(initialSettings!=null&&state["brandAssetRevision"]?.ToString()!="tm-20261012")
+        {
+            initialSettings["headerImage"]="/inokskar-logo.svg";
+            state["brandAssetRevision"]="tm-20261012";
+        }
         NormalizeState(state);
         ApplyStoredPricePolicy(state["data"]!.AsObject());
         Persist(state);
@@ -84,7 +89,7 @@ public sealed class Store
         settings["notificationSmsEnabled"] ??= true;
         settings["mapUrl"] ??= "";
         settings.Remove("logo");
-        settings["headerImage"] ??= "/inokskar-header-brand.png";
+        settings["headerImage"] ??= "/inokskar-logo.svg";
         settings["founderLabelText"] ??= "BİR YİĞİTKAR DEKOR KURULUŞUDUR";
         settings["founderLabelVisible"] ??= true;
         if ((settings["rate"]?.GetValue<decimal>() ?? 0) <= 0 && string.IsNullOrWhiteSpace(settings["lastRate"]?.ToString())) settings["autoRate"] = true;

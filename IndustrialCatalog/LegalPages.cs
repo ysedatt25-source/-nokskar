@@ -6,7 +6,7 @@ public static class LegalPages
     static string E(string? value)=>WebUtility.HtmlEncode(value??"");
     public static string Render(string kind,JsonObject catalog)
     {
-        var s=catalog["settings"]!.AsObject();var name=s["name"]?.ToString()??"İNOKSKAR";var tagline=s["tagline"]?.ToString()??"";var headerImage=s["headerImage"]?.ToString()??"/inokskar-header-brand.png";var email=s["email"]?.ToString()??"";var address=s["address"]?.ToString()??"";
+        var s=catalog["settings"]!.AsObject();var name=s["name"]?.ToString()??"İNOKSKAR";var tagline=s["tagline"]?.ToString()??"";var headerImage=s["headerImage"]?.ToString()??"/inokskar-logo.svg";var email=s["email"]?.ToString()??"";var address=s["address"]?.ToString()??"";
         var nav=new StringBuilder();
         foreach(var c in catalog["categories"]!.AsArray().Where(x=>x?["menu"]?.GetValue<bool>()==true))nav.Append($"<a href='/kategori/{Uri.EscapeDataString(c!["id"]!.ToString())}'>{E(c["name"]?.ToString())}</a>");
         foreach(var m in s["menu"]!.AsArray().Where(x=>x?["url"]?.ToString()!="/blog"&&x?["url"]?.ToString()!="/garanti-sorgulama"&&x?["url"]?.ToString()!="/servis-talebi"))nav.Append($"<a href='{E(m!["url"]?.ToString())}'>{E(m["name"]?.ToString())}</a>");

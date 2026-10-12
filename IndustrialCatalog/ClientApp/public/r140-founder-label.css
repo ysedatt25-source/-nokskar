@@ -1,4 +1,5 @@
-/* INOKSKAR — editable founding-brand inscription. One source of truth: settings.founderLabel*. */
+@layer theme, base, components, utilities, site, layout;
+@layer site{/* INOKSKAR — editable founding-brand inscription. One source of truth: settings.founderLabel*. */
 body.page-home .hero{isolation:isolate}
 body.page-home .hero .hero-founder-label{
   position:absolute;top:clamp(13px,2.4vw,26px);left:clamp(15px,3.5vw,38px);
@@ -78,4 +79,4 @@ body.page-home .hero .hero-founder-label-text{
 @media(prefers-reduced-motion:reduce){body.page-home .hero .hero-founder-label{transition:none}}
 
 /* Keep the desktop inscription clear of the hero's existing introductory line. */
-@media(min-width:1101px){body.page-home .hero .hero-founder-label{top:10px}}
+@media(min-width:1101px){body.page-home .hero .hero-founder-label{top:10px}}}

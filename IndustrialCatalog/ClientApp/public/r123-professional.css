@@ -1,4 +1,5 @@
-/* R12.3 — Ortak profesyonel yerleşim, erişilebilirlik ve üç cihaz standardı */
+@layer theme, base, components, utilities, site, layout;
+@layer site{/* R12.3 — Ortak profesyonel yerleşim, erişilebilirlik ve üç cihaz standardı */
 :root{
   --r123-shell-max:1560px;
   --r123-content-max:1380px;
@@ -74,4 +75,5 @@ html{overflow-x:hidden;text-size-adjust:100%;-webkit-text-size-adjust:100%;scrol
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto;animation-duration:.001ms;animation-iteration-count:1;transition-duration:.001ms}
+}
 }

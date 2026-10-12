@@ -1,4 +1,5 @@
-
+@layer theme, base, components, utilities, site, layout;
+@layer site{
 /* INOKSKAR Reference gallery and editorial manager — scoped design */
 .references-public{padding-top:clamp(14px,2.4vw,33px);padding-bottom:clamp(90px,8vw,130px);min-width:0}
 .references-public-heading{text-align:center;margin:0 auto clamp(15px,2.5vw,27px);max-width:720px}
@@ -50,7 +51,7 @@
 .reference-logo-editor>img{display:block;width:min(100%,230px);max-width:100%;height:96px;max-height:96px;object-fit:contain}
 .reference-logo-empty{display:grid;justify-items:center;align-content:center;gap:7px;min-height:94px;padding:8px;color:#7f9cb6}
 .reference-logo-empty span{font-size:.81rem;font-weight:700}
-.reference-logo-editor .upload-button{display:inline-flex!important;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:auto;max-width:100%;min-width:0;min-height:43px;margin:0;padding:9px 15px;border:1px solid #8fb6dc;border-radius:11px;background:#fff;color:#1a60a5;font-size:.83rem;font-weight:830;line-height:1.25;white-space:nowrap;cursor:pointer;box-shadow:0 3px 11px #286bb51b}
+.reference-logo-editor .upload-button{flex-direction:row;align-items:center;justify-content:center;gap:8px;width:auto;max-width:100%;min-width:0;min-height:43px;margin:0;padding:9px 15px;border:1px solid #8fb6dc;border-radius:11px;background:#fff;color:#1a60a5;font-size:.83rem;font-weight:830;line-height:1.25;white-space:nowrap;cursor:pointer;box-shadow:0 3px 11px #286bb51b}
 .reference-logo-editor .upload-button:hover{background:#edf5ff;border-color:#458ac8}
 .reference-logo-editor .upload-button input{display:none}
 .reference-logo-editor .reference-clear-logo{background:none;border:0;color:#9c4861;font-size:.73rem;font-weight:750;padding:6px 10px;text-decoration:underline;cursor:pointer}
@@ -58,18 +59,13 @@
 .reference-edit-dialog>label:not(.reference-visible) input{display:block;width:100%;max-width:100%;min-width:0;min-height:46px;border:1px solid #cbdcea;border-radius:11px;padding:10px 12px;background:#fff;color:#21415d;font-size:16px;font-weight:520;line-height:1.35}
 .reference-edit-dialog input::placeholder{color:#9aabbc}
 .reference-edit-dialog>label:not(.reference-visible) input:focus{outline:none;border-color:#4587cc;box-shadow:0 0 0 3px #317bc524}
-.reference-edit-dialog .reference-visible{display:flex!important;flex-direction:row;align-items:center;gap:9px;max-width:calc(100% - 40px);margin:0 20px;color:#345471;font-size:.8rem;font-weight:800;line-height:1.45}
+.reference-edit-dialog .reference-visible{flex-direction:row;align-items:center;gap:9px;max-width:calc(100% - 40px);margin:0 20px;color:#345471;font-size:.8rem;font-weight:800;line-height:1.45}
 .reference-edit-dialog .reference-visible input{width:18px;height:18px;flex:0 0 18px;accent-color:#1d68bc}
 .reference-edit-actions{position:sticky;bottom:0;z-index:3;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.35fr);gap:10px;align-items:stretch;min-width:0;margin-top:1px;padding:13px 20px calc(16px + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid #e6edf5;box-shadow:0 -9px 22px #1034510e}
-.reference-edit-actions .reference-cancel-button,.reference-edit-actions .reference-save-button{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;min-width:0!important;width:100%!important;max-width:100%!important;min-height:48px!important;box-sizing:border-box!important;margin:0!important;padding:10px 12px!important;border-radius:11px!important;font-size:.84rem!important;font-weight:850!important;line-height:1.25!important;white-space:nowrap!important;text-align:center!important;overflow:hidden}
-.reference-edit-actions .reference-cancel-button{border:1px solid #d4e1ed!important;background:#f1f6fc!important;color:#28577f!important;box-shadow:none!important}
-.reference-edit-actions .reference-cancel-button:hover{background:#e6eff9!important}
-.reference-edit-actions .reference-save-button{border:1px solid #1257ae!important;background:linear-gradient(120deg,#267be0,#1457b6)!important;color:#fff!important;box-shadow:0 7px 18px #155bb329!important}
-.reference-edit-actions .reference-save-button:not(:disabled):hover{background:linear-gradient(120deg,#3889e7,#1457b6)!important;box-shadow:0 10px 22px #155bb33f!important}
-.reference-edit-actions .reference-save-button>span{display:inline-block;white-space:nowrap!important;flex:0 1 auto}
+.reference-edit-actions .reference-cancel-button,.reference-edit-actions .reference-save-button{overflow:hidden}
+.reference-edit-actions .reference-save-button>span{display:inline-block;flex:0 1 auto}
 .reference-edit-actions .reference-save-button>svg{display:block;flex:0 0 18px;width:18px;height:18px}
-.reference-edit-actions .reference-save-button:disabled{opacity:.65;cursor:default;box-shadow:none!important}
-.reference-edit-actions :is(button):focus-visible{outline:3px solid #3a86cf!important;outline-offset:2px!important}
+.reference-edit-actions .reference-save-button:disabled{opacity:.65;cursor:default}
 @media(max-width:1050px){.references-admin-list{grid-template-columns:1fr}}
 @media(max-width:700px){
   body .content-page.references-public{width:calc(100% - 20px);max-width:100%;padding:14px 9px 105px;overflow-x:hidden;box-sizing:border-box}
@@ -106,4 +102,15 @@
   .references-public-contact-link{flex-basis:31px;width:31px;height:31px;min-height:31px}
   .references-public-contacts{gap:3px}
 }
-@media(prefers-reduced-motion:reduce){.references-public-card,.references-public-contact-link{transition:none}}
+@media(prefers-reduced-motion:reduce){.references-public-card,.references-public-contact-link{transition:none}}}
+@layer layout{
+.reference-logo-editor .upload-button{display:inline-flex}
+.reference-edit-dialog .reference-visible{display:flex}
+.reference-edit-actions .reference-cancel-button,.reference-edit-actions .reference-save-button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;width:100%;max-width:100%;min-height:48px;box-sizing:border-box;margin:0;padding:10px 12px;border-radius:11px;font-size:.84rem;font-weight:850;line-height:1.25;white-space:nowrap;text-align:center}
+.reference-edit-actions .reference-cancel-button{border:1px solid #d4e1ed;background:#f1f6fc;color:#28577f;box-shadow:none}
+.reference-edit-actions .reference-cancel-button:hover{background:#e6eff9}
+.reference-edit-actions .reference-save-button{border:1px solid #1257ae;background:linear-gradient(120deg,#267be0,#1457b6);color:#fff;box-shadow:0 7px 18px #155bb329}
+.reference-edit-actions .reference-save-button:not(:disabled):hover{background:linear-gradient(120deg,#3889e7,#1457b6);box-shadow:0 10px 22px #155bb33f}
+.reference-edit-actions .reference-save-button>span{white-space:nowrap}
+.reference-edit-actions .reference-save-button:disabled{box-shadow:none}
+.reference-edit-actions :is(button):focus-visible{outline:3px solid #3a86cf;outline-offset:2px}}

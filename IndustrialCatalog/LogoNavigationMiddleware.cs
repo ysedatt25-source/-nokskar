@@ -33,7 +33,7 @@ public sealed class LogoNavigationMiddleware
                 var html = await reader.ReadToEndAsync();
                 if (!html.Contains("/logo-navigation.js", StringComparison.Ordinal))
                 {
-                    const string script = "<script defer src=\"/logo-navigation.js?v=warranty-print-20261011\"></script>";
+                    const string script = "<script defer src=\"/logo-navigation.js?v=ownership-20261012-2\"></script>";
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     html = headEnd >= 0 ? html.Insert(headEnd, script) : html + script;
                 }
@@ -41,10 +41,13 @@ public sealed class LogoNavigationMiddleware
                 if (!html.Contains("/page-loading.js", StringComparison.Ordinal))
                 {
                     var end = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
-                    const string assets = "<link rel=\"stylesheet\" href=\"/page-loading.css?v=logo-1\"><link rel=\"preload\" as=\"image\" href=\"/inokskar-header-brand.png\"><script src=\"/page-loading.js?v=logo-1\"></script>";
+                    const string assets = "<link rel=\"stylesheet\" href=\"/page-loading.css?v=logo-ownership-2\"><link rel=\"preload\" as=\"image\" href=\"/inokskar-logo.svg\"><script src=\"/page-loading.js?v=logo-ownership-2\"></script>";
                     if(end>=0)html=html.Insert(end,assets);
-                    html=Regex.Replace(html,@"<body\b[^>]*>",m=>m.Value+"<div id=\"inokskar-page-loader\" role=\"status\" aria-label=\"Sayfa yükleniyor\" aria-busy=\"true\"><img class=\"page-loading-logo\" src=\"/inokskar-header-brand.png\" alt=\"İNOKSKAR\"></div><noscript><style>#inokskar-page-loader{display:none}</style></noscript>",RegexOptions.IgnoreCase);
+                    html=Regex.Replace(html,@"<body\b[^>]*>",m=>m.Value+"<div id=\"inokskar-page-loader\" role=\"status\" aria-label=\"Sayfa yükleniyor\" aria-busy=\"true\"><img class=\"page-loading-logo\" src=\"/inokskar-logo.svg\" alt=\"İNOKSKAR\"></div><noscript><style>#inokskar-page-loader{display:none}</style></noscript>",RegexOptions.IgnoreCase);
                 }
+                // Install shared DOM subscriptions before deferred page owners start.
+                var headStart=html.IndexOf("<head",StringComparison.OrdinalIgnoreCase);
+                if(headStart>=0){headStart=html.IndexOf('>',headStart)+1;var common="<script src=\"/dom-lifecycle.js?v=ownership-1\"></script>";if(!html.Contains("/r123-security.js",StringComparison.Ordinal))common+="<script src=\"/r123-security.js?v=ownership-1\"></script>";html=html.Insert(headStart,common);}
                 // Some legacy server pages omit the shared layout stylesheet.
                 if (!html.Contains("/r22-layout-fixes.css", StringComparison.Ordinal))
                 {
@@ -74,17 +77,19 @@ public sealed class LogoNavigationMiddleware
                 html = html.Replace("/r129-feedback.css?v=1", "/r129-feedback.css?v=close-controls-2");
                 // These assets must advance together: existing browsers can retain old
                 // fetch hooks and show success notifications for background heartbeats.
-                html = Regex.Replace(html, @"/(r129-feedback\.js|live-support\.js)(?:\?[^""'<>\s]*)?", "/$1?v=support-controls-20261012-4");
+                html = Regex.Replace(html, @"/(r129-feedback\.js|live-support\.js)(?:\?[^""'<>\s]*)?", "/$1?v=ownership-20261012-2");
                 // Shared hand-written assets change independently of the hashed Vite bundle.
-                html = Regex.Replace(html, @"/(r95-warranty-admin\.js|r104-admin-runtime\.js|logo-navigation\.js|r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=warranty-print-20261011");
-                html = Regex.Replace(html, @"/logo-navigation\.js(?:\?[^""'<>\s]*)?", "/logo-navigation.js?v=loading-scope-20261012-2");
-                html = Regex.Replace(html, @"/(r13-pages\.css|r22-layout-fixes\.css)(?:\?[^""'<>\s]*)?", "/$1?v=hero-compact-20261012-2");
+                html = Regex.Replace(html, @"/(r95-warranty-admin\.js|logo-navigation\.js|r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=ownership-20261012-2");
+                html = Regex.Replace(html, @"/logo-navigation\.js(?:\?[^""'<>\s]*)?", "/logo-navigation.js?v=ownership-20261012-2");
+                html = Regex.Replace(html, @"/(r13-pages\.css|r22-layout-fixes\.css)(?:\?[^""'<>\s]*)?", "/$1?v=ownership-20261012-2");
                 if (!html.Contains("/live-support.js", StringComparison.Ordinal) && !new[]{"/login","/kayit","/forgot-password","/reset-password"}.Contains(context.Request.Path.Value))
                 {
                     var end = html.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
-                    if(end>=0) html=html.Insert(end,"<script defer src=\"/live-support.js?v=support-controls-20261012-4\"></script>");
+                    if(end>=0) html=html.Insert(end,"<script defer src=\"/live-support.js?v=ownership-20261012-2\"></script>");
                 }
                 html = SmsVisibility.Apply(html,context,context.RequestServices.GetRequiredService<SmsSettingsStore>());
+                html=Regex.Replace(html,@"/(r123-security\.js|r129-feedback\.js|membership\.js|customer-ui\.js|r125-customer\.js)(?:\?[^""'<>\s]*)?","/$1?v=ownership-20261012-2");
+                html=UiStylesheets.Rewrite(html);
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;
                 context.Response.Body = original;

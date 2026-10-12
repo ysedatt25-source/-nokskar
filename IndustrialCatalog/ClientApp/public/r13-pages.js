@@ -107,7 +107,7 @@ document.addEventListener('submit',event=>{
     window.addEventListener('resize',()=>{if(innerWidth>1100&&side.classList.contains('menu-open'))close()},{passive:true});
     window.addEventListener('pageshow',()=>{if(!side.classList.contains('menu-open')){document.body.classList.remove('admin-drawer-open');backdrop.hidden=true;document.querySelector('.admin-main')?.removeAttribute('inert');}});
   };
-  const start=()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))return;const observer=new MutationObserver(()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))observer.disconnect();});observer.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),5000)};
+  const start=()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))return;const observer=new window.InokskarDOM.Observer(()=>{mount();if(document.querySelector('.admin-sidebar[data-r148-drawer]'))observer.disconnect();});observer.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -206,7 +206,7 @@ document.addEventListener('submit',event=>{
     document.body.classList.add('app-shell-enabled');
     mountNav();mountSearch();
   };
-  const start=()=>{mount();if(!document.querySelector('.site-header')&&!excluded()){const o=new MutationObserver(()=>{mount();if(document.querySelector('.site-header'))o.disconnect();});o.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000);}const refresh=()=>{mount();syncNav();document.querySelector('.app-category-overlay')?._close?.();};window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('inokskar:navigation',refresh)};
+  const start=()=>{mount();if(!document.querySelector('.site-header')&&!excluded()){const o=new window.InokskarDOM.Observer(()=>{mount();if(document.querySelector('.site-header'))o.disconnect();});o.observe(document.getElementById('root')||document.body,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000);}const refresh=()=>{mount();syncNav();document.querySelector('.app-category-overlay')?._close?.();};window.addEventListener('popstate',refresh);window.addEventListener('pageshow',refresh);window.addEventListener('inokskar:navigation',refresh)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -214,7 +214,7 @@ document.addEventListener('submit',event=>{
 /* R15.8 — unified private/customer brand headers */
 (()=>{
   const icon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
-  const brandHtml='<img class="private-brand-image" src="/inokskar-header-brand.png" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak">';
+  const brandHtml='<img class="private-brand-image" src="/inokskar-logo.svg" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak">';
   const setupHeader=header=>{
     if(!header||header.dataset.r158Brand)return;
     header.dataset.r158Brand='1';header.classList.add('private-brand-header');
@@ -247,7 +247,7 @@ document.addEventListener('submit',event=>{
     if(sideBrand&&!sideBrand.dataset.r158Brand){sideBrand.dataset.r158Brand='1';sideBrand.classList.add('private-brand-link');sideBrand.innerHTML=brandHtml;}
     document.querySelectorAll('.private-brand-header').forEach(setupHeader);
   };
-  const start=()=>{mount();const root=document.getElementById('root')||document.body;const o=new MutationObserver(()=>{mount();if(document.querySelector('.private-brand-header[data-r158-brand],.private-app-dock'))o.disconnect();});o.observe(root,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000)};
+  const start=()=>{mount();const root=document.getElementById('root')||document.body;const o=new window.InokskarDOM.Observer(()=>{mount();if(document.querySelector('.private-brand-header[data-r158-brand],.private-app-dock'))o.disconnect();});o.observe(root,{childList:true,subtree:true});setTimeout(()=>o.disconnect(),5000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -289,10 +289,10 @@ document.addEventListener('submit',event=>{
       if(key==='menu'){side.querySelector('.admin-mobile-toggle')?.click();sync();return;}
       refs[key]?.click();if(side.classList.contains('menu-open'))side.querySelector('.admin-mobile-toggle')?.click();window.scrollTo({top:0,behavior:'smooth'});sync();
     });
-    new MutationObserver(sync).observe(side,{subtree:true,attributes:true,attributeFilter:['class']});
+    new window.InokskarDOM.Observer(sync).observe(side,{subtree:true,attributes:true,attributeFilter:['class']});
     sync();
   };
-  const start=()=>{mount();const o=new MutationObserver(mount);o.observe(document.body,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),30000)};
+  const start=()=>{mount();const o=new window.InokskarDOM.Observer(mount);o.observe(document.body,{subtree:true,childList:true});setTimeout(()=>o.disconnect(),30000)};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
 
@@ -398,19 +398,19 @@ document.addEventListener('submit',event=>{
 /* R16 — mail settings: visible task progression and collapsible technical sections. */
 (()=>{
   if(location.pathname!='/admin/mail')return;
-  const mount=()=>{const form=document.getElementById('mail-settings-form'),card=form?.closest('.mail-card');if(!form||!card||card.dataset.r16Mail)return;card.dataset.r16Mail='1';const progress=document.createElement('div');progress.className='mail-progress';progress.innerHTML='<span class="current">1 · Sağlayıcı</span><span>2 · SMTP</span><span>3 · Gönderici</span><span>4 · Test</span>';card.prepend(progress);const sections=[...form.querySelectorAll('.mail-section')];sections.forEach((section,i)=>{const heading=section.querySelector('h2')?.textContent||'Ayar bölümü';const toggle=document.createElement('button');toggle.type='button';toggle.className='mail-section-toggle';toggle.innerHTML='<strong>'+heading+'</strong><span>−</span>';section.prepend(toggle);toggle.addEventListener('click',()=>{section.classList.toggle('collapsed');toggle.lastElementChild.textContent=section.classList.contains('collapsed')?'+':'−'});if(innerWidth<=600&&i>0){section.classList.add('collapsed');toggle.lastElementChild.textContent='+';}});const health=document.getElementById('mail-health');if(health)new MutationObserver(()=>{const ok=/hazır/i.test(health.textContent||'');progress.children[0].classList.toggle('ready',!!form.elements.provider?.value);progress.children[1].classList.toggle('ready',ok);progress.children[2].classList.toggle('ready',Boolean(form.elements.fromAddress?.value));}).observe(health,{childList:true,subtree:true,characterData:true});};
+  const mount=()=>{const form=document.getElementById('mail-settings-form'),card=form?.closest('.mail-card');if(!form||!card||card.dataset.r16Mail)return;card.dataset.r16Mail='1';const progress=document.createElement('div');progress.className='mail-progress';progress.innerHTML='<span class="current">1 · Sağlayıcı</span><span>2 · SMTP</span><span>3 · Gönderici</span><span>4 · Test</span>';card.prepend(progress);const sections=[...form.querySelectorAll('.mail-section')];sections.forEach((section,i)=>{const heading=section.querySelector('h2')?.textContent||'Ayar bölümü';const toggle=document.createElement('button');toggle.type='button';toggle.className='mail-section-toggle';toggle.innerHTML='<strong>'+heading+'</strong><span>−</span>';section.prepend(toggle);toggle.addEventListener('click',()=>{section.classList.toggle('collapsed');toggle.lastElementChild.textContent=section.classList.contains('collapsed')?'+':'−'});if(innerWidth<=600&&i>0){section.classList.add('collapsed');toggle.lastElementChild.textContent='+';}});const health=document.getElementById('mail-health');if(health)new window.InokskarDOM.Observer(()=>{const ok=/hazır/i.test(health.textContent||'');progress.children[0].classList.toggle('ready',!!form.elements.provider?.value);progress.children[1].classList.toggle('ready',ok);progress.children[2].classList.toggle('ready',Boolean(form.elements.fromAddress?.value));}).observe(health,{childList:true,subtree:true,characterData:true});};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
 
 /* R16 — branding: show recommended geometry and desktop/phone previews. */
 (()=>{
   if(location.pathname!='/admin/header-brand')return;
-  const mount=()=>{const card=document.querySelector('.brand-admin-card'),preview=document.getElementById('brand-preview');if(!card||!preview||card.dataset.r16Preview)return;card.dataset.r16Preview='1';const meta=document.createElement('div');meta.className='brand-preview-meta';meta.innerHTML='<span>PNG / WebP önerilir</span><span>Yatay logo oranı</span><span>Şeffaf zemin uygundur</span>';const devices=document.createElement('div');devices.className='brand-live-devices';devices.innerHTML='<div class="brand-device"><small>Masaüstü üst başlık</small><img alt="Masaüstü logo önizleme"></div><div class="brand-device"><small>Mobil üst başlık</small><img alt="Mobil logo önizleme"></div>';card.append(meta,devices);const sync=()=>devices.querySelectorAll('img').forEach(i=>i.src=preview.src);new MutationObserver(sync).observe(preview,{attributes:true,attributeFilter:['src']});preview.addEventListener('load',sync);sync();};
+  const mount=()=>{const card=document.querySelector('.brand-admin-card'),preview=document.getElementById('brand-preview');if(!card||!preview||card.dataset.r16Preview)return;card.dataset.r16Preview='1';const meta=document.createElement('div');meta.className='brand-preview-meta';meta.innerHTML='<span>PNG / WebP önerilir</span><span>Yatay logo oranı</span><span>Şeffaf zemin uygundur</span>';const devices=document.createElement('div');devices.className='brand-live-devices';devices.innerHTML='<div class="brand-device"><small>Masaüstü üst başlık</small><img alt="Masaüstü logo önizleme"></div><div class="brand-device"><small>Mobil üst başlık</small><img alt="Mobil logo önizleme"></div>';card.append(meta,devices);const sync=()=>devices.querySelectorAll('img').forEach(i=>i.src=preview.src);new window.InokskarDOM.Observer(sync).observe(preview,{attributes:true,attributeFilter:['src']});preview.addEventListener('load',sync);sync();};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
 })();
 
 /* R16.5 — eliminate duplicate page-size controls regardless of legacy wrapper/class. */
-(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;const o=new MutationObserver(clean);o.observe(root,{subtree:true,childList:true,characterData:true});setTimeout(()=>o.disconnect(),2200);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
+(()=>{const clean=()=>{const bar=document.querySelector('.filterbar');if(!bar)return;const hits=[...bar.querySelectorAll('button,[role="combobox"],select')].filter(el=>/^\s*(12|24|48)\s*\/\s*sayfa\s*$/i.test((el.textContent||'').trim()));if(hits.length<=1)return;hits.slice(1).forEach(el=>{let node=el;while(node.parentElement&&node.parentElement!==bar)node=node.parentElement;if(node.parentElement===bar)node.remove();else el.remove();});};const start=()=>{clean();requestAnimationFrame(clean);setTimeout(clean,250);setTimeout(clean,900);const root=document.getElementById('root')||document.body;const o=new window.InokskarDOM.Observer(clean);o.observe(root,{subtree:true,childList:true,characterData:true});setTimeout(()=>o.disconnect(),2200);};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();})();
 
 /* R20.2 — unread inquiry counter for the admin mobile dock. */
 (()=>{

@@ -130,39 +130,16 @@
   win.addEventListener('pagehide', leavePage);
   win.addEventListener('pageshow', function (e) { if (e.persisted) dismiss(); });
 
-  var originalFetch = win.fetch;
-  if (typeof originalFetch !== 'function') return;
-  win.fetch = async function () {
-    var args = arguments;
-    var input = args[0], init = args[1] || {};
-    var method = String(init.method || (input && input.method) || 'GET').toUpperCase();
-    var url;
-    try { url = new URL(typeof input === 'string' ? input : input.url, win.location.href); }
-    catch (_) { return originalFetch.apply(this, args); }
-    var enabled = url.origin === win.location.origin &&
-      /^(POST|PUT|PATCH|DELETE)$/.test(method) &&
-      win.location.pathname !== '/admin' &&
-      !!operation(url.pathname);
-    if (!enabled) return originalFetch.apply(this, args);
-    var generation = pageGeneration;
-    var summary = operation(url.pathname);
-    try {
-      var response = await originalFetch.apply(this, args);
-      var body = null;
-      var contentType = response.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        try { body = await response.clone().json(); } catch (_) { /* non-JSON response */ }
-      }
-      if (generation !== pageGeneration) return response;
-      if (!response.ok || (body && (body.ok === false || body.error))) {
-        show({tone:'error',message:body && typeof body.error === 'string' ? body.error : response.status === 401 ? 'Oturumunuz sona erdi. Lütfen yeniden giriş yapın.' : response.status === 403 ? 'Bu işlem için yetkiniz bulunmuyor.' : 'İşlem gerçekleştirilemedi. Lütfen yeniden deneyin.'});
-      } else {
-        show({tone:'success',message:summary});
-      }
-      return response;
-    } catch (e) {
-      if (generation === pageGeneration) show({tone:'error',message:'Bağlantı kurulamadı. İnternet bağlantınızı kontrol ederek yeniden deneyin.'});
-      throw e;
-    }
-  };
+  win.addEventListener('inokskar:http-result',async function (event) {
+    var result=event.detail||{},method=result.method||'GET',url;if(result.epoch!==result.currentEpoch)return;
+    try { url=new URL(result.url,win.location.href); } catch (_) { return; }
+    if(url.origin!==win.location.origin||!/^(POST|PUT|PATCH|DELETE)$/.test(method)||win.location.pathname==='/admin'||!operation(url.pathname))return;
+    var generation=pageGeneration;
+    if(result.error){show({tone:'error',message:'Bağlantı kurulamadı. İnternet bağlantınızı kontrol ederek yeniden deneyin.'});return;}
+    var response=result.response,body=null;if(!response)return;
+    if((response.headers.get('content-type')||'').includes('application/json'))try{body=await response.clone().json();}catch(_){}
+    if(generation!==pageGeneration)return;
+    if(!response.ok||(body&&(body.ok===false||body.error)))show({tone:'error',message:body&&typeof body.error==='string'?body.error:response.status===401?'Oturumunuz sona erdi. Lütfen yeniden giriş yapın.':response.status===403?'Bu işlem için yetkiniz bulunmuyor.':'İşlem gerçekleştirilemedi. Lütfen yeniden deneyin.'});
+    else show({tone:'success',message:operation(url.pathname)});
+  });
 })(window, document);

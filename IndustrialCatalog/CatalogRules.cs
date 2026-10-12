@@ -9,7 +9,7 @@ public static class CatalogRules
     public static void Validate(JsonObject d)
     {
         var settings=d["settings"]?.AsObject() ?? throw new ArgumentException("Ayarlar gerekli.");
-        settings["headerImage"] ??= "/inokskar-header-brand.png";
+        settings["headerImage"] ??= "/inokskar-logo.svg";
         settings["notificationEmail"] ??= "";
         settings["notificationPhone"] ??= "05426156525";settings["notificationSmsEnabled"] ??= true;
         var notificationPhone=Text(settings,"notificationPhone").Trim();

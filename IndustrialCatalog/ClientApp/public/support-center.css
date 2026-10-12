@@ -1,4 +1,5 @@
-
+@layer theme, base, components, utilities, site, layout;
+@layer site{
 /* Support center — scoped component stylesheet. Overrides legacy contact pills only here. */
 .support-center{max-width:1220px;padding-top:clamp(8px,1.6vw,18px);padding-bottom:clamp(34px,5vw,78px);color:#173451}
 .support-center *{box-sizing:border-box}
@@ -43,7 +44,6 @@
 .support-center .support-form :is(input,textarea)::placeholder{color:#8798aa}
 .support-center .support-form :is(input,select,textarea):focus{outline:none;border-color:#3478c6;box-shadow:0 0 0 3px #2b79d81a;background:#fff}
 .support-center .support-form :is(input,select,textarea):focus-visible{outline:2px solid #3478c6;outline-offset:1px}
-.support-center .support-form .honeypot{display:none!important}
 .support-center .support-submit{display:flex;align-items:center;justify-content:center;gap:12px;min-height:53px;width:100%;border:0;border-radius:12px;background:linear-gradient(120deg,#135dc0,#063b85);color:#fff;font-size:.94rem;font-weight:850;box-shadow:0 8px 21px #084b9f35;transition:transform .18s,box-shadow .18s,filter .18s}
 .support-center .support-submit:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 12px 26px #084b9f45}
 .support-center .support-submit:disabled{opacity:.7;cursor:wait;transform:none}
@@ -130,7 +130,7 @@
 .support-center .support-form label.support-file-pick{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:9px;position:relative;min-height:58px;width:100%;box-sizing:border-box;margin:0;padding:13px;border:1px dashed #88b1d8;border-radius:12px;background:#eff7ff;color:#1d64ab;font-size:.86rem;font-weight:850;cursor:pointer}
 .support-center .support-file-pick:hover{border-color:#2776c9;background:#e5f1ff}
 .support-center .support-file-pick:focus-within{outline:3px solid #3d91d6;outline-offset:2px}
-.support-center .support-file-pick input[type=file]{position:absolute!important;inset:0!important;opacity:0!important;width:100%!important;height:100%!important;min-height:0!important;padding:0!important;cursor:pointer}
+.support-center .support-file-pick input[type=file]{cursor:pointer}
 .support-center .support-file-card>small{font-size:.71rem;color:#72879b;line-height:1.4}
 .support-center .support-file-list{display:grid;gap:7px;min-width:0}
 .support-center .support-file-row{display:flex;align-items:center;gap:9px;min-width:0;padding:9px 10px;border:1px solid #dce8f3;border-radius:10px;background:#fff}
@@ -149,12 +149,15 @@
 .support-center .support-track-link:focus-visible{outline:3px solid #84bafa;outline-offset:2px}
 @media(max-width:600px){.support-center .support-form-heading>div{padding-right:116px}.support-center .support-form-heading h2{font-size:clamp(.78rem,3.6vw,1rem);white-space:nowrap;letter-spacing:-.02em}.support-center .support-track-link{right:15px;width:108px;min-height:40px;padding:6px;gap:5px;font-size:.69rem;white-space:normal}.support-center .support-track-link span{max-width:68px;text-align:left}}
 
-/* Direct contact links align the card with the mobile viewport edge. */
+/* Direct contact links align the card with the mobile viewport edge. */}
+@layer layout{
+.support-center .support-form .honeypot{display:none}
+.support-center .support-file-pick input[type=file]{position:absolute;inset:0;opacity:0;width:100%;height:100%;min-height:0;padding:0}
 @media(max-width:750px){
-  html:has(#dogrudan-iletisim:target){scroll-padding-top:0!important}
-  #dogrudan-iletisim{scroll-margin-top:0!important}
+  html:has(#dogrudan-iletisim:target){scroll-padding-top:0}
+  #dogrudan-iletisim{scroll-margin-top:0}
 }
 
-@media(max-width:1100px){html body .support-center.direct-contact-active{padding-bottom:max(24px,calc(100dvh - var(--direct-contact-height,480px) + 24px))!important}html body #dogrudan-iletisim{scroll-margin-top:8px!important}}
+@media(max-width:1100px){html body .support-center.direct-contact-active{padding-bottom:max(24px,calc(100dvh - var(--direct-contact-height,480px) + 24px))}html body #dogrudan-iletisim{scroll-margin-top:8px}}
 
-@media(max-width:1100px){html:has(.support-center.direct-contact-active){scroll-padding-top:0!important}}
+@media(max-width:1100px){html:has(.support-center.direct-contact-active){scroll-padding-top:0}}}

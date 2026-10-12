@@ -1,4 +1,5 @@
-/* R12.4 — Homepage redesign based on approved mockup */
+@layer theme, base, components, utilities, site, layout;
+@layer site{/* R12.4 — Homepage redesign based on approved mockup */
 :root{
   --premium-navy:#071b34;
   --premium-navy-2:#0b2648;
@@ -127,7 +128,6 @@ body.page-home .product-copy{padding:16px 16px 18px}
 body.page-home .product-copy h3{font-size:1rem;min-height:unset}
 body.page-home .price{font-size:1.05rem}
 body.page-home .card-bottom{padding-top:0;border-top:0}
-body.page-home .site-footer{background:linear-gradient(180deg,#081a31,#071424 46%,#091527);border-top:0;margin-top:34px;color:#f1f6ff}
 body.page-home .footer-service-row{background:linear-gradient(90deg,#0e2b52,#0b203c);border:1px solid rgba(215,166,74,.24);color:#fff}
 body.page-home .footer-service-row strong{color:#fff}
 body.page-home .footer-kicker{color:#f3cb74}
@@ -225,10 +225,10 @@ body.page-home .mobile-account-link{display:none}
   body.page-home .cta-banner strong{font-size:1.34rem}
   body.page-home .cta-banner p{font-size:.88rem;line-height:1.55}
   body.page-home .cta-banner .button{width:100%;min-height:50px}
-  body.page-home .site-footer{margin-top:28px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
   body.page-home .footer-service-row{width:calc(100% - 24px);margin-top:16px;padding:16px 14px;border-radius:14px}
   body.page-home .footer-grid{width:calc(100% - 28px);gap:18px;padding:24px 0 18px}
   body.page-home .footer-brand-image{height:46px}
   body.page-home .footer-bottom{width:calc(100% - 28px);padding:14px 0 18px;font-size:.8rem}
 }
 .customer-save-profile{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid #d8e4f1;border-radius:11px;background:#f7faff;color:#405b76;font-size:.86rem;font-weight:650}.customer-save-profile input{width:18px;height:18px;margin:2px 0 0;flex:0 0 auto}@media(max-width:600px){.customer-save-profile{padding:13px 12px;font-size:.88rem}.customer-save-profile input{width:20px;height:20px}}
+}

@@ -24,7 +24,7 @@
       setValue(form,'name',p.name);setValue(form,'email',p.email);setValue(form,'phone',p.phone);addSaveProfile(form);return true;
     };
     if(attempt())return;
-    const obs=new MutationObserver(()=>{if(attempt())obs.disconnect();});obs.observe(document.body,{childList:true,subtree:true});
+    const obs=new window.InokskarDOM.Observer(()=>{if(attempt())obs.disconnect();});obs.observe(document.body,{childList:true,subtree:true});
     setTimeout(()=>obs.disconnect(),8000);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply,{once:true});else apply();
