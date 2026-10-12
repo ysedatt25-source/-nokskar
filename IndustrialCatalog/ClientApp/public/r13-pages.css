@@ -2170,10 +2170,8 @@ body.ui-layer-locked .admin-sidebar>.brand{pointer-events:none}
     font-size:.72rem;
     line-height:1.38;
     max-width:32ch;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
+    display:block;
+    overflow-wrap:anywhere;
   }
   body.page-home.app-shell-enabled .hero-actions{
     width:auto;
