@@ -2231,7 +2231,7 @@ body.ui-layer-locked .admin-sidebar>.brand{pointer-events:none}
     margin-bottom:6px;
     max-width:12ch;
   }
-  body.page-home.app-shell-enabled .hero-content>p{display:none}
+  body.page-home.app-shell-enabled .hero-content>p{display:block}
   body.page-home.app-shell-enabled .hero-actions .button{
     min-width:108px;
     min-height:36px;

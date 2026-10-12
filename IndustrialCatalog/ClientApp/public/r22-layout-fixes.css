@@ -2930,13 +2930,15 @@ body.page-home .hero .hero-visual{inset:0!important;width:100%!important;height:
 body.page-home .hero .hero-image{width:100%!important;height:100%!important;max-height:none!important;opacity:1!important;object-fit:cover}
 body.page-home .hero .hero-content{width:fit-content!important;max-width:calc(100% - 48px)!important;min-height:0!important;height:auto!important;padding:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important}
 body.page-home .hero .hero-content h1{box-sizing:border-box;width:fit-content;max-width:min(14ch,100%);padding:12px 16px;border-radius:12px;background:rgba(5,20,37,.54);overflow-wrap:anywhere}
-@media(max-width:850px){
- body.page-home .hero,body.page-home .hero.hero-media-only{height:clamp(320px,83vw,460px)!important;min-height:0!important;max-height:none!important;padding:0!important}
- body.page-home .hero .hero-content{position:absolute!important;left:24px!important;right:auto!important;top:auto!important;bottom:16px!important;margin:0!important}
+@media(max-width:1100px){
+ body.page-home .hero{height:auto!important;min-height:340px!important;max-height:none!important;padding:0!important}
+ body.page-home .hero.hero-media-only{height:clamp(320px,83vw,460px)!important;min-height:0!important}
+ body.page-home .hero .hero-content{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;margin:58px 20px 20px!important;max-width:min(420px,calc(100% - 40px))!important}
  body.page-home .hero .hero-content h1{max-width:min(12ch,100%);padding:10px 12px}
+ body.page-home .hero .hero-content>p{display:block;font-size:13px;line-height:1.5;margin:10px 0;max-width:100%;height:auto;white-space:normal;overflow:visible;background:rgba(5,20,37,.88);color:#fff;padding:9px 10px;border-radius:8px;text-shadow:none}
 }
 
-@media(min-width:851px){body.page-home .hero .hero-content{margin:56px 52px!important;max-width:calc(100% - 104px)!important}body.page-home .hero .hero-content h1{max-width:min(calc(14ch + 32px),100%)}}
+@media(min-width:1101px){body.page-home .hero .hero-content{margin:56px 52px!important;max-width:calc(100% - 104px)!important}body.page-home .hero .hero-content h1{max-width:min(calc(14ch + 32px),100%)}}
 
 body[data-ui-page^="admin-"] .admin-header-actions{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
 .admin-customer-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:7px 10px;border:1px solid #c8d9ee;border-radius:10px;background:#eef5ff;color:#195a9c;font-size:.76rem;font-weight:750;text-decoration:none;white-space:nowrap}
