@@ -6,7 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "build": "node scripts/build-warranty-print.mjs && node scripts/clean-output.mjs && tsc --noEmit && vite build && node scripts/check-style-contract.mjs",
+    "build": "node scripts/build-warranty-print.mjs && node scripts/build-site-styles.mjs && node scripts/clean-output.mjs && tsc --noEmit && vite build && node scripts/check-style-contract.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -10,6 +10,7 @@ appsettings.Development.json
 # Reproducible client output; build from ClientApp sources.
 IndustrialCatalog/wwwroot/
 IndustrialCatalog/ClientApp/public/warranty-print-vendor.js
+IndustrialCatalog/ClientApp/public/site-bundle.css
 
 **/node_modules/
 

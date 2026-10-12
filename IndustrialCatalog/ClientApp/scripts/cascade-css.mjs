@@ -9,12 +9,19 @@ export function normalizeCss(css){
   if(rule.nodes.some(n=>n.type==='rule'||n.type==='atrule'))continue;
   const key=JSON.stringify([contexts,rule.selector,declarations]);if(seen.has(key))rule.remove();else seen.add(key);
  }
- const declarationsSeen=new Set();const ordered=[];root.walkDecls(decl=>{if(decl.parent.type==='rule')ordered.push(decl);});
- for(const decl of ordered.reverse()){
-  const contexts=[];for(let p=decl.parent;p&&p.type!=='root';p=p.parent)if(p.type==='atrule')contexts.unshift(p.name+':'+p.params);else if(p.type==='rule')contexts.unshift('selector:'+p.selector);
-  const prop=decl.prop.startsWith('--')?decl.prop:decl.prop.toLowerCase();const key=JSON.stringify([contexts,prop,!!decl.important]);
-  if(declarationsSeen.has(key))decl.remove();else declarationsSeen.add(key);
- }
+ // Different values may be browser fallbacks. Shorthands between declarations
+ // can also reset a longhand, so only adjacent identical declarations are safe.
+ root.walkRules(rule=>{
+  let previous=null;
+  for(const node of [...rule.nodes]){
+   if(node.type==='comment')continue;
+   if(node.type!=='decl'){previous=null;continue;}
+   const prop=node.prop.startsWith('--')?node.prop:node.prop.toLowerCase();
+   const key=JSON.stringify([prop,node.value,!!node.important]);
+   if(key===previous)node.remove();else previous=key;
+  }
+ });
+ root.walkRules(rule=>{if(!rule.nodes.some(node=>node.type!=='comment'))rule.remove();});
  const outside=[],normal=[],layout=[];
  function split(node){
   if(node.type==='decl'){const copy=node.clone();copy.important=false;return node.important?[null,copy]:[copy,null];}
