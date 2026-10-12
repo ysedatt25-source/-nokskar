@@ -66,6 +66,11 @@ public sealed class LogoNavigationMiddleware
                 html = html.Replace("/r129-feedback.css?v=1", "/r129-feedback.css?v=close-controls-2");
                 // Shared hand-written assets change independently of the hashed Vite bundle.
                 html = Regex.Replace(html, @"/(r95-warranty-admin\.js|r104-admin-runtime\.js|logo-navigation\.js|r13-pages\.js|r22-layout-fixes\.css|r136-references\.css)(?:\?[^""'<>\s]*)?", "/$1?v=warranty-print-20261011");
+                if (!html.Contains("/live-support.js", StringComparison.Ordinal) && !new[]{"/login","/kayit","/forgot-password","/reset-password"}.Contains(context.Request.Path.Value))
+                {
+                    var end = html.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
+                    if(end>=0) html=html.Insert(end,"<script defer src=\"/live-support.js?v=live-support-1\"></script>");
+                }
                 html = SmsVisibility.Apply(html,context,context.RequestServices.GetRequiredService<SmsSettingsStore>());
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;

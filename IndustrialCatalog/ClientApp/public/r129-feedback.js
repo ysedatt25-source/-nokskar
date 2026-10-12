@@ -29,6 +29,9 @@
   // Read-only lookup, analytical events, password/login page navigation and previews
   // are intentionally excluded from automatic "saved" notifications.
   function operation(path) {
+    // Live support reports delivery and connection state inside its own panel.
+    // Heartbeats, typing, reads and signaling must never steal keyboard focus.
+    if (/^\/api\/live-support(?:\/|$)/.test(path)) return '';
     if (/^\/api\/(?:event|inquiry-status|warranty\/query|prices\/preview)(?:\/|$)/.test(path)) return '';
     // The warranty editor owns its specific, person-named save/error message.
     if (path === '/api/warranties') return '';

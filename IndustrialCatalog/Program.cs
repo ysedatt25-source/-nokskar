@@ -12,6 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
+if(args.Contains("--live-support-self-test")){LiveSupportChecks.Run();return;}
 if(args.Contains("--membership-self-test")){MembershipChecks.Run();return;}
 if(args.Contains("--hash-password"))
 {
@@ -21,7 +22,7 @@ if(args.Contains("--hash-password"))
 }
 var builder=WebApplication.CreateBuilder(args);
 if(builder.Environment.IsDevelopment())builder.WebHost.UseUrls("http://127.0.0.1:5093");
-builder.Services.AddSingleton<Store>();builder.Services.AddHttpClient();builder.Services.AddHostedService<RateUpdater>();builder.Services.AddHostedService<BackupScheduler>();
+builder.Services.AddSingleton<LiveSupportStore>();builder.Services.AddSingleton<SupportTranslation>();builder.Services.AddSingleton<Store>();builder.Services.AddHttpClient();builder.Services.AddHostedService<RateUpdater>();builder.Services.AddHostedService<BackupScheduler>();
 builder.Services.AddAntiforgery(o=>{o.HeaderName="X-INOKSKAR-CSRF";o.FormFieldName="__inokskar_csrf";o.Cookie.Name="Inokskar.Antiforgery";o.Cookie.HttpOnly=true;o.Cookie.SameSite=SameSiteMode.Strict;o.Cookie.SecurePolicy=CookieSecurePolicy.SameAsRequest;});
 builder.Services.AddSingleton<InquirySmsNotifier>();builder.Services.AddSingleton<SmsSettingsStore>();builder.Services.AddSingleton<SmsCodes>();builder.Services.AddSingleton<SmsGateway>();builder.Services.AddSingleton<SmsQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<SmsQueue>());builder.Services.AddSingleton<MailSettingsStore>();builder.Services.AddSingleton<MailQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<MailQueue>());builder.Services.AddSingleton<OperationalLog>();builder.Services.AddSingleton<AdminLoginGuard>();builder.Services.AddSingleton<UserDirectory>();builder.Services.AddSingleton<CustomerDirectory>();builder.Services.AddSingleton<PasswordResetStore>();
 var dataPath=Path.GetFullPath(builder.Configuration["Storage:Path"]??"App_Data",builder.Environment.ContentRootPath);
@@ -41,17 +42,20 @@ builder.Services.AddRateLimiter(o=>{
     o.AddPolicy("sms-admin",ctx=>RateLimitPartition.GetFixedWindowLimiter((AccessControl.UserId(ctx.User)+":"+ctx.Connection.RemoteIpAddress),_=>new FixedWindowRateLimiterOptions{PermitLimit=10,Window=TimeSpan.FromMinutes(1)}));
     o.AddPolicy("login",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=10,Window=TimeSpan.FromMinutes(5)}));
     o.AddPolicy("recovery",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=5,Window=TimeSpan.FromMinutes(15)}));
+    o.AddPolicy("support-read",ctx=>RateLimitPartition.GetFixedWindowLimiter(LiveSupportStore.Actor(ctx)+":"+(ctx.Connection.RemoteIpAddress?.ToString()??"unknown"),_=>new FixedWindowRateLimiterOptions{PermitLimit=300,Window=TimeSpan.FromMinutes(1)}));
+    o.AddPolicy("support-write",ctx=>RateLimitPartition.GetFixedWindowLimiter(LiveSupportStore.Actor(ctx)+":"+(ctx.Connection.RemoteIpAddress?.ToString()??"unknown"),_=>new FixedWindowRateLimiterOptions{PermitLimit=180,Window=TimeSpan.FromMinutes(1)}));
     o.AddPolicy("public-write",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=30,Window=TimeSpan.FromMinutes(1)}));
     o.AddPolicy("warranty-query",ctx=>RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString()??"unknown",_=>new FixedWindowRateLimiterOptions{PermitLimit=12,Window=TimeSpan.FromMinutes(5)}));
 });
 var app=builder.Build();
-Membership.Map(app,dataPath);SmsEndpoints.Map(app);
+LiveSupportEndpoints.Map(app);Membership.Map(app,dataPath);SmsEndpoints.Map(app);
 if(!app.Environment.IsDevelopment()){app.UseExceptionHandler("/error");app.UseHsts();if(string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("RAILWAY_ENVIRONMENT")))app.UseHttpsRedirection();}
 app.Use(async(ctx,next)=>{try{await next();}catch(Exception ex){app.Services.GetRequiredService<OperationalLog>().Error(ex,ctx);throw;}});
 app.Use(async(ctx,next)=>{
+    if(ctx.Request.Path.StartsWithSegments("/api/live-support")){var limit=ctx.Features.Get<IHttpMaxRequestBodySizeFeature>();if(limit is {IsReadOnly:false})limit.MaxRequestBodySize=6*1024*1024;}
     if(ctx.Request.Path=="/api/customer/avatar"){var avatarLimit=ctx.Features.Get<IHttpMaxRequestBodySizeFeature>();if(avatarLimit is {IsReadOnly:false})avatarLimit.MaxRequestBodySize=3*1024*1024;}
     if(ctx.Request.Path=="/api/customer/avatar"&&ctx.Request.ContentLength>3*1024*1024){ctx.Response.StatusCode=413;await ctx.Response.WriteAsJsonAsync(new{error="Görsel en fazla 2 MB olabilir."});return;}
-    ctx.Response.Headers["X-Content-Type-Options"]="nosniff";ctx.Response.Headers["X-Frame-Options"]="SAMEORIGIN";ctx.Response.Headers["Referrer-Policy"]="strict-origin-when-cross-origin";ctx.Response.Headers["Permissions-Policy"]="camera=(), microphone=(), geolocation=(), payment=(), usb=()";
+    ctx.Response.Headers["X-Content-Type-Options"]="nosniff";ctx.Response.Headers["X-Frame-Options"]="SAMEORIGIN";ctx.Response.Headers["Referrer-Policy"]="strict-origin-when-cross-origin";ctx.Response.Headers["Permissions-Policy"]="camera=(self), microphone=(self), geolocation=(), payment=(), usb=()";
     ctx.Response.Headers["Cross-Origin-Opener-Policy"]="same-origin";ctx.Response.Headers["Cross-Origin-Resource-Policy"]="same-site";
     var csp="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self'";
     if(!app.Environment.IsDevelopment())csp+="; upgrade-insecure-requests";ctx.Response.Headers["Content-Security-Policy"]=csp;
@@ -461,6 +465,7 @@ app.Run();
 }
 catch(Exception fatal)
 {
+    if(args.Contains("--live-support-self-test"))throw;
     StartupRecovery.Run(fatal, args);
 }
 static string RoleLanding(ClaimsPrincipal user)
