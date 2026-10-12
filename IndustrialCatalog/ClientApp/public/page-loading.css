@@ -1,0 +1,6 @@
+/* Shared page loading surface: animation belongs to the logo itself. */
+#inokskar-page-loader,.brand-loading{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:#fff;padding:24px;box-sizing:border-box;isolation:isolate;overscroll-behavior:contain}
+#inokskar-page-loader[hidden]{display:none!important}
+.page-loading-logo{display:block;width:min(280px,72vw);height:auto;max-height:40dvh;object-fit:contain;animation:inokskar-logo-loading 1.25s ease-in-out infinite}
+@keyframes inokskar-logo-loading{0%,100%{opacity:.64;filter:brightness(.85)}50%{opacity:1;filter:brightness(1.12)}}
+@media(prefers-reduced-motion:reduce){.page-loading-logo{animation:none;opacity:1;filter:none}}

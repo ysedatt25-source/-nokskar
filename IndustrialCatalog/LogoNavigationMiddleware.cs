@@ -37,6 +37,14 @@ public sealed class LogoNavigationMiddleware
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     html = headEnd >= 0 ? html.Insert(headEnd, script) : html + script;
                 }
+                // Render the same loader before any React or server content can paint.
+                if (!html.Contains("/page-loading.js", StringComparison.Ordinal))
+                {
+                    var end = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
+                    const string assets = "<link rel=\"stylesheet\" href=\"/page-loading.css?v=logo-1\"><link rel=\"preload\" as=\"image\" href=\"/inokskar-header-brand.png\"><script src=\"/page-loading.js?v=logo-1\"></script>";
+                    if(end>=0)html=html.Insert(end,assets);
+                    html=Regex.Replace(html,@"<body\b[^>]*>",m=>m.Value+"<div id=\"inokskar-page-loader\" role=\"status\" aria-label=\"Sayfa yükleniyor\" aria-busy=\"true\"><img class=\"page-loading-logo\" src=\"/inokskar-header-brand.png\" alt=\"İNOKSKAR\"></div><noscript><style>#inokskar-page-loader{display:none}</style></noscript>",RegexOptions.IgnoreCase);
+                }
                 // Some legacy server pages omit the shared layout stylesheet.
                 if (!html.Contains("/r22-layout-fixes.css", StringComparison.Ordinal))
                 {

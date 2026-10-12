@@ -167,6 +167,6 @@ public static class SeoPages
         var schemaRoot = new JsonObject { ["@context"] = "https://schema.org", ["@graph"] = graph };
         head += "<script type='application/ld+json'>" + schemaRoot.ToJsonString() + "</script>";
         template = Regex.Replace(template, @"<title>.*?</title>", _ => head, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-        return template.Replace("<div id=\"root\"></div>", "<div id=\"root\"><main>" + content + "<p><a href='/'>Ana sayfa</a> · <a href='/urunler'>Ürünler</a> · <a href='/iletisim'>İletişim</a></p></main></div>");
+        return template.Replace("<div id=\"root\"></div>", "<div id=\"root\"><noscript><main>" + content + "<p><a href='/'>Ana sayfa</a> · <a href='/urunler'>Ürünler</a> · <a href='/iletisim'>İletişim</a></p></main></noscript></div>");
     }
 }

@@ -55,8 +55,8 @@
   async function refreshStatus(){try{const next=await request('/status');if(status.staff&&!next.staff){state=null;thread='';messageHash='';messages.innerHTML='';await stopCall(false);}
     status=next;syncLauncher();$('.launcher').classList.toggle('online',status.online);$('.online-label').textContent=status.online?'Çevrimiçi':'Çevrimdışı';panel.classList.toggle('staff',status.staff);$('.conversations').hidden=!status.staff;$('.availability').hidden=!status.canRespond;$('.availability select').value=ready?'1':'0';$('.more').hidden=!status.canRespond&&!status.canConfigure;$('.template').hidden=!status.canRespond;$('.menu [data-action=settings]').hidden=!status.canConfigure;
     $('.translation-note').textContent=status.translationReady?'Çeviri açıkken mesajlar OpenAI’da işlenir.':'Çeviri servisi henüz yapılandırılmadı; özgün mesaj gösterilir.';
-    if(status.canRespond)await presence();if(desk&&!opened&&status.staff)await openPanel(true);if(desk&&!status.staff)tell('Bu alana erişmek için destek yetkili hesabıyla giriş yapın.');
-  }catch{if(!opened){$('.online-label').textContent='Bağlantı yok';$('.launcher').classList.remove('online');}}}
+    if(status.canRespond)await presence();if(desk&&!opened&&status.staff)await openPanel(true);if(desk&&!status.staff)tell('Bu alana erişmek için destek yetkili hesabıyla giriş yapın.');if(desk)window.InokskarLoading?.ready();
+  }catch{if(desk)window.InokskarLoading?.ready();if(!opened){$('.online-label').textContent='Bağlantı yok';$('.launcher').classList.remove('online');}}}
   async function presence(){await request('/presence',{language:lang,ready,client:connectionId});}
   async function session(){const result=await request('/session',{language:lang,name:'Ziyaretçi'});thread=result.id;status.hasSession=true;since=0;messageHash='';}
   async function openPanel(leaveMessage=false){

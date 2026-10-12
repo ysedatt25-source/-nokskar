@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
+import BrandLoading from '../brand-loading';
 import SettingsAccordion from './settings-accordion';
 import ImageImport from './image-import';
 import PriceImport from './price-import';
@@ -131,6 +132,9 @@ function fileInput(apply:(url:string)=>void,pdf=false){return <label className="
 
 function settingAssetInput(key:'hero'|'headerImage',hero=false){return <label className="upload-button admin-direct-save"><Upload size={17}/>{hero?'Ana medya seç':'Logo seç'}<input type="file" accept={hero?'image/png,image/jpeg,image/webp,image/gif,video/mp4':'image/png,image/jpeg,image/webp'} disabled={busy} onChange={e=>{void uploadSettingAsset(e.target.files,key,hero?'hero':'image');e.target.value='';}}/></label>;}
 function galleryInput(){return <label className="upload-button"><Upload size={17}/>Birden fazla görsel yükle<input type="file" multiple accept="image/png,image/jpeg,image/webp" disabled={busy} onChange={e=>{void upload(e.target.files,urls=>setEdit(current=>current?{...current,images:[...current.images,...urls]}:current));e.target.value='';}}/></label>;}
+useEffect(()=>{if(data||error)window.InokskarLoading?.ready();},[data,error,tab]);
+useEffect(()=>{if(data){window.InokskarLoading?.begin();window.InokskarLoading?.ready();}},[tab]);
+if(!data&&!error)return <BrandLoading/>;
 if(!data)return <div className={'load-state '+(error?'state-error':'state-loading')}><div className="state-panel"><span className="state-kicker">İNOKSKAR YÖNETİM</span><h1>{error?'Yönetim verileri yüklenemedi':'Yönetim paneli hazırlanıyor'}</h1><p>{error||'Ürünler, talepler ve yönetim verileri güvenli şekilde yükleniyor.'}</p>{error?<button className="button" onClick={load}>Tekrar dene</button>:<div className="state-skeleton" aria-hidden="true"><span/><span/><span/></div>}</div></div>;
 const s=data.settings;const field=(key:keyof Catalog['settings'],value:any)=>change({...data,settings:{...s,[key]:value,...(key==='address'&&value!==s.address?{mapUrl:''}:{})}});const visibleProducts=data.products.filter(p=>matchesProduct(p,query)&&(categoryFilter==='all'||descendants(data.categories,categoryFilter).includes(p.category)));
 const inquiryNeedle=inquiryQuery.trim().toLocaleLowerCase('tr-TR'),inquiryPhone=normalizeInquiryPhone(inquiryQuery);const visibleInquiries=inquiries.filter(q=>{if(!inquiryNeedle)return true;const b=parseInquiryData(q.data);const hay=[q.requestCode,q.id,b.name,b.email,b.contact,b.businessName,b.phone].map(x=>String(x||'').toLocaleLowerCase('tr-TR'));if(hay.some(x=>x.includes(inquiryNeedle)))return true;const storedPhone=normalizeInquiryPhone(b.phone);return inquiryPhone.length>=4&&storedPhone.includes(inquiryPhone);});
