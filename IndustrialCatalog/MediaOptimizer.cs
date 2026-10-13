@@ -36,12 +36,12 @@ public sealed class MediaOptimizer : BackgroundService
         var input=Path.Combine(root,"uploads",id);
         Directory.CreateDirectory(Path.Combine(root,"media-cache-v1"));
         var video=Path.GetExtension(id)==".mp4";
-        foreach(var variant in video?new[]{"stream"}:new[]{"thumb","card","detail"})
+        foreach(var variant in video?new[]{"poster","stream"}:new[]{"thumb","card","detail"})
         {
             var output=DerivedPath(root,id,variant);if(File.Exists(output))continue;
             var temporary=output+".tmp";
-            var size=variant=="thumb"?160:variant=="card"?640:1280;
-            var options=video
+            var size=variant=="thumb"?160:variant is "card" or "poster"?640:1280;
+            var options=video&&variant=="stream"
                 ?new[]{"-map","0:v:0","-map","0:a:0?","-vf","scale=w='min(1920,iw)':h='min(1080,ih)':force_original_aspect_ratio=decrease:force_divisible_by=2","-c:v","libx264","-preset","veryfast","-crf","24","-maxrate","3M","-bufsize","6M","-pix_fmt","yuv420p","-threads","1","-c:a","aac","-b:a","128k","-movflags","+faststart","-f","mp4"}
                 :new[]{"-vf",$"scale=w='min({size},iw)':h='min({size},ih)':force_original_aspect_ratio=decrease","-frames:v","1","-c:v","libwebp","-quality",variant=="detail"?"88":"82","-threads","1","-f","webp"};
             try

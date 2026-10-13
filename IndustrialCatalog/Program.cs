@@ -362,9 +362,10 @@ app.MapGet("/api/files/{id}",(string id,HttpContext c)=>{
     var extension=Path.GetExtension(file).ToLowerInvariant();
     var mime=extension switch{".png"=>"image/png",".jpg"=>"image/jpeg",".webp"=>"image/webp",".gif"=>"image/gif",".mp4"=>"video/mp4",_=>"application/pdf"};
     var variant=c.Request.Query["media"].ToString();
-    var validVariant=extension==".mp4"?variant=="stream":(extension is ".png" or ".jpg" or ".webp")&&(variant is "thumb" or "card" or "detail");
+    var validVariant=extension==".mp4"?(variant is "stream" or "poster"):(extension is ".png" or ".jpg" or ".webp")&&(variant is "thumb" or "card" or "detail");
     var ready=false;
-    if(validVariant){var derived=MediaOptimizer.DerivedPath(dataPath,id,variant);if(File.Exists(derived)){file=derived;mime=extension==".mp4"?"video/mp4":"image/webp";ready=true;}}
+    if(validVariant){var derived=MediaOptimizer.DerivedPath(dataPath,id,variant);if(File.Exists(derived)){file=derived;mime=extension==".mp4"&&variant=="stream"?"video/mp4":"image/webp";ready=true;}}
+    if(extension==".mp4"&&variant=="poster"&&!ready){c.Response.Headers.CacheControl="no-store";return Results.NotFound();}
     c.Response.Headers.CacheControl=validVariant&&!ready?"public,max-age=15":"public,max-age=31536000,immutable";
     var info=new FileInfo(file);
     return Results.File(file,mime,lastModified:info.LastWriteTimeUtc,entityTag:new Microsoft.Net.Http.Headers.EntityTagHeaderValue("\""+info.Length.ToString("x")+"-"+info.LastWriteTimeUtc.Ticks.ToString("x")+"\""),enableRangeProcessing:true);

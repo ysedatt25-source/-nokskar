@@ -27,6 +27,9 @@ public static class MediaOptimizationChecks
                 var stream=probe.RootElement.GetProperty("streams")[0];var max=variant=="thumb"?160:variant=="card"?640:1280;
                 if(stream.GetProperty("codec_name").GetString()!="webp"||stream.GetProperty("width").GetInt32()>max||stream.GetProperty("height").GetInt32()>max)throw new Exception("Invalid image variant");
             }
+            var poster=MediaOptimizer.DerivedPath(root,video,"poster");
+            using(var probe=JsonDocument.Parse(await Run("ffprobe","-v","error","-show_streams","-of","json",poster)))
+                if(probe.RootElement.GetProperty("streams")[0].GetProperty("codec_name").GetString()!="webp")throw new Exception("Video poster was not extracted");
             var optimized=MediaOptimizer.DerivedPath(root,video,"stream");
             using(var probe=JsonDocument.Parse(await Run("ffprobe","-v","error","-show_streams","-of","json",optimized)))
                 if(probe.RootElement.GetProperty("streams")[0].GetProperty("codec_name").GetString()!="h264")throw new Exception("Video is not browser-compatible H264");
@@ -35,7 +38,7 @@ public static class MediaOptimizationChecks
             if(moov<0||mdat<0||moov>mdat)throw new Exception("Video faststart metadata is not at the beginning");
             if(!originalPhoto.SequenceEqual(await File.ReadAllBytesAsync(photo))||!originalMovie.SequenceEqual(await File.ReadAllBytesAsync(movie)))throw new Exception("Original media changed");
             await MediaOptimizer.OptimizeAsync(root,image,CancellationToken.None); // Existing outputs are reusable.
-            Console.WriteLine("Media optimization checks: PASS (WebP dimensions, H264, faststart, original preservation, repeat processing).");
+            Console.WriteLine("Media optimization checks: PASS (WebP dimensions, video poster, H264, faststart, original preservation, repeat processing).");
         }
         finally{Directory.Delete(root,true);}
     }
