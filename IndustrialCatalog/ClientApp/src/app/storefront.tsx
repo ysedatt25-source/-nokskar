@@ -10,6 +10,7 @@ import WarrantyCenter from './warranty-center';
 import LegalCenter from './legal-center';
 import BrandLoading from './brand-loading';
 import ProductGallery from './product-gallery';
+import {mediaUrl,imageSources} from '../lib/media';
 import './experience.css';
 
 const money=(n:number)=>new Intl.NumberFormat('tr-TR',{maximumFractionDigits:0}).format(n);
@@ -32,7 +33,7 @@ function ProductCard({p,categoryName,homePreview=false}:{p:Product,categoryName?
  const move=(delta:number)=>setIndex(i=>images.length?(i+delta+images.length)%images.length:0);
  const swipeEnd=(x:number)=>{if(startX.current===null)return;const d=x-startX.current;startX.current=null;if(images.length>1&&Math.abs(d)>35){suppressClick.current=true;move(d>0?-1:1);}};
  return <article className="product-card"><div className="product-photo-wrap" onPointerDown={e=>{startX.current=e.clientX;suppressClick.current=false;}} onPointerUp={e=>swipeEnd(e.clientX)} onPointerCancel={()=>{startX.current=null;}}>
-   <a className="product-photo" href={'/urun/'+p.id} onClick={e=>{if(suppressClick.current){suppressClick.current=false;e.preventDefault();}}}>{images[index]?<img src={images[index]} alt={p.name} loading="lazy" decoding="async"/>:homePreview&&demoVisuals[p.id]?<HomeVisual region={demoVisuals[p.id]}/>:<div className="photo-empty product-photo-fallback"><img src="/inokskar-logo.svg" alt="" decoding="async"/><strong>{p.name}</strong><small>{productCode(p)}</small></div>}{p.video&&<span className="product-video-badge" aria-label="Bu ürünün videosu var"><span aria-hidden="true">▶</span> Video</span>}<span className={'availability status-badge status-'+productStatusTone(p.status)}>{p.status}</span></a>
+   <a className="product-photo" href={'/urun/'+p.id} onClick={e=>{if(suppressClick.current){suppressClick.current=false;e.preventDefault();}}}>{images[index]?<img src={mediaUrl(images[index],'card')} srcSet={imageSources(images[index])} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px" alt={p.name} loading="lazy" decoding="async"/>:homePreview&&demoVisuals[p.id]?<HomeVisual region={demoVisuals[p.id]}/>:<div className="photo-empty product-photo-fallback"><img src="/inokskar-logo.svg" alt="" decoding="async"/><strong>{p.name}</strong><small>{productCode(p)}</small></div>}{p.video&&<span className="product-video-badge" aria-label="Bu ürünün videosu var"><span aria-hidden="true">▶</span> Video</span>}<span className={'availability status-badge status-'+productStatusTone(p.status)}>{p.status}</span></a>
    {images.length>1&&<><GalleryButton direction="prev" onClick={()=>move(-1)}/><GalleryButton direction="next" onClick={()=>move(1)}/><span className="gallery-count" aria-live="polite">{index+1}/{images.length}</span></>}
   </div><div className="product-copy"><span className="eyebrow">{categoryName}</span><h3><a href={'/urun/'+p.id}>{p.name}</a></h3><p className="product-code">Ürün kodu: <strong>{productCode(p)}</strong></p><div className="card-bottom"><div className="price">{p.tl>0?<><span className="price-amount">{money(p.tl)} ₺</span><small>+ %{vatRate(p)} KDV</small></>:<span className="price-enquire">Fiyat için bilgi alınız</span>}</div><a className="card-link" href={'/urun/'+p.id}>Ürünü incele</a></div></div></article>;
 }

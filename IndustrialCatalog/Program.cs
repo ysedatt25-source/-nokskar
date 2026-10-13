@@ -12,6 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
+if(args.Contains("--media-optimization-self-test")){await MediaOptimizationChecks.Check();return;}
 if(args.Contains("--product-video-self-test")){ProductVideoChecks.Run();return;}
 if(args.Contains("--live-support-self-test")){LiveSupportChecks.Run();return;}
 if(args.Contains("--membership-self-test")){MembershipChecks.Run();return;}
@@ -28,6 +29,7 @@ builder.Services.AddAntiforgery(o=>{o.HeaderName="X-INOKSKAR-CSRF";o.FormFieldNa
 builder.Services.AddSingleton<InquirySmsNotifier>();builder.Services.AddSingleton<SmsSettingsStore>();builder.Services.AddSingleton<SmsCodes>();builder.Services.AddSingleton<SmsGateway>();builder.Services.AddSingleton<SmsQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<SmsQueue>());builder.Services.AddSingleton<MailSettingsStore>();builder.Services.AddSingleton<MailQueue>();builder.Services.AddSingleton<IHostedService>(sp=>sp.GetRequiredService<MailQueue>());builder.Services.AddSingleton<OperationalLog>();builder.Services.AddSingleton<AdminLoginGuard>();builder.Services.AddSingleton<UserDirectory>();builder.Services.AddSingleton<CustomerDirectory>();builder.Services.AddSingleton<PasswordResetStore>();
 var dataPath=Path.GetFullPath(builder.Configuration["Storage:Path"]??"App_Data",builder.Environment.ContentRootPath);
 Directory.CreateDirectory(dataPath);
+builder.Services.AddHostedService(sp=>new MediaOptimizer(dataPath,sp.GetRequiredService<ILogger<MediaOptimizer>>()));
 builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataPath,"keys")));
 builder.Services.Configure<FormOptions>(o=>o.MultipartBodyLengthLimit=512L*1024*1024);
 builder.WebHost.ConfigureKestrel(o=>o.Limits.MaxRequestBodySize=512L*1024*1024);
@@ -354,8 +356,18 @@ app.MapPost("/api/upload",async(HttpContext c,IWebHostEnvironment e)=>{
     if(!valid)throw new ArgumentException(kind=="pdf"?"PDF alanına yalnızca PDF yükleyin.":kind=="video"?"Ürün videosu alanına yalnızca MP4 yükleyin.":"Bu alana PNG, JPEG, WebP, GIF veya MP4 yükleyin.");
     var directory=Path.Combine(dataPath,"uploads");Directory.CreateDirectory(directory);var name=Guid.NewGuid().ToString("N")+type.Value.Extension;await File.WriteAllBytesAsync(Path.Combine(directory,name),bytes);return Results.Json(new{url="/api/files/"+name});
 }).RequireAuthorization();
-app.MapGet("/api/files/{id}",(string id)=>{
-    if(!System.Text.RegularExpressions.Regex.IsMatch(id,@"^[a-f0-9]{32}\.(png|jpg|webp|gif|mp4|pdf)$"))return Results.NotFound();var file=Path.Combine(dataPath,"uploads",id);if(!File.Exists(file))return Results.NotFound();var mime=Path.GetExtension(file).ToLowerInvariant() switch{".png"=>"image/png",".jpg"=>"image/jpeg",".webp"=>"image/webp",".gif"=>"image/gif",".mp4"=>"video/mp4",_=>"application/pdf"};return Results.File(file,mime,enableRangeProcessing:true);
+app.MapGet("/api/files/{id}",(string id,HttpContext c)=>{
+    if(!System.Text.RegularExpressions.Regex.IsMatch(id,@"^[a-f0-9]{32}\.(png|jpg|webp|gif|mp4|pdf)$"))return Results.NotFound();
+    var file=Path.Combine(dataPath,"uploads",id);if(!File.Exists(file))return Results.NotFound();
+    var extension=Path.GetExtension(file).ToLowerInvariant();
+    var mime=extension switch{".png"=>"image/png",".jpg"=>"image/jpeg",".webp"=>"image/webp",".gif"=>"image/gif",".mp4"=>"video/mp4",_=>"application/pdf"};
+    var variant=c.Request.Query["media"].ToString();
+    var validVariant=extension==".mp4"?variant=="stream":(extension is ".png" or ".jpg" or ".webp")&&(variant is "thumb" or "card" or "detail");
+    var ready=false;
+    if(validVariant){var derived=MediaOptimizer.DerivedPath(dataPath,id,variant);if(File.Exists(derived)){file=derived;mime=extension==".mp4"?"video/mp4":"image/webp";ready=true;}}
+    c.Response.Headers.CacheControl=validVariant&&!ready?"public,max-age=15":"public,max-age=31536000,immutable";
+    var info=new FileInfo(file);
+    return Results.File(file,mime,lastModified:info.LastWriteTimeUtc,entityTag:new Microsoft.Net.Http.Headers.EntityTagHeaderValue("\""+info.Length.ToString("x")+"-"+info.LastWriteTimeUtc.Ticks.ToString("x")+"\""),enableRangeProcessing:true);
 });
 app.MapGet("/api/warranties",(HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Warranties,"view"))return Results.Forbid();var records=store.WarrantyList();if(AccessControl.Role(c.User)=="TechnicalService")foreach(var node in records){if(node is not JsonObject row)continue;row.Remove("verificationCode");row.Remove("verificationHint");}return Results.Json(new{records});}).RequireAuthorization();
 app.MapPost("/api/warranties",async(HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Warranties,"edit"))return Results.Forbid();var body=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("Garanti kaydı gerekli.");var saved=store.SaveWarranty(body,AccessControl.DisplayName(c.User));if(AccessControl.Role(c.User)=="TechnicalService"){saved.Remove("verificationCode");if(saved["record"] is JsonObject record){record.Remove("verificationCode");record.Remove("verificationHint");}}return Results.Json(saved);}).RequireAuthorization();
