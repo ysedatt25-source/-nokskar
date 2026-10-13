@@ -10,7 +10,7 @@ body.page-home .hero .hero-founder-label{
   border-radius:999px;background:transparent;
   box-shadow:none;
   backdrop-filter:none;-webkit-backdrop-filter:none;
-  color:#ffd599;pointer-events:none;
+  color:#ffeb00;pointer-events:none;
 }
 body.page-home .hero .hero-founder-label-mark{
   display:block;width:5px;height:5px;flex:0 0 5px;
@@ -21,7 +21,7 @@ body.page-home .hero .hero-founder-label-text{
   display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;line-height:1.25;
   font-family:"Manrope","Segoe UI",Arial,sans-serif;
-  font-optical-sizing:auto;font-size:clamp(10px,1.05vw,14px);font-weight:800;letter-spacing:.055em;
+  font-optical-sizing:auto;font-size:clamp(10px,1.05vw,14px);font-weight:900;letter-spacing:.055em;
   text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 8px rgba(0,0,0,.35);
 }
 @media(max-width:650px){
@@ -62,11 +62,11 @@ body.page-home .hero .hero-founder-label-text{
   background-color:#0d213a;background-position:center;background-size:cover;border:1px solid #19324e;box-sizing:border-box}
 .founder-setting-preview-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
   max-width:100%;min-width:0;padding:8px 11px;border:0;
-  border-radius:999px;background:rgba(255,248,235,.95);color:#ffd599;backdrop-filter:none;-webkit-backdrop-filter:none}
+  border-radius:999px;background:rgba(255,248,235,.95);color:#ffeb00;backdrop-filter:none;-webkit-backdrop-filter:none}
 .founder-setting-preview-mark{width:5px;height:5px;flex:0 0 5px;background:#9a5b1e;border-radius:50%}
 .founder-setting-preview-badge>span:last-child{font-family:"Manrope","Segoe UI",Arial,sans-serif;font-optical-sizing:auto;
   min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font-size:clamp(9px,1.3vw,12px);font-weight:800;letter-spacing:.025em;line-height:1.3}
+  font-size:clamp(9px,1.3vw,12px);font-weight:900;letter-spacing:.025em;line-height:1.3}
 .founder-setting-preview-empty{color:#bbc8d5;font-size:.78rem;font-weight:700}
 @media(max-width:650px){
   .founder-setting-card{padding:12px;gap:12px}
