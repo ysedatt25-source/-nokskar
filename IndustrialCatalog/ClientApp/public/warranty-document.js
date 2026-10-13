@@ -13,7 +13,7 @@
    try{const previous=new URL(document.referrer);if(previous.origin===location.origin&&/^\/admin\/warranties(?:\/list)?$/.test(previous.pathname)){event.preventDefault();history.back();}}catch{}
  });
  const vendor=window.WarrantyPrint;
- const queryUrl=new URL('/garanti-sorgulama',location.origin);
+ const queryUrl=new URL('/garanti-sorgulama',document.baseURI);
  const qrUrl=new URL(queryUrl);qrUrl.hash=new URLSearchParams({s:root.dataset.serial,c:root.dataset.code}).toString();
  const qrReady=vendor&&root.dataset.code&&root.dataset.code!=='—'?vendor.makeQR(qrUrl.href).then(qr=>{
    for(const image of root.querySelectorAll('[data-warranty-qr]'))image.src=qr.dataUrl;
