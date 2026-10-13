@@ -1,5 +1,5 @@
 export type Category={id:string,name:string,parent:string,description:string,image:string,menu:boolean,visible:boolean,seoTitle:string,seoDescription:string};
-export type Product={id:string,code?:string,name:string,category:string,euro:number,tl:number,vatRate:number,description:string,after:string,specs:{name:string,value:string}[],images:string[],pdf:string,status:string,visible:boolean,demo:boolean,seoTitle:string,seoDescription:string};
+export type Product={id:string,code?:string,name:string,category:string,euro:number,tl:number,vatRate:number,description:string,after:string,specs:{name:string,value:string}[],images:string[],video?:string,pdf:string,status:string,visible:boolean,demo:boolean,seoTitle:string,seoDescription:string};
 export type Reference={id:string,logo:string,phone:string,email:string,visible:boolean};
 export type Catalog={references:Reference[],settings:{name:string,tagline:string,heroTitle:string,heroHeading:string,heroAccent:string,heroText:string,hero:string,headerImage:string,founderLabelText:string,founderLabelVisible:boolean,phone:string,whatsapp:string,email:string,notificationEmail:string,notificationPhone:string,notificationSmsEnabled:boolean,address:string,mapUrl:string,hours:string,social:string,waMessage:string,waEnabled:boolean,liveSupportEnabled:boolean,rate:number,autoRate:boolean,lastRate:string,rateSource:string,rateDate:string,about:string,menu:{name:string,url:string}[]},categories:Category[],products:Product[]};
 export const PRICE_CHANGE_THRESHOLD_TL=500;
@@ -17,7 +17,7 @@ export function normalizeCatalog(input:any):Catalog{
  const products=(Array.isArray(raw.products)?raw.products:[]).map((p:any)=>({
   id:str(p?.id),code:str(p?.code),name:str(p?.name),category:str(p?.category),euro:num(p?.euro),tl:num(p?.tl),vatRate:Math.min(100,num(p?.vatRate,20)),description:str(p?.description),after:str(p?.after),
   specs:Array.isArray(p?.specs)?p.specs.filter((x:any)=>x&&typeof x==='object').map((x:any)=>({name:str(x.name),value:str(x.value)})):[],
-  images:Array.isArray(p?.images)?p.images.filter((x:any)=>typeof x==='string'&&x.trim()).map((x:string)=>x.trim()):[],pdf:str(p?.pdf),status:['Stokta','Sipariş üzerine','Bilgi alınız'].includes(str(p?.status))?str(p.status):'Bilgi alınız',visible:p?.visible!==false,demo:p?.demo===true,seoTitle:str(p?.seoTitle),seoDescription:str(p?.seoDescription)
+  images:Array.isArray(p?.images)?p.images.filter((x:any)=>typeof x==='string'&&x.trim()).map((x:string)=>x.trim()):[],video:str(p?.video),pdf:str(p?.pdf),status:['Stokta','Sipariş üzerine','Bilgi alınız'].includes(str(p?.status))?str(p.status):'Bilgi alınız',visible:p?.visible!==false,demo:p?.demo===true,seoTitle:str(p?.seoTitle),seoDescription:str(p?.seoDescription)
  })).filter((p:Product)=>p.id&&p.name&&p.category);
  const references=(Array.isArray(raw.references)?raw.references:[]).map((r:any)=>({id:str(r?.id),logo:str(r?.logo),phone:str(r?.phone),email:str(r?.email),visible:r?.visible!==false})).filter((r:Reference)=>r.id&&r.logo);
  return {settings,categories,products,references};

@@ -76,6 +76,9 @@ public static class CatalogRules
             Text(p,"description");Text(p,"after");var pSeoTitle=p["seoTitle"]?.ToString()??"";var pSeoDescription=p["seoDescription"]?.ToString()??"";p["seoTitle"]=pSeoTitle;p["seoDescription"]=pSeoDescription;if(pSeoTitle.Length>70||pSeoDescription.Length>180)throw new ArgumentException("Ürün SEO alanları çok uzun.");p["demo"]!.GetValue<bool>();
             foreach(var spec in p["specs"]!.AsArray()){Text(spec,"name");Text(spec,"value");}
             foreach(var image in p["images"]!.AsArray())if(!Safe(image!.GetValue<string>()))throw new ArgumentException("Ürün görseli geçersiz.");
+            p["video"] ??= "";
+            var video=Text(p,"video");
+            if(video!=""&&!Regex.IsMatch(video,@"^/api/files/[a-f0-9]{32}\.mp4$"))throw new ArgumentException("Ürün videosu siteye yüklenmiş MP4 olmalıdır.");
             if(!Safe(Text(p,"pdf")))throw new ArgumentException("PDF bağlantısı geçersiz.");
         }
     }

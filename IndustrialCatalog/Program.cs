@@ -12,6 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
+if(args.Contains("--product-video-self-test")){ProductVideoChecks.Run();return;}
 if(args.Contains("--live-support-self-test")){LiveSupportChecks.Run();return;}
 if(args.Contains("--membership-self-test")){MembershipChecks.Run();return;}
 if(args.Contains("--hash-password"))
@@ -336,20 +337,21 @@ app.MapPost("/api/backup/restore",async(HttpContext c,Store store)=>{if(!AccessC
 }).RequireAuthorization();
 app.MapPost("/api/upload",async(HttpContext c,IWebHostEnvironment e)=>{
     var form=await c.Request.ReadFormAsync();var file=form.Files.GetFile("file")??throw new ArgumentException("Dosya seçin.");
-    var kind=c.Request.Query["kind"].ToString();if(string.IsNullOrEmpty(kind))kind="image";if(kind=="hero"&&!AccessControl.Has(c.User,AccessPermissions.Settings,"edit"))return Results.Forbid();if(kind is "image" or "pdf"&&!AccessControl.Has(c.User,AccessPermissions.Catalog,"edit"))return Results.Forbid();
+    var kind=c.Request.Query["kind"].ToString();if(string.IsNullOrEmpty(kind))kind="image";if(kind=="hero"&&!AccessControl.Has(c.User,AccessPermissions.Settings,"edit"))return Results.Forbid();if(kind is "image" or "pdf" or "video"&&!AccessControl.Has(c.User,AccessPermissions.Catalog,"edit"))return Results.Forbid();
     if((kind is "category" or "brand")&&!AccessControl.Has(c.User,AccessPermissions.Settings,"edit"))return Results.Forbid();
-    if(kind is not ("image" or "pdf" or "hero" or "category" or "brand"))throw new ArgumentException("Geçersiz yükleme alanı.");
-    var maxBytes=kind=="hero"?100L*1024*1024:20L*1024*1024;
-    if(file.Length<=0||file.Length>maxBytes)throw new ArgumentException(kind=="hero"?"Ana sayfa medyası en fazla 100 MB olabilir.":"Dosya en fazla 20 MB olabilir.");
+    if(kind is not ("image" or "pdf" or "hero" or "category" or "brand" or "video"))throw new ArgumentException("Geçersiz yükleme alanı.");
+    var maxBytes=(kind is "hero" or "video")?100L*1024*1024:20L*1024*1024;
+    if(file.Length<=0||file.Length>maxBytes)throw new ArgumentException((kind is "hero" or "video")?"Medya dosyası en fazla 100 MB olabilir.":"Dosya en fazla 20 MB olabilir.");
     using var buffer=new MemoryStream();await file.CopyToAsync(buffer);var bytes=buffer.ToArray();var type=Uploads.Detect(bytes);
     if(type==null)throw new ArgumentException("Desteklenen dosya türleri: PNG, JPEG, WebP, GIF, MP4 veya PDF.");
     var mime=type.Value.Mime;
     var valid=kind switch{
         "pdf"=>mime=="application/pdf",
+        "video"=>mime=="video/mp4",
         "hero"=>mime is "image/png" or "image/jpeg" or "image/webp" or "image/gif" or "video/mp4",
         _=>mime is "image/png" or "image/jpeg" or "image/webp"
     };
-    if(!valid)throw new ArgumentException(kind=="pdf"?"PDF alanına yalnızca PDF yükleyin.":"Bu alana PNG, JPEG, WebP, GIF veya MP4 yükleyin.");
+    if(!valid)throw new ArgumentException(kind=="pdf"?"PDF alanına yalnızca PDF yükleyin.":kind=="video"?"Ürün videosu alanına yalnızca MP4 yükleyin.":"Bu alana PNG, JPEG, WebP, GIF veya MP4 yükleyin.");
     var directory=Path.Combine(dataPath,"uploads");Directory.CreateDirectory(directory);var name=Guid.NewGuid().ToString("N")+type.Value.Extension;await File.WriteAllBytesAsync(Path.Combine(directory,name),bytes);return Results.Json(new{url="/api/files/"+name});
 }).RequireAuthorization();
 app.MapGet("/api/files/{id}",(string id)=>{
@@ -468,7 +470,8 @@ app.Run();
 }
 catch(Exception fatal)
 {
-    if(args.Contains("--live-support-self-test"))throw;
+    if(args.Contains("--product-video-self-test")){ProductVideoChecks.Run();return;}
+if(args.Contains("--live-support-self-test"))throw;
     StartupRecovery.Run(fatal, args);
 }
 static string RoleLanding(ClaimsPrincipal user)
