@@ -354,7 +354,7 @@ app.MapPost("/api/upload",async(HttpContext c,IWebHostEnvironment e)=>{
         "hero"=>mime is "image/png" or "image/jpeg" or "image/webp" or "image/gif" or "video/mp4",
         _=>mime is "image/png" or "image/jpeg" or "image/webp"
     };
-    if(!valid)throw new ArgumentException(kind=="pdf"?"PDF alanına yalnızca PDF yükleyin.":kind=="video"?"Ürün videosu alanına yalnızca MP4 yükleyin.":"Bu alana PNG, JPEG, WebP, GIF veya MP4 yükleyin.");
+    if(!valid)throw new ArgumentException((kind is "pdf" or "ce")?"PDF alanına yalnızca PDF yükleyin.":kind=="video"?"Ürün videosu alanına yalnızca MP4 yükleyin.":"Bu alana PNG, JPEG, WebP, GIF veya MP4 yükleyin.");
     var directory=Path.Combine(dataPath,"uploads");Directory.CreateDirectory(directory);var name=Guid.NewGuid().ToString("N")+type.Value.Extension;await File.WriteAllBytesAsync(Path.Combine(directory,name),bytes);return Results.Json(new{url="/api/files/"+name});
 }).RequireAuthorization();
 app.MapGet("/api/files/{id}",(string id,HttpContext c)=>{

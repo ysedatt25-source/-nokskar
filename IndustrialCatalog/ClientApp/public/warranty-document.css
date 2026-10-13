@@ -145,3 +145,5 @@
 .thermal-technical div{min-width:0;overflow-wrap:anywhere}
 .thermal-label.has-technical .thermal-product{font-size:9pt}
 .thermal-label-warning{color:#9a233c;font-weight:700}
+
+.thermal-qr-placeholder{display:flex;align-items:center;justify-content:center;text-align:center;width:21mm;height:21mm;border:1px dashed #777;font-size:7pt;line-height:1.2}

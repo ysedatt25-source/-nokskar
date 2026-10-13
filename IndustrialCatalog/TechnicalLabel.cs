@@ -47,6 +47,7 @@ public static class TechnicalLabel
             Add("Motor: ",V("motor"),Unit("motorPower","W"));
         }
         Add("CE belge: ",V("ceNumber"));
+        if(V("ceNumber")==""&&V("ceDocument")!="")lines.Add("CE belgesi: QR kodunda");
         return lines;
     }
     public static string Html(JsonNode? node)=>string.Join("",Lines(node).Select(x=>"<div>"+WebUtility.HtmlEncode(x)+"</div>"));
