@@ -23,10 +23,22 @@ public sealed class SupportMessage
     public bool AllowTranslation { get; set; }
     public Dictionary<string,string> Translations { get; set; } = new();
 }
+public sealed record SupportNote(string Text,string Author,DateTimeOffset At);
 public sealed class SupportThread
 {
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string Owner { get; set; } = "";
+    public string Department { get; set; } = "teklif";
+    public string ProductId { get; set; } = "";
+    public string ProductName { get; set; } = "";
+    public string ProductCode { get; set; } = "";
+    public string ProductUrl { get; set; } = "";
+    public DateTimeOffset Created { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? FirstMessageAt { get; set; }
+    public DateTimeOffset? FirstReplyAt { get; set; }
+    public int? Rating { get; set; }
+    public List<SupportNote> Notes { get; set; } = new();
+    public string RequestCode { get; set; } = "";
     public string Name { get; set; } = "Ziyaretçi";
     public string Language { get; set; } = "tr";
     public string Assigned { get; set; } = "";
@@ -35,7 +47,7 @@ public sealed class SupportThread
     public DateTimeOffset Updated { get; set; } = DateTimeOffset.UtcNow;
     public List<SupportMessage> Messages { get; set; } = new();
 }
-public sealed record SupportAgent(string Id,string Name,string Language,bool Ready,DateTimeOffset Seen);
+public sealed record SupportAgent(string Id,string Name,string Language,bool Ready,DateTimeOffset Seen,string Department="all");
 public sealed record SupportSignal(long Sequence,string Thread,string Call,string Actor,string Kind,string Payload,DateTimeOffset At);
 public sealed class SupportCall
 {
@@ -67,6 +79,7 @@ public sealed class LiveSupportStore
         folder = Path.Combine(Path.GetFullPath(config["Storage:Path"] ?? "App_Data",env.ContentRootPath),"live-support");
         Directory.CreateDirectory(folder); file=Path.Combine(folder,"conversations.json");
         threads=File.Exists(file)?JsonSerializer.Deserialize<List<SupportThread>>(File.ReadAllText(file),Json)??new():new();
+        foreach(var t in threads){if(t.Messages.Count>0)t.Created=t.Messages[0].At;t.FirstMessageAt??=t.Messages.FirstOrDefault(m=>!m.Staff)?.At;if(t.FirstMessageAt!=null)t.FirstReplyAt??=t.Messages.FirstOrDefault(m=>m.Staff&&m.At>=t.FirstMessageAt.Value)?.At;}
     }
     public static string Language(string? value) => Languages.Contains(value??"")?value!:"tr";
     public static bool Staff(ClaimsPrincipal user) => AccessControl.Role(user) is "Admin" or "SuperAdmin" && AccessControl.Has(user,AccessPermissions.CustomerSupport,"view") && user.FindFirst("inokskar:must-change-password")?.Value!="1";
@@ -93,28 +106,34 @@ public sealed class LiveSupportStore
             if(!limits.TryGetValue(actor,out var q)) limits[actor]=q=new();var now=DateTimeOffset.UtcNow;
             while(q.TryPeek(out var at)&&at<now.AddMinutes(-1))q.Dequeue();if(q.Count>=count)throw new ArgumentException("Çok sık işlem yapıldı. Biraz bekleyip tekrar deneyin.");q.Enqueue(now); }
     }
+    public static string Department(string? value) => value is "teklif" or "servis" or "garanti"?value:"teklif";
     public SupportAgent[] Available() { lock(gate)return agents.Values.Where(a=>a.Ready&&a.Seen>DateTimeOffset.UtcNow.AddSeconds(-75)).GroupBy(a=>a.Id).Select(g=>g.OrderByDescending(a=>a.Seen).First()).ToArray(); }
-    public void Presence(string actor,string name,string language,bool ready,string client)
-    {lock(gate){if(!Regex.IsMatch(client,"^[a-zA-Z0-9-]{16,80}$"))throw new ArgumentException("Bağlantı kimliği geçersiz.");foreach(var key in agents.Where(x=>x.Value.Seen<DateTimeOffset.UtcNow.AddMinutes(-2)).Select(x=>x.Key).ToArray())agents.Remove(key);agents[actor+":"+client]=new(actor,name,Language(language),ready,DateTimeOffset.UtcNow);}}
-    public object Status(HttpContext c,SupportTranslation translation,bool enabled=true)
-    { return new { enabled,online=Available().Length>0,staff=Staff(c.User),canRespond=Respond(c.User),hasSession=Actor(c)!="",translationReady=translation.Ready,canConfigure=AccessControl.IsSuperAdmin(c.User),languages=Languages }; }
+    public void Presence(string actor,string name,string language,bool ready,string client,string department="all")
+    {lock(gate){if(!Regex.IsMatch(client,"^[a-zA-Z0-9-]{16,80}$"))throw new ArgumentException("Bağlantı kimliği geçersiz.");foreach(var key in agents.Where(x=>x.Value.Seen<DateTimeOffset.UtcNow.AddMinutes(-2)).Select(x=>x.Key).ToArray())agents.Remove(key);agents[actor+":"+client]=new(actor,name,Language(language),ready,DateTimeOffset.UtcNow,department is "teklif" or "servis" or "garanti"?department:"all");}}
+    public object Status(HttpContext c,SupportTranslation translation,bool enabled=true,string hours="",string department="")
+    { return new { enabled,hours,online=Available().Any(a=>department==""||a.Department=="all"||a.Department==Department(department)),staff=Staff(c.User),canRespond=Respond(c.User),hasSession=Actor(c)!="",translationReady=translation.Ready,canConfigure=AccessControl.IsSuperAdmin(c.User),languages=Languages }; }
     SupportThread Get(string id,string actor,bool staff)
     { var t=threads.Find(t=>t.Id==id);if(t==null||!staff&&t.Owner!=actor)throw new ArgumentException("Sohbet bulunamadı veya erişim yetkiniz yok.");return t; }
-    public object Open(string actor,string name,string language)
+    public object Open(string actor,string name,string language,string department="teklif",JsonObject? product=null)
     {
         lock(gate){var t=threads.LastOrDefault(x=>x.Owner==actor&&!x.Closed);
             if(t==null){if(threads.Count>=10000)throw new ArgumentException("Destek kapasitesine ulaşıldı. İletişim sayfasından bize ulaşın.");Limit(actor+":new",5);t=new(){Owner=actor,Name=string.IsNullOrWhiteSpace(name)?"Ziyaretçi":name.Trim()[..Math.Min(name.Trim().Length,80)],Language=Language(language)};if(t.Name=="Ziyaretçi")t.Name+=" · "+t.Id[..6];threads.Add(t);}
-            else t.Language=Language(language);Persist();return new{id=t.Id};}
+            else t.Language=Language(language);
+            if(t.Messages.Count==0)t.Department=Department(department);
+            if(product!=null){t.ProductId=product["id"]?.ToString()??"";t.ProductName=product["name"]?.ToString()??"";t.ProductCode=product["code"]?.ToString()??t.ProductId;t.ProductUrl="/urun/"+Uri.EscapeDataString(t.ProductId);}Persist();return new{id=t.Id};}
     }
     public object State(string actor,bool staff,string id,string language,long since)
     {
         lock(gate){var gone=id!=""&&!threads.Any(t=>t.Id==id);var t=id!=""&&!gone?Get(id,actor,staff):staff?null:threads.LastOrDefault(t=>t.Owner==actor&&!t.Closed);
             SupportCall? call=null;if(t!=null&&calls.TryGetValue(t.Id,out var found)){if(found.Status=="ringing"&&found.At<DateTimeOffset.UtcNow.AddSeconds(-45)||found.Status=="active"&&(found.AgentSeen<DateTimeOffset.UtcNow.AddSeconds(-90)||found.VisitorSeen<DateTimeOffset.UtcNow.AddSeconds(-90))){found.Status="ended";}if(staff&&found.Agent==actor)found.AgentSeen=DateTimeOffset.UtcNow;else if(!staff)found.VisitorSeen=DateTimeOffset.UtcNow;call=found;}
-            var list=staff?threads.OrderBy(t=>t.Closed).ThenByDescending(t=>t.Updated).Take(150).Select(t=>new {t.Id,t.Name,t.Language,t.AssignedName,t.Closed,t.Updated,unread=t.Messages.Count(m=>!m.Staff&&!m.Read),preview=t.Messages.LastOrDefault()?.Text??"Dosya"}).ToArray():null;
+            var list=staff?threads.OrderBy(t=>t.Closed).ThenByDescending(t=>t.Updated).Take(150).Select(t=>new {t.Id,t.Name,t.Language,t.AssignedName,t.Closed,t.Updated,t.Department,status=t.Closed?"closed":t.Assigned==""?"waiting":"active",unread=t.Messages.Count(m=>!m.Staff&&!m.Read),preview=t.Messages.LastOrDefault()?.Text??"Dosya"}).ToArray():null;
             var ready=Available();
-            return new { threadGone=gone,online=ready.Length>0,agents=staff?ready.Select(a=>new{a.Id,a.Name}).ToArray():null,threads=list,
-                thread=t==null?null:new {t.Id,t.Name,t.Language,t.Assigned,t.AssignedName,t.Closed,t.Updated},
-                messages=t?.Messages.TakeLast(300).Select(m=>new {m.Id,m.Sender,m.Staff,m.Text,m.Language,m.FileName,m.FileType,hasFile=m.File!="",m.At,m.Read,m.ClientId,mine=m.Actor==actor,translationAllowed=m.AllowTranslation,translated=m.Translations.GetValueOrDefault(Language(language))}).ToArray(),
+            var measured=threads.Where(x=>x.FirstMessageAt!=null).ToArray();var replied=measured.Where(x=>x.FirstReplyAt!=null).ToArray();var rated=threads.Where(x=>x.Rating!=null).ToArray();
+            return new { threadGone=gone,online=ready.Any(a=>t==null||a.Department=="all"||a.Department==t.Department),agents=staff?ready.Select(a=>new{a.Id,a.Name,a.Department}).ToArray():null,threads=list,
+                metrics=staff?new{waiting=threads.Count(x=>!x.Closed&&x.Assigned==""),active=threads.Count(x=>!x.Closed&&x.Assigned!=""),unanswered=measured.Count(x=>x.FirstReplyAt==null),firstReplySeconds=replied.Length==0?(double?)null:replied.Average(x=>(x.FirstReplyAt!.Value-x.FirstMessageAt!.Value).TotalSeconds),rating=rated.Length==0?(double?)null:rated.Average(x=>x.Rating!.Value),ratingCount=rated.Length}:null,
+                notes=staff&&t!=null?t.Notes.ToArray():null,
+                thread=t==null?null:new {t.Id,t.Name,t.Language,t.Assigned,assignedName=staff?t.AssignedName:"",t.Closed,t.Updated,t.Department,t.ProductName,t.ProductCode,t.ProductUrl,t.Rating,t.RequestCode,status=t.Closed?"closed":t.Assigned==""?"waiting":"active"},
+                messages=t?.Messages.TakeLast(300).Select(m=>new {m.Id,sender=staff?m.Sender:m.Staff?"İnokskar Destek":"Siz",m.Staff,m.Text,m.Language,m.FileName,m.FileType,hasFile=m.File!="",m.At,m.Read,m.ClientId,mine=m.Actor==actor,translationAllowed=m.AllowTranslation,translated=m.Translations.GetValueOrDefault(Language(language))}).ToArray(),
                 typing=t!=null&&typing.TryGetValue(t.Id,out var ty)&&ty.Actor!=actor&&ty.At>DateTimeOffset.UtcNow.AddSeconds(-5),
                 call=call==null?null:new{call.Id,call.Kind,call.Status,initiator=call.Agent==actor},
                 signals=t==null?Array.Empty<object>():signals.Where(s=>s.Thread==t.Id&&s.Actor!=actor&&s.Sequence>since&&call!=null&&s.Call==call.Id).Select(s=>(object)new{s.Sequence,s.Call,s.Kind,s.Payload}).ToArray() };
@@ -130,6 +149,7 @@ public sealed class LiveSupportStore
             if(clientId.Length>80)throw new ArgumentException("Mesaj kimliği geçersiz.");Limit(actor);
             if(staff){t.Assigned=actor;t.AssignedName=sender;}else t.Language=Language(language);
             var m=new SupportMessage {Actor=actor,Sender=sender,Staff=staff,Text=text,Language=Language(language),ClientId=clientId,File=attachment,FileName=fileName,FileType=fileType,AllowTranslation=allowTranslation};
+            if(!staff)t.FirstMessageAt??=m.At;else if(t.FirstMessageAt!=null)t.FirstReplyAt??=m.At;
             t.Messages.Add(m);t.Updated=m.At;typing.Remove(t.Id);Persist();return m;}
     }
     public void TranslateResult(string id,string message,string language,string text)
@@ -152,6 +172,34 @@ public sealed class LiveSupportStore
             typing.Remove(id);calls.Remove(id);signals.RemoveAll(s=>s.Thread==id);
             foreach(var name in t.Messages.Select(m=>m.File).Where(f=>f!="").Distinct())if(Regex.IsMatch(name,@"^[a-f0-9]{32}\.(png|jpg|jpeg|webp|pdf)$"))File.Delete(Path.Combine(folder,name));
         }
+    }
+    public void Route(string id,string actor,bool staff,string department)
+    {
+        lock(gate){var t=Get(id,actor,staff);if(t.Closed)throw new ArgumentException("Sohbet kapalı.");
+            if(!staff&&t.Messages.Count>0)throw new ArgumentException("Talep türünü değiştirmek için destek ekibine yazın.");
+            if(department is not ("teklif" or "servis" or "garanti"))throw new ArgumentException("Talep türü geçersiz.");
+            t.Department=department;t.Assigned="";t.AssignedName="";if(calls.TryGetValue(id,out var call))call.Status="ended";Persist();}
+    }
+    public void Note(string id,string actor,string author,string text)
+    {
+        lock(gate){var t=Get(id,actor,true);text=text.Trim();if(text.Length is <1 or >2000)throw new ArgumentException("İç not 1–2000 karakter olmalıdır.");
+            if(t.Notes.Count>=200)throw new ArgumentException("İç not sınırına ulaşıldı.");t.Notes.Add(new(text,author,DateTimeOffset.UtcNow));Persist();}
+    }
+    public void Rate(string id,string actor,int rating)
+    {
+        lock(gate){var t=Get(id,actor,false);if(!t.Closed||rating is <1 or >5)throw new ArgumentException("Tamamlanmış sohbeti 1–5 arasında değerlendirin.");
+            if(t.Rating!=null)return;t.Rating=rating;Persist();}
+    }
+    public object CreateRequest(string id,string actor,Store catalog,JsonObject data)
+    {
+        lock(gate){var t=Get(id,actor,true);if(t.RequestCode!="")return new{requestCode=t.RequestCode};
+            var name=(data["name"]?.ToString()??"").Trim();var phone=(data["phone"]?.ToString()??"").Trim();var email=(data["email"]?.ToString()??"").Trim();
+            if(name.Length is <2 or >100||!Regex.IsMatch(phone,@"^\+?[\d\s().-]+$")||Regex.Replace(phone,@"\D","").Length is <10 or >15||email.Length>200||!System.Net.Mail.MailAddress.TryCreate(email,out var parsed)||!Regex.IsMatch(email,@"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"))throw new ArgumentException("Ad, geçerli telefon ve e-posta girin.");
+            var kind=data["kind"]?.ToString();if(kind is not ("teklif" or "servis"))throw new ArgumentException("Talep türü geçersiz.");
+            var business=(data["businessName"]?.ToString()??"").Trim();var address=(data["address"]?.ToString()??"").Trim();
+            if(kind=="servis"&&(business.Length is <2 or >180||address.Length is <5 or >1200))throw new ArgumentException("Servis için işletme adı ve açık adres gerekli.");
+            var clean=new JsonObject{["type"]=kind=="servis"?"service":"support",["purpose"]=kind,["name"]=name,["phone"]=phone,["email"]=parsed.Address,["contact"]=parsed.Address,["contactPreference"]="system",["businessName"]=business,["address"]=address,["productName"]=t.ProductName,["productCode"]=t.ProductCode,["supportThread"]=t.Id,["message"]=string.Join("\n",t.Messages.Where(m=>m.Text!="").TakeLast(30).Select(m=>(m.Staff?"Destek: ":"Müşteri: ")+m.Text))};
+            var row=catalog.AddSupportInquiry(clean);t.RequestCode=row["requestCode"]?.ToString()??"";Persist();return new{requestCode=t.RequestCode};}
     }
     public object StartCall(string id,string actor,string kind)
     {lock(gate){var t=Get(id,actor,true);if(t.Closed)throw new ArgumentException("Sohbet kapalı.");if(t.Assigned!=""&&t.Assigned!=actor)throw new ArgumentException("Aramayı atanan yetkili başlatabilir.");if(kind is not ("audio" or "video"))throw new ArgumentException("Arama türü geçersiz.");if(calls.TryGetValue(id,out var current)&&(current.Status=="active"||current.Status=="ringing"&&current.At>DateTimeOffset.UtcNow.AddSeconds(-45)))throw new ArgumentException("Zaten bir arama var.");if(calls.Values.Any(c=>c.Agent==actor&&(c.Status=="active"||c.Status=="ringing"&&c.At>DateTimeOffset.UtcNow.AddSeconds(-45))))throw new ArgumentException("Önce mevcut aramanızı bitirin.");var call=new SupportCall{Agent=actor,Kind=kind};calls[id]=call;signals.RemoveAll(s=>s.Thread==id);return new{id=call.Id};}}

@@ -29,11 +29,32 @@ public static class LiveSupportChecks
             var store=new LiveSupportStore(env,config);var actor="guest:"+new string('a',64);var id=JsonNode.Parse(JsonSerializer.Serialize(store.Open(actor,"Test","tr")))!["id"]!.ToString();
             var m=store.Add(id,actor,false,"Test","Merhaba BNK001","tr","test-1",allowTranslation:false);Require(!store.TranslationInput(id,m.Id,actor,false,"en").Allowed,"Translation opt-out must be enforced on the server.");
             Require(store.Add(id,actor,false,"Test","Merhaba BNK001","tr","test-1").Id==m.Id,"Retries are idempotent.");
+            var routeBlocked=false;try{store.Route(id,actor,false,"servis");}catch(ArgumentException){routeBlocked=true;}Require(routeBlocked,"Visitor cannot transfer an active conversation.");
+            store.Route(id,"staff:founder",true,"servis");store.Note(id,"staff:founder","Test yetkili","Gizli ekip notu");
+            var visitorState=JsonNode.Parse(JsonSerializer.Serialize(store.State(actor,false,id,"tr",0)))!;
+            Require(visitorState["notes"]==null&&!visitorState.ToJsonString().Contains("Gizli ekip notu"),"Internal notes never leak to visitors.");
+            Require(visitorState["thread"]!["Department"]!.ToString()=="servis","Department transfer persists.");
+            store.Add(id,"staff:founder",true,"Test yetkili","Merhaba","tr","reply-1");
+            visitorState=JsonNode.Parse(JsonSerializer.Serialize(store.State(actor,false,id,"tr",0)))!;
+            Require(!visitorState.ToJsonString().Contains("Test yetkili"),"Visitor state excludes individual staff identity.");
+            var metrics=JsonNode.Parse(JsonSerializer.Serialize(store.State("staff:founder",true,id,"tr",0)))!["metrics"]!;
+            Require(metrics["firstReplySeconds"]!=null&&metrics["unanswered"]!.GetValue<int>()==0,"First reply time and unanswered totals are measured.");
+            var ratingBlocked=false;try{store.Rate(id,actor,5);}catch(ArgumentException){ratingBlocked=true;}Require(ratingBlocked,"Only completed conversations can be rated.");
+            var foreignBlocked=false;try{store.State("guest:other",false,id,"tr",0);}catch(ArgumentException){foreignBlocked=true;}Require(foreignBlocked,"A visitor cannot read another conversation.");
+            store.Presence("staff:founder","Test yetkili","tr",true,"isolated-client-123456","servis");
+            Require(store.Available().Single().Department=="servis","Presence records the selected support team.");
+            var seed=new JsonObject{["settings"]=new JsonObject{["name"]="Test",["menu"]=new JsonArray()},["categories"]=new JsonArray(),["products"]=new JsonArray(),["references"]=new JsonArray()};
+            File.WriteAllText(Path.Combine(path,"seed.json"),seed.ToJsonString());var catalog=new Store(env,config);
+            var request=new JsonObject{["kind"]="servis",["name"]="Test müşteri",["phone"]="05000000000",["email"]="qa@example.invalid",["businessName"]="Test işletme",["address"]="Test adres İstanbul"};
+            var receipt=JsonSerializer.Serialize(store.CreateRequest(id,"staff:founder",catalog,request));
+            Require(receipt.Contains("INK-")&&receipt==JsonSerializer.Serialize(store.CreateRequest(id,"staff:founder",catalog,request))&&catalog.InquiryCount()==1,"Conversation conversion issues one persistent tracking code, even on retry.");
             var blocked=false;try{store.DeleteClosed(id,"staff:founder");}catch(ArgumentException){blocked=true;}Require(blocked,"Active conversations cannot be deleted.");
             var attachment=new string('b',32)+".pdf";File.WriteAllText(Path.Combine(path,"live-support",attachment),"%PDF-1.4 test");store.Add(id,actor,false,"Test","","tr","attachment-test",attachment,"test.pdf","application/pdf");
-            store.Close(id,"staff:founder");store.DeleteClosed(id,"staff:founder");Require(!File.Exists(Path.Combine(path,"live-support",attachment)),"Deletion removes attachments.");
+            store.Close(id,"staff:founder");store.Rate(id,actor,5);store.Rate(id,actor,1);
+            Require(JsonNode.Parse(JsonSerializer.Serialize(store.State(actor,false,id,"tr",0)))!["thread"]!["Rating"]!.GetValue<int>()==5,"A rating is recorded once.");
+            store.DeleteClosed(id,"staff:founder");Require(!File.Exists(Path.Combine(path,"live-support",attachment)),"Deletion removes attachments.");
             var reload=new LiveSupportStore(env,config);var after=JsonNode.Parse(JsonSerializer.Serialize(reload.State("staff:founder",true,id,"tr",0)))!;Require(after["threadGone"]!.GetValue<bool>()&&after["threads"]!.AsArray().Count==0,"Deletion persists and stale selections recover.");
-            Console.WriteLine("Live support checks: PASS (isolated store, role checks, translation contract/opt-out, encrypted key; no real provider calls).");
+            Console.WriteLine("Live support checks: PASS (isolated store, roles, private notes, routing, response metrics, ratings, request conversion/idempotency, translation contract/opt-out, encrypted key; no real provider calls).");
         }
         finally{Directory.Delete(path,true);}
     }

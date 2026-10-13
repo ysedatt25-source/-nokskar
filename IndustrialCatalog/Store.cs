@@ -322,6 +322,11 @@ public sealed class Store
         }
     }
 
+    public JsonObject AddSupportInquiry(JsonObject data)
+    {
+        lock(gate){var id=data["supportThread"]?.ToString();var existing=state["inquiries"]!.AsArray().OfType<JsonObject>().FirstOrDefault(row=>InquiryPages.Data(row)?["supportThread"]?.ToString()==id);return existing?.DeepClone().AsObject()??AddInquiry(data,"Canlı destek");}
+    }
+
     public JsonObject AddInquiry(JsonObject data, string actor = "Müşteri")
     {
         lock (gate)
