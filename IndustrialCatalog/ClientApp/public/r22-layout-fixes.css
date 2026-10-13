@@ -332,7 +332,8 @@ body.page-detail.app-shell-enabled .detail-gallery-media{
   justify-content:center;
   overflow:hidden;
 }
-body.page-detail.app-shell-enabled .detail-gallery-media>img{
+body.page-detail.app-shell-enabled .detail-gallery-media>img,
+body.page-detail.app-shell-enabled .detail-gallery-media>.gallery-expand-target>img{
   display:block;
   width:auto;
   height:auto;
@@ -411,7 +412,8 @@ body.page-detail.app-shell-enabled .detail-thumbnail-rail{
     height:100%;
     padding:0;
   }
-  body.page-detail.app-shell-enabled .detail-gallery-media>img{
+  body.page-detail.app-shell-enabled .detail-gallery-media>img,
+body.page-detail.app-shell-enabled .detail-gallery-media>.gallery-expand-target>img{
     width:auto;
     height:auto;
     max-width:100%;

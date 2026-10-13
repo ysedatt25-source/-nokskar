@@ -35,6 +35,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
   const [purpose,setPurpose]=useState<Purpose>(()=>validPurpose(query.get('amac')));
   const [sentCode,setSentCode]=useState('');
   const [sentPhone,setSentPhone]=useState('');
+  const [copiedCode,setCopiedCode]=useState(false);
   const [projectFiles,setProjectFiles]=useState<File[]>([]);
   const [sent,setSent]=useState(false);
   const [sending,setSending]=useState(false);
@@ -44,7 +45,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
   const code=query.get('kod')||'';
   const serial=query.get('seri')||query.get('serial')||'';
   const switchPurpose=(next:Purpose)=>{
-    setPurpose(next);setSent(false);setSentCode('');setSentPhone('');setError('');setProjectFiles([]);
+    setPurpose(next);setSent(false);setSentCode('');setSentPhone('');setCopiedCode(false);setError('');setProjectFiles([]);
     const url=new URL(window.location.href);url.searchParams.set('amac',next);url.searchParams.delete('urun');url.searchParams.delete('kod');
     window.history.replaceState(window.history.state,'',url.pathname+url.search);
   };
@@ -86,17 +87,17 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
         <ChevronRight className="support-choice-chevron" size={16} aria-hidden="true"/>
       </button>)}
     </div>
-    <div className="support-layout">
+    <ol className="experience-steps" aria-label="Talep süreci"><li><b>1</b><span>Bilgileri paylaşın<small>İletişim ve ihtiyaç</small></span></li><li><b>2</b><span>Talebinizi iletin<small>Ekibimize güvenle ulaşır</small></span></li><li><b>3</b><span>Durumu takip edin<small>Takip numarasıyla ilerleyin</small></span></li></ol><div className="support-layout">
       <div className="support-form-shell" id="destek-formu">
         <div className="support-form-heading"><div><span>TALEP OLUŞTUR</span><h2>{selected.label}</h2></div><a className="support-track-link" href="/talep-sorgula"><Search size={15} aria-hidden="true"/><span>Talebimi sorgula</span></a></div>
         {sent?<div className="support-success" role="status">
           <CheckCircle2 size={40}/><h3>Talebiniz oluşturuldu.</h3>
           <p><strong>{sentPhone}</strong> numaralı telefonunuzla <strong>Talep Takibi</strong> ekranından süreci takip edebilirsiniz.</p>
           {sentCode&&<div className="support-request-code"><small>Talep numaranız</small><strong>{sentCode}</strong></div>}
-          <a className="button" href="/talep-sorgula">Talep takibine git <ArrowRight size={16}/></a>
-          <button className="support-text-action" type="button" onClick={()=>{setSent(false);setSentCode('');setSentPhone('');}}>Yeni talep oluştur</button>
+          {sentCode&&<button type="button" className="support-code-copy" onClick={async()=>{try{await navigator.clipboard.writeText(sentCode);setCopiedCode(true);}catch{setCopiedCode(false);setError('Kopyalama kullanılamıyor. Talep numarasını seçerek kopyalayabilirsiniz.');}}}>{copiedCode?'Talep numarası kopyalandı':'Talep numarasını kopyala'}</button>}{error&&<p role="status">{error}</p>}<a className="button" href="/talep-sorgula">Talep takibine git <ArrowRight size={16}/></a>
+          <button className="support-text-action" type="button" onClick={()=>{setSent(false);setSentCode('');setSentPhone('');setCopiedCode(false);setError('');}}>Yeni talep oluştur</button>
         </div>:<form key={purpose} className="inquiry-form support-form" onSubmit={submit}>
-          <input type="hidden" name="purpose" value={purpose}/>
+          <input type="hidden" name="purpose" value={purpose}/>{product&&<div className="support-product-summary"><div><small>İlgilendiğiniz ürün</small><strong>{product}</strong></div>{code&&<span>Kod: {code}</span>}</div>}<fieldset className="support-form-group"><legend>İletişim bilgileriniz</legend>
           <div className="support-fields-pair">
             <label>Adınız ve soyadınız  *<input name="name" required minLength={2} maxLength={100} autoComplete="name" placeholder="Adınız Soyadınız"/></label>
             <label>Telefon numaranız  *<input name="phone" required type="tel" inputMode="tel" autoComplete="tel" maxLength={40} placeholder="05xx xxx xx xx"/></label>
@@ -105,7 +106,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
           <label>Size nasıl dönüş yapalım?<select name="contactPreference" defaultValue="phone" required>
             <option value="phone">Telefonla arayın</option><option value="email">E-posta ile yanıtlayın</option><option value="system">Talep ekranından yazılı yanıtlayın</option>
           </select></label>
-          {purpose==='genel'&&<>
+          </fieldset><fieldset className="support-form-group"><legend>{purpose==='teklif'?'Teklif isteğiniz':purpose==='servis'?'Servis ihtiyacınız':'Talebinizin detayları'}</legend>{purpose==='genel'&&<>
             <label>Talep konusu  *<select name="topic" required defaultValue="">
               <option value="" disabled>Konu seçiniz</option><option value="bilgi">Bilgi almak istiyorum</option>
               <option value="oneri">Önerim var</option><option value="sikayet">Şikâyet bildirmek istiyorum</option>
@@ -170,7 +171,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
               </div>)}
             </div>}
           </section>}
-          <input name="website" tabIndex={-1} autoComplete="off" className="honeypot" aria-hidden="true"/>
+          </fieldset><input name="website" tabIndex={-1} autoComplete="off" className="honeypot" aria-hidden="true"/>
           {error&&<p className="support-error" role="alert">{error}</p>}
           <button className="button support-submit" type="submit" disabled={sending}><Send size={18}/>{sending?'Talebiniz gönderiliyor…':'Talebimi gönder'}<ArrowRight size={18}/></button>
           <p className="support-privacy"><ShieldCheck size={14}/> Bilgileriniz yalnızca talebinizle ilgili iletişim için kullanılır.</p>
