@@ -68,3 +68,9 @@
  }
 
 }
+
+.technical-label-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.label-live-preview{padding:12px;border:1px solid #ccd9e3;border-radius:10px;background:#fff;color:#172e40;margin:10px 0;overflow-wrap:anywhere}
+.label-live-preview>strong{display:block;margin-bottom:8px}
+.technical-label-editor>summary{cursor:pointer;font-weight:700}
+@media(max-width:380px){.technical-label-fields{grid-template-columns:1fr}}

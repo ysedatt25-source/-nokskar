@@ -32,6 +32,20 @@ public static class WarrantyDocumentChecks
         Check(!html.Contains("onclick=\"window.print()\""),"printing uses an isolated document");
         Check(html.Contains("data-serial=\"DEMO-001\"")&&html.Contains("data-warranty-qr"),"QR has the record serial and its own preview");
         Check(html.IndexOf("/warranty-print-vendor.js",StringComparison.Ordinal)<html.IndexOf("/warranty-document.js",StringComparison.Ordinal),"PDF and QR tools load before print controls");
+        var technical=new JsonObject{["mode"]="both",["voltage"]="230",["frequency"]="50",["current"]="4.2",["totalPower"]="1800",["compressor"]="Danfoss SC12",["compressorPower"]="320",["gas"]="R290",["gasAmount"]="120",["heaterPower"]="1500",["motorPower"]="25",["ceMark"]=true,["ceNumber"]="CE-2026-001",["ceDocument"]="/api/files/"+new string('a',32)+".pdf"};
+        input["technicalLabel"]=technical;
+        var equipped=WarrantyRules.Prepare(input,catalog,null,out _);
+        Check(equipped["technicalLabel"]?["current"]?.ToString()=="4,2","decimal units normalized");
+        var equippedHtml=WarrantyPages.Certificate(equipped);
+        Check(System.Net.WebUtility.HtmlDecode(equippedHtml).Contains("Gaz: R290 · 120 g")&&System.Net.WebUtility.HtmlDecode(equippedHtml).Contains("Isıtıcı: 1500 W"),"cooling and heating reach label");
+        Check(equippedHtml.Contains("/ce-mark.svg")&&equippedHtml.Contains("CE belge: CE-2026-001"),"optional CE mark and number reach label");
+        Check(!equippedHtml.Contains("@@TECHNICAL@@")&&!equippedHtml.Contains("@@LABEL_CLASS@@"),"label tokens resolved");
+        input.Remove("technicalLabel");var preserved=WarrantyRules.Prepare(input,catalog,equipped,out _);
+        Check(preserved["technicalLabel"]?["gasAmount"]?.ToString()=="120","older clients preserve technical snapshot");
+        technical["mode"]="heating";Check(!TechnicalLabel.Lines(technical).Any(x=>x.StartsWith("Gaz:",StringComparison.Ordinal)),"unselected cooling does not print");
+        foreach(var invalid in new[]{"javascript:alert(1)","https://example.com/private.pdf","/api/files/"+new string('a',32)+".mp4"}){technical["ceDocument"]=invalid;var bad=false;try{TechnicalLabel.Normalize(technical);}catch(ArgumentException){bad=true;}Check(bad,"invalid CE link rejected");}
+        technical["ceDocument"]="";technical["current"]="-1";var invalidPower=false;try{TechnicalLabel.Normalize(technical);}catch(ArgumentException){invalidPower=true;}Check(invalidPower,"negative technical current rejected");
+        var legacyLabel=TechnicalLabel.Normalize(null);Check(legacyLabel["mode"]!.ToString()=="none"&&!legacyLabel["ceMark"]!.GetValue<bool>(),"old products do not acquire technical values or CE mark");
         Console.WriteLine("Warranty document and manufacturing date checks: PASS (no live records)");
     }
 }

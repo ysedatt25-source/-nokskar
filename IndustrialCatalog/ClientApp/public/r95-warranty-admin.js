@@ -117,6 +117,7 @@
   }
   function chooseCatalogProduct(product){
     if(!product)return;
+    window.TechnicalLabelEditor?.write(product.technicalLabel);
     renderProductOptions(product.id);
     productSearch.value=(product.name||product.id)+(product.code?' · '+product.code:'');
     form.elements.productCode.value=product.code||product.id||'';
@@ -215,7 +216,7 @@
   form.querySelectorAll('input[name="productMode"]').forEach(radio=>radio.addEventListener('change',()=>{if(radio.checked)updateProductMode(radio.value,{clear:true});}));
   // Search and selection are handled by the same keyboard-accessible result picker.
   function resetForm(){form.reset();updateProductMode('catalog');if(productSearch)productSearch.value='';renderProductOptions();form.elements.id.value='';form.elements.warrantyMonths.value='24';form.elements.businessName.value='';form.elements.customerName.value='';form.elements.invoiceNumber.value='';form.elements.deliveryDocumentNumber.value='';form.elements.warrantyNote.value='';components.replaceChildren();addComponent();document.getElementById('warranty-form-title').textContent='Yeni garanti kaydı';if(legacyWarning)legacyWarning.hidden=true;const tech=document.getElementById('technical-device-link');if(tech)tech.hidden=true;showIssuedCode('');message('');pendingFiles=[];refreshPending();void refreshAttached('');updateDatePreview();history.replaceState({},'', '/admin/warranties');}
-  function editRecord(r){const mode=r.productMode==='manual'||String(r.productId||'').startsWith('manual-')?'manual':'catalog';updateProductMode(mode);if(productSearch)productSearch.value='';if(mode==='catalog'){renderProductOptions(r.productId||'');if(productSearch)productSearch.value=(r.productName||'')+(r.productCode?' · '+r.productCode:'');}manualProductName.value=r.productName||'';form.elements.id.value=r.id||'';form.elements.productId.value=r.productId||'';form.elements.productCode.value=r.productCode||'';form.elements.businessName.value=r.businessName||'';form.elements.customerName.value=r.customerName||'';form.elements.invoiceNumber.value=r.invoiceNumber||'';form.elements.deliveryDocumentNumber.value=r.deliveryDocumentNumber||'';form.elements.warrantyNote.value=r.warrantyNote||'';form.elements.serialNumber.value=r.serialNumber||'';form.elements.verificationCode.value=r.verificationCode||'';form.elements.deliveryDate.value=r.deliveryDate||'';form.elements.manufacturingDate.value=r.manufacturingDate||'';form.elements.warrantyMonths.value=String(r.warrantyMonths||24);components.replaceChildren();(r.components||[]).forEach(addComponent);if(!components.children.length)addComponent();document.getElementById('warranty-form-title').textContent='Garanti kaydını düzenle';if(legacyWarning)legacyWarning.hidden=!!r.verificationCode;const tech=document.getElementById('technical-device-link');if(tech){tech.href='/teknik/cihaz/'+encodeURIComponent(r.id);tech.hidden=false;}showIssuedCode(r.verificationCode||'');void refreshAttached(r.id);updateDatePreview();history.replaceState({},'', '/admin/warranties?edit='+encodeURIComponent(r.id));window.scrollTo({top:0,behavior:'smooth'});}
+  function editRecord(r){window.TechnicalLabelEditor?.write(r.technicalLabel);const mode=r.productMode==='manual'||String(r.productId||'').startsWith('manual-')?'manual':'catalog';updateProductMode(mode);if(productSearch)productSearch.value='';if(mode==='catalog'){renderProductOptions(r.productId||'');if(productSearch)productSearch.value=(r.productName||'')+(r.productCode?' · '+r.productCode:'');}manualProductName.value=r.productName||'';form.elements.id.value=r.id||'';form.elements.productId.value=r.productId||'';form.elements.productCode.value=r.productCode||'';form.elements.businessName.value=r.businessName||'';form.elements.customerName.value=r.customerName||'';form.elements.invoiceNumber.value=r.invoiceNumber||'';form.elements.deliveryDocumentNumber.value=r.deliveryDocumentNumber||'';form.elements.warrantyNote.value=r.warrantyNote||'';form.elements.serialNumber.value=r.serialNumber||'';form.elements.verificationCode.value=r.verificationCode||'';form.elements.deliveryDate.value=r.deliveryDate||'';form.elements.manufacturingDate.value=r.manufacturingDate||'';form.elements.warrantyMonths.value=String(r.warrantyMonths||24);components.replaceChildren();(r.components||[]).forEach(addComponent);if(!components.children.length)addComponent();document.getElementById('warranty-form-title').textContent='Garanti kaydını düzenle';if(legacyWarning)legacyWarning.hidden=!!r.verificationCode;const tech=document.getElementById('technical-device-link');if(tech){tech.href='/teknik/cihaz/'+encodeURIComponent(r.id);tech.hidden=false;}showIssuedCode(r.verificationCode||'');void refreshAttached(r.id);updateDatePreview();history.replaceState({},'', '/admin/warranties?edit='+encodeURIComponent(r.id));window.scrollTo({top:0,behavior:'smooth'});}
   async function load(){
     message('Veriler yükleniyor…');loadTechnicalPermissions();
     try{
@@ -245,7 +246,7 @@
           const response=await request('/api/catalog?admin=1',{cache:'no-store'},15000);
           const data=await response.json().catch(()=>({}));
           if(response.ok&&Array.isArray(data?.data?.products)){
-            products=data.data.products.map(p=>({id:p.id,name:p.name,code:p.code}));
+            products=data.data.products.map(p=>({id:p.id,name:p.name,code:p.code,technicalLabel:p.technicalLabel}));
             if(products.length)catalogWarning='';
           }
         }catch{}
@@ -256,7 +257,7 @@
           const response=await request('/api/catalog',{cache:'no-store'},15000);
           const data=await response.json().catch(()=>({}));
           if(response.ok&&Array.isArray(data?.data?.products)){
-            products=data.data.products.map(p=>({id:p.id,name:p.name,code:p.code}));
+            products=data.data.products.map(p=>({id:p.id,name:p.name,code:p.code,technicalLabel:p.technicalLabel}));
             if(products.length)catalogWarning='';
           }
         }catch{}
@@ -274,6 +275,12 @@
       }
     }catch(e){catalogWarning='Katalog yüklenemedi. Elle ürün girerek devam edebilirsiniz.';renderProductOptions();message(e.message||'Garanti kayıtları alınamadı.','error');}
   }
+  document.getElementById('label-preview-open')?.addEventListener('click',async()=>{
+    const viewer=window.open('about:blank','_blank');if(!viewer){message('Önizleme için açılır pencereye izin verin.','error');return;}viewer.document.body.textContent='Etiket önizlemesi hazırlanıyor…';
+    try{const product=products.find(x=>x.id===productSelect.value);const payload={productName:chosenMode()==='manual'?manualProductName.value:(product?.name||'Ürün adı'),productCode:form.elements.productCode.value,serialNumber:form.elements.serialNumber.value,verificationCode:form.elements.verificationCode.value,manufacturingDate:form.elements.manufacturingDate.value,deliveryDate:form.elements.deliveryDate.value,warrantyMonths:form.elements.warrantyMonths.value,technicalLabel:window.TechnicalLabelEditor.read()};const r=await request('/api/warranties/label-preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw Error('Önizleme hazırlanamadı. Alanları kontrol edin.');const html=await r.text();viewer.document.open();viewer.document.write(html);viewer.document.close();}
+    catch(e){viewer.close();message(e.message||'Önizleme açılamadı.','error');}
+  });
+  document.getElementById('label-use-default')?.addEventListener('click',()=>window.TechnicalLabelEditor?.write(products.find(x=>x.id===productSelect.value)?.technicalLabel));
   productSelect.addEventListener('change',()=>{const p=products.find(x=>x.id===productSelect.value);if(p)chooseCatalogProduct(p);});
   form.elements.warrantyMonths.addEventListener('change',()=>{const months=Math.max(1,Number(form.elements.warrantyMonths.value||24));components.querySelectorAll('.warranty-component-edit').forEach(row=>{const covered=row.querySelector('.wc-covered-select').value==='yes',m=row.querySelector('.wc-months');m.max=String(months);if(covered&&(!Number(m.value)||Number(m.value)>months||Number(m.value)===24))m.value=String(months);});updateDatePreview();});
   form.elements.warrantyMonths.addEventListener('input',updateDatePreview);
@@ -327,6 +334,7 @@
       verificationCode:form.elements.verificationCode.value.trim(),
       deliveryDate:form.elements.deliveryDate.value,
       manufacturingDate:form.elements.manufacturingDate.value,
+      technicalLabel:window.TechnicalLabelEditor?.read(),
       warrantyMonths:Number(form.elements.warrantyMonths.value||0),
       components:componentValues()
     };

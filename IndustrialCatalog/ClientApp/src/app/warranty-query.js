@@ -15,6 +15,8 @@ export function initializeWarranty(root){
     const remaining=el('div','warranty-remaining '+(w.status==='active'?'is-active':'is-expired'));remaining.append(el('small','','GARANTİ DURUMU'),el('strong','',statusText(w)),el('span','',w.status==='active'?'Bitiş: '+trDate(w.warrantyEndDate):'Garanti bitiş tarihi: '+trDate(w.warrantyEndDate)));card.append(remaining);
     const scope=el('div','warranty-scope');scope.append(el('div','warranty-scope-title','Garanti Kapsamı'));
     (Array.isArray(w.components)?w.components:[]).forEach(c=>{const row=el('div','warranty-component '+(c.status==='excluded'?'is-excluded':c.status==='active'?'is-active':'is-expired'));const main=el('div','');const title=el('strong','',c.name||'Bileşen');const note=el('span','',c.note||'');main.append(title);if(c.note)main.append(note);const side=el('div','warranty-component-status');side.append(el('strong','',c.status==='excluded'?'Kapsam dışı':(c.months||0)+' Ay'),el('span','',componentText(c)));row.append(main,side);scope.append(row);});
+    const t=w.technicalLabel||{};
+    if(t.ceDocument&&/^\/api\/files\/[a-f0-9]{32}\.pdf$/.test(t.ceDocument)){const ce=el('a','button secondary','CE belgesini görüntüle');ce.href=t.ceDocument;ce.target='_blank';ce.rel='noreferrer';card.append(ce);}
     card.append(scope);const foot=el('div','warranty-record-foot');foot.append(el('p','', 'Bu ekran yalnız ürün ve garanti durumunu gösterir; müşteri kişisel bilgileri yayımlanmaz.'));const a=el('a','button','Servis talebi oluştur');const q=new URLSearchParams({amac:'servis',urun:String(w.productName||''),kod:String(w.productCode||''),seri:String(w.serialNumber||'')});a.href='/iletisim?'+q.toString();foot.append(a);card.append(foot);result.append(card);
   }
   let controller;let disposed=false;

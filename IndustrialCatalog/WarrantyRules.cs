@@ -147,6 +147,7 @@ public static class WarrantyRules
             ["verificationCode"] = storedVerificationCode,
             ["deliveryDate"] = delivery.ToString("yyyy-MM-dd"),
             ["manufacturingDate"] = manufacturingDate,
+            ["technicalLabel"] = TechnicalLabel.Normalize(input["technicalLabel"] ?? existing?["technicalLabel"] ?? catalog["products"]?.AsArray().FirstOrDefault(x=>x?["id"]?.ToString()==productId)?["technicalLabel"]),
             ["warrantyMonths"] = months,
             ["warrantyEndDate"] = end.ToString("yyyy-MM-dd"),
             ["components"] = components,
@@ -194,6 +195,7 @@ public static class WarrantyRules
             var r = node?.AsObject() ?? throw new ArgumentException("Garanti kaydı geçersiz.");
             var id = r["id"]?.ToString() ?? "";
             if (!Regex.IsMatch(id, "^[a-f0-9]{32}$", RegexOptions.CultureInvariant) || !ids.Add(id)) throw new ArgumentException("Garanti kayıt kimliği geçersiz veya tekrarlı.");
+            TechnicalLabel.Normalize(r["technicalLabel"]);
             var productId = Clean(r["productId"]?.ToString(), 100, "Garanti kaydındaki ürün kimliği geçersiz.");
             Clean(r["productName"]?.ToString(), 200, "Garanti kaydındaki ürün adı geçersiz.");
             Clean(r["productCode"]?.ToString(), 100, "Garanti kaydındaki ürün kodu geçersiz.");

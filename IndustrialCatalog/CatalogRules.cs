@@ -69,6 +69,7 @@ public static class CatalogRules
         var codes=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach(var p in products)
         {
+            p!["technicalLabel"]=TechnicalLabel.Normalize(p["technicalLabel"]);
             if(string.IsNullOrWhiteSpace(Text(p,"name"))||!map.ContainsKey(Text(p,"category")))throw new ArgumentException("Ürün adı veya kategorisi geçersiz.");
             var code=p!["code"]?.GetValue<string>()?.Trim()??"";p["code"]=code;if(code.Length>100||!codes.Add(code==""?Text(p,"id"):code))throw new ArgumentException("Ürün kodu geçersiz veya başka üründe kullanılıyor.");
             var vat=p["vatRate"]?.GetValue<decimal>()??20m;p["vatRate"]=vat;if(p["euro"]!.GetValue<decimal>()<0||p["tl"]!.GetValue<decimal>()<0||p["tl"]!.GetValue<decimal>()!=decimal.Truncate(p["tl"]!.GetValue<decimal>())||vat<0||vat>100)throw new ArgumentException("Fiyat veya KDV oranı geçersiz.");

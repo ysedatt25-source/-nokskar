@@ -15,3 +15,5 @@ IndustrialCatalog/ClientApp/public/site-bundle.css
 **/node_modules/
 
 IndustrialCatalog/ClientApp/node_modules
+
+IndustrialCatalog/ClientApp/public/technical-label-admin.js

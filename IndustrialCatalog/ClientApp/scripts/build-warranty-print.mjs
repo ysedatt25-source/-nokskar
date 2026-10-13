@@ -7,3 +7,5 @@ await build({entryPoints:[fileURLToPath(new URL('./warranty-print-vendor.mjs',im
 // The print clone owns these pseudo elements; normal selector specificity is enough.
 const output=fileURLToPath(new URL('../public/warranty-print-vendor.js',import.meta.url));
 writeFileSync(output,readFileSync(output,'utf8').replace(/!\s*important/gi,''));
+
+await build({entryPoints:[fileURLToPath(new URL('./technical-label-admin.ts',import.meta.url))],outfile:fileURLToPath(new URL('../public/technical-label-admin.js',import.meta.url)),bundle:true,platform:'browser',format:'iife',target:'es2020',minify:true});
