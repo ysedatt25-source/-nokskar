@@ -26,5 +26,24 @@ export function descendants(categories:Category[],id:string):string[]{const ids=
 export function publicCategories(categories:Category[]){return categories.filter(c=>{let node:Category|undefined=c;const seen=new Set<string>();while(node){if(!node.visible||seen.has(node.id))return false;seen.add(node.id);if(!node.parent)return true;node=categories.find(x=>x.id===node!.parent);}return false;});}
 export function safeLink(value:string){if(typeof value!=='string'||/[\\\u0000-\u0020]/.test(value))return false;if(!/^\/(?!\/)/.test(value)&&!/^https?:\/\//i.test(value))return false;try{const url=new URL(value,'https://site.invalid');return ['http:','https:'].includes(url.protocol)&&!!url.hostname;}catch{return false;}}
 export const productCode=(p:Pick<Product,'id'|'code'>)=>p.code?.trim()||p.id;
-export const matchesProductCode=(p:Product,query:string)=>!!query.trim()&&productCode(p).toLowerCase().includes(query.trim().toLowerCase());
-export const matchesProduct=(p:Product,query:string)=>p.name.toLocaleLowerCase('tr').includes(query.trim().toLocaleLowerCase('tr'))||matchesProductCode(p,query);
+export function normalizeSearch(value:string){return value.toLocaleLowerCase('tr-TR').replace(/ı/g,'i').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();}
+export const matchesProductCode=(p:Product,query:string)=>!!query.trim()&&normalizeSearch(productCode(p)).includes(normalizeSearch(query));
+// Tolerate one typo from four characters; two only for longer words.
+// Product codes retain substring matching so a typo cannot select another code.
+function nearWord(query:string,word:string){
+ const limit=query.length>=8?2:1;
+ if(query.length<4||query.length>64||word.length>64||Math.abs(query.length-word.length)>limit)return false;
+ const rows:number[][]=Array.from({length:query.length+1},(_,i)=>[i]);
+ for(let j=1;j<=word.length;j++)rows[0][j]=j;
+ for(let i=1;i<=query.length;i++)for(let j=1;j<=word.length;j++){
+  rows[i][j]=Math.min(rows[i-1][j]+1,rows[i][j-1]+1,rows[i-1][j-1]+(query[i-1]===word[j-1]?0:1));
+  if(i>1&&j>1&&query[i-1]===word[j-2]&&query[i-2]===word[j-1])rows[i][j]=Math.min(rows[i][j],rows[i-2][j-2]+1);
+ }
+ return rows[query.length][word.length]<=limit;
+}
+export function matchesProduct(p:Product,query:string){
+ const search=normalizeSearch(query),name=normalizeSearch(p.name);
+ if(!search||name.includes(search)||matchesProductCode(p,query))return true;
+ const tokens=search.split(/[^a-z0-9]+/).filter(Boolean),words=name.split(/[^a-z0-9]+/).filter(Boolean);
+ return tokens.length>0&&tokens.every(token=>words.some(word=>word.includes(token)||nearWord(token,word)));
+}
