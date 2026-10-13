@@ -45,6 +45,13 @@ public static class WarrantyDocumentChecks
         technical["mode"]="heating";Check(!TechnicalLabel.Lines(technical).Any(x=>x.StartsWith("Gaz:",StringComparison.Ordinal)),"unselected cooling does not print");
         foreach(var invalid in new[]{"javascript:alert(1)","https://example.com/private.pdf","/api/files/"+new string('a',32)+".mp4"}){technical["ceDocument"]=invalid;var bad=false;try{TechnicalLabel.Normalize(technical);}catch(ArgumentException){bad=true;}Check(bad,"invalid CE link rejected");}
         technical["ceDocument"]="";technical["current"]="-1";var invalidPower=false;try{TechnicalLabel.Normalize(technical);}catch(ArgumentException){invalidPower=true;}Check(invalidPower,"negative technical current rejected");
+        var catalogProduct=new JsonObject{["id"]="cooler",["name"]="Soğutucu",["code"]="S-01",["technicalLabel"]=equipped["technicalLabel"]!.DeepClone()};
+        catalog["products"]!.AsArray().Add(catalogProduct);input["productMode"]="catalog";input["productId"]="cooler";
+        var inherited=WarrantyRules.Prepare(input,catalog,null,out _);
+        Check(inherited["technicalLabel"]?["gasAmount"]?.ToString()=="120","product technical defaults inherited");
+        catalogProduct["technicalLabel"]!["gasAmount"]="150";
+        var fixedSnapshot=WarrantyRules.Prepare(input,catalog,inherited,out _);
+        Check(fixedSnapshot["technicalLabel"]?["gasAmount"]?.ToString()=="120","catalog changes do not alter existing device snapshot");
         var legacyLabel=TechnicalLabel.Normalize(null);Check(legacyLabel["mode"]!.ToString()=="none"&&!legacyLabel["ceMark"]!.GetValue<bool>(),"old products do not acquire technical values or CE mark");
         Console.WriteLine("Warranty document and manufacturing date checks: PASS (no live records)");
     }

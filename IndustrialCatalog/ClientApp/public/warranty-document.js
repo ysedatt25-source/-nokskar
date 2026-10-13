@@ -62,7 +62,7 @@
      const copy=(label?thermal:root.querySelector('.certificate')).cloneNode(true);
      copy.querySelectorAll('.brand-mirror-layer').forEach(e=>e.remove());
      copy.removeAttribute('id');copy.style.removeProperty('zoom');
-     const css=new URL('/warranty-document.css?v=20261011-qa1',location.origin).href;
+     const css=new URL('/warranty-document.css?v=technical-label-1',document.baseURI).href;
      frame=document.createElement('iframe');frame.title='Yazdırma belgesi';
      frame.style.cssText='position:fixed;left:-10000px;top:0;border:0;width:'+(label?width+'mm':'210mm')+';height:'+(label?'50mm':'297mm')+';';
      const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=()=>reject(Error('Yazdırma belgesi hazırlanamadı.'));});
