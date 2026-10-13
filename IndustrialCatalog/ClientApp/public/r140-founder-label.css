@@ -6,11 +6,11 @@ body.page-home .hero .hero-founder-label{
   z-index:5;display:inline-flex;align-items:center;gap:9px;
   width:max-content;max-width:calc(100% - 30px);min-width:0;
   padding:9px 13px 9px 11px;box-sizing:border-box;
-  border:1px solid rgba(245,214,166,.48);
-  border-radius:999px;background:rgba(255,248,235,.95);
-  box-shadow:0 5px 18px rgba(3,13,27,.15),inset 0 1px 0 rgba(255,255,255,.12);
-  backdrop-filter:blur(2px) saturate(110%);-webkit-backdrop-filter:blur(2px) saturate(110%);
-  color:#63360f;pointer-events:none;
+  border:0;
+  border-radius:999px;background:transparent;
+  box-shadow:none;
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  color:#ffd599;pointer-events:none;
 }
 body.page-home .hero .hero-founder-label-mark{
   display:block;width:5px;height:5px;flex:0 0 5px;
@@ -22,7 +22,7 @@ body.page-home .hero .hero-founder-label-text{
   white-space:nowrap;line-height:1.25;
   font-family:"Manrope","Segoe UI",Arial,sans-serif;
   font-optical-sizing:auto;font-size:clamp(10px,1.05vw,14px);font-weight:800;letter-spacing:.055em;
-  text-shadow:none;
+  text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 8px rgba(0,0,0,.35);
 }
 @media(max-width:650px){
   body.page-home .hero .hero-founder-label{
@@ -61,8 +61,8 @@ body.page-home .hero .hero-founder-label-text{
   min-height:66px;padding:12px 10px;border-radius:12px;
   background-color:#0d213a;background-position:center;background-size:cover;border:1px solid #19324e;box-sizing:border-box}
 .founder-setting-preview-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  max-width:100%;min-width:0;padding:8px 11px;border:1px solid rgba(245,210,147,.4);
-  border-radius:999px;background:rgba(255,248,235,.95);color:#63360f;backdrop-filter:blur(2px) saturate(110%);-webkit-backdrop-filter:blur(2px) saturate(110%)}
+  max-width:100%;min-width:0;padding:8px 11px;border:0;
+  border-radius:999px;background:rgba(255,248,235,.95);color:#ffd599;backdrop-filter:none;-webkit-backdrop-filter:none}
 .founder-setting-preview-mark{width:5px;height:5px;flex:0 0 5px;background:#9a5b1e;border-radius:50%}
 .founder-setting-preview-badge>span:last-child{font-family:"Manrope","Segoe UI",Arial,sans-serif;font-optical-sizing:auto;
   min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
