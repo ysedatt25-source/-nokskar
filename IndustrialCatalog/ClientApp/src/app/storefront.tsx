@@ -9,7 +9,6 @@ import RequestTracking from './request-tracking';
 import WarrantyCenter from './warranty-center';
 import LegalCenter from './legal-center';
 import BrandLoading from './brand-loading';
-import './footer.css';
 
 const money=(n:number)=>new Intl.NumberFormat('tr-TR',{maximumFractionDigits:0}).format(n);
 const vatRate=(p:Product)=>Number(p.vatRate??20).toLocaleString('tr-TR',{maximumFractionDigits:2});
@@ -140,6 +139,5 @@ useEffect(()=>{setPage(1);},[path,search,filter,sort,pageSize]);
  {warranty&&<WarrantyCenter/>}
  {legal&&<LegalCenter path={path} name={s.name}/>}
  {!home&&!listing&&!product&&!contact&&!tracking&&!warranty&&!legal&&!about&&!referencesPage&&<section className="wrap content-page"><h1>Sayfa bulunamadı.</h1><a className="button" href="/">Ana sayfaya dön</a></section>}</main>
- <footer className="site-footer"><div className="wrap footer-service-row"><div><span className="footer-kicker">İNOKSKAR DESTEK</span><strong>Satış öncesi danışmanlık ve satış sonrası servis tek noktada.</strong></div><div className="footer-service-actions"><a href="/iletisim">Teklif / bilgi alın</a><a href="/iletisim?amac=servis">Teknik Servis</a><a href="/referanslar">Referanslarımız</a><a href="/garanti-sorgulama">Garanti sorgula</a></div></div><div className="wrap footer-grid"><div><a className="brand footer-brand" href="/"><img className="footer-brand-image" src={s.headerImage||"/inokskar-logo.svg"} alt={s.name}/></a><p>{s.tagline}</p><p>Profesyonel soğutma, endüstriyel mutfak ve ticari çalışma alanları için ürün ve servis çözümleri.</p></div><div><h3>Katalog</h3><a href="/urunler">Tüm ürünler</a>{roots.slice(0,5).map(root=><a key={root.id} href={'/kategori/'+root.id}>{root.name}</a>)}</div><div><h3>Destek</h3><a href="/iletisim">İletişim</a><a href="/iletisim?amac=servis">Servis talebi</a><a href="/garanti-sorgulama">Garanti sorgula</a><a href="/hakkimizda">Hakkımızda</a></div><div><h3>İletişim</h3>{s.phone&&<a href={'tel:'+s.phone}><Phone size={16}/>{s.phone}</a>}{s.email&&<a href={'mailto:'+s.email}><Mail size={16}/>{s.email}</a>}{s.address&&<p>{s.address}</p>}{s.hours&&<p>{s.hours}</p>}</div></div><div className="wrap footer-bottom"><span>© {new Date().getFullYear()} {s.name}. Tüm hakları saklıdır.</span><span className="footer-legal"><a href="/gizlilik">Gizlilik</a><a href="/kvkk">KVKK</a><a href="/cerez">Çerezler</a></span></div></footer>
  {!product&&s.waEnabled&&s.whatsapp&&<a href={waUrl()} className="floating-wa" aria-label="WhatsApp ile genel iletişim" target="_blank" rel="noreferrer" onClick={()=>wa()}><MessageCircle size={28}/><span>WhatsApp</span></a>}</>;
 }
