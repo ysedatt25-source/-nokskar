@@ -72,6 +72,7 @@
     if(!desk&&status.enabled===false)return;
     if(!status.staff&&!status.online&&!leaveMessage){$('.notice span').textContent=status.hours?'Şu anda uygun yetkili yok. Çalışma saatleri: '+status.hours:'Şu anda uygun yetkili yok; mesaj bırakabilirsiniz.';$('.notice').hidden=false;return;}
     try{opened=true;panel.hidden=false;$('.launcher').setAttribute('aria-expanded','true');syncLauncher();$('.notice').hidden=true;tell('');if(!status.staff&&(!thread||!state?.thread?.closed))await session();await poll();if(!status.staff)input.focus();}catch(e){tell(e.message);}}
+  window.addEventListener('inokskar:open-support',()=>openPanel(true));
   function closePanel(){if(desk)return;opened=false;panel.hidden=true;$('.menu').hidden=true;$('.settings').hidden=true;$('.note-form').hidden=true;$('.request-form').hidden=true;$('.launcher').setAttribute('aria-expanded','false');$('.launcher').focus();}
   function selectThread(id){thread=id;since=0;messageHash='';call=null;panel.classList.add('selected');poll().catch(e=>tell(e.message));}
   function renderThreads(){const items=(state?.threads||[]).filter(t=>(showClosed||queue==='closed'||!t.closed)&&(queue==='all'||t.status===queue)&&(team==='all'||t.department===team)&&(!query||(t.name+' '+t.preview).toLocaleLowerCase('tr').includes(query.toLocaleLowerCase('tr'))));const hash=JSON.stringify(items)+thread;if(hash===listHash)return;listHash=hash;
