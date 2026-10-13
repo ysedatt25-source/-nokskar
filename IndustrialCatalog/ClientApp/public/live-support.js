@@ -12,7 +12,7 @@
   try{lang=localStorage.getItem('inokskar-support-language')||navigator.language.split('-')[0];ready=localStorage.getItem('inokskar-support-ready')!=='0';}catch{}
   if(!languages[lang])lang='tr';
   const departments={teklif:'Ürün bilgisi / Teklif',servis:'Teknik servis',garanti:'Garanti'};
-  let department='teklif',team='all',queue='all',lastUnread=0;
+  let department='teklif',team='all',queue='all',lastUnread=0,routing=false;
   const connectionId=crypto.randomUUID();let connectionError=false;let status={enabled:false,online:false,staff:false,canRespond:false,translationReady:false},state=null,opened=false,thread='',sending=false,polling=false,csrf='',since=0,lastTyping=0,messageHash='',listHash='',query='',showClosed=false;
   let call=null,pc=null,control=null,media=null,offered=false,ice=[],processingSignals=false,callTimer=null,connectedAt=0;
   let pendingSend=null;const translations=new Map(),translatePending=new Set(),originals=new Set();
@@ -52,7 +52,7 @@
   window.addEventListener('inokskar:navigation',syncLauncher);
   window.addEventListener('popstate',syncLauncher);
   syncLauncher();
-  const tell=message=>{$('.error').textContent=message;$('.error').hidden=!message;};
+  const tell=message=>{$('.error').textContent=message;$('.error').hidden=!message;for(const form of root.querySelectorAll('.work-form')){let error=form.querySelector('.form-error');if(!error){error=document.createElement('p');error.className='form-error error';error.setAttribute('role','alert');form.append(error);}error.textContent=message;error.hidden=!message;}};
   async function request(path,body,form=false,method='POST'){
     const init={credentials:'same-origin',cache:'no-store'};
     if(body!==undefined){init.method=method;init.headers={};if(status.staff||csrf){if(!csrf){const r=await fetch('/api/security/csrf',{credentials:'same-origin',cache:'no-store'});if(r.ok)csrf=(await r.json()).token||'';}if(csrf)init.headers['X-INOKSKAR-CSRF']=csrf;}
@@ -71,7 +71,7 @@
   async function openPanel(leaveMessage=false){
     if(!desk&&status.enabled===false)return;
     if(!status.staff&&!status.online&&!leaveMessage){$('.notice span').textContent=status.hours?'Şu anda uygun yetkili yok. Çalışma saatleri: '+status.hours:'Şu anda uygun yetkili yok; mesaj bırakabilirsiniz.';$('.notice').hidden=false;return;}
-    try{opened=true;panel.hidden=false;$('.launcher').setAttribute('aria-expanded','true');syncLauncher();$('.notice').hidden=true;tell('');if(!status.staff&&!thread)await session();await poll();if(!status.staff)input.focus();}catch(e){tell(e.message);}}
+    try{opened=true;panel.hidden=false;$('.launcher').setAttribute('aria-expanded','true');syncLauncher();$('.notice').hidden=true;tell('');if(!status.staff&&(!thread||!state?.thread?.closed))await session();await poll();if(!status.staff)input.focus();}catch(e){tell(e.message);}}
   function closePanel(){if(desk)return;opened=false;panel.hidden=true;$('.menu').hidden=true;$('.settings').hidden=true;$('.note-form').hidden=true;$('.request-form').hidden=true;$('.launcher').setAttribute('aria-expanded','false');$('.launcher').focus();}
   function selectThread(id){thread=id;since=0;messageHash='';call=null;panel.classList.add('selected');poll().catch(e=>tell(e.message));}
   function renderThreads(){const items=(state?.threads||[]).filter(t=>(showClosed||queue==='closed'||!t.closed)&&(queue==='all'||t.status===queue)&&(team==='all'||t.department===team)&&(!query||(t.name+' '+t.preview).toLocaleLowerCase('tr').includes(query.toLocaleLowerCase('tr'))));const hash=JSON.stringify(items)+thread;if(hash===listHash)return;listHash=hash;
@@ -91,7 +91,7 @@
       const unread=status.staff?(s.threads||[]).reduce((n,t)=>n+t.unread,0):(s.messages||[]).filter(m=>!m.mine&&!m.read).length;if(unread>lastUnread&&(!opened||document.visibilityState!=='visible')){if(window.InokskarFeedback?.info)window.InokskarFeedback.info('Canlı destekte yeni mesaj var.');}lastUnread=unread;$('.launcher .badge').hidden=!unread;$('.launcher .badge').textContent=unread>99?'99+':unread;
       if(s.thread&&thread!==s.thread.id){thread=s.thread.id;since=0;messageHash='';}
       if(opened){if(status.staff)renderThreads();renderMessages();
-        if(s.thread){department=s.thread.department||'teklif';$('.department').value=department;}
+        if(s.thread&&!routing){department=s.thread.department||'teklif';$('.department').value=department;}
         $('.department').disabled=!!s.thread?.closed||(!status.staff&&(s.messages||[]).length>0)||status.staff&&!status.canRespond;
         const product=s.thread?.productName;$('.product-context').hidden=!product;$('.product-context').innerHTML=product?`<a href="${safe(s.thread.productUrl)}" target="_blank" rel="noopener">${safe(product)} · ${safe(s.thread.productCode)}</a>`:'';
         $('.request-code').hidden=!s.thread?.requestCode;$('.request-code').innerHTML=s.thread?.requestCode?`<span>Talep numarası: <b>${safe(s.thread.requestCode)}</b></span><a href="/talep-sorgula" target="_blank" rel="noopener">Talep takibi</a>`:'';
@@ -125,7 +125,7 @@
   $('.settings-close').addEventListener('click',()=>{$('.settings').hidden=true;$('.settings input').value='';});$('.settings').addEventListener('submit',async e=>{e.preventDefault();const key=$('.settings input').value;try{await request('/settings',{apiKey:key});$('.settings input').value='';$('.settings-status').textContent='Anahtar şifreli kaydedildi. Çeviri bağlantısını bir mesajla doğrulayabilirsiniz.';await refreshStatus();}catch(e){$('.settings-status').textContent=e.message;}});
   $('.delete-chat').addEventListener('click',async()=>{if(!status.canRespond||!state?.thread?.closed||!thread)return;if(!window.confirm('Bu kapalı sohbet, tüm mesajları ve ekleri kalıcı olarak silinsin mi?'))return;const id=thread,button=$('.delete-chat');button.disabled=true;try{await request('/'+id,{},false,'DELETE');thread='';since=0;messageHash='';listHash='';state=null;messages.innerHTML='';panel.classList.remove('selected');await poll();window.InokskarFeedback?.success('Kapalı sohbet ve geçmişi silindi.');}catch(e){tell(e.message);}finally{button.disabled=false;}});
   $('.new-chat').addEventListener('click',async()=>{thread='';await session();await poll();});
-  $('.department').addEventListener('change',async e=>{const previous=department;department=e.target.value;try{if(thread)await request('/'+thread+'/route',{department});await refreshStatus();await poll();}catch(e){department=previous;$('.department').value=previous;tell(e.message);}});
+  $('.department').addEventListener('change',async e=>{const previous=department;department=e.target.value;routing=true;try{if(thread)await request('/'+thread+'/route',{department});await refreshStatus();await poll();}catch(e){department=previous;$('.department').value=previous;tell(e.message);}finally{routing=false;}});
   $('.team').addEventListener('change',async e=>{team=e.target.value;listHash='';try{await presence();renderThreads();}catch(e){tell(e.message);}});
   $('.queue').addEventListener('change',e=>{queue=e.target.value;listHash='';renderThreads();});
   for(const button of root.querySelectorAll('.work-close'))button.addEventListener('click',()=>button.closest('form').hidden=true);
