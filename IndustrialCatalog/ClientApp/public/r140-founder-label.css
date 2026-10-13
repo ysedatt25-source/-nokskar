@@ -7,7 +7,7 @@ body.page-home .hero .hero-founder-label{
   width:max-content;max-width:calc(100% - 30px);min-width:0;
   padding:9px 13px 9px 11px;box-sizing:border-box;
   border:0;
-  border-radius:999px;background:transparent;
+  border-radius:999px;background:rgba(5,20,37,.54);
   box-shadow:none;
   backdrop-filter:none;-webkit-backdrop-filter:none;
   color:#ffeb00;pointer-events:none;
