@@ -16,6 +16,10 @@
  @media(prefers-reduced-motion:reduce){.gallery-viewer-stage{scroll-behavior:auto}}
 }
 @layer layout {
+ body.page-detail.app-shell-enabled .product-summary-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+ body.page-detail.app-shell-enabled .product-summary-meta .product-code{margin:0;font-size:13px;gap:6px}
+ body.page-detail.app-shell-enabled .product-summary-meta .status{margin:0;font-size:11px;padding:5px 8px}
+
  body.page-detail.app-shell-enabled .detail-summary-compact{display:flex;flex-direction:column;gap:10px;margin-top:0;padding:18px}
  body.page-detail.app-shell-enabled .detail-summary-compact>:is(h1,p,.detail-price,.product-purchase-note){margin:0}
  body.page-detail.app-shell-enabled .detail-summary-compact h1{font-size:clamp(22px,3vw,34px);line-height:1.15}
@@ -41,5 +45,17 @@
  body .product-image-viewer .gallery-viewer-stage>button{position:absolute}
  body .product-image-viewer [data-slot="dialog-header"]{padding-right:54px}
  body .product-image-viewer [data-slot="dialog-title"]{padding-right:0;overflow-wrap:anywhere;font-size:18px}
- @media(max-width:600px){body [data-slot="dialog-content"].product-image-viewer{padding:15px;height:min(620px,calc(100dvh - 40px))}}
+ @media(max-width:600px){body [data-slot="dialog-content"].product-image-viewer{padding:15px;height:min(620px,calc(100dvh - 40px))}} @media(max-width:600px){
+  body.page-detail.app-shell-enabled .detail-summary-compact{padding:12px;gap:7px}
+  body.page-detail.app-shell-enabled .detail-summary-compact h1{font-size:20px;line-height:1.18}
+  body.page-detail.app-shell-enabled .detail-summary-compact>.eyebrow{font-size:10px;line-height:1.2}
+  body.page-detail.app-shell-enabled .product-summary-meta .product-code{font-size:12px}
+  body.page-detail.app-shell-enabled .product-summary-meta .product-code-copy button{min-height:28px;padding:5px}
+  body.page-detail.app-shell-enabled .product-summary-meta .copy-button-label{display:none}
+  body.page-detail.app-shell-enabled .detail-summary-compact .detail-price{padding:0;font-size:24px;line-height:1.25}
+  body.page-detail.app-shell-enabled .detail-summary-compact .detail-price small{font-size:12px}
+  body.page-detail.app-shell-enabled .detail-summary-compact .product-purchase-note{padding:8px 10px}
+  body.page-detail.app-shell-enabled .detail-summary-compact .product-purchase-note strong{font-size:17px}
+ }
+
 }
