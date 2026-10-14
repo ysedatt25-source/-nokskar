@@ -76,9 +76,11 @@
 @media(max-width:380px){.technical-label-fields{grid-template-columns:1fr}}
 
 /* Unit prices share the same measure in cards and VAT-inclusive detail prices. */
-body .product-card .price .price-unit,body .detail-summary-compact .price-unit{font-size:12px;font-weight:600;white-space:nowrap;color:#637786}
 body .product-card .price{flex-wrap:wrap;gap:4px 6px}
 body .product-card .price .price-enquire,body .home-design-featured .price .price-enquire,body.page-detail.app-shell-enabled .detail-summary-compact .detail-price .price-enquire{font-size:14px;line-height:1.45;font-weight:600;color:#3d647c}
 body .detail-summary-compact .detail-price{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
 body .detail-summary-compact .product-purchase-note{flex-wrap:wrap;gap:5px 10px}
 body .detail-summary-compact .product-purchase-note strong{white-space:nowrap}
+
+body .product-card .price .price-basis{flex-basis:100%;font-size:11px;line-height:1.4;font-weight:750;letter-spacing:.025em;text-transform:uppercase;color:#285e85}
+body .detail-summary-compact .price-basis{align-self:flex-start;padding:4px 9px;border:1px solid #c8ddeb;border-radius:6px;background:#edf5fb;color:#245b83;font-size:12px;line-height:1.4;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
