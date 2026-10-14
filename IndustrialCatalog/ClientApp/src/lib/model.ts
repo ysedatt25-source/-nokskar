@@ -1,6 +1,8 @@
 import {technicalDefaults,type TechnicalLabelData} from './technical-label';
 export type Category={id:string,name:string,parent:string,description:string,image:string,menu:boolean,visible:boolean,seoTitle:string,seoDescription:string};
-export type Product={id:string,code?:string,name:string,category:string,euro:number,tl:number,vatRate:number,description:string,after:string,specs:{name:string,value:string}[],images:string[],video?:string,technicalLabel?:TechnicalLabelData,pdf:string,status:string,visible:boolean,demo:boolean,seoTitle:string,seoDescription:string};
+export type PriceUnit='unit'|'metre'|'m2';
+export function priceUnitLabel(p:{priceUnit?:PriceUnit}){return p.priceUnit==='metre'?'metre':p.priceUnit==='m2'?'m²':'birim';}
+export type Product={id:string,code?:string,name:string,category:string,euro:number,tl:number,priceUnit?:PriceUnit,vatRate:number,description:string,after:string,specs:{name:string,value:string}[],images:string[],video?:string,technicalLabel?:TechnicalLabelData,pdf:string,status:string,visible:boolean,demo:boolean,seoTitle:string,seoDescription:string};
 export type Reference={id:string,logo:string,phone:string,email:string,visible:boolean};
 export type Catalog={references:Reference[],settings:{name:string,tagline:string,heroTitle:string,heroHeading:string,heroAccent:string,heroText:string,hero:string,heroImages:string[],headerImage:string,founderLabelText:string,founderLabelVisible:boolean,phone:string,whatsapp:string,email:string,notificationEmail:string,notificationPhone:string,notificationSmsEnabled:boolean,address:string,mapUrl:string,hours:string,social:string,waMessage:string,waEnabled:boolean,liveSupportEnabled:boolean,rate:number,autoRate:boolean,lastRate:string,rateSource:string,rateDate:string,about:string,menu:{name:string,url:string}[]},categories:Category[],products:Product[]};
 export const PRICE_CHANGE_THRESHOLD_TL=500;
@@ -16,7 +18,7 @@ export function normalizeCatalog(input:any):Catalog{
  };
  const categories=(Array.isArray(raw.categories)?raw.categories:[]).map((c:any)=>({id:str(c?.id),name:str(c?.name),parent:str(c?.parent),description:str(c?.description),image:str(c?.image),menu:c?.menu===true,visible:c?.visible!==false,seoTitle:str(c?.seoTitle),seoDescription:str(c?.seoDescription)})).filter((c:Category)=>c.id&&c.name);
  const products=(Array.isArray(raw.products)?raw.products:[]).map((p:any)=>({
-  id:str(p?.id),code:str(p?.code),name:str(p?.name),category:str(p?.category),euro:num(p?.euro),tl:num(p?.tl),vatRate:Math.min(100,num(p?.vatRate,20)),description:str(p?.description),after:str(p?.after),
+  id:str(p?.id),code:str(p?.code),name:str(p?.name),category:str(p?.category),euro:num(p?.euro),tl:num(p?.tl),priceUnit:(['unit','metre','m2'].includes(p?.priceUnit)?p.priceUnit:'unit') as PriceUnit,vatRate:Math.min(100,num(p?.vatRate,20)),description:str(p?.description),after:str(p?.after),
   specs:Array.isArray(p?.specs)?p.specs.filter((x:any)=>x&&typeof x==='object').map((x:any)=>({name:str(x.name),value:str(x.value)})):[],
   images:Array.isArray(p?.images)?p.images.filter((x:any)=>typeof x==='string'&&x.trim()).map((x:string)=>x.trim()):[],video:str(p?.video),technicalLabel:technicalDefaults(p?.technicalLabel),pdf:str(p?.pdf),status:['Stokta','Sipariş üzerine','Bilgi alınız'].includes(str(p?.status))?str(p.status):'Bilgi alınız',visible:p?.visible!==false,demo:p?.demo===true,seoTitle:str(p?.seoTitle),seoDescription:str(p?.seoDescription)
  })).filter((p:Product)=>p.id&&p.name&&p.category);

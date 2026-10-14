@@ -1357,7 +1357,7 @@ body [data-slot="dialog-content"].product-editor-dialog .product-edit-basic-grid
   grid-column:1/-1;
 }
 body [data-slot="dialog-content"].product-editor-dialog .product-edit-price-grid{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
 }
 body [data-slot="dialog-content"].product-editor-dialog label{
   min-width:0;max-width:100%;display:grid;gap:4px;
@@ -1536,9 +1536,6 @@ body [data-slot="dialog-content"].product-editor-dialog .product-editor-submit{
   }
   body [data-slot="dialog-content"].product-editor-dialog .product-edit-price-grid{
     grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;
-  }
-  body [data-slot="dialog-content"].product-editor-dialog .product-edit-price-grid > label:last-child{
-    grid-column:1/-1;
   }
   body [data-slot="dialog-content"].product-editor-dialog :is(input,textarea,.admin-native-pick){
     min-height:42px;font-size:16px;

@@ -16,6 +16,15 @@ public static class ProductVideoChecks
         source["settings"]!["heroImages"]=new JsonArray();
         Console.WriteLine("Hero gallery checks: PASS (legacy catalogs, ten-image limit, public persistence, invalid paths)." );
         var product=source["products"]!.AsArray()[0]!.AsObject();
+        if(product["priceUnit"]!.GetValue<string>()!="unit")throw new Exception("Legacy price unit default failed.");
+        foreach(var unit in new[]{"unit","metre","m2"}){
+            product["priceUnit"]=unit;CatalogRules.Validate(source);
+            if(CatalogRules.Public(source)["products"]![0]!["priceUnit"]!.GetValue<string>()!=unit)throw new Exception("Public catalog lost price unit.");
+        }
+        product["priceUnit"]="invalid";var invalidUnitRejected=false;try{CatalogRules.Validate(source);}catch(ArgumentException){invalidUnitRejected=true;}
+        if(!invalidUnitRejected)throw new Exception("Invalid price unit was accepted.");
+        product.Remove("priceUnit");CatalogRules.Validate(source);
+        Console.WriteLine("Product price unit checks: PASS (legacy default, three units, public persistence, invalid unit).");
         var video="/api/files/"+new string('a',32)+".mp4";
         product["video"]=video;CatalogRules.Validate(source);
         if(CatalogRules.Public(source)["products"]!.AsArray()[0]!["video"]!.GetValue<string>()!=video)throw new Exception("Public catalog lost product video.");

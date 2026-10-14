@@ -75,6 +75,8 @@ public static class CatalogRules
             p!["technicalLabel"]=TechnicalLabel.Normalize(p["technicalLabel"]);
             if(string.IsNullOrWhiteSpace(Text(p,"name"))||!map.ContainsKey(Text(p,"category")))throw new ArgumentException("Ürün adı veya kategorisi geçersiz.");
             var code=p!["code"]?.GetValue<string>()?.Trim()??"";p["code"]=code;if(code.Length>100||!codes.Add(code==""?Text(p,"id"):code))throw new ArgumentException("Ürün kodu geçersiz veya başka üründe kullanılıyor.");
+            p["priceUnit"] ??= "unit";
+            if(!new[]{"unit","metre","m2"}.Contains(Text(p,"priceUnit")))throw new ArgumentException("Fiyat birimi geçersiz.");
             var vat=p["vatRate"]?.GetValue<decimal>()??20m;p["vatRate"]=vat;if(p["euro"]!.GetValue<decimal>()<0||p["tl"]!.GetValue<decimal>()<0||p["tl"]!.GetValue<decimal>()!=decimal.Truncate(p["tl"]!.GetValue<decimal>())||vat<0||vat>100)throw new ArgumentException("Fiyat veya KDV oranı geçersiz.");
             if(!new[]{"Stokta","Sipariş üzerine","Bilgi alınız"}.Contains(Text(p,"status")))throw new ArgumentException("Ürün durumu geçersiz.");
             Text(p,"description");Text(p,"after");var pSeoTitle=p["seoTitle"]?.ToString()??"";var pSeoDescription=p["seoDescription"]?.ToString()??"";p["seoTitle"]=pSeoTitle;p["seoDescription"]=pSeoDescription;if(pSeoTitle.Length>70||pSeoDescription.Length>180)throw new ArgumentException("Ürün SEO alanları çok uzun.");p["demo"]!.GetValue<bool>();
