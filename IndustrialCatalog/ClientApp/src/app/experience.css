@@ -87,5 +87,5 @@ body .detail-summary-compact .price-basis{align-self:flex-start;color:#667885;fo
 body .price-basis .price-basis-value{color:#285e85;font-weight:400}
 body .price-basis .price-basis-number{font-family:"Trebuchet MS","Segoe UI",sans-serif;font-size:1em;font-weight:400;font-variant-numeric:proportional-nums}
 
-body .product-photo-wrap .pictured-product-size,body .detail-gallery-frame .pictured-product-size{position:absolute;left:8px;bottom:8px;z-index:2;max-width:calc(100% - 56px);padding:4px 7px;border-radius:5px;background:rgba(255,255,255,.94);color:#29495e;box-shadow:0 1px 5px #122d4514;font-size:10px;font-weight:500;line-height:1.4;pointer-events:none;overflow-wrap:anywhere}
+body .product-photo-wrap .pictured-product-size,body .detail-gallery-frame .pictured-product-size{position:absolute;left:8px;bottom:8px;z-index:2;max-width:calc(100% - 56px);padding:5px 9px;border:1px solid rgba(255,255,255,.65);border-radius:7px;background:rgba(238,247,253,.78);backdrop-filter:blur(6px);color:#234b66;box-shadow:0 2px 8px #122d451a;font-size:10px;font-weight:600;line-height:1.4;pointer-events:none;overflow-wrap:anywhere}
 body .detail-gallery-frame .pictured-product-size{font-size:12px;max-width:calc(100% - 16px)}

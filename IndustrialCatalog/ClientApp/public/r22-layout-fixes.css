@@ -1369,6 +1369,18 @@ body [data-slot="dialog-content"].product-editor-dialog :is(input,textarea,.admi
   background-color:#fff;color:#213f5d;
   padding:8px 10px;font-size:14px;line-height:1.35;
 }
+body [data-slot="dialog-content"].product-editor-dialog .product-edit-price-grid > label{
+  display:flex;flex-direction:column;justify-content:flex-start;align-self:start;gap:5px;
+}
+body [data-slot="dialog-content"].product-editor-dialog .product-edit-price-grid :is(input,.admin-native-pick){
+  height:42px;min-height:42px;flex:none;
+}
+body [data-slot="dialog-content"].product-editor-dialog .product-edit-price-grid .product-pictured-length{
+  grid-column:1/-1;
+}
+body [data-slot="dialog-content"].product-editor-dialog .product-pictured-length small{
+  font-size:11px;line-height:1.5;font-weight:400;color:#687e90;
+}
 body [data-slot="dialog-content"].product-editor-dialog .admin-native-pick{
   padding-right:34px;background-position:right 10px center;
 }
