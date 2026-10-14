@@ -87,8 +87,11 @@ body .detail-summary-compact .price-basis{align-self:flex-start;color:#667885;fo
 body .price-basis .price-basis-value{color:#285e85;font-weight:400}
 body .price-basis .price-basis-number{font-family:"Trebuchet MS","Segoe UI",sans-serif;font-size:1em;font-weight:400;font-variant-numeric:proportional-nums}
 
-body .product-card .product-code:has(.pictured-product-size){display:flex;align-items:baseline;justify-content:space-between;gap:4px;font-size:10px}
-body .product-card .product-code:has(.pictured-product-size) strong{min-width:0;overflow-wrap:anywhere}
-body .product-card .pictured-product-size{flex-shrink:0;font-size:10px;font-weight:400;color:#657987}
-body.page-detail.app-shell-enabled .detail-summary-compact .pictured-product-size{margin:0;color:#657987;font-size:12px;line-height:1.5;font-weight:400}
-body .detail-summary-compact .pictured-product-size span{color:#315a73;font-weight:500}
+/* Compact glass label stays inside the existing photo frame. */
+body .product-photo-wrap .pictured-product-size,body .detail-gallery-frame .pictured-product-size{
+ position:absolute;left:10px;bottom:10px;z-index:2;display:inline-flex;align-items:center;gap:7px;max-width:calc(100% - 62px);padding:6px 10px;border:1px solid rgba(255,255,255,.42);border-radius:11px 4px 11px 4px;background:linear-gradient(120deg,rgba(16,43,63,.66),rgba(33,77,99,.46));backdrop-filter:blur(7px);box-shadow:0 2px 7px rgba(12,33,49,.12);color:#f5fbff;font-family:"Segoe UI",Arial,sans-serif;font-size:10px;font-weight:400;line-height:1.4;letter-spacing:.01em;pointer-events:none;
+}
+body .pictured-product-size>span{color:#e2edf4}
+body .pictured-product-size>strong{padding-left:7px;border-left:1px solid rgba(255,255,255,.32);font-size:inherit;font-weight:600;white-space:nowrap;color:#fff}
+body .detail-gallery-frame .pictured-product-size{font-size:11px;max-width:calc(100% - 20px)}
+@media(max-width:420px){body .product-photo-wrap .pictured-product-size{left:6px;bottom:6px;gap:4px;padding:4px 6px;font-size:9px;max-width:calc(100% - 45px)}body .product-photo-wrap .pictured-product-size>strong{padding-left:4px}}
