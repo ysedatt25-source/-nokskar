@@ -39,7 +39,7 @@ public static class WarrantyBooklet
         record=Regex.Replace(record,@"<header class=""certificate-head""[\s\S]*?</header>","",RegexOptions.CultureInvariant);
         record=record.Replace("class=\"certificate\"","class=\"certificate booklet-record\"",StringComparison.Ordinal);
         record=record.Replace("<div class=\"certificate-signatures\">",extra+"<div class=\"certificate-signatures\">",StringComparison.Ordinal);
-        instructions+=$"<div class=\"booklet-service\"><strong>Servis ve garanti sorgulama</strong><p>{contact}</p><p><span data-query-address></span></p><p>QR kodu 2. sayfadadır. Modelin özel kılavuzu ve CE belgesi, kayıtta varsa sorgu ekranından açılır.</p></div>";
+        instructions+=$"<div class=\"booklet-service\"><strong>Servis ve garanti sorgulama</strong><p>{contact}</p><p><span data-query-address></span></p><p>QR kodu 2. sayfadadır. CE belgesi, kayıtta varsa sorgu ekranından açılır. Modele özel kullanım kılavuzu ayrıca teslim edilir.</p></div>";
         return $"<div class=\"warranty-booklet\" data-mode=\"{mode}\">"+Frame(1,"Garanti ve kullanım kitapçığı",cover)+Frame(2,"Garanti belgesi",record+(string.IsNullOrWhiteSpace(w["verificationCode"]?.ToString())?"<div class=\"booklet-qr\">QR kodu kayıt sonrasında oluşturulur.</div>":"<div class=\"booklet-qr\"><img data-warranty-qr alt=\"Garanti sorgulama QR kodu\"><span>Garantiyi doğrula</span></div>"))+Frame(3,"Garanti şartları",terms)+Frame(4,"Kullanım talimatı",instructions)+"</div>";
     }
 }
