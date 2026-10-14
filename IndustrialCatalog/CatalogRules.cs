@@ -21,6 +21,9 @@ public static class CatalogRules
         if (mapUrl != "" && (!Uri.TryCreate(mapUrl,UriKind.Absolute,out var mapUri) || mapUri.Scheme != "https" || !(mapUri.Host == "maps.app.goo.gl" || mapUri.Host == "maps.google.com" || ((mapUri.Host == "www.google.com" || mapUri.Host == "google.com") && mapUri.AbsolutePath.StartsWith("/maps"))))) throw new ArgumentException("Harita konumu için Google Haritalar Paylaş bağlantısını girin.");
         if (Text(settings,"address").Trim() != "" && mapUrl == "") throw new ArgumentException("Adres için Google Haritalar konum bağlantısını da ekleyin.");
         settings["mapUrl"] = mapUrl;
+        settings["heroImages"] ??= new JsonArray();
+        if(settings["heroImages"] is not JsonArray heroImages||heroImages.Count>10)throw new ArgumentException("En fazla 10 hero görseli ekleyebilirsiniz.");
+        foreach(var image in heroImages){var url=image?.GetValue<string>()??"";if(string.IsNullOrWhiteSpace(url)||!Safe(url)||Regex.IsMatch(url,@"\.(mp4|webm)([?#]|$)",RegexOptions.IgnoreCase))throw new ArgumentException("Hero galerisine geçerli bir görsel ekleyin.");}
         settings["heroHeading"] ??= "Endüstriyel\nMutfaklarda";
         settings["heroAccent"] ??= "Güçlü Partneriniz";
         foreach(var key in new[]{"heroHeading","heroAccent"})if(Text(settings,key).Length>160)throw new ArgumentException("Ana sayfa başlığı en fazla 160 karakter olabilir.");
