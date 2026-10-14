@@ -27,6 +27,6 @@
  .access-top>div span{display:none}.access-top nav{max-width:68vw}.access-top nav a{padding:0 8px;font-size:.69rem}
  .access-wrap{margin-top:18px}.access-heading h1{font-size:1.65rem;line-height:1.14}.access-heading p{font-size:.9rem;line-height:1.55}
  .access-actions{grid-template-columns:1fr}.access-card{padding:14px 12px}.row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.row-actions .small-btn{width:100%;justify-content:center;min-height:44px}.row-actions .danger{grid-column:1/-1}
- .permission-section{margin-top:18px}.permission-table{overflow:hidden}.permission-head,.permission-row{grid-template-columns:minmax(0,1fr) 56px 56px 48px;padding:0 6px;min-height:50px}.permission-head strong:not(:first-child){font-size:0}.permission-head strong:nth-child(2)::after{content:"Gör";font-size:.68rem}.permission-head strong:nth-child(3)::after{content:"Düz";font-size:.68rem}.permission-head strong:nth-child(4)::after{content:"İndir";font-size:.68rem}
+ .permission-section{margin-top:18px}.permission-table{overflow:hidden}.permission-head,.permission-row{grid-template-columns:minmax(0,1fr) 56px 56px 48px;padding:0 6px;min-height:50px}
 }
 @media(prefers-reduced-motion:reduce){.button::after,.small-btn::after{display:none}}}

@@ -13,3 +13,43 @@ body.membership-page:has(.member-tabs) .member-wrap{width:min(1080px,calc(100% -
 body.membership-page:has(.member-tabs) .member-card{padding:20px;border-radius:16px}body.membership-page:has(.member-tabs) .member-card h2{font-size:19px;margin-bottom:10px}body.membership-page:has(.member-tabs) .member-card>p{font-size:13px;margin:5px 0 14px}.member-overview{margin-bottom:16px}.member-quick{gap:10px}.member-quick a{padding:13px;min-height:48px;font-size:13px;border-radius:11px}.member-quick a:nth-child(2){border-left:3px solid #ed8b36}.member-quick a:nth-child(3){border-left:3px solid #c8485d}.member-quick a:first-child,.member-quick a:nth-child(4){border-left:3px solid #2a7fd2}body.membership-page:has(.member-tabs) .member-columns,body.membership-page:has(.member-tabs) .member-columns>div{gap:16px}.member-empty{padding:16px 12px}.member-empty h3{margin:0 0 6px}.member-empty p{margin:0 0 10px}
 @media(max-width:480px){body.membership-page:has(.member-tabs) .member-wrap{width:calc(100% - 24px);margin-top:14px}.member-welcome{padding:14px;gap:11px;border-radius:15px}.member-welcome .member-avatar{width:48px;height:48px;flex-basis:48px;border-radius:13px;font-size:20px}.member-welcome h1{font-size:21px;letter-spacing:-.4px}.member-welcome .member-eyebrow{font-size:9px;letter-spacing:.7px}.member-welcome p:not(.member-eyebrow){font-size:12px}.member-welcome small{font-size:10px}.member-tabs{gap:5px;padding:5px;border-radius:14px}.member-tabs button{font-size:10px;min-height:56px;padding:7px 1px;gap:5px}.member-tabs button svg{width:18px;height:18px}.member-metrics{gap:7px}.member-metrics a{padding:11px 9px}.member-metrics strong{font-size:22px}.member-metrics span{font-size:11px}body.membership-page:has(.member-tabs) .member-card{padding:17px 14px}.member-quick a{font-size:12px;padding:11px}.member-verification{padding:12px}#member-feedback{font-size:12px;padding:12px 14px;bottom:96px}}
 @media(prefers-reduced-motion:reduce){.member-tabs button{transition:none}}}@layer layout{.member-header nav a,.member-header nav button{color:#fff}.member-eyebrow{color:#2b719b;margin:0 0 8px}.member-metrics a{color:#3d596b}.member-button{color:#fff}.member-secondary{color:#245b81}.member-bottom a{color:#526a7b}.member-bottom a[aria-current]{color:#2468a5}.member-check{display:flex;gap:10px;font-weight:500}.member-check input{width:20px}body.membership-page [hidden]{display:none}@media(max-width:900px){.member-list{grid-template-columns:1fr}}.member-welcome .member-eyebrow{margin-bottom:5px}.member-verification .member-secondary{color:#246247}}
+@layer site{
+body.membership-admin-page{background:#f3f6fa}
+body.membership-admin-page .member-wrap{width:min(1120px,calc(100% - 32px));margin:20px auto 40px}
+body.membership-admin-page .member-admin-heading{padding:20px 22px;margin-bottom:14px;border-radius:16px;background:linear-gradient(130deg,#fff,#f7fbff);box-shadow:0 4px 18px #16395008}
+body.membership-admin-page .member-admin-heading h1{font-size:clamp(23px,3vw,30px);letter-spacing:-.035em;margin:0 0 9px}
+body.membership-admin-page .member-admin-heading>p:not(.member-eyebrow){font-size:13px;line-height:1.5;margin:0 0 8px}
+body.membership-admin-page .member-admin-heading .member-admin-hint{padding:9px 11px;background:#edf5fc;border:1px solid #dce9f4;border-radius:9px;font-size:11px;color:#426881}
+body.membership-admin-page .member-admin-heading>label{font-size:12px;margin-top:12px;gap:5px;max-width:540px}
+body.membership-admin-page #member-search{background:#fff;min-height:44px;padding:10px 12px}
+body.membership-admin-page .member-admin-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:14px}
+body.membership-admin-page .member-customer{padding:18px;border-radius:15px;box-shadow:0 3px 14px #193e5608}
+body.membership-admin-page .member-customer-head{display:flex;align-items:center;gap:11px;min-width:0;margin-bottom:12px}
+body.membership-admin-page .member-customer-head>div{min-width:0}
+body.membership-admin-page .member-admin-avatar{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:12px;border:1px solid #d6e7f5;background:#edf5fd;color:#42789e}
+body.membership-admin-page .member-admin-avatar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+body.membership-admin-page .member-customer h2{font-size:17px;line-height:1.35;letter-spacing:-.02em;margin:0;overflow-wrap:anywhere}
+body.membership-admin-page .member-customer-head p{font-size:12px;line-height:1.4;margin:3px 0 0}
+body.membership-admin-page .member-customer-contact{display:flex;flex-direction:column;gap:3px;margin-bottom:7px;color:#516d80;font-size:12px;line-height:1.45}
+body.membership-admin-page .member-customer-contact span:empty{display:none}
+body.membership-admin-page .member-customer-meta{display:block;font-size:11px;line-height:1.5;padding:7px 9px;border-radius:8px;background:#f4f7fa;color:#698090}
+body.membership-admin-page .member-divider{margin-top:14px;padding-top:12px}
+body.membership-admin-page .member-check{align-items:center;padding:9px 10px;border:1px solid #dce7ef;border-radius:10px;background:#f8fafc;font-size:12px;line-height:1.4;margin:0 0 9px}
+body.membership-admin-page .member-check span{flex:1;min-width:0}
+body.membership-admin-page .member-customer .member-secondary{width:100%;min-height:44px;padding:9px 10px;border-radius:10px;font-size:12px;background:#edf5fc;border-color:#cbdfee;color:#2e6387}
+body.membership-admin-page .member-customer .member-secondary:hover{background:#e3effa;border-color:#9dbed9}
+body.membership-admin-page .member-customer .member-bind{margin-top:14px;gap:8px;padding-top:12px;border-top:1px solid #e5ecf2}
+body.membership-admin-page .member-bind label{font-size:12px;gap:5px}
+body.membership-admin-page .member-bind select{min-height:44px;padding:9px 10px;font-size:16px;background:#fcfdff}
+body.membership-admin-page .member-code{margin-top:9px;padding:12px;border-radius:10px;overflow-wrap:anywhere}
+@media(max-width:650px){
+ body.membership-admin-page .member-wrap{width:calc(100% - 24px);margin:12px auto 30px}
+ body.membership-admin-page .member-admin-heading{padding:15px;border-radius:15px;margin-bottom:11px}
+ body.membership-admin-page .member-admin-heading h1{font-size:23px}
+ body.membership-admin-page .member-admin-list{grid-template-columns:minmax(0,1fr);gap:11px}
+ body.membership-admin-page .member-customer{padding:14px}
+ body.membership-admin-page .member-customer h2{font-size:16px}
+ body.membership-admin-page .member-customer-head{margin-bottom:10px}
+}
+}
+@layer layout{body.membership-admin-page .member-check input[type=checkbox]{flex:0 0 18px;width:18px;height:18px;min-height:18px;padding:0;margin:0;accent-color:#246db4}}
