@@ -16,21 +16,21 @@ body.membership-page:has(.member-tabs) .member-card{padding:20px;border-radius:1
 @layer site{
 body.membership-admin-page{background:#f3f6fa}
 body.membership-admin-page .member-wrap{width:min(1120px,calc(100% - 32px));margin:20px auto 40px}
-body.membership-admin-page .member-admin-heading{padding:20px 22px;margin-bottom:14px;border-radius:16px;background:linear-gradient(130deg,#fff,#f7fbff);box-shadow:0 4px 18px #16395008}
+body.membership-admin-page .member-admin-heading{border-left:3px solid #3d83b6;padding:18px 20px;margin-bottom:14px;border-radius:16px;background:linear-gradient(130deg,#fff,#f7fbff);box-shadow:0 4px 18px #16395008}
 body.membership-admin-page .member-admin-heading h1{font-size:clamp(23px,3vw,30px);letter-spacing:-.035em;margin:0 0 9px}
 body.membership-admin-page .member-admin-heading>p:not(.member-eyebrow){font-size:13px;line-height:1.5;margin:0 0 8px}
-body.membership-admin-page .member-admin-heading .member-admin-hint{padding:9px 11px;background:#edf5fc;border:1px solid #dce9f4;border-radius:9px;font-size:11px;color:#426881}
+body.membership-admin-page .member-admin-heading .member-admin-hint{padding:0;background:transparent;border:0;font-size:11px;color:#6c8292}
 body.membership-admin-page .member-admin-heading>label{font-size:12px;margin-top:12px;gap:5px;max-width:540px}
 body.membership-admin-page #member-search{background:#fff;min-height:44px;padding:10px 12px}
 body.membership-admin-page .member-admin-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:14px}
-body.membership-admin-page .member-customer{padding:18px;border-radius:15px;box-shadow:0 3px 14px #193e5608}
+body.membership-admin-page .member-customer{padding:16px;border-radius:16px;border-top:3px solid #93bcd6;box-shadow:0 4px 18px #193e5608}
 body.membership-admin-page .member-customer-head{display:flex;align-items:center;gap:11px;min-width:0;margin-bottom:12px}
 body.membership-admin-page .member-customer-head>div{min-width:0}
 body.membership-admin-page .member-admin-avatar{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:12px;border:1px solid #d6e7f5;background:#edf5fd;color:#42789e}
 body.membership-admin-page .member-admin-avatar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
 body.membership-admin-page .member-customer h2{font-size:17px;line-height:1.35;letter-spacing:-.02em;margin:0;overflow-wrap:anywhere}
 body.membership-admin-page .member-customer-head p{font-size:12px;line-height:1.4;margin:3px 0 0}
-body.membership-admin-page .member-customer-contact{display:flex;flex-direction:column;gap:3px;margin-bottom:7px;color:#516d80;font-size:12px;line-height:1.45}
+body.membership-admin-page .member-customer-contact{display:flex;flex-wrap:wrap;flex-direction:row;column-gap:12px;gap:3px;margin-bottom:7px;color:#516d80;font-size:12px;line-height:1.45}
 body.membership-admin-page .member-customer-contact span:empty{display:none}
 body.membership-admin-page .member-customer-meta{display:block;font-size:11px;line-height:1.5;padding:7px 9px;border-radius:8px;background:#f4f7fa;color:#698090}
 body.membership-admin-page .member-divider{margin-top:14px;padding-top:12px}
@@ -38,7 +38,7 @@ body.membership-admin-page .member-check{align-items:center;padding:9px 10px;bor
 body.membership-admin-page .member-check span{flex:1;min-width:0}
 body.membership-admin-page .member-customer .member-secondary{width:100%;min-height:44px;padding:9px 10px;border-radius:10px;font-size:12px;background:#edf5fc;border-color:#cbdfee;color:#2e6387}
 body.membership-admin-page .member-customer .member-secondary:hover{background:#e3effa;border-color:#9dbed9}
-body.membership-admin-page .member-customer .member-bind{margin-top:14px;gap:8px;padding-top:12px;border-top:1px solid #e5ecf2}
+body.membership-admin-page .member-customer .member-bind{margin-top:12px;gap:7px;padding:12px;border:1px solid #dbe6f0;border-radius:12px;background:#f7fafd}
 body.membership-admin-page .member-bind label{font-size:12px;gap:5px}
 body.membership-admin-page .member-bind select{min-height:44px;padding:9px 10px;font-size:16px;background:#fcfdff}
 body.membership-admin-page .member-code{margin-top:9px;padding:12px;border-radius:10px;overflow-wrap:anywhere}
@@ -53,3 +53,14 @@ body.membership-admin-page .member-code{margin-top:9px;padding:12px;border-radiu
 }
 }
 @layer layout{body.membership-admin-page .member-check input[type=checkbox]{flex:0 0 18px;width:18px;height:18px;min-height:18px;padding:0;margin:0;accent-color:#246db4}}
+
+@layer site{
+body.membership-admin-page .member-owned-warranties{margin-top:12px;padding:12px;border:1px solid #cfe5d9;border-radius:12px;background:#f5faf7}
+body.membership-admin-page .member-owned-warranties h3{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 7px;font-size:12px;color:#386e55}
+body.membership-admin-page .member-owned-warranties h3 span{display:grid;place-items:center;min-width:23px;height:23px;border-radius:7px;background:#e0f0e7;font-size:11px}
+body.membership-admin-page .member-owned-warranties p{margin:0;font-size:12px;line-height:1.5;color:#6f8478}
+body.membership-admin-page .member-owned-warranties>div{padding:8px 0;border-top:1px solid #dfebe4}
+body.membership-admin-page .member-owned-warranties strong{display:block;font-size:13px;line-height:1.4;color:#355f4b}
+body.membership-admin-page .member-owned-warranties small{display:block;margin-top:3px;font-size:11px}
+body.membership-admin-page .member-bind>small{font-size:10px;line-height:1.5;color:#708496}
+}
