@@ -6,10 +6,10 @@
 .page-loading-logo{display:block;width:100%;height:auto;max-height:40dvh;object-fit:contain;opacity:1;filter:none}
 .page-loading-mark::after{content:"";position:absolute;inset:-10% -45%;pointer-events:none;background:linear-gradient(110deg,transparent 40%,#ffffff00 44%,#ffffff75 50%,#ffffff00 56%,transparent 60%);transform:translateX(-80%);animation:inokskar-logo-sheen 1.8s cubic-bezier(.4,0,.2,1) infinite}
 .page-loading-track{position:relative;width:112px;height:2px;border-radius:2px;background:#e5edf3;overflow:hidden}
-.page-loading-track::after{content:"";position:absolute;inset:0 auto 0 0;width:44%;border-radius:inherit;background:linear-gradient(90deg,#80b9dc,#21699d,#80b9dc);transform:translateX(-105%);animation:inokskar-loading-line 1.2s ease-in-out infinite}
+.page-loading-track::after{content:"";position:absolute;inset:0 auto 0 0;width:100%;border-radius:inherit;background:linear-gradient(90deg,#80b9dc,#21699d,#80b9dc);transform:scaleX(var(--page-load-progress,.12));transform-origin:left center;transition:transform .18s ease-out}
 .page-loading-caption{font:500 10px/1.4 system-ui,sans-serif;letter-spacing:.1em;color:#70828f;margin-top:-10px}
 @keyframes inokskar-logo-sheen{0%,15%{transform:translateX(-80%)}70%,100%{transform:translateX(80%)}}
-@keyframes inokskar-loading-line{to{transform:translateX(335%)}}
-@media(prefers-reduced-motion:reduce){.page-loading-mark::after{display:none}.page-loading-track::after{animation:none;transform:none;width:100%;background:#397fae}}
+html[data-page-loading-complete] .page-loading-track::after{transition:none}
+@media(prefers-reduced-motion:reduce){.page-loading-mark::after{display:none}.page-loading-track::after{animation:none;transition:none;background:#397fae}}
 }
 @layer layout{#inokskar-page-loader[hidden]{display:none}}

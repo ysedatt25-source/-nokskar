@@ -41,7 +41,7 @@ public sealed class LogoNavigationMiddleware
                 if (!html.Contains("/page-loading.js", StringComparison.Ordinal))
                 {
                     var end = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
-                    const string assets = "<link rel=\"stylesheet\" href=\"/page-loading.css?v=brand-sheen-3\"><link rel=\"preload\" as=\"image\" href=\"/inokskar-logo.svg\"><script src=\"/page-loading.js?v=brand-sheen-3\"></script>";
+                    const string assets = "<link rel=\"stylesheet\" href=\"/page-loading.css?v=brand-progress-4\"><link rel=\"preload\" as=\"image\" href=\"/inokskar-logo.svg\"><script src=\"/page-loading.js?v=brand-progress-4\"></script>";
                     if(end>=0)html=html.Insert(end,assets);
                     html=Regex.Replace(html,@"<body\b[^>]*>",m=>m.Value+"<div id=\"inokskar-page-loader\" role=\"status\" aria-label=\"Sayfa yükleniyor\" aria-busy=\"true\"><div class=\"page-loading-brand\"><div class=\"page-loading-mark\"><img class=\"page-loading-logo\" src=\"/inokskar-logo.svg\" alt=\"İNOKSKAR\"></div><span class=\"page-loading-track\" aria-hidden=\"true\"></span><span class=\"page-loading-caption\" aria-hidden=\"true\">Yükleniyor</span></div></div><noscript><style>#inokskar-page-loader{display:none}</style></noscript>",RegexOptions.IgnoreCase);
                 }
