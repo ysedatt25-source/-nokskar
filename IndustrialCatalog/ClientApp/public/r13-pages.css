@@ -2902,21 +2902,6 @@ body[data-ui-page^="admin-"] .metrics>div>small{
   margin-top:4px;
   font-size:.63rem;
 }
-body[data-ui-page^="admin-"] .setup-checks{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
-}
-body[data-ui-page^="admin-"] .setup-checks span{
-  min-height:34px;
-  display:inline-flex;
-  align-items:center;
-  padding:6px 9px;
-  border:1px solid #dce6f1;
-  border-radius:999px;
-  background:#f8fafc;
-  font-size:.72rem;
-}
 body[data-ui-page^="admin-"] .admin-box>h2{
   margin:0 0 9px;
   font-size:1rem;
@@ -2996,12 +2981,6 @@ body[data-ui-page="admin-settings"] .admin-header-actions .button{
     padding:8px 9px;
   }
   body[data-ui-page^="admin-"] .metrics>div>strong{font-size:1.28rem}
-  body[data-ui-page^="admin-"] .setup-checks{gap:5px}
-  body[data-ui-page^="admin-"] .setup-checks span{
-    min-height:30px;
-    padding:5px 8px;
-    font-size:.67rem;
-  }
   body[data-ui-page="admin-settings"] .admin-header{
     align-items:flex-start;
   }

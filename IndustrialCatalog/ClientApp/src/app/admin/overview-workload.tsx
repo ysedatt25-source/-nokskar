@@ -1,4 +1,4 @@
-import {ArrowRight,ClipboardList,MessageSquare,Wrench} from 'lucide-react';
+import {ArrowRight,CheckCircle2,ClipboardList,MessageSquare,Wrench} from 'lucide-react';
 import './overview-workload.css';
 
 type Inquiry={id:string;data:string;status?:string;readAt?:string;created:string;requestCode?:string};
@@ -12,8 +12,8 @@ export default function OverviewWorkload({inquiries,canInquiries,canService,onOp
  const service=pending.filter(({b})=>b.type==='service');
  const recent=[...pending].sort((a,b)=>Date.parse(b.q.created)-Date.parse(a.q.created)).slice(0,4);
  return <section className="admin-box overview-workload" aria-label="Bekleyen işler">
-  <div className="workload-heading"><div><p className="eyebrow">İŞ TAKİBİ</p><h2>İlginizi bekleyen talepler</h2></div><button type="button" onClick={onOpen}>Taleplere git <ArrowRight size={16}/></button></div>
+  <div className="workload-heading"><div><p className="eyebrow">İŞ TAKİBİ</p><h2>Talep ve servis özeti</h2></div><button type="button" onClick={onOpen}>Talepler <ArrowRight size={16}/></button></div>
   <div className="workload-counts"><div><ClipboardList size={20}/><strong>{pending.length}</strong><span>Açık talep</span></div><div><MessageSquare size={20}/><strong>{fresh.length}</strong><span>Okunmamış talep</span></div><div><Wrench size={20}/><strong>{service.length}</strong><span>Devam eden servis</span></div></div>
-  {recent.length?<div className="workload-list">{recent.map(({q,b})=><a key={q.id} href={'/admin/inquiries/'+encodeURIComponent(q.id)}><span><strong>{String(b.name||'Müşteri talebi')}</strong><small>{b.type==='service'?'Teknik servis':b.purpose==='teklif'?'Teklif':b.purpose==='proje'?'Proje':'Genel destek'} · {q.requestCode||'Talep detayı'}</small></span><time dateTime={q.created}>{Number.isFinite(Date.parse(q.created))?new Date(q.created).toLocaleDateString('tr-TR',{timeZone:'Europe/Istanbul'}):'—'}</time><ArrowRight size={16}/></a>)}</div>:<p className="workload-empty">Şu anda bekleyen talep yok. Yeni talepler geldiğinde burada görünecek.</p>}
+  {recent.length?<div className="workload-list">{recent.map(({q,b})=><a key={q.id} href={'/admin/inquiries/'+encodeURIComponent(q.id)}><span><strong>{String(b.name||'Müşteri talebi')}</strong><small>{b.type==='service'?'Teknik servis':b.purpose==='teklif'?'Teklif':b.purpose==='proje'?'Proje':'Genel destek'} · {q.requestCode||'Talep detayı'}</small></span><time dateTime={q.created}>{Number.isFinite(Date.parse(q.created))?new Date(q.created).toLocaleDateString('tr-TR',{timeZone:'Europe/Istanbul'}):'—'}</time><ArrowRight size={16}/></a>)}</div>:<div className="workload-empty"><CheckCircle2 size={18} aria-hidden="true"/><p><strong>Bekleyen talep yok</strong><span>Yeni talepler burada listelenir.</span></p></div>}
  </section>;
 }
