@@ -75,6 +75,9 @@ public static class CatalogRules
             p!["technicalLabel"]=TechnicalLabel.Normalize(p["technicalLabel"]);
             if(string.IsNullOrWhiteSpace(Text(p,"name"))||!map.ContainsKey(Text(p,"category")))throw new ArgumentException("Ürün adı veya kategorisi geçersiz.");
             var code=p!["code"]?.GetValue<string>()?.Trim()??"";p["code"]=code;if(code.Length>100||!codes.Add(code==""?Text(p,"id"):code))throw new ArgumentException("Ürün kodu geçersiz veya başka üründe kullanılıyor.");
+            p["picturedLength"] ??= "";
+            var picturedLength=Text(p,"picturedLength").Trim();p["picturedLength"]=picturedLength;
+            if(picturedLength!=""&&(!Regex.IsMatch(picturedLength,@"^\d{1,6}(?:[.,]\d{1,3})?$")||!decimal.TryParse(picturedLength.Replace(',','.'),System.Globalization.NumberStyles.AllowDecimalPoint,System.Globalization.CultureInfo.InvariantCulture,out var length)||length<=0))throw new ArgumentException("Görseldeki ürün uzunluğu geçersiz.");
             p["priceUnit"] ??= "unit";
             if(!new[]{"unit","metre","m2"}.Contains(Text(p,"priceUnit")))throw new ArgumentException("Fiyat birimi geçersiz.");
             var vat=p["vatRate"]?.GetValue<decimal>()??20m;p["vatRate"]=vat;if(p["euro"]!.GetValue<decimal>()<0||p["tl"]!.GetValue<decimal>()<0||p["tl"]!.GetValue<decimal>()!=decimal.Truncate(p["tl"]!.GetValue<decimal>())||vat<0||vat>100)throw new ArgumentException("Fiyat veya KDV oranı geçersiz.");

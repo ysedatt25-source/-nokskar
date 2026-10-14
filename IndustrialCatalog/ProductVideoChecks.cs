@@ -25,6 +25,17 @@ public static class ProductVideoChecks
         if(!invalidUnitRejected)throw new Exception("Invalid price unit was accepted.");
         product.Remove("priceUnit");CatalogRules.Validate(source);
         Console.WriteLine("Product price unit checks: PASS (legacy default, three units, public persistence, invalid unit).");
+        if(product["picturedLength"]!.GetValue<string>()!="")throw new Exception("Legacy pictured size default failed.");
+        foreach(var size in new[]{"2","2,5","3.75"}){
+            product["picturedLength"]=size;CatalogRules.Validate(source);
+            if(CatalogRules.Public(source)["products"]![0]!["picturedLength"]!.GetValue<string>()!=size)throw new Exception("Pictured size lost in public catalog.");
+        }
+        foreach(var size in new[]{"0","-2","abc","2 metres","<script>"}){
+            product["picturedLength"]=size;var rejectedSize=false;try{CatalogRules.Validate(source);}catch(ArgumentException){rejectedSize=true;}
+            if(!rejectedSize)throw new Exception("Invalid pictured size accepted.");
+        }
+        product["picturedLength"]="";CatalogRules.Validate(source);
+        Console.WriteLine("Pictured product size checks: PASS (optional, decimals, public persistence, invalid input).");
         var video="/api/files/"+new string('a',32)+".mp4";
         product["video"]=video;CatalogRules.Validate(source);
         if(CatalogRules.Public(source)["products"]!.AsArray()[0]!["video"]!.GetValue<string>()!=video)throw new Exception("Public catalog lost product video.");
