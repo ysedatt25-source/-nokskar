@@ -121,20 +121,17 @@ public static class Membership
     {
         var accounts=customers.List();
         var warrantyRows=warranties?store.WarrantyList().ToList():new List<JsonNode?>();
-        var assigned=accounts.SelectMany(x=>x.WarrantyIds??new()).ToHashSet(StringComparer.Ordinal);
-        var options=new StringBuilder("<option value=''>Bağlanmamış garanti seçin</option>");
-        foreach(var w in warrantyRows.Where(x=>!assigned.Contains(x?["id"]?.ToString()??"")))options.Append("<option value='"+E(w?["id"]?.ToString())+"'>"+E(w?["serialNumber"]?.ToString())+" · "+E(w?["businessName"]?.ToString())+"</option>");
         var body=new StringBuilder("<section class='member-card member-admin-heading'><p class='member-eyebrow'>MÜŞTERİ İLİŞKİLERİ</p><h1>Üyeler & giriş desteği</h1><p>Müşteri hesaplarını ve garanti bağlantılarını tek yerden yönetin.</p><p class='member-admin-hint'>Giriş desteği tek kullanımlıktır ve 15 dakika geçerlidir.</p><label>Müşteri ara<input id='member-search' type='search' placeholder='Ad, firma veya e-posta'></label></section><div class='member-admin-list'>");
         foreach(var row in accounts){
             body.Append("<article class='member-card member-customer' data-customer='"+E(row.Id)+"'><div class='member-customer-head'><span class='member-admin-avatar' aria-hidden='true'><svg viewBox='0 0 24 24'><circle cx='12' cy='8' r='4'/><path d='M4 21v-2a8 8 0 0 1 16 0v2'/></svg></span><div><h2>"+E(row.Name)+"</h2>"+(string.IsNullOrWhiteSpace(row.BusinessName)?"":"<p>"+E(row.BusinessName)+"</p>")+"</div></div><div class='member-customer-contact'><span>"+E(row.Email)+"</span><span>"+E(row.Phone)+"</span></div><small class='member-customer-meta'>Üyelik: "+Date(row.CreatedUtc)+" · "+(string.IsNullOrWhiteSpace(row.Email)?(row.PhoneVerified?"Telefon doğrulandı":"Telefon doğrulaması bekleniyor"):row.EmailVerified?"E-posta doğrulandı":"E-posta doğrulaması bekleniyor")+"</small>");
             if(warranties){
                 var own=warrantyRows.Where(x=>(row.WarrantyIds??new()).Contains(x?["id"]?.ToString()??"")).ToList();
-                body.Append("<section class='member-owned-warranties'><h3>Bu hesaba bağlı garantiler <span>"+own.Count+"</span></h3>");
-                if(own.Count==0)body.Append("<p>Bu hesaba henüz garanti bağlanmamış.</p>");
+                body.Append("<section class='member-owned-warranties'><h3>Müşterinin garantili ürünleri <span>"+own.Count+"</span></h3>");
+                if(own.Count==0)body.Append("<p>Bu müşterinin hesabına bağlı garantili ürün bulunmuyor.</p>");
                 foreach(var w in own)body.Append("<div><strong>"+E(w?["productName"]?.ToString())+"</strong><small>Seri: "+E(w?["serialNumber"]?.ToString())+" · "+E(w?["businessName"]?.ToString())+"</small></div>");
                 body.Append("</section>");
             }
-            if(edit&&row.Active)body.Append("<div class='member-divider'><label class='member-check'><input type='checkbox' name='identity'><span>Müşterinin kimliğini doğrudan iletişimle doğruladım</span></label><button class='member-secondary' data-assistance>Giriş desteği oluştur</button><div class='member-code' hidden></div></div>"+(warranties?"<form class='member-bind'><label>Yeni garanti bağla<select name='warrantyId' required>"+options+"</select></label><small>Yalnızca bu müşteriye ait olduğunu doğruladığınız kaydı seçin. Liste, henüz hiçbir hesaba bağlanmamış kayıtları içerir.</small><button class='member-secondary'>Garanti kaydını hesaba bağla</button></form>":"")+"");
+            if(edit&&row.Active)body.Append("<div class='member-divider'><label class='member-check'><input type='checkbox' name='identity'><span>Müşterinin kimliğini doğrudan iletişimle doğruladım</span></label><button class='member-secondary' data-assistance>Giriş desteği oluştur</button><div class='member-code' hidden></div></div>" );
             body.Append("</article>");
         }
         if(customers.List().Count==0)body.Append("<section class='member-card member-empty'><h2>Henüz müşteri üyeliği yok</h2><p>Müşteriler hesap oluşturduğunda burada görünür.</p></section>");
