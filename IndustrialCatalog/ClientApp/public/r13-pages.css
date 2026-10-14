@@ -340,7 +340,7 @@ body.brand-admin-body .brand-admin-top>a{
 body.warranty-admin-body .warranty-admin-top a:hover,
 body.brand-admin-body .brand-admin-top>a:hover{background:#394655;color:#fff}
 
-body.warranty-admin-body :is(.button,.small-btn,.warranty-filter),
+body.warranty-admin-body :is(.button,.small-btn),
 body.brand-admin-body :is(button,a,.brand-upload-button){
   position:relative;overflow:hidden;isolation:isolate;
 }
@@ -363,12 +363,7 @@ body.warranty-admin-body .small-btn:not(.danger){
   box-shadow:0 5px 14px rgba(16,42,81,.06);
 }
 body.warranty-admin-body .small-btn.danger{background:#fff5f5;border-color:#efc6ca;color:#ad2937}
-body.warranty-admin-body .warranty-filter.active{
-  background:linear-gradient(180deg,#283746,#1f2a35);border-color:#273849;color:#fff;
-}
-body.warranty-admin-body .warranty-admin-form-card,
-body.warranty-admin-body .warranty-list-shell,
-body.warranty-admin-body .warranty-list-card{
+body.warranty-admin-body .warranty-admin-form-card{
   box-shadow:0 14px 34px rgba(16,42,81,.055);
 }
 
@@ -402,23 +397,12 @@ body.brand-admin-body .brand-admin-actions>a{
 
 
   body.warranty-admin-body .warranty-heading-actions>*{width:100%}
-  body.warranty-admin-body .warranty-filter-group{
-    width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;
-    scrollbar-width:none;overscroll-behavior-x:contain;
-  }
-  body.warranty-admin-body .warranty-filter-group::-webkit-scrollbar{display:none}
-  body.warranty-admin-body .warranty-filter{white-space:nowrap;flex:0 0 auto}
-
-  body.warranty-admin-body .warranty-list-card-actions>*{width:100%;justify-content:center}
   body.brand-admin-body .brand-admin-top{min-height:58px;padding:7px 10px}
   body.brand-admin-body .brand-admin-top span{display:none}
   body.brand-admin-body .brand-admin-top>a{min-height:36px;padding:0 8px;font-size:.68rem}
   body.brand-admin-body .brand-admin-main{margin-top:18px}
   body.brand-admin-body .brand-admin-actions{display:grid;grid-template-columns:1fr}
   body.brand-admin-body .brand-admin-actions>*{width:100%;justify-content:center}
-}
-@media(max-width:430px){
-  body.warranty-admin-body .warranty-list-card-actions{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){
   body.warranty-admin-body :is(.button,.small-btn)::after,
@@ -1649,22 +1633,6 @@ body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]{
     width:100%;min-height:46px;margin:0;padding:8px;font-size:.73rem;justify-content:center;
   }
   body.warranty-admin-body .warranty-form-actions .button:first-child{grid-column:1/-1;min-height:50px}
-  body.warranty-admin-body .warranty-list-shell{padding:12px;border-radius:14px}
-  body.warranty-admin-body .warranty-list-toolbar{gap:10px;margin-bottom:12px}
-  body.warranty-admin-body .warranty-list-search input{min-height:50px;font-size:16px}
-  body.warranty-admin-body .warranty-filter-group{
-    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
-  }
-  body.warranty-admin-body .warranty-filter{min-width:0;padding:8px 6px;font-size:.68rem;text-align:center}
-  body.warranty-admin-body .warranty-list-card{border-radius:12px}
-  body.warranty-admin-body .warranty-list-card-head{padding:13px 12px 10px;gap:8px}
-  body.warranty-admin-body .warranty-list-card-grid{grid-template-columns:1fr 1fr}
-  body.warranty-admin-body .warranty-list-info{padding:10px;border-bottom:1px solid #e5ebf3}
-  body.warranty-admin-body .warranty-list-info:nth-child(odd){border-right:1px solid #e5ebf3}
-  body.warranty-admin-body .warranty-list-card-actions{
-    display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 12px;
-  }
-  body.warranty-admin-body .warranty-list-card-actions :is(a,button){width:100%;min-height:44px;justify-content:center;margin:0}
 
   body.r123-admin-page .mail-wrap{width:calc(100% - 20px);margin:10px auto 94px;gap:9px}
   body.r123-admin-page .mail-heading{
@@ -1704,12 +1672,7 @@ body[data-ui-page^="admin-"] [data-slot="alert-dialog-content"]{
 @media(max-width:430px){
   body.warranty-admin-body .warranty-heading-actions,
   body.warranty-admin-body .warranty-form-actions,
-  body.warranty-admin-body .warranty-list-card-actions,
   body.r123-admin-page .mail-actions{grid-template-columns:1fr}
-
-  body.warranty-admin-body .warranty-filter-group{grid-template-columns:1fr}
-  body.warranty-admin-body .warranty-list-card-grid{grid-template-columns:1fr}
-  body.warranty-admin-body .warranty-list-info:nth-child(odd){border-right:0}
 }
 
 
