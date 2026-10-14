@@ -102,7 +102,7 @@ body .site-header .header-cta:hover,body.page-home .button:hover,body.page-inter
 /* Reviewed home, catalogue and informational pages. */
 body.page-home .hero{display:block;width:min(1280px,calc(100% - 48px));max-width:1280px;min-height:550px;margin:24px auto 0;padding:0;border-radius:22px;position:relative;overflow:hidden;background:#102c49}
 body.page-home .hero-visual{position:absolute;inset:0;width:100%;height:100%;min-height:0;border-radius:0}
-body.page-home .hero-image{width:100%;height:100%;object-fit:cover;opacity:.68}
+body.page-home .hero-image{width:100%;height:100%;object-fit:contain;opacity:.68}
 body.page-home .hero::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#0c213bf0 0%,#0c213bbf 42%,#0c213b20 100%);z-index:1;pointer-events:none}
 body.page-home .hero::after{display:none}
 body.page-home .hero-content{position:relative;z-index:2;margin:0;padding:56px 52px;width:min(720px,72%);background:transparent;border:0;box-shadow:none;backdrop-filter:none}

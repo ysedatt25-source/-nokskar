@@ -88,7 +88,7 @@ body.page-home .hero-actions .button.secondary{display:none}
 body.page-home .hero-caption,
 body.page-home .hero-foot{display:none}
 body.page-home .hero-visual{position:absolute;inset:0}
-body.page-home .hero-image{object-fit:cover;object-position:center center;filter:saturate(1.02) contrast(1.03)}
+body.page-home .hero-image{object-fit:contain;object-position:center center;filter:saturate(1.02) contrast(1.03)}
 body.page-home .categories-section{padding:24px 0 8px;margin-top:-112px;position:relative;z-index:3}
 body.page-home .categories-section .section-heading{display:none}
 body.page-home .category-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
