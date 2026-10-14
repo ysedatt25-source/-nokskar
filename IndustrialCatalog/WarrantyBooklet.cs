@@ -36,6 +36,7 @@ public static class WarrantyBooklet
         var tech=TechnicalLabel.Html(w["technicalLabel"]);
         var extra=tech==""?"":"<section class=\"booklet-tech\"><h3>Cihaz teknik bilgileri</h3><div>"+tech+"</div></section>";
         // Reuse the validated record content, with a dedicated readable A5 layout.
+        record=Regex.Replace(record,@"<header class=""certificate-head""[\s\S]*?</header>","",RegexOptions.CultureInvariant);
         record=record.Replace("class=\"certificate\"","class=\"certificate booklet-record\"",StringComparison.Ordinal);
         record=record.Replace("<div class=\"certificate-signatures\">",extra+"<div class=\"certificate-signatures\">",StringComparison.Ordinal);
         instructions+=$"<div class=\"booklet-service\"><strong>Servis ve garanti sorgulama</strong><p>{contact}</p><p><span data-query-address></span></p><p>QR kodu 2. sayfadadır. Modelin özel kılavuzu ve CE belgesi, kayıtta varsa sorgu ekranından açılır.</p></div>";
