@@ -53,6 +53,9 @@ public static class WarrantyDocumentChecks
         var fixedSnapshot=WarrantyRules.Prepare(input,catalog,inherited,out _);
         Check(fixedSnapshot["technicalLabel"]?["gasAmount"]?.ToString()=="120","catalog changes do not alter existing device snapshot");
         var legacyLabel=TechnicalLabel.Normalize(null);Check(legacyLabel["mode"]!.ToString()=="none"&&!legacyLabel["ceMark"]!.GetValue<bool>(),"old products do not acquire technical values or CE mark");
+        Check(html.Contains("data-booklet-page=\"1\"")&&html.Contains("data-booklet-page=\"2\"")&&html.Contains("data-booklet-page=\"3\"")&&html.Contains("data-booklet-page=\"4\""),"four booklet leaves rendered");
+        Check(html.Contains("data-booklet-mode=\"cooling both\"")&&html.Contains("data-booklet-mode=\"heating both\""),"separate heating and cooling text profiles");
+        Check(html.Contains("kapsamı, bileşen tablosuyla daraltılamaz")||html.Contains("kapsam, bileşen tablosuyla daraltılamaz"),"mandatory consumer coverage not waived");
         Console.WriteLine("Warranty document and manufacturing date checks: PASS (no live records)");
     }
 }

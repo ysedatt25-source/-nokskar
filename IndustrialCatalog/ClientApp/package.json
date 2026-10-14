@@ -7,7 +7,8 @@
   },
   "scripts": {
     "build": "node scripts/build-warranty-print.mjs && node scripts/build-site-styles.mjs && node scripts/clean-output.mjs && tsc --noEmit && vite build && node scripts/check-style-contract.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:booklet": "node scripts/booklet-pdf.test.mjs"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",

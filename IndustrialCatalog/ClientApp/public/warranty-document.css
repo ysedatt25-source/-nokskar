@@ -147,3 +147,49 @@
 .thermal-label-warning{color:#9a233c;font-weight:700}
 
 .thermal-qr-placeholder{display:flex;align-items:center;justify-content:center;text-align:center;width:21mm;height:21mm;border:1px dashed #777;font-size:7pt;line-height:1.2}
+
+/* Four physical A5 leaves; the PDF places them 4|1 and 2|3 on landscape A4. */
+.booklet-mode-choice{display:flex;align-items:center;gap:10px;font-weight:700;margin:10px 0}
+.booklet-mode-choice select{padding:8px;border:1px solid #b8c9d8;border-radius:7px;background:#fff;color:#18364e}
+.warranty-booklet{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:12px 0}
+.booklet-page{zoom:var(--booklet-preview-scale,1);flex:none;width:148.5mm;height:210mm;background:white;color:#142d43;border:1px solid #294861;padding:9mm 10mm;display:grid;grid-template-rows:10mm minmax(0,1fr) 6mm;gap:3mm;font:9pt/1.35 Arial,sans-serif;overflow:hidden}
+.booklet-head{display:flex;flex-direction:column;border-bottom:1px solid #b58a40;padding-bottom:2mm;font-size:8pt;line-height:1.3}
+.booklet-head span{font-size:6.5pt;letter-spacing:.08em;color:#286996}
+.booklet-body{min-width:0;min-height:0;overflow-wrap:anywhere}
+.booklet-foot{display:flex;align-items:end;justify-content:space-between;border-top:1px solid #aabcc9;font-size:7pt;line-height:1.2;padding-top:1mm}
+.booklet-foot span{max-width:85%;overflow-wrap:anywhere}
+.booklet-cover{display:flex;flex-direction:column;height:100%}
+.booklet-logo{width:85mm;height:27mm;object-fit:contain;align-self:center;margin:9mm 0}
+.booklet-eyebrow{letter-spacing:.15em;font-size:7pt;color:#286996;margin:3mm 0}
+.booklet-cover h1{font-size:25pt;line-height:1.12;letter-spacing:.02em;margin:4mm 0 8mm;padding-left:4mm;border-left:1.5mm solid #b58a40}
+.booklet-cover-product{border:1px solid #aac0d0;padding:5mm;background:#f6f9fb}
+.booklet-cover-product h2{font-size:13pt;margin:2mm 0}
+.booklet-cover-product small{font-size:7pt;letter-spacing:.08em}
+.booklet-cover-product p{font-size:9pt;line-height:1.6;margin:1mm 0}
+.booklet-cover-bottom{margin-top:auto;border-top:1px solid #b58a40;padding-top:4mm}
+.booklet-body h2{font-size:15pt;line-height:1.15;margin:0 0 4mm}
+.booklet-body h3{font-size:9pt;margin:0 0 1.5mm;color:#205b83}
+.booklet-body p{font-size:8.5pt;line-height:1.4;margin:0 0 2mm;color:#142d43}
+.booklet-list{padding-left:5mm;margin:0 0 3mm;font-size:8.5pt;line-height:1.35}
+.booklet-list li{margin-bottom:2.5mm}
+.booklet-box{border:1px solid #bbcad5;border-left:3px solid #286996;padding:3mm;margin:0 0 3mm}
+.booklet-rights{border-left-color:#b58a40}
+.booklet-callout{padding:3mm;background:#f4f7fa;border:1px solid #bbcad5}
+.booklet-service{border-top:1px solid #b58a40;padding-top:2mm;font-size:8pt}
+.warranty-booklet [data-booklet-mode][hidden]{display:none}
+.booklet-page .booklet-record{width:100%;padding:0;border:0;box-shadow:none;background:transparent;font:8.5pt/1.2 Arial,sans-serif;margin:0}
+.booklet-record .certificate-head{padding:0 0 2mm;gap:2mm}
+.booklet-record .certificate-brand{width:40mm}.booklet-record .certificate-brand img{height:12mm}
+.booklet-record h1{font-size:14pt;margin:0}.booklet-record .certificate-heading span{font-size:6pt}
+.booklet-record .certificate-heading p,.booklet-record .certificate-product p{font-size:7pt}
+.booklet-record .certificate-product{padding:2mm 0}.booklet-record .certificate-product h2{font-size:11pt;margin:0}
+.booklet-record .certificate-meta{margin:2mm 0}.booklet-record .certificate-meta div{padding:1.5mm 2mm}
+.booklet-record .certificate-meta dt{font-size:6.5pt;margin:0}.booklet-record .certificate-meta dd{font-size:8pt;line-height:1.15}
+.booklet-record h3{font-size:8pt;margin:2mm 0 1mm}.booklet-record table{font-size:7pt}.booklet-record th{font-size:7pt}.booklet-record th,.booklet-record td{padding:1mm}
+.booklet-record .certificate-note{font-size:7pt;padding:2mm;margin-top:2mm}
+.booklet-record .certificate-signatures{margin-top:3mm;gap:3mm}.booklet-record .certificate-signatures div{min-height:8mm;font-size:7pt}
+.booklet-record .certificate-footer{font-size:6pt;margin:1mm 0;padding:1mm 0}.booklet-record .certificate-footer p{font-size:6pt;line-height:1.2;margin:0}
+.booklet-tech>div{display:grid;grid-template-columns:1fr 1fr;gap:1mm;font-size:7pt}
+.booklet-qr{display:flex;align-items:center;gap:3mm;margin-top:2mm;font-size:7pt}.booklet-qr img{width:17mm;height:17mm;image-rendering:pixelated}
+.booklet-print-document{margin:0;background:#fff}.booklet-print-document .warranty-booklet{display:block;margin:0}.booklet-print-document .booklet-page{margin:0;zoom:1}
+@media(max-width:1100px){.warranty-booklet{display:block;overflow:auto}.booklet-page{margin-bottom:12px}}

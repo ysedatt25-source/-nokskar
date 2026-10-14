@@ -118,6 +118,14 @@ public static class WarrantyPages
             ["@@CE_MARK@@"] = warranty["technicalLabel"]?["ceMark"]?.GetValue<bool>()==true?"<img class=\"thermal-ce\" src=\"/ce-mark.svg\" alt=\"CE\">":"",
             ["@@THERMAL_DISABLED@@"] = coded ? "" : "disabled"
         };
-        return System.Text.RegularExpressions.Regex.Replace(html, "@@[A-Z_]+@@", match=>values.TryGetValue(match.Value,out var value)?value:match.Value);
+        html=System.Text.RegularExpressions.Regex.Replace(html, "@@[A-Z_]+@@", match=>values.TryGetValue(match.Value,out var value)?value:match.Value);
+        var record=System.Text.RegularExpressions.Regex.Match(html,@"<article class=""certificate""[\s\S]*?</article>").Value;
+        var booklet=WarrantyBooklet.Build(warranty,settings,record);
+        html=html.Replace(record,booklet,StringComparison.Ordinal)
+          .Replace("Garanti belgesi yazdır</button>","Garanti kitapçığı</button>",StringComparison.Ordinal)
+          .Replace("PDF, A4 kâğıdın üst yarısına yerleştirilir. Açılan PDF üzerinden gerçek boyutta (%100) yazdırın.","A4 yatay · iki yüz · dış yüz 4 | 1, iç yüz 2 | 3. Ortadan katlayın. PDF, çift taraflı kısa kenar çevirme ve %100 ölçek tercihlerini taşır; yazıcı sürücüsü bunları uygulamayabilir.",StringComparison.Ordinal)
+          .Replace("Garanti belgesini yazdır / PDF kaydet","Kitapçığı yazdır / PDF kaydet",StringComparison.Ordinal)
+          .Replace("<div class=\"certificate-panel\" id=\"certificate-pdf-panel\" hidden>","<div class=\"certificate-panel\" id=\"certificate-pdf-panel\" hidden><label class=\"booklet-mode-choice\">Cihaz türü<select id=\"booklet-mode\"><option value=\"none\">Genel ekipman</option><option value=\"cooling\">Sanayi soğutucu</option><option value=\"heating\">Endüstriyel mutfak ısıtıcı</option><option value=\"both\">Soğutucu + Isıtıcı</option></select></label><p>Bu seçim yalnız kitapçık metnini değiştirir; garanti kaydı değişmez. Modelin kendi kullanım kılavuzunu ayrıca teslim edin.</p>",StringComparison.Ordinal);
+        return html;
     }
 }

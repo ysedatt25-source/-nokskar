@@ -4,6 +4,7 @@ COPY IndustrialCatalog/ClientApp/package.json IndustrialCatalog/ClientApp/packag
 RUN npm ci --include=dev --no-audit --no-fund
 COPY IndustrialCatalog/ClientApp/ ./
 RUN npm run build
+RUN npm run test:booklet
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*

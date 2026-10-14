@@ -207,6 +207,13 @@ app.MapGet("/teknik",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions
 app.MapGet("/teknik/cihaz/{id}",(string id,HttpContext c,Store store)=>!AccessControl.Has(c.User,AccessPermissions.Technical,"view")?Results.Forbid():store.WarrantyById(id)==null?Results.NotFound():Results.Content(TechnicalPages.Device(id),"text/html; charset=utf-8")).RequireAuthorization();
 app.MapGet("/admin/warranties",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.Warranties,"edit")?Results.Content(WarrantyPages.Admin(AccessControl.Has(c.User,AccessPermissions.Technical,"view"),AccessControl.Has(c.User,AccessPermissions.Technical,"edit"),AccessControl.Has(c.User,AccessPermissions.Technical,"download")),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/warranties/list",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.Warranties,"view")?Results.Content(WarrantyPages.AdminList(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
+app.MapGet("/garanti-kitapcigi-ornek",(HttpContext c,Store store)=>{
+    var mode=c.Request.Query["tur"]=="heating"?"heating":"cooling";
+    var html=WarrantyPages.Certificate(WarrantyBookletChecks.Demo(mode),store.Snapshot()["data"]?["settings"] as JsonObject)
+      .Replace("<section class=\"certificate-controls\"","<p class=\"certificate-status\">ÖRNEK TASARIM · Gerçek garanti belgesi değildir; kayıt oluşturulmaz.</p><section class=\"certificate-controls\"",StringComparison.Ordinal)
+      .Replace("href=\"/admin/warranties/list\"","href=\"/\"",StringComparison.Ordinal);
+    return Results.Content(html,"text/html; charset=utf-8");
+});
 app.MapGet("/admin/warranties/{id}/certificate",(string id,HttpContext c,Store store)=>!(AccessControl.Role(c.User) is "Admin" or "SuperAdmin")||!AccessControl.Has(c.User,AccessPermissions.Warranties,"view")?Results.Forbid():store.WarrantyList().FirstOrDefault(x=>x?["id"]?.ToString()==id) is JsonObject warranty?Results.Content(WarrantyPages.Certificate(warranty,store.Snapshot()["data"]?["settings"] as JsonObject),"text/html; charset=utf-8"):Results.NotFound()).RequireAuthorization();
 app.MapGet("/admin/system",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Content(OperationsPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/mail",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Content(MailSettingsPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();

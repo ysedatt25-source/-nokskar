@@ -1,0 +1,5 @@
+using System.Text.Json.Nodes;
+public static class WarrantyBookletChecks
+{
+ public static JsonObject Demo(string mode)=>new(){["productName"]=mode=="heating"?"ÖRNEK · Endüstriyel Pişirme Ünitesi":"ÖRNEK · Sanayi Soğutma Dolabı",["productCode"]="ORNEK",["businessName"]="Örnek işletme · gerçek garanti değildir",["customerName"]="Örnek yetkili",["serialNumber"]="ORNEK-0001",["verificationCode"]="ORNEK00001",["manufacturingDate"]="2026-10-01",["deliveryDate"]="2026-10-14",["warrantyEndDate"]="2028-10-14",["warrantyMonths"]=24,["invoiceNumber"]="ORNEK-2026",["deliveryDocumentNumber"]="ORNEK-001",["warrantyNote"]="Bu belge yalnız tasarım örneğidir; garanti kaydı oluşturmaz.",["components"]=new JsonArray(new JsonObject{["name"]="Cihaz",["covered"]=true,["months"]=24,["note"]="Örnek kapsam"}),["technicalLabel"]=new JsonObject{["mode"]=mode,["voltage"]="230",["frequency"]="50",["totalPower"]=mode=="heating"?"3000":"500",["gas"]=mode=="cooling"?"R290":"",["gasAmount"]=mode=="cooling"?"120":"",["heaterPower"]=mode=="heating"?"3000":""}};
+}

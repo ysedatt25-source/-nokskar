@@ -44,6 +44,25 @@
    previewObserver.observe(thermal);
  }
 
+ const booklet=root.querySelector('.warranty-booklet'),modeChoice=root.querySelector('#booklet-mode');
+ function updateBooklet(){const mode=modeChoice.value;booklet.dataset.mode=mode;for(const item of booklet.querySelectorAll('[data-booklet-mode]'))item.hidden=!item.dataset.bookletMode.split(' ').includes(mode);}
+ if(booklet&&modeChoice){modeChoice.value=booklet.dataset.mode;modeChoice.addEventListener('change',updateBooklet);updateBooklet();const fit=()=>{if(booklet.closest('[hidden]'))return;booklet.style.setProperty('--booklet-preview-scale',Math.min(1,(booklet.clientWidth-4)/(148.5/25.4*96)));};const observer=new ResizeObserver(fit);observer.observe(booklet);observer.observe(booklet.parentElement);}
+ async function bookletBytes(){
+   const qr=await qrReady;const copy=booklet.cloneNode(true);copy.style.removeProperty('--booklet-preview-scale');copy.querySelectorAll('.brand-mirror-layer').forEach(e=>e.remove());
+   const frame=document.createElement('iframe');frame.title='Kitapçık baskı hazırlığı';frame.style.cssText='position:fixed;left:-10000px;top:0;width:148.5mm;height:210mm;border:0';
+   const loaded=new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=()=>reject(Error('Kitapçık hazırlanamadı.'));});
+   const css=new URL('/warranty-document.css?v=booklet-1',document.baseURI).href;
+   frame.srcdoc='<!doctype html><html lang="tr"><head><meta charset="utf-8"><link rel="stylesheet" href="'+css+'"></head><body class="warranty-certificate-body booklet-print-document">'+copy.outerHTML+'</body></html>';
+   document.body.append(frame);
+   try{await loaded;await frame.contentDocument.fonts.ready;await Promise.all([...frame.contentDocument.images].filter(i=>i.getAttribute('src')).map(i=>i.decode()));
+    const pages=[...frame.contentDocument.querySelectorAll('.booklet-page')],images=[];let qrBox;
+    for(let i=0;i<pages.length;i++){const page=pages[i],body=page.querySelector('.booklet-body');if(body.scrollHeight>body.clientHeight+2||body.scrollWidth>body.clientWidth+2)throw Error((i+1)+'. sayfadaki bilgiler A5 alana sığmıyor. Uzun notları / bileşen listesini kısaltın. Yazılar küçültülmedi.');
+     if(i===1&&qr){const bounds=page.getBoundingClientRect(),box=page.querySelector('.booklet-qr img').getBoundingClientRect();qrBox={x:(box.left-bounds.left)/bounds.width,y:(box.top-bounds.top)/bounds.height,w:box.width/bounds.width,h:box.height/bounds.height,qr};}
+     const canvas=await vendor.render(page,{scale:3,backgroundColor:'#fff',logging:false,useCORS:true});images.push(canvas.toDataURL('image/png'));
+    }
+    return await vendor.composeBooklet(images,qrBox);
+   }finally{frame.remove();}
+ }
  let printing=false;
  for(const button of root.querySelectorAll('[data-print-kind]'))button.addEventListener('click',async()=>{
    if(printing)return;printing=true;button.disabled=true;status.textContent='';
@@ -56,6 +75,7 @@
      const qr=await qrReady;
      const label=button.dataset.printKind.startsWith('thermal');
      if(label&&!qr)throw Error('Etiket için geçerli bir garanti doğrulama kodu gerekiyor.');
+     if(!label){const bytes=await bookletBytes(),url=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));const panel=button.closest('.certificate-panel');panel.querySelector('.certificate-pdf-download')?.remove();const download=document.createElement('a');download.className='certificate-pdf-download';download.href=url;download.download='INOKSKAR-garanti-kitapcigi-A4.pdf';download.textContent='Kitapçık PDF’ini indir';panel.append(download);if(viewer)viewer.location.replace(url);status.textContent='Kitapçık hazır: A4 yatay, çift taraflı, kısa kenardan çevirme, %100. PDF bu tercihleri taşır; sürücü desteklemiyorsa yazdırma ekranında seçin. Yazıcının kitapçık / çoklu sayfa ayarını ayrıca açmayın.';return;}
      const wide=button.dataset.printKind==='thermal-wide';
      const width=wide?100:80;
      const thermal=button.closest('.certificate-panel').querySelector('.thermal-label');
@@ -73,13 +93,6 @@
      if(label){
        const sheet=frame.contentDocument.querySelector('.thermal-label');fitText(sheet);
        if(sheet.scrollHeight>sheet.clientHeight+1||sheet.scrollWidth>sheet.clientWidth+1||[...sheet.querySelectorAll('[data-fit-text],.thermal-technical,.thermal-technical div')].some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1))throw Error('Bu kayıttaki uzun bilgiler seçilen etikete sığmıyor. 100 × 50 mm seçeneğini kullanın veya uzun model / belge numarasını kısaltın.');
-     }
-     if(!label){
-       const sheet=frame.contentDocument.querySelector('.certificate');
-       const maxHeight=133/25.4*96;
-       let size=10;sheet.style.setProperty('--certificate-font',size+'px');
-       while(sheet.getBoundingClientRect().height>maxHeight&&size>8){size-=.25;sheet.style.setProperty('--certificate-font',size+'px');}
-       if(sheet.getBoundingClientRect().height>maxHeight)throw Error('Bu kaydın kapsamı veya notları yarım A4 alanına sığmıyor. Bilgileri kısaltarak tekrar deneyin.');
      }
      const sheet=frame.contentDocument.querySelector(label?'.thermal-label':'.certificate');
      const canvas=await vendor.render(sheet,{scale:4,backgroundColor:'#fff',logging:false,useCORS:true});
