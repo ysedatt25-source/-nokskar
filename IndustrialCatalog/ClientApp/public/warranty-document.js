@@ -22,6 +22,10 @@
  qrReady.catch(()=>{status.textContent='QR kod hazırlanamadı. Sayfayı yenileyerek tekrar deneyin.';});
  for(const item of root.querySelectorAll('[data-query-address]'))item.textContent=queryUrl.host+queryUrl.pathname;
  function fitText(container){
+   for(const item of container.querySelectorAll('.thermal-technical div')){
+     let size=7;item.style.fontSize=size+'pt';
+     while((item.scrollHeight>item.clientHeight+1||item.scrollWidth>item.clientWidth+1)&&size>6){size-=.25;item.style.fontSize=size+'pt';}
+   }
    for(const item of container.querySelectorAll('[data-fit-text]')){
      let size=container.classList.contains('has-technical')&&item.classList.contains('thermal-product')?9:Number(item.dataset.fitText),min=Number(item.dataset.minFont||7);
      item.style.fontSize=size+'pt';
@@ -35,7 +39,7 @@
    fitText(thermal);
    const panel=thermal.closest('.certificate-panel');let warning=panel.querySelector('.thermal-label-warning');
    if(!warning){warning=document.createElement('p');warning.className='thermal-label-warning';warning.setAttribute('role','status');panel.insertBefore(warning,panel.querySelector('[data-print-kind]'));}
-   const overflow=[...thermal.querySelectorAll('[data-fit-text],.thermal-technical,.thermal-technical div')].some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1);
+   const overflow=[...thermal.querySelectorAll('[data-fit-text],.thermal-technical,.thermal-technical div,.thermal-brand,.thermal-date,.thermal-codes span,.thermal-query')].some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1);
    warning.textContent=overflow?(thermal.classList.contains('thermal-label-wide')?'Bilgiler 100 × 50 mm etikete sığmıyor. Uzun model veya belge numarasını kısaltın.':'Bilgiler 80 × 50 mm etikete okunaklı sığmıyor. 100 × 50 mm seçeneğini kullanın.'):'';
  }
  for(const thermal of root.querySelectorAll('.thermal-label')){
@@ -92,7 +96,7 @@
      await frame.contentDocument.fonts.ready;
      if(label){
        const sheet=frame.contentDocument.querySelector('.thermal-label');fitText(sheet);
-       if(sheet.scrollHeight>sheet.clientHeight+1||sheet.scrollWidth>sheet.clientWidth+1||[...sheet.querySelectorAll('[data-fit-text],.thermal-technical,.thermal-technical div')].some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1))throw Error('Bu kayıttaki uzun bilgiler seçilen etikete sığmıyor. 100 × 50 mm seçeneğini kullanın veya uzun model / belge numarasını kısaltın.');
+       if(sheet.scrollHeight>sheet.clientHeight+1||sheet.scrollWidth>sheet.clientWidth+1||[...sheet.querySelectorAll('[data-fit-text],.thermal-technical,.thermal-technical div,.thermal-brand,.thermal-date,.thermal-codes span,.thermal-query')].some(e=>e.scrollHeight>e.clientHeight+1||e.scrollWidth>e.clientWidth+1))throw Error('Bu kayıttaki uzun bilgiler seçilen etikete sığmıyor. 100 × 50 mm seçeneğini kullanın veya uzun model / belge numarasını kısaltın.');
      }
      const sheet=frame.contentDocument.querySelector(label?'.thermal-label':'.certificate');
      const canvas=await vendor.render(sheet,{scale:4,backgroundColor:'#fff',logging:false,useCORS:true});
