@@ -173,6 +173,7 @@
 .booklet-list{padding-left:5mm;margin:0 0 3mm;font-size:8.5pt;line-height:1.35}
 .booklet-list li{margin-bottom:2.5mm}
 .booklet-box{border:1px solid #bbcad5;border-left:3px solid #286996;padding:3mm;margin:0 0 3mm}
+.warranty-booklet[data-mode="both"] .booklet-page-4 .booklet-box{padding-block:2mm;margin-bottom:2mm}
 .booklet-rights{border-left-color:#b58a40}
 .booklet-callout{padding:3mm;background:#f4f7fa;border:1px solid #bbcad5}
 .booklet-service{border-top:1px solid #b58a40;padding-top:2mm;font-size:8pt}
