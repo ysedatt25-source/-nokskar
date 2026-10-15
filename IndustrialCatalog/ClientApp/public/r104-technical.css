@@ -28,3 +28,9 @@
 }
 @media(max-width:390px){.device-summary-grid{grid-template-columns:1fr 1fr}.panel-actions{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.button::after,.small-btn::after{display:none}}}
+
+@layer site{
+body #device-summary .warranty-summary.warranty-current{background:#eef9f3;border-color:#b5dccb;color:#146448}
+body #device-summary .warranty-summary.warranty-ending{background:#f9eeef;border-color:#dcb5bc;color:#64202a}
+body #device-summary .warranty-summary :is(span,strong){color:inherit}
+}
