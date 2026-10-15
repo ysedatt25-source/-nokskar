@@ -82,10 +82,6 @@ body .detail-summary-compact .detail-price{display:flex;align-items:baseline;fle
 body .detail-summary-compact .product-purchase-note{flex-wrap:wrap;gap:5px 10px}
 body .detail-summary-compact .product-purchase-note strong{white-space:nowrap}
 
-body .product-card .price .price-basis{flex-basis:100%;font-size:12px;line-height:1.5;font-weight:400;letter-spacing:normal;text-transform:none;color:#667885}
-body .detail-summary-compact .price-basis{align-self:flex-start;color:#667885;font-size:13px;line-height:1.5;font-weight:400;letter-spacing:normal;text-transform:none}
-body .price-basis .price-basis-value{color:#285e85;font-weight:400}
-body .price-basis .price-basis-number{font-family:"Trebuchet MS","Segoe UI",sans-serif;font-size:1em;font-weight:400;font-variant-numeric:proportional-nums}
 
 /* Compact glass label stays inside the existing photo frame. */
 body .product-photo-wrap .pictured-product-size,body .detail-gallery-frame .pictured-product-size{
