@@ -10,6 +10,7 @@ public sealed class MailQueue : BackgroundService
     readonly IHttpClientFactory httpClientFactory;
     readonly ILogger<MailQueue> logger;
     readonly object gate = new();
+    readonly SemaphoreSlim processingGate=new(1,1);
     string lastError = "";
     DateTimeOffset? lastSuccess;
 
@@ -76,6 +77,27 @@ public sealed class MailQueue : BackgroundService
         }
     }
 
+    public async Task<JsonArray> PendingRows(CancellationToken token=default)
+    {
+        await processingGate.WaitAsync(token);
+        try{lock(gate){
+            var rows=new JsonArray();
+            foreach(var file in Directory.EnumerateFiles(outbox,"*.json").OrderByDescending(File.GetLastWriteTimeUtc)){
+                var id=Path.GetFileNameWithoutExtension(file);if(!System.Text.RegularExpressions.Regex.IsMatch(id,@"^[a-f0-9]{32}$")||new FileInfo(file).LinkTarget!=null)continue;
+                JsonObject job;try{job=JsonNode.Parse(File.ReadAllText(file))!.AsObject();}catch{job=new JsonObject{["lastError"]="Kuyruk kaydı okunamadı."};}
+                rows.Add(new JsonObject{["id"]=id,["to"]=job["to"]?.ToString()??"",["subject"]=job["subject"]?.ToString()??"E-posta kaydı",["createdUtc"]=job["createdUtc"]?.ToString()??"",["attempts"]=job["attempts"]?.ToString()??"0",["lastError"]=job["lastError"]?.ToString()??""});
+            }
+            return rows;
+        }}finally{processingGate.Release();}
+    }
+    public async Task<int> DeletePending(IEnumerable<string> ids,CancellationToken token=default)
+    {
+        var selected=ids.Distinct(StringComparer.Ordinal).ToArray();
+        if(selected.Length<1||selected.Length>1000||selected.Any(x=>!System.Text.RegularExpressions.Regex.IsMatch(x,@"^[a-f0-9]{32}$")))throw new ArgumentException("Geçerli e-posta kayıtlarını seçin (en fazla 1000).");
+        await processingGate.WaitAsync(token);
+        try{lock(gate){var count=0;foreach(var id in selected){var file=Path.Combine(outbox,id+".json");if(!File.Exists(file)||new FileInfo(file).LinkTarget!=null)continue;File.Delete(file);count++;}return count;}}finally{processingGate.Release();}
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
@@ -93,6 +115,9 @@ public sealed class MailQueue : BackgroundService
         var processed = 0;
         foreach (var file in Directory.EnumerateFiles(outbox, "*.json", SearchOption.TopDirectoryOnly).OrderBy(x => x))
         {
+            await processingGate.WaitAsync(token);
+            try{
+            if(!File.Exists(file))continue;
             token.ThrowIfCancellationRequested();
             JsonObject job;
             try { job = JsonNode.Parse(await File.ReadAllTextAsync(file, token))?.AsObject() ?? throw new InvalidDataException("E-posta kuyruğu kaydı geçersiz."); }
@@ -116,6 +141,7 @@ public sealed class MailQueue : BackgroundService
                 lock (gate) lastError = ex.Message;
                 logger.LogWarning(ex, "E-posta gönderilemedi; kuyrukta tutuluyor. Deneme: {Attempts}", attempts);
             }
+            }finally{processingGate.Release();}
         }
     }
 

@@ -12,6 +12,7 @@ WORKDIR /src
 COPY IndustrialCatalog/ ./
 COPY --from=client-build /src/IndustrialCatalog/wwwroot/ ./wwwroot/
 RUN dotnet publish IndustrialCatalog.csproj -c Release -o /app -p:BuildClientApp=false
+RUN dotnet /app/IndustrialCatalog.dll --operations-lists-self-test
 RUN dotnet /app/IndustrialCatalog.dll --audit-self-test
 RUN dotnet /app/IndustrialCatalog.dll --membership-self-test
 RUN dotnet /app/IndustrialCatalog.dll --live-support-self-test

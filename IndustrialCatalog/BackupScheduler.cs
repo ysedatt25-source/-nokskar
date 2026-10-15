@@ -13,7 +13,7 @@ public sealed class BackupScheduler(Store store,IWebHostEnvironment env,IConfigu
                 var latest=Directory.EnumerateFiles(dir,"inokskar-auto-*.zip").Select(x=>new FileInfo(x)).OrderByDescending(x=>x.LastWriteTimeUtc).FirstOrDefault();
                 if(latest==null||DateTime.UtcNow-latest.LastWriteTimeUtc>TimeSpan.FromHours(23))
                 {
-                    var bytes=CatalogBackup.Create(store.Snapshot(),dataPath);var path=Path.Combine(dir,$"inokskar-auto-{DateTime.UtcNow:yyyyMMdd-HHmmss}.zip");await File.WriteAllBytesAsync(path,bytes,stoppingToken);store.RecordAudit("Otomatik yedek oluşturuldu",Path.GetFileName(path));
+                    var bytes=CatalogBackup.Create(store.Snapshot(),dataPath);var path=Path.Combine(dir,$"inokskar-auto-{DateTime.UtcNow:yyyyMMdd-HHmmss}.zip");var temp=path+".tmp";try{await File.WriteAllBytesAsync(temp,bytes,stoppingToken);File.Move(temp,path,true);}finally{if(File.Exists(temp))File.Delete(temp);}store.RecordAudit("Otomatik yedek oluşturuldu",Path.GetFileName(path));
                     foreach(var old in Directory.EnumerateFiles(dir,"inokskar-auto-*.zip").Select(x=>new FileInfo(x)).OrderByDescending(x=>x.LastWriteTimeUtc).Skip(14))try{old.Delete();}catch{}
                 }
             }
