@@ -1,6 +1,7 @@
 import {useEffect,useState,type FormEvent} from 'react';
-import {Search, ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Menu, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
+import {ExternalLink, Search, ArrowRight, CheckCircle2, ChevronRight, ClipboardList, Clock3, DraftingCompass, Headphones, Menu, Mail, MapPin, Phone, Send, ShieldCheck, Wrench, CloudUpload, FileText, Image as ImageIcon, X} from 'lucide-react';
 import type {Catalog} from '../lib/model';
+import {safeLink} from '../lib/model';
 
 type Purpose = 'genel' | 'teklif' | 'servis' | 'proje';
 const choices = [
@@ -180,6 +181,7 @@ export default function SupportCenter({settings:s,onOpenMenu,menuOpen}:{settings
       <aside id="dogrudan-iletisim" tabIndex={-1} style={{scrollMarginTop:110,outline:'none'}} className="support-info" aria-label="Diğer iletişim yolları">
         <div className="support-info-heading"><button type="button" className="support-menu-toggle" aria-label="Site menüsünü aç" aria-controls="r22-mobile-drawer" aria-expanded={menuOpen} onClick={onOpenMenu}><Menu size={23} aria-hidden="true"/></button><span>DOĞRUDAN İLETİŞİM</span><h2>Biz buradayız.</h2><p>Form doldurmak istemezseniz aşağıdaki kanallardan da ulaşabilirsiniz.</p></div>
         <div className="contact-quick-list">
+          {s.social&&safeLink(s.social)&&<a href={s.social} target="_blank" rel="noopener noreferrer"><ExternalLink/><span><small>SOSYAL MEDYA</small><strong>Bizi takip edin</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.phone&&<a href={'tel:'+s.phone}><Phone/><span><small>TELEFON</small><strong>{s.phone}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.email&&<a href={'mailto:'+s.email}><Mail/><span><small>E-POSTA</small><strong>{s.email}</strong></span><ArrowRight className="support-info-arrow"/></a>}
           {s.address&&<a href={s.mapUrl||'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.address)} target="_blank" rel="noreferrer"><MapPin/><span><small>ADRES</small><strong>{s.address}</strong></span><ArrowRight className="support-info-arrow"/></a>}
