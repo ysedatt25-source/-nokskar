@@ -95,3 +95,16 @@ body .pictured-product-size>span{color:#e2edf4}
 body .pictured-product-size>strong{padding-left:7px;border-left:1px solid rgba(255,255,255,.32);font-size:inherit;font-weight:600;white-space:nowrap;color:#fff}
 body .detail-gallery-frame .pictured-product-size{font-size:11px;max-width:calc(100% - 20px)}
 @media(max-width:420px){body .product-photo-wrap .pictured-product-size{left:6px;bottom:6px;gap:4px;padding:4px 6px;font-size:9px;max-width:calc(100% - 45px)}body .product-photo-wrap .pictured-product-size>strong{padding-left:4px}}
+
+/* Touch galleries use a three-dot swipe cue; desktop retains click arrows. */
+body .gallery-swipe-dots{display:none}
+body .product-photo-wrap,body .detail-gallery-frame{touch-action:pan-y}
+@media(max-width:1024px){
+ body .product-photo-wrap .gallery-arrow,body.page-detail.app-shell-enabled .detail-gallery-frame .detail-gallery-arrow,body .product-photo-wrap .gallery-count,body.page-detail.app-shell-enabled .detail-gallery-frame .detail-gallery-count{display:none}
+ body .product-photo-wrap .gallery-swipe-dots,body .detail-gallery-frame .gallery-swipe-dots{position:absolute;z-index:3;bottom:7px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:4px;height:12px;padding:2px 6px;border-radius:10px;background:rgba(255,255,255,.75);pointer-events:none}
+ body .gallery-swipe-dots>span{display:block;width:4px;height:4px;border-radius:50%;background:#7b91a3;transition:width .18s ease,height .18s ease,background-color .18s ease}
+ body .gallery-swipe-dots>span.active{width:7px;height:7px;background:#2265a0}
+ body .detail-gallery-frame:has(video) .gallery-swipe-dots{bottom:48px}
+ body .detail-gallery-frame .pictured-product-size{bottom:25px}
+}
+@media(prefers-reduced-motion:reduce){body .gallery-swipe-dots>span{transition:none}}
