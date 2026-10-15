@@ -558,6 +558,41 @@ public sealed class Store
         while (list.Count > 10000) list.RemoveAt(list.Count - 1);
     }
 
+    static HashSet<string> SelectedRecordIds(IEnumerable<string> ids)
+    {
+        var selected=ids.ToHashSet(StringComparer.Ordinal);
+        if(selected.Count<1||selected.Count>1000||selected.Any(id=>!Regex.IsMatch(id,@"^[a-f0-9]{32}$")))throw new ArgumentException("Geçerli kayıtları seçin (en fazla 1000).");
+        return selected;
+    }
+    public JsonArray CatalogVersionRows()
+    {
+        lock(gate)return new JsonArray(state["history"]!.AsArray().Select(x=>(JsonNode)new JsonObject{
+            ["id"]=x!["id"]!.ToString(),["name"]=x["label"]?.ToString()??"Katalog sürümü",["createdUtc"]=x["created"]?.ToString()??"",
+            ["detail"]=(x["data"]?["products"]?.AsArray().Count??0)+" ürün · "+(x["data"]?["categories"]?.AsArray().Count??0)+" kategori"
+        }).ToArray());
+    }
+    public int DeleteCatalogVersions(IEnumerable<string> ids,string actor)
+    {
+        var selected=SelectedRecordIds(ids);
+        lock(gate){var next=state.DeepClone().AsObject();var list=next["history"]!.AsArray();var count=0;
+            for(var i=list.Count-1;i>=0;i--)if(selected.Contains(list[i]!["id"]!.ToString())){list.RemoveAt(i);count++;}
+            if(count>0){AddAudit(next,"Katalog geçmiş sürümleri silindi","catalog",count+" kayıt",actor);Persist(next);}return count;
+        }
+    }
+    public int DeleteWarranties(IEnumerable<string> ids,string actor)
+    {
+        var selected=SelectedRecordIds(ids);
+        lock(gate){var next=state.DeepClone().AsObject();var list=next["warranties"]!.AsArray();var history=next["warrantyHistory"]!.AsArray();var count=0;
+            for(var i=list.Count-1;i>=0;i--){var id=list[i]!["id"]!.ToString();if(!selected.Contains(id))continue;
+                var before=list[i]!.DeepClone();list.RemoveAt(i);count++;
+                history.Insert(0,new JsonObject{["id"]=Guid.NewGuid().ToString("N"),["warrantyId"]=id,["action"]="Garanti kaydı silindi",["created"]=DateTimeOffset.UtcNow.ToString("O"),["actor"]=actor,["before"]=before});
+                AddAudit(next,"Garanti kaydı silindi",id,"",actor);
+            }
+            while(history.Count>5000)history.RemoveAt(history.Count-1);
+            if(count>0)Persist(next);return count;
+        }
+    }
+
     public JsonArray WarrantyList()
     {
         lock (gate) return new JsonArray(state["warranties"]!.AsArray().Select(x => (JsonNode)WarrantyRules.AdminView(x!.AsObject())).ToArray());
