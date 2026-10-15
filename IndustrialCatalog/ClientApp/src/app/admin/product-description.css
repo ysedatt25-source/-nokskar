@@ -1,0 +1,14 @@
+.product-description-assistant{padding:14px;border:1px solid #cfdeec;border-radius:14px;background:linear-gradient(135deg,#f3f8ff,#f8fbfd);margin:10px 0 14px;color:#24465c}
+.description-assistant-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.description-assistant-heading>span{display:inline-flex;align-items:center;gap:7px;font-size:14px}
+.description-connection{border:0;background:transparent;color:#356483;font-size:11px;text-decoration:underline;cursor:pointer;padding:4px}
+.product-description-assistant p{font-size:12px;line-height:1.6;margin:8px 0;color:#557080}
+.product-description-assistant small{display:block;font-size:11px;line-height:1.5;margin:7px 0;color:#627887}
+.description-assistant-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.description-assistant-actions .small-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;font-size:12px;padding:9px 12px}
+.description-assistant-actions .description-generate{background:#e4effa;border:1px solid #b5cfe6;color:#205a85}
+.description-connection-form,.description-draft{margin-top:12px;padding-top:12px;border-top:1px solid #d5e1ec}
+.product-description-assistant label{display:flex;flex-direction:column;gap:7px;font-size:12px}
+.product-description-assistant textarea{width:100%;min-height:160px;font-size:14px;line-height:1.65;background:#fff}
+.description-spin{animation:description-turn 1.2s linear infinite}@keyframes description-turn{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.description-spin{animation:none}}

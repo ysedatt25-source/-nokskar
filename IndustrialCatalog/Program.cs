@@ -12,6 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
+if(args.Contains("--product-description-self-test")){await ProductDescriptionChecks.Run();return;}
 if(args.Contains("--operations-lists-self-test")){await OperationsListsChecks.Run();return;}
 if(args.Contains("--audit-self-test")){AuditLogChecks.Run();return;}
 if(args.Contains("--media-optimization-self-test")){await MediaOptimizationChecks.Check();return;}
@@ -331,7 +332,7 @@ app.MapPost("/api/rate/refresh",async(HttpContext c,Store store,IHttpClientFacto
     var state=store.Snapshot();var settings=state["data"]!["settings"]!;
     return Results.Json(new{rate=settings["rate"],lastRate=settings["lastRate"],rateSource=settings["rateSource"],rateDate=settings["rateDate"],revision=state["revision"]});
 }).RequireAuthorization();
-OperationsLists.Map(app,dataPath);
+OperationsLists.Map(app,dataPath);ProductDescriptions.Map(app,dataPath);
 app.MapGet("/api/admin/system-health",(HttpContext c,Store store,MailQueue mail,OperationalLog logs,AdminLoginGuard loginGuard)=>{if(!AccessControl.Has(c.User,AccessPermissions.System,"view"))return Results.Forbid();
     var state=store.Snapshot();var settings=state["data"]!["settings"]!;var last=settings["lastRate"]?.ToString()??"";
     var stale=!DateTimeOffset.TryParse(last,out var checkedAt)||DateTimeOffset.UtcNow-checkedAt>TimeSpan.FromMinutes(30);
@@ -510,7 +511,7 @@ app.Run();
 catch(Exception fatal)
 {
     if(args.Contains("--product-video-self-test")){ProductVideoChecks.Run();return;}
-if(args.Contains("--live-support-self-test")||args.Contains("--audit-self-test")||args.Contains("--operations-lists-self-test"))throw;
+if(args.Contains("--product-description-self-test")||args.Contains("--live-support-self-test")||args.Contains("--audit-self-test")||args.Contains("--operations-lists-self-test"))throw;
     StartupRecovery.Run(fatal, args);
 }
 static string RoleLanding(ClaimsPrincipal user)

@@ -239,6 +239,7 @@ public sealed class SupportTranslation
     public SupportTranslation(IWebHostEnvironment env,IConfiguration config,IDataProtectionProvider provider,IHttpClientFactory clients)
     {this.config=config;this.clients=clients;protector=provider.CreateProtector("Inokskar.LiveSupport.Translation.v1");file=Path.Combine(Path.GetFullPath(config["Storage:Path"]??"App_Data",env.ContentRootPath),"live-support-translation.key");if(File.Exists(file))encrypted=File.ReadAllText(file);}
     string Key {get{lock(gate){if(!string.IsNullOrWhiteSpace(config["LiveSupport:OpenAIKey"]))return config["LiveSupport:OpenAIKey"]!;try{return encrypted==""?"":protector.Unprotect(encrypted);}catch(System.Security.Cryptography.CryptographicException){return "";}}}}
+    internal string DescriptionKey=>Key;
     public bool Ready=>Key!="";
     public void Configure(string key,bool remove)
     {lock(gate){if(remove){encrypted="";File.Delete(file);return;}if(key.Length is <20 or >300||key.Any(char.IsWhiteSpace))throw new ArgumentException("Geçerli bir OpenAI API anahtarı girin.");encrypted=protector.Protect(key);var temp=file+".tmp";File.WriteAllText(temp,encrypted);File.Move(temp,file,true);}}
