@@ -8,6 +8,7 @@ public static class OperationsLists
  public static void Map(WebApplication app,string dataPath){
   var backups=new BackupFiles(dataPath);
   foreach(var kind in new[]{"mail-queue","backups","catalog-versions","warranties"}){
+   var isBackup=kind=="backups";
    app.MapGet("/admin/system/"+kind,(HttpContext c)=>Can(c.User,kind,"view")?Results.Content(Page(kind),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
    app.MapGet("/api/admin/system/"+kind,async(HttpContext c,MailQueue mail,Store store)=>{
     if(!Can(c.User,kind,"view"))return Results.Forbid();
