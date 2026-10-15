@@ -520,6 +520,18 @@ public sealed class Store
         lock (gate) return new JsonArray(state["auditLog"]!.AsArray().Take(Math.Clamp(max, 1, 1000)).Select(x => x!.DeepClone()).ToArray());
     }
 
+    public int DeleteAuditRecords(IEnumerable<string> ids,string actor)
+    {
+        var selected=ids.ToHashSet(StringComparer.Ordinal);
+        if(selected.Count<1||selected.Count>500||selected.Any(id=>!Regex.IsMatch(id,@"^[a-f0-9]{32}$")))throw new ArgumentException("Geçerli işlem kayıtları seçin (en fazla 500).");
+        lock(gate){
+            var next=state.DeepClone().AsObject();var list=next["auditLog"]!.AsArray();var count=0;
+            for(var i=list.Count-1;i>=0;i--)if(selected.Contains(list[i]?["id"]?.ToString()??"")){list.RemoveAt(i);count++;}
+            if(count>0){AddAudit(next,"İşlem günlükleri silindi","audit",count+" kayıt silindi",actor);Persist(next);}
+            return count;
+        }
+    }
+
     public JsonArray AuditForTarget(string target, int max = 50)
     {
         if (string.IsNullOrWhiteSpace(target)) return new JsonArray();

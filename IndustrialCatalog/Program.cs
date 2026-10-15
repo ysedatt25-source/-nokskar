@@ -12,6 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
+if(args.Contains("--audit-self-test")){AuditLogChecks.Run();return;}
 if(args.Contains("--media-optimization-self-test")){await MediaOptimizationChecks.Check();return;}
 if(args.Contains("--product-video-self-test")){ProductVideoChecks.Run();return;}
 if(args.Contains("--live-support-self-test")){LiveSupportChecks.Run();return;}
@@ -334,7 +335,14 @@ app.MapGet("/api/admin/system-health",(HttpContext c,Store store,MailQueue mail,
     var stale=!DateTimeOffset.TryParse(last,out var checkedAt)||DateTimeOffset.UtcNow-checkedAt>TimeSpan.FromMinutes(30);
     return Results.Json(new{revision=state["revision"],warranties=state["warranties"]!.AsArray().Count,inquiries=state["inquiries"]!.AsArray().Count,rate=settings["rate"],lastRate=last,rateSource=settings["rateSource"],rateDate=settings["rateDate"],rateStale=stale,storageProvider="JSON / App_Data",backup=SystemStatus.Backup(dataPath),mail=mail.Status(),loginSecurity=loginGuard.Status(),errors=logs.RecentErrors()});
 }).RequireAuthorization();
-app.MapGet("/api/admin/audit",(HttpContext c,Store store)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Json(new{rows=store.AuditLog(500)}):Results.Forbid()).RequireAuthorization();
+app.MapGet("/api/admin/audit",(HttpContext c,Store store)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Json(new{rows=store.AuditLog(500),canDelete=AccessControl.Has(c.User,AccessPermissions.System,"edit")}):Results.Forbid()).RequireAuthorization();
+app.MapPost("/api/admin/audit/delete",async(HttpContext c,Store store,IAntiforgery csrf)=>{
+    if(!AccessControl.Has(c.User,AccessPermissions.System,"edit"))return Results.Forbid();
+    try{await csrf.ValidateRequestAsync(c);}catch(AntiforgeryValidationException){return Results.BadRequest(new{error="Güvenlik doğrulaması yenilenmeli. Sayfayı yenileyin."});}
+    var body=await c.Request.ReadFromJsonAsync<JsonObject>();
+    if(body?["ids"] is not JsonArray ids||ids.Count<1||ids.Count>500||ids.Any(x=>x is not JsonValue v||!v.TryGetValue<string>(out _)))return Results.BadRequest(new{error="Silinecek kayıtları seçin (en fazla 500)."});
+    try{return Results.Json(new{deleted=store.DeleteAuditRecords(ids.Select(x=>x!.GetValue<string>()),AccessControl.DisplayName(c.User))});}catch(ArgumentException e){return Results.BadRequest(new{error=e.Message});}
+}).RequireAuthorization();
 app.MapGet("/api/admin/mail/settings",(HttpContext c,MailSettingsStore settings)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Json(new{settings=settings.PublicSettings(),providers=MailSettingsStore.ProviderJson()}):Results.Forbid()).RequireAuthorization();
 app.MapPost("/api/admin/mail/settings",async(HttpContext c,MailSettingsStore settings,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.System,"edit"))return Results.Forbid();var body=await c.Request.ReadFromJsonAsync<JsonObject>()??throw new ArgumentException("E-posta sağlayıcı ayarları gerekli.");var saved=settings.Save(body);store.RecordAudit("E-posta sağlayıcı ayarı güncellendi","mail",saved.Provider,AccessControl.DisplayName(c.User));return Results.Json(new{ok=true,settings=settings.PublicSettings()});}).RequireAuthorization();
 app.MapPost("/api/admin/mail/test",async(HttpContext c,MailQueue mail,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.System,"edit"))return Results.Forbid();var body=await c.Request.ReadFromJsonAsync<JsonObject>()??new JsonObject();var to=(body["to"]?.ToString()??mail.AdminAddress).Trim();if(string.IsNullOrWhiteSpace(to))return Results.BadRequest(new{error="Test alıcısı veya yönetici e-posta adresi gerekli."});try{await mail.SendTestAsync(to,c.RequestAborted);store.RecordAudit("SMTP bağlantı testi başarılı","mail",to,AccessControl.DisplayName(c.User));return Results.Json(new{ok=true,sent=true});}catch(Exception ex) when(ex is ArgumentException or InvalidOperationException or SmtpException){store.RecordAudit("SMTP bağlantı testi başarısız","mail",ex.Message.Length>220?ex.Message[..220]:ex.Message,AccessControl.DisplayName(c.User));return Results.BadRequest(new{error="SMTP bağlantı testi başarısız: "+ex.Message});}}).RequireAuthorization();
@@ -500,7 +508,7 @@ app.Run();
 catch(Exception fatal)
 {
     if(args.Contains("--product-video-self-test")){ProductVideoChecks.Run();return;}
-if(args.Contains("--live-support-self-test"))throw;
+if(args.Contains("--live-support-self-test")||args.Contains("--audit-self-test"))throw;
     StartupRecovery.Run(fatal, args);
 }
 static string RoleLanding(ClaimsPrincipal user)
