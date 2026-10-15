@@ -42,8 +42,9 @@ public static class ProductDescriptions
   return text;
  }
  internal static async Task<string> ImageData(string root,string url,CancellationToken ct){
-  if(!Regex.IsMatch(url,@"^/uploads/[a-f0-9]{32}\.(jpg|png|webp)$"))throw new ArgumentException("Açıklama hazırlamak için ürüne yüklenmiş JPG, PNG veya WebP fotoğraf kullanın.");
-  var name=Path.GetFileName(url);var original=Path.Combine(root,"uploads",name);var derived=MediaOptimizer.DerivedPath(root,name,"detail");
+  var match=Regex.Match(url,@"^/(?:api/files|uploads)/(?<name>[a-f0-9]{32}\.(?:jpg|png|webp))(?:\?media=(?:thumb|card|detail))?$");
+  if(!match.Success)throw new ArgumentException("Açıklama hazırlamak için ürüne yüklenmiş JPG, PNG veya WebP fotoğraf kullanın.");
+  var name=match.Groups["name"].Value;var original=Path.Combine(root,"uploads",name);var derived=MediaOptimizer.DerivedPath(root,name,"detail");
   var file=File.Exists(derived)?derived:original;
   if(!File.Exists(file)||new FileInfo(file).LinkTarget!=null)throw new ArgumentException("Ürün görseli bulunamadı. Fotoğrafı tekrar yükleyin.");
   if(new FileInfo(file).Length>8*1024*1024)throw new ArgumentException("Fotoğraf henüz hazırlanıyor veya çok büyük. Birkaç saniye sonra tekrar deneyin.");
