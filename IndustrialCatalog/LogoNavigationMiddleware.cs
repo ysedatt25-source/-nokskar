@@ -47,6 +47,10 @@ public sealed class LogoNavigationMiddleware
                     if(end>=0)html=html.Insert(end,assets);
                     html=Regex.Replace(html,@"<body\b[^>]*>",m=>m.Value+"<div id=\"inokskar-page-loader\" role=\"status\" aria-label=\"Sayfa yükleniyor\" aria-busy=\"true\"><div class=\"page-loading-brand\"><div class=\"page-loading-mark\"><img class=\"page-loading-logo\" src=\"/inokskar-logo.svg\" alt=\"İNOKSKAR\"></div><span class=\"page-loading-track\" aria-hidden=\"true\"></span><span class=\"page-loading-caption\" aria-hidden=\"true\">Yükleniyor</span></div></div><noscript><style>#inokskar-page-loader{display:none}</style></noscript>",RegexOptions.IgnoreCase);
                 }
+                if(!html.Contains("/form-validation.js",StringComparison.Ordinal)){
+                    var formsHead=html.IndexOf("</head>",StringComparison.OrdinalIgnoreCase);
+                    if(formsHead>=0)html=html.Insert(formsHead,"<link rel='stylesheet' href='/form-validation.css?v=forms-1'><script src='/form-validation.js?v=forms-1'></script>");
+                }
                 // Install shared DOM subscriptions before deferred page owners start.
                 var headStart=html.IndexOf("<head",StringComparison.OrdinalIgnoreCase);
                 if(headStart>=0){headStart=html.IndexOf('>',headStart)+1;var common="<script src=\"/dom-lifecycle.js?v=ownership-1\"></script>";if(!html.Contains("/r123-security.js",StringComparison.Ordinal))common+="<script src=\"/r123-security.js?v=ownership-1\"></script>";html=html.Insert(headStart,common);}
@@ -92,6 +96,7 @@ public sealed class LogoNavigationMiddleware
                 }
                 html = SmsVisibility.Apply(html,context,context.RequestServices.GetRequiredService<SmsSettingsStore>());
                 html=Regex.Replace(html,@"/(r123-security\.js|r129-feedback\.js|membership\.js|customer-ui\.js|r125-customer\.js)(?:\?[^""'<>\s]*)?","/$1?v=ownership-20261012-2");
+                html=Regex.Replace(html,@"/r129-feedback\.js(?:\?[^""'<>\s]*)?","/r129-feedback.js?v=forms-1");
                 html=UiStylesheets.Rewrite(html);
                 var bytes = Encoding.UTF8.GetBytes(html);
                 context.Response.ContentLength = bytes.Length;

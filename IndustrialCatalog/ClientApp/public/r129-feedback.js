@@ -71,6 +71,7 @@
     var value = typeof options === 'string' ? {message: options} : (options || {});
     var tone = ['success', 'error', 'info'].includes(value.tone) ? value.tone : 'info';
     var message = String(value.message || '').replace(/\s+/g, ' ').trim().slice(0, 320);
+    if (win.InokskarForms) message = win.InokskarForms.localize(message);
     if (!message) return false;
     var key = tone + ':' + message;
     var now = Date.now();
