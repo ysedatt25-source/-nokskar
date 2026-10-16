@@ -8,10 +8,19 @@ public static class ProductDescriptions
 {
  static readonly SemaphoreSlim Gate=new(1,1);
  public static void Map(WebApplication app,string root){
+  app.MapGet("/admin/api",(HttpContext c)=>AccessControl.IsSuperAdmin(c.User)?Results.Content(ProductApiPage.Html(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
+  app.MapGet("/api/admin/ai-settings",(HttpContext c,SupportTranslation ai)=>AccessControl.IsSuperAdmin(c.User)?Results.Json(new{ready=ai.Ready}):Results.Forbid()).RequireAuthorization();
+  app.MapPost("/api/admin/ai-settings",async(HttpContext c,SupportTranslation ai)=>{
+   if(!AccessControl.IsSuperAdmin(c.User))return Results.Forbid();
+   var b=await c.Request.ReadFromJsonAsync<JsonObject>(c.RequestAborted)??throw new ArgumentException("API bilgisi gerekli.");
+   ai.Configure(b["apiKey"]?.ToString().Trim()??"",b["remove"]?.GetValue<bool>()==true);
+   return Results.Json(new{ok=true,ready=ai.Ready});
+  }).RequireAuthorization().RequireRateLimiting("public-write");
+
   app.MapGet("/api/admin/product-description/settings",(HttpContext c,SupportTranslation ai)=>AccessControl.Has(c.User,AccessPermissions.Catalog,"edit")?Results.Json(new{ready=ai.Ready,canConfigure=AccessControl.IsSuperAdmin(c.User)}):Results.Forbid()).RequireAuthorization();
   app.MapPost("/api/admin/product-description",async(HttpContext c,SupportTranslation ai,IHttpClientFactory clients)=>{
    if(!AccessControl.Has(c.User,AccessPermissions.Catalog,"edit"))return Results.Forbid();
-   if(!ai.Ready)return Results.Json(new{error="Görsel analizi için OpenAI API anahtarı gerekli. Açıklama alanındaki bağlantı ayarını tamamlayın."},statusCode:503);
+   if(!ai.Ready)return Results.Json(new{error="Görsel analizi için OpenAI API anahtarı gerekli. Ayarlar → API bölümünden bağlantıyı tamamlayın."},statusCode:503);
    if(!await Gate.WaitAsync(0,c.RequestAborted))return Results.Json(new{error="Başka bir görsel inceleniyor. Biraz sonra tekrar deneyin."},statusCode:429);
    try{
     var b=await c.Request.ReadFromJsonAsync<JsonObject>(c.RequestAborted)??throw new ArgumentException("Ürün bilgileri gerekli.");
