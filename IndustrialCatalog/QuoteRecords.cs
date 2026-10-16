@@ -31,7 +31,7 @@ public static class QuoteRules
    gallery=gallery.Concat((before?["gallery"] as JsonArray??new JsonArray()).Select(x=>x?.ToString()??"").Where(UploadedImage)).Concat(UploadedImage(image)?new[]{image}:Array.Empty<string>()).Distinct().Take(100).ToArray();
    var item=new JsonObject{["id"]=id,["productId"]=productId,["name"]=Text(b,"name",200,true),["code"]=Text(b,"code",100),["description"]=Text(b,"description",500),["image"]=image,["gallery"]=new JsonArray(gallery.Select(s=>(JsonNode?)JsonValue.Create(s)).ToArray())};
    var diameter=Text(b,"diameter",12);if(diameter!=""&&(!Regex.IsMatch(diameter,@"^\d+(?:[.,]\d+)?$")||!decimal.TryParse(diameter.Replace(',','.'),System.Globalization.NumberStyles.AllowDecimalPoint,System.Globalization.CultureInfo.InvariantCulture,out var diameterValue)||diameterValue<=0))throw new ArgumentException("Çap (Ø) için santimetre cinsinden sıfırdan büyük bir sayı girin.");item["diameter"]=diameter;
-   var unit=Text(b,"unit",10);if(!new[]{"adet","metre","m²"}.Contains(unit))throw new ArgumentException("Birim geçersiz.");item["unit"]=unit;
+   var unit=Text(b,"unit",10);if(!new[]{"adet","metre","m²","Çap (Ø)"}.Contains(unit))throw new ArgumentException("Birim geçersiz.");item["unit"]=unit;
    var quantity=Number(b,"quantity",100000);if(quantity<=0)throw new ArgumentException("Miktar sıfırdan büyük olmalı.");quantity=decimal.Round(quantity,3,MidpointRounding.AwayFromZero);if(quantity<=0)throw new ArgumentException("Miktar en az 0,001 olmalı.");
    var price=Round(Number(b,"unitPrice",100000000));var off=Number(b,"discount",100);var vat=Number(b,"vatRate",100,20);
    var raw=Round(quantity*price);var cut=Round(raw*off/100);var net=raw-cut;var taxValue=Round(net*vat/100);
