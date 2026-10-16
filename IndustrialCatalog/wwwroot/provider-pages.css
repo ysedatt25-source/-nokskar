@@ -1,0 +1,58 @@
+@layer layout {
+body.membership-page:has(.provider-page) .member-wrap{width:min(820px,calc(100% - 32px));margin:22px auto 36px}
+body.membership-page .provider-page{padding:26px;border:1px solid #dce5ee;border-radius:22px;background:#fff;box-shadow:0 10px 32px #213b5510;overflow:hidden}
+.provider-page .member-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:750;color:#477189;margin:0 0 9px}
+.provider-page h1{font-size:28px;line-height:1.2;letter-spacing:-.035em;margin:0 0 10px;color:#173b50}
+.provider-page .provider-lead{font-size:13px;line-height:1.65;margin:0;color:#6a7c89;max-width:590px}
+.provider-page .provider-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:5px;background:#edf3f8;border:1px solid #e2eaf1;border-radius:14px;margin:20px 0}
+body.membership-page .provider-page .provider-tabs a{display:flex;align-items:center;justify-content:center;min-width:0;min-height:41px;margin:0;border:1px solid transparent;border-radius:10px;background:transparent;color:#647b8e;font-size:13px;font-weight:650;padding:8px;text-align:center;box-shadow:none}
+body.membership-page .provider-page .provider-tabs a[aria-current=page]{color:#206297;background:#fff;border-color:#d5e3ef;box-shadow:0 2px 6px #244e7310}
+.provider-page .provider-section-title{display:flex;align-items:center;gap:8px;margin:22px 0 10px}
+.provider-page .provider-section-title h2{font-size:14px;margin:0;color:#294b61}
+.provider-page .sms-saved{margin:0 0 16px;gap:10px}
+.provider-page .sms-empty{padding:23px 18px;margin:0;border:1px dashed #ccdce7;border-radius:14px;background:#f8fbfd;text-align:center;font-size:12px;line-height:1.7;color:#748793}
+.provider-page .sms-provider-row{padding:14px;border-radius:14px;border-color:#dce6ee;background:#fbfdff}
+.provider-page .sms-provider-name strong{font-size:14px}
+.provider-page .sms-status{font-size:10px;padding:4px 8px}
+.provider-page .sms-editor{padding:0;border:1px solid #cfdfed;border-radius:14px;background:#f6faff;overflow:hidden}
+.provider-page .sms-editor>summary{display:flex;align-items:center;gap:10px;min-height:52px;padding:14px 16px;font-size:13px;font-weight:700;color:#23638d;list-style:none}
+.provider-page .sms-editor>summary::before{display:grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#e1eefb;font-size:19px;line-height:1}
+.provider-page .sms-editor[open]>summary{border-bottom:1px solid #dce7f0;background:#edf5fd}
+.provider-page .sms-editor form{margin:0;padding:16px;background:#fff}
+.provider-page label{display:flex;flex-direction:column;gap:7px;margin:0;font-size:12px;font-weight:650;color:#3b586b}
+.provider-page form{display:grid;gap:14px}
+.provider-page input,.provider-page select,.provider-page textarea{width:100%;min-height:46px;padding:11px 12px;border:1px solid #cedde8;border-radius:11px;background:#fff;color:#243f53;font-size:14px;box-sizing:border-box}
+.provider-page input:focus,.provider-page select:focus,.provider-page textarea:focus{outline:3px solid #287dc31c;border-color:#4a91c7}
+.provider-page small,.provider-page .provider-help{display:block;font-size:11px;font-weight:400;line-height:1.65;color:#7a8c99;margin:0}
+.provider-page .member-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0}
+body.membership-page .provider-page .member-button,body.membership-page .provider-page .member-secondary{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:43px;padding:10px 14px;border-radius:11px;font-size:12px;font-weight:650;line-height:1.35;cursor:pointer;text-align:center;text-decoration:none;transition:background .15s,border-color .15s,box-shadow .15s}
+body.membership-page .provider-page .member-button{background:linear-gradient(135deg,#2589df,#1761bb);border:1px solid #1b6ac1;color:#fff;box-shadow:0 4px 10px #216ec421}
+body.membership-page .provider-page .member-button:hover{background:linear-gradient(135deg,#217dcc,#1357aa)}
+body.membership-page .provider-page .member-secondary{background:#f5f8fb;border:1px solid #d9e3ec;color:#46657c;box-shadow:none}
+body.membership-page .provider-page .member-secondary:hover{background:#eaf2f9;border-color:#b8d0e3}
+body.membership-page .provider-page .provider-danger,body.membership-page .provider-page .sms-delete{background:#fbf0f2;color:#a44a59;border-color:#ecd2d8}
+.provider-page button:disabled{opacity:.55;cursor:wait}
+.provider-page .provider-footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding-top:16px;margin-top:18px;border-top:1px solid #edf1f5}
+.provider-page .provider-footer>a:only-child{grid-column:1/-1}
+.provider-page #sms-result:empty,.provider-page #api-result:empty{display:none}
+.provider-page #sms-result:not(:empty),.provider-page #api-result:not(:empty){padding:11px 13px;background:#f0f6fc;border:1px solid #dce7f1;border-radius:11px;font-size:12px;line-height:1.6;margin:12px 0}
+.provider-page .provider-status{display:flex;align-items:flex-start;gap:12px;padding:16px;border:1px solid #dce6ef;border-radius:15px;background:linear-gradient(120deg,#f4f8fd,#fbfdff);margin-bottom:20px}
+.provider-page .provider-status-icon{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;border:1px solid #d4e4f3;border-radius:12px;color:#2f729d;background:#eaf3fd}
+.provider-status-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.provider-page .provider-status-main{min-width:0;flex:1}
+.provider-page .provider-status-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.provider-page .provider-status-title strong{font-size:14px}
+.provider-page .provider-status-pill{font-size:10px;padding:4px 8px;border-radius:20px;background:#edf1f5;color:#748694}
+.provider-page .provider-status[data-ready=true] .provider-status-pill{background:#e7f5ee;color:#226c50}
+.provider-page .provider-status #api-state{font-size:12px;line-height:1.6;margin:5px 0 0;color:#738594}
+.provider-page #api-form .provider-key-label{font-size:13px}
+.provider-page #api-key{font-family:ui-monospace,monospace;letter-spacing:.02em}
+.provider-page .provider-save-actions>*{flex:1;min-width:130px}
+.provider-page .provider-info{padding:12px 14px;border:1px solid #e1e9f0;background:#f9fbfd;border-radius:12px;margin-top:18px}
+.provider-page .provider-info summary{font-size:12px;font-weight:600;color:#577488;cursor:pointer}
+.provider-page .provider-info p{font-size:11px;line-height:1.65;margin:10px 0 0;color:#7a8c99}
+@media(min-width:700px){.provider-page .sms-provider-row{align-items:center}.provider-page .sms-grid{gap:14px}}
+@media(max-width:600px){body.membership-page:has(.provider-page) .member-wrap{width:calc(100% - 24px);margin:14px auto 26px}body.membership-page .provider-page{padding:18px;border-radius:18px}.provider-page h1{font-size:24px}.provider-page .provider-tabs{margin:16px 0}.provider-page .provider-lead{font-size:12px}.provider-page .sms-provider-row{padding:12px}.provider-page .sms-provider-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100%}.provider-page .sms-provider-actions button{font-size:11px;padding:9px 6px;min-width:0}.provider-page input,.provider-page select{font-size:16px}.provider-page .provider-status{padding:13px;gap:10px}.provider-page .provider-footer{margin-top:15px;padding-top:14px}}
+body.membership-page .provider-page [hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.provider-page a,.provider-page button{transition:none}}
+}
