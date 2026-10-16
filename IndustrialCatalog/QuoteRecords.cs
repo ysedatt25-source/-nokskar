@@ -16,6 +16,10 @@ public static class QuoteRules
   if(string.CompareOrdinal(q["validUntil"]!.ToString(),q["date"]!.ToString())<0)throw new ArgumentException("Geçerlilik tarihi teklif tarihinden önce olamaz.");
   var status=Text(input,"status",20);if(!new[]{"draft","sent","approved","declined"}.Contains(status))throw new ArgumentException("Teklif durumu geçersiz.");q["status"]=status;
   q["includeImages"]=input["includeImages"] is JsonValue bv&&bv.TryGetValue<bool>(out var photos)?photos:true;
+  foreach(var key in new[]{"shipping","installation"}){
+   var flag=key+"Included";var legacy=q[key]!.ToString().Trim().ToLowerInvariant();
+   q[flag]=input[flag] is JsonValue iv&&iv.TryGetValue<bool>(out var included)?included:legacy is "dahil" or "dâhil";
+  }
   if(input["items"] is not JsonArray items||items.Count is <1 or >100)throw new ArgumentException("Teklife 1–100 ürün ekleyin.");
   var normalized=new JsonArray();decimal list=0,discount=0,subtotal=0,tax=0;var ids=new HashSet<string>();
   foreach(var row in items){if(row is not JsonObject b)throw new ArgumentException("Ürün satırı geçersiz.");var id=Text(b,"id",32,true);if(!Regex.IsMatch(id,"^[a-f0-9]{32}$")||!ids.Add(id))throw new ArgumentException("Ürün satırı kimliği geçersiz.");
