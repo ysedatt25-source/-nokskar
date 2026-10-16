@@ -33,7 +33,7 @@ public sealed class LogoNavigationMiddleware
                 var html = await reader.ReadToEndAsync();
                 if (!html.Contains("/logo-navigation.js", StringComparison.Ordinal))
                 {
-                    const string script = "<script defer src=\"/logo-navigation.js?v=ownership-20261012-2\"></script>";
+                    const string script = "<script defer src=\"/site-brand.js?v=brand-1\"></script><script defer src=\"/logo-navigation.js?v=ownership-20261012-2\"></script>";
                     var headEnd = html.IndexOf("</head>", StringComparison.OrdinalIgnoreCase);
                     html = headEnd >= 0 ? html.Insert(headEnd, script) : html + script;
                 }

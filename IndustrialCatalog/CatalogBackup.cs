@@ -26,6 +26,8 @@ public static class CatalogBackup
         WarrantyRules.ValidateStoredCollection(warranties, data);
         var operations = new JsonObject
         {
+            ["quotes"] = state["quotes"]?.DeepClone() ?? new JsonArray(),
+            ["quoteSequence"] = state["quoteSequence"]?.DeepClone() ?? 0,
             ["inquiries"] = state["inquiries"]?.DeepClone() ?? new JsonArray(),
             ["warrantyHistory"] = state["warrantyHistory"]?.DeepClone() ?? new JsonArray(),
             ["auditLog"] = state["auditLog"]?.DeepClone() ?? new JsonArray(),
@@ -34,7 +36,7 @@ public static class CatalogBackup
             ["technicalHistory"] = state["technicalHistory"]?.DeepClone() ?? new JsonArray()
         };
         var uploadDirectory = Path.Combine(dataPath, "uploads");
-        var media = ReferencedMedia(data).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+        var media = ReferencedMedia(data).Concat(ReferencedQuoteMedia(operations["quotes"])).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.Ordinal).ToArray();
         var fileRows = new JsonArray();
         var technicalDirectory = Path.Combine(dataPath, "technical-files");
         var technicalMedia = ReferencedTechnicalMedia(operations).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x, StringComparer.Ordinal).ToArray();
@@ -134,6 +136,7 @@ public static class CatalogBackup
         var warranties = manifest["warranties"] is JsonArray warrantyRows ? warrantyRows.DeepClone().AsArray() : null;
         if (warranties != null) WarrantyRules.ValidateStoredCollection(warranties, data);
         var operations = version >= 2 && manifest["operations"] is JsonObject operationRows ? operationRows.DeepClone().AsObject() : null;
+        if(operations?["quotes"] is JsonArray quoteRows)QuoteRules.ValidateStored(quoteRows);
         var declared = manifest["files"]?.AsArray() ?? throw new ArgumentException("Yedek dosya listesi bulunamadı.");
         if (declared.Count > MaxEntries - 1) throw new ArgumentException("Yedekte çok fazla medya dosyası var.");
 
@@ -184,7 +187,7 @@ public static class CatalogBackup
         foreach (var archiveName in entries.Keys.Where(x => x.StartsWith("technical-files/", StringComparison.OrdinalIgnoreCase))) if (!technicalFiles.ContainsKey(archiveName[16..])) throw new ArgumentException("Yedek ZIP manifestinde tanımlanmamış teknik dosya var.");
 
         var declaredNames = files.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        foreach (var referenced in ReferencedMedia(data))
+        foreach (var referenced in ReferencedMedia(data).Concat(ReferencedQuoteMedia(operations?["quotes"])))
             if (!declaredNames.Contains(referenced)) throw new ArgumentException($"Katalog yedeğinde kullanılan medya dosyası eksik ({referenced}).");
         foreach (var archiveName in entries.Keys.Where(x => x.StartsWith("files/", StringComparison.OrdinalIgnoreCase)))
             if (!declaredNames.Contains(archiveName[6..])) throw new ArgumentException("Yedek ZIP manifestinde tanımlanmamış medya dosyası var.");
@@ -262,6 +265,14 @@ public static class CatalogBackup
             foreach (var child in obj.Select(x => x.Value)) foreach (var item in ReferencedMedia(child)) yield return item;
         else if (node is JsonArray array)
             foreach (var child in array) foreach (var item in ReferencedMedia(child)) yield return item;
+    }
+
+    static IEnumerable<string> ReferencedQuoteMedia(JsonNode? quotes)
+    {
+        if(quotes is not JsonArray rows)yield break;
+        foreach(var quote in rows.OfType<JsonObject>())
+        foreach(var item in (quote["items"] as JsonArray??new JsonArray()).OfType<JsonObject>())
+        {foreach(var name in ReferencedMedia(item["image"]))yield return name;foreach(var name in ReferencedMedia(item["gallery"]))yield return name;}
     }
 
     static IEnumerable<string> ReferencedTechnicalMedia(JsonObject operations)

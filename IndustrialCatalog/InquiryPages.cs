@@ -125,7 +125,7 @@ public static class InquiryPages
         return "<section class='inquiry-card inquiry-audit'><div class='audit-heading'><div><p>İŞLEM GEÇMİŞİ</p><h2>Talep zaman çizelgesi</h2></div><span>Son işlemler</span></div><div class='audit-timeline'>" + string.Join("", rows) + "</div></section>";
     }
 
-    public static string AdminDetail(JsonObject inquiry, JsonArray? audit = null, JsonArray? templates = null)
+    public static string AdminDetail(JsonObject inquiry, JsonArray? audit = null, JsonArray? templates = null, bool canQuote=false)
     {
         var b = Data(inquiry);
         var id = inquiry["id"]?.ToString() ?? "";
@@ -484,7 +484,7 @@ body[data-ui-page="inquiry"] .inquiry-wrap{
   }
 }
 </style><script src="/r13-pages.js?v=central-logo-4" defer></script></head>
-<body><header class="inquiry-top private-brand-header"><a class="private-brand-link" href="/" aria-label="İNOKSKAR ana sayfa"><img class="private-brand-image" src="/inokskar-logo.svg" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><nav><a href="/admin?tab=inquiries">← Müşteri taleplerine dön</a></nav></header><main class="inquiry-wrap"><section class="inquiry-head"><div><p>YÖNETİM ALANI</p><h1>Talep detayı</h1><span class="inquiry-badge@@BADGE_CLASS@@">@@TYPE@@</span></div><form method="post" action="/admin/inquiries/@@ID@@/delete" onsubmit="return confirm('Bu müşteri talebi kalıcı olarak silinsin mi?')"><button class="danger-button" type="submit">Sil</button></form></section>@@DETAILS_BLOCK@@@@WORKFLOW_PANEL@@@@SERVICE_PANEL@@@@AUDIT_TIMELINE@@</main><script>
+<body><header class="inquiry-top private-brand-header"><a class="private-brand-link" href="/" aria-label="İNOKSKAR ana sayfa"><img class="private-brand-image" src="/inokskar-logo.svg" alt="İNOKSKAR Soğutma ve Endüstriyel Mutfak"></a><nav><a href="/admin?tab=inquiries">← Müşteri taleplerine dön</a></nav></header><main class="inquiry-wrap">@@QUOTE_ACTION@@<section class="inquiry-head"><div><p>YÖNETİM ALANI</p><h1>Talep detayı</h1><span class="inquiry-badge@@BADGE_CLASS@@">@@TYPE@@</span></div><form method="post" action="/admin/inquiries/@@ID@@/delete" onsubmit="return confirm('Bu müşteri talebi kalıcı olarak silinsin mi?')"><button class="danger-button" type="submit">Sil</button></form></section>@@DETAILS_BLOCK@@@@WORKFLOW_PANEL@@@@SERVICE_PANEL@@@@AUDIT_TIMELINE@@</main><script>
 (()=>{const root=document.getElementById('inquiry-customer-workflow');if(!root)return;
 const select=root.querySelector('#icw-preset'),status=root.querySelector('#icw-status'),date=root.querySelector('#icw-callback'),reply=root.querySelector('#icw-reply');
 let generated='';
@@ -496,6 +496,7 @@ date.addEventListener('change',()=>{if(select.value&&reply.value===generated)fil
 </script></body></html>
 """;
         return html
+            .Replace("@@QUOTE_ACTION@@",canQuote?"<div style=\"margin:0 0 14px\"><a class=\"primary-button\" href=\"/admin/quotes?inquiry="+Uri.EscapeDataString(id)+"\">Bu talebe teklif hazırla</a></div>":"",StringComparison.Ordinal)
             .Replace("@@TYPE@@", E(type), StringComparison.Ordinal)
             .Replace("@@BADGE_CLASS@@", service ? " service" : "", StringComparison.Ordinal)
             .Replace("@@ID@@", Uri.EscapeDataString(id), StringComparison.Ordinal)

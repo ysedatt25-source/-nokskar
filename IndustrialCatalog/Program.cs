@@ -12,6 +12,7 @@ using System.Threading.RateLimiting;
 
 try
 {
+if(args.Contains("--quote-self-test")){QuoteChecks.Run();return;}
 if(args.Contains("--product-description-self-test")){await ProductDescriptionChecks.Run();return;}
 if(args.Contains("--operations-lists-self-test")){await OperationsListsChecks.Run();return;}
 if(args.Contains("--audit-self-test")){AuditLogChecks.Run();return;}
@@ -72,6 +73,7 @@ app.Use(async(ctx,next)=>{
     }
     try{await next();}catch(Exception e) when(e is ArgumentException or InvalidOperationException or InvalidDataException or System.Text.Json.JsonException or System.Xml.XmlException or FormatException or OverflowException or NullReferenceException){ctx.Response.StatusCode=400;await ctx.Response.WriteAsJsonAsync(new{error=e is ArgumentException?e.Message:"İçerik veya dosya biçimi geçersiz."});}
 });
+BrandAssets.Use(app,dataPath,app.Environment.WebRootPath??Path.Combine(app.Environment.ContentRootPath,"wwwroot"));
 app.UseStaticFiles(new StaticFileOptions{OnPrepareResponse=ctx=>{
     var versioned=ctx.Context.Request.Path.StartsWithSegments("/assets");
     ctx.Context.Response.Headers.CacheControl=(ctx.Context.Request.Path=="/r129-feedback.js"||ctx.Context.Request.Path=="/live-support.js")?"no-store":versioned?"public,max-age=604800,immutable":"no-cache";
@@ -221,7 +223,7 @@ app.MapGet("/admin/warranties/{id}/certificate",(string id,HttpContext c,Store s
 app.MapGet("/admin/system",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Content(OperationsPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/mail",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.System,"view")?Results.Content(MailSettingsPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
 app.MapGet("/admin/header-brand",(HttpContext c)=>AccessControl.Has(c.User,AccessPermissions.Settings,"edit")?Results.Content(BrandingPages.Admin(),"text/html; charset=utf-8"):Results.Forbid()).RequireAuthorization();
-app.MapGet("/admin/inquiries/{id}",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.Content(InquiryPages.NotFound(),"text/html; charset=utf-8",statusCode:404);var parsed=InquiryPages.Data(inquiry);var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"view"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"view"))return Results.Forbid();inquiry=store.MarkInquiryRead(id,AccessControl.DisplayName(c.User))??inquiry;return Results.Content(InquiryPages.AdminDetail(inquiry,store.AuditForTarget(id),store.InquiryTemplates()),"text/html; charset=utf-8");}).RequireAuthorization();
+app.MapGet("/admin/inquiries/{id}",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.Content(InquiryPages.NotFound(),"text/html; charset=utf-8",statusCode:404);var parsed=InquiryPages.Data(inquiry);var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"view"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"view"))return Results.Forbid();inquiry=store.MarkInquiryRead(id,AccessControl.DisplayName(c.User))??inquiry;return Results.Content(InquiryPages.AdminDetail(inquiry,store.AuditForTarget(id),store.InquiryTemplates(),QuotePages.Can(c.User,"edit")),"text/html; charset=utf-8");}).RequireAuthorization();
 app.MapPost("/admin/inquiries/{id}/delete",(string id,HttpContext c,Store store)=>{var inquiry=store.InquiryById(id);if(inquiry==null)return Results.NotFound();var parsed=InquiryPages.Data(inquiry);var service=string.Equals(parsed?["type"]?.ToString(),"service",StringComparison.OrdinalIgnoreCase);if(service&&!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();if(!service&&!AccessControl.Has(c.User,AccessPermissions.Inquiries,"edit"))return Results.Forbid();if(store.RemoveInquiry(id,AccessControl.DisplayName(c.User),service?"service":"support")&&parsed?["attachments"] is JsonArray deletedFiles)InquiryAttachments.Cleanup(deletedFiles,dataPath);return Results.Redirect("/admin?tab=inquiries");}).RequireAuthorization();
 app.MapPost("/admin/inquiries/{id}/service",async(string id,HttpContext c,Store store)=>{if(!AccessControl.Has(c.User,AccessPermissions.Service,"edit"))return Results.Forbid();var form=await c.Request.ReadFormAsync();var input=new JsonObject
     {
@@ -332,7 +334,7 @@ app.MapPost("/api/rate/refresh",async(HttpContext c,Store store,IHttpClientFacto
     var state=store.Snapshot();var settings=state["data"]!["settings"]!;
     return Results.Json(new{rate=settings["rate"],lastRate=settings["lastRate"],rateSource=settings["rateSource"],rateDate=settings["rateDate"],revision=state["revision"]});
 }).RequireAuthorization();
-OperationsLists.Map(app,dataPath);ProductDescriptions.Map(app,dataPath);
+QuotePages.Map(app);OperationsLists.Map(app,dataPath);ProductDescriptions.Map(app,dataPath);
 app.MapGet("/api/admin/system-health",(HttpContext c,Store store,MailQueue mail,OperationalLog logs,AdminLoginGuard loginGuard)=>{if(!AccessControl.Has(c.User,AccessPermissions.System,"view"))return Results.Forbid();
     var state=store.Snapshot();var settings=state["data"]!["settings"]!;var last=settings["lastRate"]?.ToString()??"";
     var stale=!DateTimeOffset.TryParse(last,out var checkedAt)||DateTimeOffset.UtcNow-checkedAt>TimeSpan.FromMinutes(30);
@@ -511,7 +513,7 @@ app.Run();
 catch(Exception fatal)
 {
     if(args.Contains("--product-video-self-test")){ProductVideoChecks.Run();return;}
-if(args.Contains("--product-description-self-test")||args.Contains("--live-support-self-test")||args.Contains("--audit-self-test")||args.Contains("--operations-lists-self-test"))throw;
+if(args.Contains("--quote-self-test")||args.Contains("--product-description-self-test")||args.Contains("--live-support-self-test")||args.Contains("--audit-self-test")||args.Contains("--operations-lists-self-test"))throw;
     StartupRecovery.Run(fatal, args);
 }
 static string RoleLanding(ClaimsPrincipal user)

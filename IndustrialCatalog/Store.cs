@@ -2,7 +2,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-public sealed class Store
+public sealed partial class Store
 {
     readonly object gate = new();
     readonly string file;
@@ -250,6 +250,8 @@ public sealed class Store
             if (body["backupWarranties"] is JsonArray restoredWarranties2) next["warranties"] = restoredWarranties2.DeepClone();
             if (body["backupOperations"] is JsonObject ops)
             {
+                if(ops["quotes"] is JsonArray restoredQuotes){QuoteRules.ValidateStored(restoredQuotes);next["quotes"]=restoredQuotes.DeepClone();}
+                if(ops["quoteSequence"]!=null)next["quoteSequence"]=Math.Max(next["quoteSequence"]?.GetValue<int>()??0,(int)QuoteRules.Number(ops,"quoteSequence",int.MaxValue));
                 foreach (var key in new[] { "inquiries", "warrantyHistory", "auditLog", "events", "technicalHistory" })
                     if (ops[key] is JsonArray rows) next[key] = rows.DeepClone();
                 if (ops["technicalProfiles"] is JsonObject technicalProfiles) next["technicalProfiles"] = technicalProfiles.DeepClone();
