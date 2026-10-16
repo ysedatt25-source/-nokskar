@@ -359,12 +359,12 @@ app.MapPost("/api/backup/restore",async(HttpContext c,Store store)=>{if(!AccessC
 }).RequireAuthorization();
 app.MapPost("/api/upload",async(HttpContext c,IWebHostEnvironment e)=>{
     var form=await c.Request.ReadFormAsync();var file=form.Files.GetFile("file")??throw new ArgumentException("Dosya seçin.");
-    var kind=c.Request.Query["kind"].ToString();if(string.IsNullOrEmpty(kind))kind="image";if(kind=="hero"&&!AccessControl.Has(c.User,AccessPermissions.Settings,"edit"))return Results.Forbid();if(kind is "image" or "pdf" or "video"&&!AccessControl.Has(c.User,AccessPermissions.Catalog,"edit"))return Results.Forbid();
+    var kind=c.Request.Query["kind"].ToString();if(kind=="quote"&&!QuotePages.Can(c.User,"edit"))return Results.Forbid();if(string.IsNullOrEmpty(kind))kind="image";if(kind=="hero"&&!AccessControl.Has(c.User,AccessPermissions.Settings,"edit"))return Results.Forbid();if(kind is "image" or "pdf" or "video"&&!AccessControl.Has(c.User,AccessPermissions.Catalog,"edit"))return Results.Forbid();
     if((kind is "category" or "brand")&&!AccessControl.Has(c.User,AccessPermissions.Settings,"edit"))return Results.Forbid();
     if(kind=="ce"&&!AccessControl.Has(c.User,AccessPermissions.Warranties,"edit"))return Results.Forbid();
-    if(kind is not ("ce" or "image" or "pdf" or "hero" or "category" or "brand" or "video"))throw new ArgumentException("Geçersiz yükleme alanı.");
-    var maxBytes=(kind is "hero" or "video")?100L*1024*1024:20L*1024*1024;
-    if(file.Length<=0||file.Length>maxBytes)throw new ArgumentException((kind is "hero" or "video")?"Medya dosyası en fazla 100 MB olabilir.":"Dosya en fazla 20 MB olabilir.");
+    if(kind is not ("ce" or "image" or "pdf" or "hero" or "category" or "brand" or "video" or "quote"))throw new ArgumentException("Geçersiz yükleme alanı.");
+    var maxBytes=kind=="quote"?10L*1024*1024:(kind is "hero" or "video")?100L*1024*1024:20L*1024*1024;
+    if(file.Length<=0||file.Length>maxBytes)throw new ArgumentException(kind=="quote"?"Teklif fotoğrafı en fazla 10 MB olabilir.":(kind is "hero" or "video")?"Medya dosyası en fazla 100 MB olabilir.":"Dosya en fazla 20 MB olabilir.");
     using var buffer=new MemoryStream();await file.CopyToAsync(buffer);var bytes=buffer.ToArray();var type=Uploads.Detect(bytes);
     if(type==null)throw new ArgumentException("Desteklenen dosya türleri: PNG, JPEG, WebP, GIF, MP4 veya PDF.");
     var mime=type.Value.Mime;

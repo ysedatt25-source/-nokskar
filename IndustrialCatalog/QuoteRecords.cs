@@ -7,6 +7,7 @@ public static class QuoteRules
 {
  public static string Text(JsonObject b,string key,int max,bool required=false){var s=b[key]?.ToString().Trim()??"";if(s.Length>max||required&&s.Length==0)throw new ArgumentException(key+": bilgi eksik veya çok uzun.");return s;}
  public static decimal Number(JsonObject b,string key,decimal max,decimal fallback=0){if(b[key]==null)return fallback;if(b[key] is not JsonValue v||!v.TryGetValue<decimal>(out var n)||n<0||n>max)throw new ArgumentException(key+": geçerli bir sayı girin.");return n;}
+ public static bool UploadedImage(string s)=>Regex.IsMatch(s,@"^/api/files/[a-f0-9]{32}\.(jpg|png|webp)$");
  public static decimal Round(decimal n)=>decimal.Round(n,2,MidpointRounding.AwayFromZero);
  public static bool SafeImage(string s)=>s==""||!s.Contains("..")&&(Regex.IsMatch(s,@"^/[A-Za-z0-9/_?.=&-]+$")&&!s.StartsWith("//")||Uri.TryCreate(s,UriKind.Absolute,out var u)&&u.Scheme is "https" or "http");
  public static JsonObject Normalize(JsonObject input,JsonObject catalog,JsonObject? prior=null){
@@ -26,7 +27,8 @@ public static class QuoteRules
    var productId=Text(b,"productId",100);var p=(catalog["products"] as JsonArray)?.OfType<JsonObject>().FirstOrDefault(x=>x["id"]?.ToString()==productId);
    var before=(prior?["items"] as JsonArray)?.OfType<JsonObject>().FirstOrDefault(x=>x["id"]?.ToString()==id);
    var gallery=(p?["images"] as JsonArray??before?["gallery"] as JsonArray??new JsonArray()).Select(x=>x?.ToString()??"").Where(SafeImage).Where(x=>x!="").Distinct().Take(50).ToArray();
-   var image=Text(b,"image",2000);if(image!=""&&(!SafeImage(image)||!gallery.Contains(image)&&before?["image"]?.ToString()!=image))throw new ArgumentException("Teklif fotoğrafını ürün galerisinden seçin.");
+   var image=Text(b,"image",2000);if(image!=""&&(!SafeImage(image)||!gallery.Contains(image)&&before?["image"]?.ToString()!=image&&!UploadedImage(image)))throw new ArgumentException("Teklif fotoğrafını galeriden seçin veya cihazınızdan yükleyin.");
+   gallery=gallery.Concat((before?["gallery"] as JsonArray??new JsonArray()).Select(x=>x?.ToString()??"").Where(UploadedImage)).Concat(UploadedImage(image)?new[]{image}:Array.Empty<string>()).Distinct().Take(100).ToArray();
    var item=new JsonObject{["id"]=id,["productId"]=productId,["name"]=Text(b,"name",200,true),["code"]=Text(b,"code",100),["description"]=Text(b,"description",500),["image"]=image,["gallery"]=new JsonArray(gallery.Select(s=>(JsonNode?)JsonValue.Create(s)).ToArray())};
    var unit=Text(b,"unit",10);if(!new[]{"adet","metre","m²"}.Contains(unit))throw new ArgumentException("Birim geçersiz.");item["unit"]=unit;
    var quantity=Number(b,"quantity",100000);if(quantity<=0)throw new ArgumentException("Miktar sıfırdan büyük olmalı.");quantity=decimal.Round(quantity,3,MidpointRounding.AwayFromZero);if(quantity<=0)throw new ArgumentException("Miktar en az 0,001 olmalı.");
