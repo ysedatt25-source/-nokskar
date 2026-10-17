@@ -3,9 +3,9 @@
 /* INOKSKAR Reference gallery and editorial manager — scoped design */
 .references-public{padding-top:clamp(14px,2.4vw,33px);padding-bottom:clamp(90px,8vw,130px);min-width:0}
 .references-public-heading{text-align:center;margin:0 auto clamp(15px,2.5vw,27px);max-width:720px}
-.references-public-heading .eyebrow{display:inline-block;color:#9e7138;letter-spacing:.13em;font-weight:900;font-size:.7rem;margin-bottom:8px}
+.references-public-heading .eyebrow{display:inline-block;color:#865e28;letter-spacing:.13em;font-weight:900;font-size:.7rem;margin-bottom:8px}
 .references-public-heading h1{font-size:clamp(1.7rem,4vw,2.5rem);color:#1b3954;letter-spacing:-.04em;margin:0 0 6px;line-height:1.18}
-.references-public-heading p{font-size:.88rem;color:#70859b;margin:0}
+.references-public-heading p{font-size:.88rem;color:#536c82;margin:0}
 .references-public-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1.5vw,18px);align-items:stretch;min-width:0;max-width:100%}
 .references-public-grid>*{min-width:0;max-width:100%}
 .references-public-card{min-width:0;max-width:100%;display:flex;flex-direction:column;justify-content:flex-start;gap:0;border:1px solid #dce6f0;border-radius:16px;background:#fff;box-shadow:0 7px 20px rgba(9,43,75,.06);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
