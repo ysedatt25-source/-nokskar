@@ -12,7 +12,7 @@ const publicCatalog=await fetch(base+'/api/catalog').then(async response=>{
 const productData=publicCatalog.data;
 assert(productData?.categories?.length>0,'Catalog categories missing');
 assert(productData?.products?.length>0,'Catalog products missing');
-let revision=publicCatalog.revision||1,saveCount=0,updatedName='',failNextSave=false;
+let revision=publicCatalog.revision||1,saveCount=0,failNextSave=false;
 const browser=await chromium.launch({headless:true});
 try{
   const context=await browser.newContext({viewport:{width:1440,height:900},locale:'tr-TR'});
@@ -33,7 +33,6 @@ try{
       productData.products=body.data.products;
       revision++;
       saveCount++;
-      updatedName=productData.products[0]?.name||'';
     }
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:productData,revision,history:[],events:[],inquiries:[]})});
   });
@@ -242,7 +241,7 @@ try{
   await editor.getByRole('button',{name:'Ürünü kaydet ve yayınla'}).click();
   await editor.waitFor({state:'hidden',timeout:12000});
   assert(saveCount===4,'Editing did not submit product data');
-  assert(updatedName.endsWith(' QA'),'Edited product name was not saved in request payload');
+  assert(productData.products.some(p=>p.name===originalName+' QA'),'Edited product name was not saved in request payload');
 
   await page.locator('.product-primary-actions').getByRole('button',{name:'Ürün ekle'}).click();
   await editor.waitFor({state:'visible'});
