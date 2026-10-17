@@ -62,3 +62,12 @@ Bu liste her sayfanın her olası veri/izin/hata durumunun eksiksiz görüldüğ
 Ön yüz üretim derlemesi, TypeScript, stil sözleşmesi ve mevcut form kontrolleri geçti. Railway Docker derlemesinde teklif/marka, üyelik, teknik, yedek, canlı destek ve diğer mevcut kontroller geçti. Yeni teklif kontrolleri 2 metre × 3 adet, M², Ø100 × 2 adet, geçersiz ölçü ve eski teklif geçişini kapsıyor. Bu kod kontrolleri manuel görsel incelemenin yerine sayılmadı.
 
 Canlı belge 15 satırı iki A4 sayfasına yerleştiriyor. Bu ortam işletim sisteminin yazdırma önizlemesini göstermediğinden, Android'deki doğrudan Yazdır sonucunda boş sayfa kalmadığı kesin olarak doğrulanmış değildir. Aynı teklifin telefonda Yazdır menüsünde son kontrolü gerekir. Fiziksel yazıcıya çıktı gönderilmedi.
+
+
+## Son tamamlama — 17 Ekim 2026
+
+Kaynak kodu ayrıca `backup/2026-10-17-before-final-completion` dalında `d5ef365c8fb73cb73bb31e96fc51e745147b93d4` sürümünde korundu. İlk tam ZIP yedeği korunuyor.
+
+Yazdır düğmesi artık HTML önizlemesini işletim sisteminin baskı motoruna göndermiyor. PDF indir ile aynı `exportFile()` çıktısını yeni sekmedeki belge görüntüleyicisinde açıyor. Kullanıcı bu görüntüleyicideki yazıcı simgesini / Yazdır menüsünü kullanıyor; dosyayı önce indirmesi gerekmiyor. Böylece HTML önizleme çerçevesinden ek boş sayfa üretilmesi bu akıştan çıkarıldı. Yeni sekme engellenirse aynı belgeyi açan görünür bir bağlantı sunuluyor. PDF oluşturma hatasında boş sekme kapatılıyor ve düğmeler yeniden kullanılabilir oluyor. Dosya üretimi, indirme zorlamama, engellenen sekme, hata ve tekrar tıklama kontrolleri eklendi.
+
+Yeni güvenli giriş yönetici paneline yönlendirdi; müşteri rolünde giriş doğrulanmadı. Tarayıcı daha sonra korumalı oturumu yeniden kullanmayı reddettiği için yeni akışın son canlı görsel testi, müşteri paneli ve içerik düzenlemeleri tamamlanmış olarak işaretlenmedi. Kayıtlı işletme değerleri uydurulmadı / değiştirilmedi. Fiziksel Android baskı sonucu burada doğrulanmış değildir.

@@ -31,3 +31,9 @@ body{background:#e9eef3;font-family:"Segoe UI",Arial,sans-serif;color:#243f50}.q
  body>header,body>nav,body>inokskar-live-support,body>.app-bottom-nav{display:none}
 }
 }
+
+@layer layout {
+#document-status:has(.document-print-link){display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;margin:10px 12px}
+.document-print-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px;border:1px solid #bfd3e4;border-radius:8px;background:#fff;color:#245f85;font-weight:600;text-decoration:none}
+.document-print-link:focus-visible{outline:2px solid #245f85;outline-offset:3px}
+}

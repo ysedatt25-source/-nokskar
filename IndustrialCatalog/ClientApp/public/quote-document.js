@@ -18,7 +18,26 @@ async function build(){await document.fonts.ready;let p=page();for(const [index,
 // Render the same measured A4 pages used by browser printing. No remote PDF service or customer data upload.
 async function exportFile(){if(cachedFile)return cachedFile;const P=window.WarrantyPrint;if(!P)throw Error('PDF araçları yüklenemedi. Sayfayı yenileyin.');const doc=await P.PDFDocument.create();doc.setTitle(quote.number+' · Fiyat teklifi');doc.setAuthor(settings.name||'İNOKSKAR');for(const {sheet}of pages){sheet.style.setProperty('--preview-scale',1);sheet.parentElement.style.setProperty('--preview-width','210mm');sheet.parentElement.style.setProperty('--preview-height','297mm');let canvas;try{canvas=await P.render(sheet,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,imageTimeout:20000,windowWidth:1100,width:794,height:1123});}finally{fitPreview();}const png=await doc.embedPng(canvas.toDataURL('image/png'));const page=doc.addPage([595.276,841.89]);page.drawImage(png,{x:0,y:0,width:595.276,height:841.89});}const bytes=await doc.save();cachedFile=new File([bytes],quote.number+'.pdf',{type:'application/pdf'});return cachedFile;}
 async function download(share=false){if(busy)return;busy=true;for(const b of document.querySelectorAll('.quote-document-controls button'))b.disabled=true;$('#document-status').textContent='PDF hazırlanıyor…';try{const file=await exportFile();const saveFile=()=>{const url=URL.createObjectURL(file),a=el('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);};if(share&&navigator.canShare?.({files:[file]})){try{await navigator.share({files:[file],title:quote.number});}catch(error){if(error.name==='NotAllowedError'||error.name==='SecurityError')saveFile();else throw error;}}else saveFile();$('#document-status').textContent=quote.number+' · PDF hazır';}catch(e){$('#document-status').textContent=e.name==='AbortError'?'Paylaşım iptal edildi.':e.message;}finally{busy=false;for(const b of document.querySelectorAll('.quote-document-controls button'))b.disabled=false;}}
+// Open the exact exported PDF in the browser's print-capable viewer. The HTML
+// preview is never sent to the print service, including on Android.
+async function printDocument(){
+ if(busy)return;busy=true;
+ const buttons=[...document.querySelectorAll('.quote-document-controls button')];
+ for(const b of buttons)b.disabled=true;
+ const status=$('#document-status');status.textContent='Yazdırılacak belge hazırlanıyor…';
+ let viewer=null,url=null;
+ try{
+  viewer=window.open('about:blank','_blank');
+  if(viewer){viewer.opener=null;viewer.document.title='Yazdırılacak belge';viewer.document.body.textContent='Yazdırılacak belge hazırlanıyor…';}
+  const file=await exportFile();url=URL.createObjectURL(file);
+  const link=el('a','document-print-link','Yazdırılacak belgeyi aç');link.href=url;link.target='_blank';link.rel='noopener';
+  status.replaceChildren(el('span',null,'Belgedeki yazıcı simgesini veya menüdeki Yazdır seçeneğini kullanın. '),link);
+  if(viewer&&!viewer.closed){viewer.location.replace(url);viewer.focus();}
+  setTimeout(()=>URL.revokeObjectURL(url),600000);
+ }catch(error){if(viewer&&!viewer.closed)viewer.close();if(url)URL.revokeObjectURL(url);status.textContent=error.message||'Yazdırılacak belge hazırlanamadı. Tekrar deneyin.';}
+ finally{busy=false;for(const b of buttons)b.disabled=false;}
+}
 if(window.parent!==window){$('#document-back').textContent='Düzenlemeye dön';$('#document-back').onclick=e=>{e.preventDefault();window.parent.postMessage('inokskar:close-quote-preview',location.origin);};}
-$('#document-pdf').onclick=()=>void download();$('#document-share').onclick=()=>void download(true);$('#document-print').onclick=()=>window.print();
+$('#document-pdf').onclick=()=>void download();$('#document-share').onclick=()=>void download(true);$('#document-print').onclick=()=>void printDocument();
 (async()=>{try{const id=location.pathname.split('/')[3];$('#document-back').href='/admin/quotes?edit='+encodeURIComponent(id);const r=await fetch('/api/admin/quotes/'+encodeURIComponent(id),{cache:'no-store'});if(!r.ok)throw Error('Teklif alınamadı. Oturum ve yetkinizi kontrol edin.');const b=await r.json();quote=b.quote;settings=b.settings||{};document.title=quote.number+' · Fiyat teklifi';await build();}catch(e){$('#document-status').textContent=e.message;}})();
 })();
