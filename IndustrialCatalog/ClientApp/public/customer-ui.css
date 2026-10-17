@@ -38,7 +38,7 @@ body .about-pro .about-value-grid article>svg{width:38px;height:38px;padding:8px
 body .about-pro .about-value-grid article:nth-child(2)>svg{background:#fff3e7;color:#be752d}
 body .about-pro .about-value-grid article:nth-child(3)>svg{background:#edf8f3;color:#328062}
 body .about-pro .about-value-grid strong{font-size:14px;line-height:1.35;color:#29485d}
-body .about-pro .about-value-grid p{font-size:12px;line-height:1.6;color:#6a7e8e;overflow-wrap:anywhere}
+body .about-pro .about-value-grid p{font-size:12px;line-height:1.6;color:#556b7b;overflow-wrap:anywhere}
 @media(max-width:600px){body .about-pro{margin-top:12px}body .about-pro .about-grid>div{border-radius:18px}body .about-pro .preserve,body .about-pro .about-trust-copy{font-size:14px;line-height:1.75}body .about-pro .about-actions{margin-top:18px;gap:9px}body .about-pro .about-actions a{font-size:12px;gap:6px;min-height:46px}body .about-pro .about-value-grid article{border-radius:13px}body .about-pro .about-value-grid strong{font-size:12px}body .about-pro .about-value-grid p{font-size:11px;line-height:1.5}body .about-pro .about-value-grid article>svg{width:34px;height:34px}}
 /* Shared storefront legal pages */
 .legal-pro{box-sizing:border-box;width:calc(100% - 32px);max-width:880px;margin:24px auto 32px;padding:30px;border:1px solid #dce5ef;border-top:3px solid #2976bc;border-radius:22px;background:linear-gradient(145deg,#fff,#f9fcff);box-shadow:0 12px 35px #17365408}
