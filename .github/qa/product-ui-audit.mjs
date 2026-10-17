@@ -207,7 +207,20 @@ try{
   await page.locator('.product-item-card').first().getByRole('button',{name:'Düzenle'}).click();
   const editor=page.locator('.product-editor-dialog');
   await editor.waitFor({state:'visible'});
-  assert(await editor.locator('.product-edit-section').count()===5,'Product form sections missing');
+  try {
+    await editor.locator('.product-edit-section').first().waitFor({state:'visible',timeout:12000});
+  } catch (error) {
+    const diagnostics=await editor.evaluate(element=>({
+      text:element.innerText.slice(0,1000),
+      sections:element.querySelectorAll('.product-edit-section').length,
+      forms:element.querySelectorAll('form').length,
+      html:element.innerHTML.slice(0,1200)
+    })).catch(()=>({editorDetached:true}));
+    await page.screenshot({path:out+'/product-editor-load-failure.png',fullPage:false}).catch(()=>{});
+    throw new Error('Product editor did not display sections: '+JSON.stringify(diagnostics),{cause:error});
+  }
+  const sectionCount=await editor.locator('.product-edit-section').count();
+  assert(sectionCount===5,'Expected 5 product form sections, found '+sectionCount);
   const category=editor.locator('.product-edit-basic-grid select');
   const status=editor.locator('.product-edit-price-grid select');
   assert(await category.count()===1,'Category dropdown absent');
