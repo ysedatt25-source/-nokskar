@@ -20,7 +20,10 @@
     </Exec>
   </Target>
   <Target Name="BuildClientApp" BeforeTargets="PrepareForBuild" DependsOnTargets="DetectNpm" Condition="'$(BuildClientApp)' == 'true'">
-    <Error Condition="'$(NpmExitCode)' != '0'" Text="Arayüzü derlemek için Node.js 22+ ve npm gereklidir. Eski veya boş arayüzle yayın yapılmaz."/>
+    <!-- Clean Visual Studio packages include the verified compiled wwwroot output.
+         Reuse it when Node/npm is unavailable; never publish a missing client. -->
+    <Error Condition="'$(NpmExitCode)' != '0' and !Exists('$(MSBuildProjectDirectory)/wwwroot/index.html')" Text="Node.js 22+ bulunamadı ve derlenmiş arayüz de mevcut değil. Yayın için önce istemciyi derleyin."/>
+    <Message Condition="'$(NpmExitCode)' != '0' and Exists('$(MSBuildProjectDirectory)/wwwroot/index.html')" Importance="high" Text="Node.js bulunamadı; paketteki hazır İnokskar arayüzü kullanılıyor."/>
     <Exec Condition="'$(NpmExitCode)' == '0'" Command="npm install --no-audit --no-fund" WorkingDirectory="$(MSBuildProjectDirectory)/ClientApp"/>
     <Exec Condition="'$(NpmExitCode)' == '0'" Command="npm run build" WorkingDirectory="$(MSBuildProjectDirectory)/ClientApp"/>
   </Target>
