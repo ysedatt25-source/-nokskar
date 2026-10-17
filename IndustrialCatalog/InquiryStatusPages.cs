@@ -124,6 +124,7 @@ public static class InquiryStatusPages
 .actions .new-support-action{width:auto;min-height:44px;padding:0 17px;font-size:.78rem;border-radius:11px;box-shadow:none}
 .privacy{max-width:55ch;margin:15px auto 0;text-align:center;font-size:.7rem;line-height:1.6;color:#6a7d8e}
 @media(max-width:760px){.wrap{width:calc(100% - 24px);margin:18px auto 30px}.hero{border-radius:18px}.intro{padding:21px 20px 18px}.intro h1{font-size:1.65rem}.intro p{font-size:.85rem;line-height:1.6}.query-card{padding:20px;gap:16px}.phone-format{font-size:.72rem}.actions .new-support-action{width:100%;max-width:320px}.privacy{padding:0 9px 12px}}
+@layer layout{@media(max-width:1100px){body:has(#inquiry-status-form) .floating-wa,body:has(#inquiry-status-form) inokskar-live-support{display:none}}}
 </style>
 </head>
 <body>

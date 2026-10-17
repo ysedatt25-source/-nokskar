@@ -17,3 +17,5 @@ body.r126-auth .submit{border-radius:13px;background:linear-gradient(180deg,#f0c
 body.r126-auth .back,body.r126-auth .form-links a{color:#163f70}
 @media(max-width:900px){body.r126-auth{background:#fff}body.r126-auth .visual{min-height:250px}body.r126-auth .visual:after{height:70%}}
 @media(max-width:560px){body.r126-auth .visual{min-height:205px}body.r126-auth .panel{padding-top:22px}body.r126-auth .panel h2{font-size:1.9rem}body.r126-auth .field input,body.r126-auth .submit{min-height:56px}}}
+
+@layer layout{@media(max-width:600px){body.login-page .form-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}body.login-page .form-links a{min-width:0;text-align:center}body.login-page .form-links>a:last-child:nth-child(odd){grid-column:1/-1}}}
