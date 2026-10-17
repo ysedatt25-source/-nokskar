@@ -224,7 +224,8 @@ try{
   assert(sectionCount===6,'Expected 6 product form sections including technical labels, found '+sectionCount);
   assert(await editor.locator('.technical-label-editor').count()===1,'Technical-label editor absent');
   const category=editor.locator('.product-edit-basic-grid select');
-  const status=editor.locator('.product-edit-price-grid select');
+  // Price-grid contains both price-unit and status dropdowns; target status by its accessible name.
+  const status=editor.getByRole('combobox',{name:'Ürün durumu'});
   assert(await category.count()===1,'Category dropdown absent');
   assert(await status.count()===1,'Status dropdown absent');
   const originalCategory=await category.inputValue();
