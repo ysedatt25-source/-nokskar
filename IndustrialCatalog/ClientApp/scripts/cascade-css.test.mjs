@@ -22,3 +22,8 @@ test('keeps distinct responsive and layer contexts',()=>{
  assert.deepEqual(values('@media(max-width:600px){.a{width:2px}}@media(min-width:601px){.a{width:3px}}','width'),['2px','3px']);
  assert.deepEqual(values('@layer site{.a{width:2px}}@layer layout{.a{width:3px}}','width'),['2px','3px']);
 });
+
+test('rejects forced declaration priority before creating a bundle',()=>{
+ const forced='!'+ 'important';
+ assert.throws(()=>normalizeCss('.example{color:red '+forced+'}'),/Forced CSS priority is prohibited/);
+});

@@ -2,6 +2,8 @@ import postcss from 'postcss';
 export const layerOrder='@layer theme, base, components, utilities, site, layout;';
 export function normalizeCss(css){
  const root=postcss.parse(css);const seen=new Set();
+ // Refuse forced priority at source instead of silently rewriting it into a stronger layer.
+ root.walkDecls(decl=>{if(decl.important)throw new Error('Forced CSS priority is prohibited for property: '+decl.prop);});
  const rules=[];root.walkRules(rule=>rules.push(rule));
  for(const rule of rules.reverse()){
   const contexts=[];for(let p=rule.parent;p&&p.type!=='root';p=p.parent)if(p.type==='atrule')contexts.unshift(p.name+':'+p.params);else if(p.type==='rule')contexts.unshift('selector:'+p.selector);

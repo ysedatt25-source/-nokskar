@@ -107,6 +107,8 @@ for(const device of devices){
           if(!visible(el))return false;
           const r=el.getBoundingClientRect(); return r.width<36||r.height<36;
         }).map(el=>{const r=el.getBoundingClientRect();return {text:(el.innerText||el.getAttribute('aria-label')||'').trim().slice(0,60),w:Math.round(r.width),h:Math.round(r.height)};}).slice(0,30);
+        const supportButton=document.querySelector('inokskar-live-support')?.shadowRoot?.querySelector('.launcher');
+        const supportLauncherWidth=supportButton&&visible(supportButton)?Math.round(supportButton.getBoundingClientRect().width):0;
         const clippedRight=[...document.querySelectorAll('body *')].filter(el=>{
           if(!visible(el))return false;
           const r=el.getBoundingClientRect(),s=getComputedStyle(el);
@@ -116,7 +118,7 @@ for(const device of devices){
           if(horizontalScroller)return false;
           return r.right>vw+3 && r.left<vw && r.width>12;
         }).map(el=>({tag:el.tagName,cls:String(el.className||'').slice(0,100),right:Math.round(el.getBoundingClientRect().right)})).slice(0,30);
-        return {overflowX,brokenImages,dupIds,unlabeledInputs,unnamedActions,tinyTargets,clippedRight,bodyText:(document.body?.innerText||'').slice(0,300)};
+        return {overflowX,brokenImages,dupIds,unlabeledInputs,unnamedActions,tinyTargets,clippedRight,supportLauncherWidth,bodyText:(document.body?.innerText||'').slice(0,300)};
       },{vw:device.width});
     }catch(e){ dom={evalError:String(e)}; }
 
@@ -145,6 +147,7 @@ for(const r of report.results){
   if(r.consoleErrors.length)issues.push('console '+r.consoleErrors.length);
   if(r.failedRequests.length)issues.push('request-failed '+r.failedRequests.length);
   if((r.dom?.overflowX||0)>3)issues.push('overflow-x '+Math.round(r.dom.overflowX));
+  if((r.dom?.supportLauncherWidth||0)>56)issues.push('chat-launcher-width '+r.dom.supportLauncherWidth);
   if(r.dom?.brokenImages?.length)issues.push('broken-img '+r.dom.brokenImages.length);
   if(r.dom?.dupIds?.length)issues.push('duplicate-id '+r.dom.dupIds.length);
   if(r.dom?.unlabeledInputs?.length)issues.push('unlabeled-input '+r.dom.unlabeledInputs.length);
