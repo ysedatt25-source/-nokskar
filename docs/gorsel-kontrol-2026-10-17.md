@@ -39,7 +39,7 @@ Bu liste her sayfanın her olası veri/izin/hata durumunun eksiksiz görüldüğ
 | Ürün fiyatının metre/M² başına olduğu görünmüyordu | Liste ve detay fiyatlarına uygun birim eklendi. |
 | Boş kategoride yanıltıcı arama mesajı ve etkisiz filtre temizleme | Kategoriye uygun boş durum, tüm ürünler ve teklif bağlantıları; filtre temizleme yalnız aktif filtre varsa. |
 | Referanslar başlığında anlamsal ana başlık eksikti | Sayfa başlığı h1 oldu. |
-| Tablet destek/garanti formunu yüzen düğmeler örtüyordu | 1100 piksele kadar form üzerindeki yüzen iletişim düğmeleri gizlendi. Talep takibine de aynı kural eklendi. |
+| Tablet destek/garanti formunu yüzen düğmeler örtüyordu | 1100 piksele kadar form üzerindeki yüzen iletişim düğmeleri gizlendi. Talep takibine ve boş kategori eylemlerine de aynı kural eklendi. |
 | Fiyat tablosunda seçim/sayım ve yatay kaydırma anlaşılmıyordu | Seçili/toplam sayısı ve küçük ekranlarda kaydırma ipucu eklendi. |
 | Yönetim listelerinde mobil arama satırı sıkışıyordu | Arama tam satıra, kayıt sayısı ayrı hizaya alındı. |
 | Silinmiş ürüne ait istatistik genel WhatsApp gibi görünüyordu | Katalogdan kaldırılmış ürün olarak belirtiliyor. |
