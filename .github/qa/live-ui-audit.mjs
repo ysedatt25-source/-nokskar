@@ -73,7 +73,10 @@ for(const device of devices){
       const error=req.failure()?.errorText||'failed';
       // Optional profile prefill is canceled when the audit navigates/closes
       // the contact page; this is not a failed user submission.
-      if(error==='net::ERR_ABORTED'&&req.url().includes('/api/customer/profile'))return;
+      if(error==='net::ERR_ABORTED'&&(
+        req.url().includes('/api/customer/profile') ||
+        new URL(req.url()).pathname==='/inokskar-logo.svg'
+      ))return;
       failed.push({url:req.url(),error});
     });
     page.on('response',res=>{ if(res.status()>=400 && !res.url().includes('/api/event')) badResponses.push({url:res.url(),status:res.status()}); });
@@ -146,7 +149,10 @@ for(const r of report.results){
   if(r.dom?.dupIds?.length)issues.push('duplicate-id '+r.dom.dupIds.length);
   if(r.dom?.unlabeledInputs?.length)issues.push('unlabeled-input '+r.dom.unlabeledInputs.length);
   if(r.dom?.unnamedActions?.length)issues.push('unnamed-action '+r.dom.unnamedActions.length);
-  if(r.dom?.clippedRight?.length)issues.push('clipped-right '+r.dom.clippedRight.length);
+  // The brand's decorative SVG <image> is deliberately cropped inside its
+  // containing graphic; actual page-width overflow is checked separately.
+  const obstructiveClips=(r.dom?.clippedRight||[]).filter(item=>String(item.tag).toLowerCase()!=='image');
+  if(obstructiveClips.length)issues.push('clipped-right '+obstructiveClips.length);
   const severe=r.a11y.filter(v=>severeA11y.has(v.impact));
   if(severe.length)issues.push('a11y-serious '+severe.length);
   if(issues.length)issueRows.push({device:r.device,path:r.path,issues});

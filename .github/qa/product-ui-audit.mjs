@@ -220,7 +220,9 @@ try{
     throw new Error('Product editor did not display sections: '+JSON.stringify(diagnostics),{cause:error});
   }
   const sectionCount=await editor.locator('.product-edit-section').count();
-  assert(sectionCount===5,'Expected 5 product form sections, found '+sectionCount);
+  // Five standard groups plus the optional technical-label editor are all part of the form.
+  assert(sectionCount===6,'Expected 6 product form sections including technical labels, found '+sectionCount);
+  assert(await editor.locator('.technical-label-editor').count()===1,'Technical-label editor absent');
   const category=editor.locator('.product-edit-basic-grid select');
   const status=editor.locator('.product-edit-price-grid select');
   assert(await category.count()===1,'Category dropdown absent');
