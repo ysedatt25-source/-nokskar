@@ -61,8 +61,8 @@ jobs:
           set -euo pipefail
           blocked="$(mktemp)"
           set +e
-          timeout 20s env ASPNETCORE_ENVIRONMENT=Production RAILWAY_ENVIRONMENT=ci Storage__Path="$blocked" \\
-            dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --no-launch-profile \\
+          timeout 20s env ASPNETCORE_ENVIRONMENT=Production RAILWAY_ENVIRONMENT=ci Storage__Path="$blocked" \
+            dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --no-launch-profile \
             > /tmp/inokskar-fatal-startup.log 2>&1
           status=$?
           set -e
