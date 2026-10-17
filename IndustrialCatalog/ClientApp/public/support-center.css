@@ -47,7 +47,7 @@
 .support-center .support-submit{display:flex;align-items:center;justify-content:center;gap:12px;min-height:53px;width:100%;border:0;border-radius:12px;background:linear-gradient(120deg,#135dc0,#063b85);color:#fff;font-size:.94rem;font-weight:850;box-shadow:0 8px 21px #084b9f35;transition:transform .18s,box-shadow .18s,filter .18s}
 .support-center .support-submit:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 12px 26px #084b9f45}
 .support-center .support-submit:disabled{opacity:.7;cursor:wait;transform:none}
-.support-privacy{display:flex;align-items:center;justify-content:center;gap:6px;font-size:.73rem;color:#76879a;margin:0;text-align:center}
+.support-privacy{display:flex;align-items:center;justify-content:center;gap:6px;font-size:.73rem;color:#52677e;margin:0;text-align:center}
 .support-error{padding:12px 14px;border:1px solid #f3b5b5;border-radius:11px;background:#fff1f1;color:#aa2630;font-size:.84rem;line-height:1.5;margin:0}
 .support-info{background:linear-gradient(164deg,#173e6b,#102f54 60%,#0a294b);border-color:#2c4e72;color:#fff;padding:23px}
 .support-info-heading>span{color:#9fceff}
@@ -58,7 +58,7 @@
 .support-center .support-info .contact-quick-list>a:hover{background:#f2f8ff}
 .support-center .support-info .contact-quick-list svg{width:22px;height:22px;flex-shrink:0;color:#2374ca}
 .support-center .support-info .contact-quick-list span{min-width:0;flex:1;display:grid;gap:4px}
-.support-center .support-info .contact-quick-list small{font-size:.68rem;letter-spacing:.06em;color:#698197}
+.support-center .support-info .contact-quick-list small{font-size:.68rem;letter-spacing:.06em;color:#51677d}
 .support-center .support-info .contact-quick-list strong{font-size:.84rem;line-height:1.4;color:#254460;overflow-wrap:anywhere}
 .support-center .support-info .contact-quick-list .support-info-arrow{width:14px;height:14px;color:#9cacc0}
 .support-success{padding:28px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
