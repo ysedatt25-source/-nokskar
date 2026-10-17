@@ -1,0 +1,22 @@
+@layer layout {
+/* Keep the tablet headline readable without changing the contained hero image. */
+@media (min-width:601px) and (max-width:1100px) {
+ body.page-home .hero .hero-content{width:min(580px,calc(100% - 40px));max-width:calc(100% - 40px);margin-inline:20px}
+ body.page-home .hero .hero-content h1{width:fit-content;max-width:100%;font-size:clamp(28px,4.2vw,38px);line-height:1.12}
+ body.page-home .hero .hero-content::before{display:none}
+}
+/* One persistent purchase toolbar is enough on touch layouts. */
+@media (max-width:1100px) {
+ body.page-detail.app-shell-enabled:has(.detail-mobile-cta) .detail-summary .detail-action-row{display:none}
+}
+/* Show the process in one concise row, leaving the form near the top. */
+@media (max-width:600px) {
+ body .experience-steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 14px}
+ body .experience-steps li{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:8px;min-width:0;border-radius:10px}
+ body .experience-steps b{flex:0 0 auto;width:21px;height:21px;font-size:11px}
+ body .experience-steps span{font-size:11px;line-height:1.3;overflow-wrap:normal}
+ body .experience-steps small{display:none}
+ body .warranty-intro h1{font-size:25px;line-height:1.2;margin-block:8px}
+ body .warranty-intro>p:not(.eyebrow){font-size:14px;line-height:1.5}
+}
+}
