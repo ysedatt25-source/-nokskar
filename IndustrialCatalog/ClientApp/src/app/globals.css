@@ -519,3 +519,8 @@ html body .home-design-cta{padding:22px}
 @media(max-width:600px){html body .home-design-featured .product-copy{padding:9px}
  html body .home-design-cta{padding:16px}
 }}
+
+/* Inline, accessible product-operation status: always visible without toast timing. */
+.product-action-feedback{width:100%;margin:10px 0 14px;padding:12px 14px;border:1px solid #b8cbd9;border-left:3px solid #436b93;border-radius:10px;background:#f3f7fb;color:#19344d;font-size:13px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}
+.product-action-feedback.success{border-color:#9fceb8;border-left-color:#207856;background:#eefaf4;color:#15563c}
+.product-action-feedback.error{border-color:#e4b7bd;border-left-color:#b62537;background:#fff2f2;color:#802431}
