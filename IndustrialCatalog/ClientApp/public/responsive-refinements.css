@@ -11,6 +11,10 @@
 }
 /* Show the process in one concise row, leaving the form near the top. */
 @media (max-width:600px) {
+ /* Forms already offer the support route through the persistent navigation.
+    Keep floating contact launchers from covering inputs and submit buttons. */
+ body:has(.support-center,.warranty-center) .floating-wa,
+ body:has(.support-center,.warranty-center) inokskar-live-support{display:none}
  body .experience-steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 14px}
  body .experience-steps li{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:8px;min-width:0;border-radius:10px}
  body .experience-steps b{flex:0 0 auto;width:21px;height:21px;font-size:11px}
