@@ -410,10 +410,10 @@ html body .home-design-featured .availability{top:10px;left:10px;right:auto;padd
 html body .home-design-featured .product-copy{display:flex;flex-direction:column;flex:1;gap:0}
 html body .home-design-featured .product-copy>.eyebrow{display:none}
 html body .home-design-featured .product-copy h3{font-size:15px;line-height:1.3;min-height:2.6em;margin:0 0 5px;font-weight:800}
-html body .home-design-featured .product-code{font-size:11px;line-height:1.4;margin:0 0 8px;color:#718399}
+html body .home-design-featured .product-code{font-size:11px;line-height:1.4;margin:0 0 8px;color:#52677e}
 html body .home-design-featured .card-bottom{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-top:auto}
 html body .home-design-featured .price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px;min-height:24px;color:#0965cf;font-size:19px;line-height:1.2}
-html body .home-design-featured .price small{font-size:9px;color:#718399}
+html body .home-design-featured .price small{font-size:9px;color:#52677e}
 html body .home-design-featured .card-link{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;min-height:32px;padding:5px 6px;border-radius:8px;color:#fff;background:linear-gradient(135deg,#1683f6,#0661d5);font-size:12px;font-weight:750;text-decoration:none}
 html body .home-design-cta{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:22px auto 28px;border-radius:17px;background:linear-gradient(115deg,#102f51,#193f65);box-shadow:0 8px 25px #183c6420;color:#fff}
 html body .home-design-cta strong{display:block;font-size:23px;line-height:1.25;max-width:550px}.home-design-cta p{margin:7px 0 0;color:#ceddeb;font-size:13px;line-height:1.45}
