@@ -128,10 +128,16 @@ try{
   await checkOverlayBounds(priceDialog,'Price import',390,844);
   await priceDialog.locator('[data-slot="dialog-close"]').click();
   await priceDialog.waitFor({state:'hidden'});
-  await page.goto(base+'/admin?tab=products',{waitUntil:'networkidle',timeout:45000});
   await page.setViewportSize({width:1440,height:900});
-  await page.locator('.admin-sidebar nav button').filter({hasText:'Ürünler'}).first().click();
-  await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
+  await page.goto(base+'/admin?tab=products',{waitUntil:'networkidle',timeout:45000});
+  // Already on the products deep link. Re-clicking an unmounted desktop sidebar
+  // during a page transition causes a false timeout and skips all remaining QA.
+  try {
+    await page.locator('.product-item-card').first().waitFor({state:'visible',timeout:12000});
+  } catch (error) {
+    await page.screenshot({path:out+'/product-return-diagnostic.png',fullPage:true}).catch(()=>{});
+    throw new Error('Product page did not render after returning from price import: '+page.url(),{cause:error});
+  }
   await page.screenshot({path:out+'/product-list-desktop.png',fullPage:true});
   const firstRow=page.locator('.product-item-card').first();
   await firstRow.locator('.product-select-hitarea input').check();
