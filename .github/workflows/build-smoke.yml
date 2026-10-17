@@ -42,11 +42,13 @@ jobs:
       - name: Static release guards
         run: |
           set -euo pipefail
-          if grep -R -n --include='*.css' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.cs' '!important' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public IndustrialCatalog/*.cs; then
+          # The PDF vendor bundle is generated/minified third-party code, not an authored stylesheet.
+          # Audit authored CSS/JS while keeping the built vendor file under its own build tests.
+          if grep -R -n --exclude='warranty-print-vendor.js' --include='*.css' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.cs' '!important' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public IndustrialCatalog/*.cs; then
             echo "Forbidden !important usage detected."
             exit 1
           fi
-          if grep -R -n --include='*.js' --include='*.ts' --include='*.tsx' -E '(^|[^a-zA-Z])(debugger|console\.log)\b' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public; then
+          if grep -R -n --exclude='warranty-print-vendor.js' --include='*.js' --include='*.ts' --include='*.tsx' -E '(^|[^a-zA-Z])(debugger|console\.log)\b' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public; then
             echo "Debug statement detected."
             exit 1
           fi
