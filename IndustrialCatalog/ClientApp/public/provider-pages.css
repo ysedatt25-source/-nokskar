@@ -83,3 +83,9 @@ body.membership-page .provider-page [hidden]{display:none}
 .provider-page.provider-mail #mail-test-result:empty,.provider-page.provider-mail #mail-notice:empty{display:none}
 @media(max-width:600px){.provider-page.provider-mail .mail-grid.two{grid-template-columns:1fr}.provider-page.provider-mail .mail-grid.three{grid-template-columns:1fr 1fr}.provider-page.provider-mail .mail-grid.three>label:first-child{grid-column:1/-1}.provider-page.provider-mail .mail-test-controls{align-items:stretch}.provider-page.provider-mail .mail-test-controls>*{width:100%;flex-basis:100%}}
 }
+
+@layer layout {
+.provider-page.provider-mail .mail-actions{align-items:stretch}
+body.membership-page:has(.provider-mail) .mail-card>.head-actions{display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:600px){.provider-page.provider-mail .mail-actions{display:grid;grid-template-columns:1fr}.provider-page.provider-mail .mail-actions>*{min-width:0}}
+}
