@@ -33,8 +33,14 @@ public static class QuoteRules
    var diameter=Text(b,"diameter",12);if(diameter!=""&&(!Regex.IsMatch(diameter,@"^\d+(?:[.,]\d+)?$")||!decimal.TryParse(diameter.Replace(',','.'),System.Globalization.NumberStyles.AllowDecimalPoint,System.Globalization.CultureInfo.InvariantCulture,out var diameterValue)||diameterValue<=0))throw new ArgumentException("Çap (Ø) için santimetre cinsinden sıfırdan büyük bir sayı girin.");item["diameter"]=diameter;
    var unit=Text(b,"unit",10);if(!new[]{"adet","metre","m²","Çap (Ø)"}.Contains(unit))throw new ArgumentException("Birim geçersiz.");item["unit"]=unit;
    var quantity=Number(b,"quantity",100000);if(quantity<=0)throw new ArgumentException("Miktar sıfırdan büyük olmalı.");quantity=decimal.Round(quantity,3,MidpointRounding.AwayFromZero);if(quantity<=0)throw new ArgumentException("Miktar en az 0,001 olmalı.");
+   var measured=unit is "metre" or "m²";
+   var measure=b["measure"]==null?(measured?quantity:1m):Number(b,"measure",100000,1m);
+   if(b["measure"]==null&&measured)quantity=1m; // Legacy quantity represented metres/area, not a piece count.
+   measure=decimal.Round(measure,3,MidpointRounding.AwayFromZero);
+   if(measured&&measure<=0)throw new ArgumentException("Ölçü en az 0,001 olmalı.");
+   item["measure"]=measured?measure:1m;
    var price=Round(Number(b,"unitPrice",100000000));var off=Number(b,"discount",100);var vat=Number(b,"vatRate",100,20);
-   var raw=Round(quantity*price);var cut=Round(raw*off/100);var net=raw-cut;var taxValue=Round(net*vat/100);
+   var raw=Round(quantity*(measured?measure:1m)*price);var cut=Round(raw*off/100);var net=raw-cut;var taxValue=Round(net*vat/100);
    item["quantity"]=quantity;item["unitPrice"]=price;item["discount"]=off;item["vatRate"]=vat;item["net"]=net;item["tax"]=taxValue;item["total"]=net+taxValue;normalized.Add(item);list+=raw;discount+=cut;subtotal+=net;tax+=taxValue;
   }
   q["items"]=normalized;q["listTotal"]=list;q["discountTotal"]=discount;q["subtotal"]=subtotal;q["taxTotal"]=tax;q["total"]=subtotal+tax;return q;

@@ -34,3 +34,8 @@ body #device-summary .warranty-summary.warranty-current{background:#eef9f3;borde
 body #device-summary .warranty-summary.warranty-ending{background:#f9eeef;border-color:#dcb5bc;color:#64202a}
 body #device-summary .warranty-summary :is(span,strong){color:inherit}
 }
+
+@layer layout {
+body .device-row>div:nth-child(2){display:flex;flex-direction:column;gap:5px;min-width:0;overflow-wrap:anywhere}
+body .device-row-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+}

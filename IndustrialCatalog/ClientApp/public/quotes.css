@@ -8,3 +8,12 @@ body.membership-page:has(.quote-app){background:#f2f5f8}body.membership-page:has
 @layer layout{.q-row-count{display:inline-flex;align-items:center;padding:3px 7px;margin-left:6px;border-radius:7px;background:#eff5f9;color:#6b8a9f;font-size:9px;font-weight:500;vertical-align:middle}.quote-item-name>.q-row-identity{display:flex;align-items:center;gap:6px;margin-bottom:5px}.q-row-number{display:inline-flex;padding:2px 6px;border:1px solid #dbe7ef;border-radius:5px;background:#f1f7fa;color:#527f9a;font-size:9px;font-weight:600;white-space:nowrap}@media(max-width:600px){.q-row-number{font-size:8px;padding:2px 5px}.q-row-count{font-size:8px}}}
 
 @layer layout{.quote-item>.q-diameter-field{display:flex;flex-direction:column;gap:4px;margin-top:9px;max-width:220px}}
+
+@layer layout {
+.quote-item .q-measured-fields{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,.7fr) minmax(0,1.15fr);gap:10px;margin-top:10px}
+.quote-item .q-standard-fields{grid-template-columns:minmax(0,1.15fr) minmax(0,.7fr) minmax(0,1.15fr)}
+.quote-item .q-measured-fields>label{min-width:0}
+.quote-item .q-measured-fields :is(input,select){width:100%;min-width:0;max-width:100%}
+.q-existing-diameter{margin:8px 0;color:#58788d;font-size:11px}
+@media(max-width:600px){.quote-item .q-measured-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.quote-item .q-standard-fields>label:first-child{grid-column:1/-1}.quote-item .q-measured-fields>label>span{font-size:10px}}
+}

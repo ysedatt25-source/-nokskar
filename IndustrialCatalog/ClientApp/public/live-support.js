@@ -48,7 +48,7 @@
     const rect=bar?.getBoundingClientRect();
     const inline=innerWidth<=1100&&rect&&rect.height>0&&rect.width>0&&bar.querySelector('.detail-mobile-support');
     const path=location.pathname.replace(/\/+$/,'')||'/';
-    $('.launcher').hidden=!!inline||desk||status.enabled===false||path.startsWith('/admin')||path.startsWith('/hesabim');
+    $('.launcher').hidden=!!inline||desk||status.enabled===false||path.startsWith('/admin')||path.startsWith('/hesabim')||path==='/teknik'||path.startsWith('/teknik/');
   }
   let placementFrame=0;
   function schedulePlacement(){if(placementFrame)return;placementFrame=requestAnimationFrame(()=>{placementFrame=0;placeLauncher();});}
@@ -59,7 +59,7 @@
     document.documentElement.dataset.liveSupportOnline=status.online?'true':'false';
     schedulePlacement();
     const path=location.pathname.replace(/\/+$/,'')||'/';
-    const allowed=!desk&&status.enabled!==false&&!path.startsWith('/admin')&&!path.startsWith('/hesabim');
+    const allowed=!desk&&status.enabled!==false&&!path.startsWith('/admin')&&!path.startsWith('/hesabim')&&path!=='/teknik'&&!path.startsWith('/teknik/');
     $('.launcher').hidden=!allowed;
     if(!allowed&&!desk){$('.notice').hidden=true;if(opened&&!call)closePanel();}
   }

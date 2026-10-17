@@ -177,3 +177,15 @@ body.access-management-page #access-delete-dialog{width:min(540px,calc(100vw - 3
 body.access-management-page [hidden]{display:none}
 body.access-management-page .access-search-wrap input{border:0;background:transparent;box-shadow:none;outline:none}
 body.access-management-page .access-modal #password-row[hidden],body.access-management-page .access-modal #must-change-row[hidden]{display:none}}
+
+@layer layout {
+/* The form owns scrolling; prevent a second scrollbar on its dialog shell. */
+body.access-management-page #access-dialog[open]{overflow:hidden}
+body.access-management-page #access-dialog>form{min-height:0;max-height:min(calc(94dvh - 2px),898px)}
+@media(max-width:600px){body.access-management-page #access-dialog>form{height:calc(100dvh - 18px);max-height:calc(100dvh - 18px)}}
+}
+@layer layout {
+body.access-management-page #access-dialog>form{width:100%;min-width:0;overflow-x:hidden}
+body.access-management-page #access-dialog :is(.two,.dialog-head,.permission-section,.permission-table,.permission-row){min-width:0}
+body.access-management-page #access-dialog :is(input:not([type=checkbox]),select){min-width:0;max-width:100%;box-sizing:border-box}
+}

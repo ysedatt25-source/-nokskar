@@ -17,3 +17,17 @@ body{background:#e9eef3;font-family:"Segoe UI",Arial,sans-serif;color:#243f50}.q
 @layer layout{.quote-doc-table td{padding-top:6px;padding-bottom:6px}.doc-product-image{height:52px}.doc-item-text p{margin-top:3px;line-height:1.4}}
 
 @layer layout{.quote-doc-foot>b{font-size:10px;line-height:1.4;color:#315970;white-space:nowrap}.doc-closing{break-inside:avoid;page-break-inside:avoid}}
+
+@layer layout {
+.doc-measure-count span,.doc-measure-count strong{display:block;line-height:1.5;white-space:nowrap;font-size:8px}
+.doc-measure-count strong{font-weight:600}
+@media print {
+ html,body{width:210mm;height:auto;min-height:0;overflow:visible;margin:0;padding:0}
+ #quote-document{display:block;margin:0;padding:0;overflow:visible}
+ /* A preview wrapper carries inline scaled dimensions. It must not create a print box. */
+ #quote-document>.doc-preview-frame{display:contents}
+ #quote-document .quote-doc-sheet{width:210mm;height:296mm;min-height:0;margin:0;transform:none;box-shadow:none;overflow:hidden;break-inside:avoid;page-break-inside:avoid;break-before:auto;page-break-before:auto;break-after:page;page-break-after:always}
+ #quote-document>.doc-preview-frame:last-child>.quote-doc-sheet{break-after:auto;page-break-after:auto}
+ body>header,body>nav,body>inokskar-live-support,body>.app-bottom-nav{display:none}
+}
+}
