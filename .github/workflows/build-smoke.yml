@@ -44,8 +44,9 @@ jobs:
           set -euo pipefail
           # The PDF vendor bundle is generated/minified third-party code, not an authored stylesheet.
           # Audit authored CSS/JS while keeping the built vendor file under its own build tests.
-          if grep -R -n --include='*.css' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.cs' --exclude='warranty-print-vendor.js' '!important' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public IndustrialCatalog/*.cs; then
-            echo "Forbidden !important usage detected."
+          forced_priority="$(printf '\041important')"
+          if grep -R -n --include='*.css' --include='*.js' --include='*.ts' --include='*.tsx' --include='*.cs' --exclude='warranty-print-vendor.js' "$forced_priority" IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public IndustrialCatalog/*.cs; then
+            echo "Forced CSS priority is prohibited."
             exit 1
           fi
           if grep -R -n --include='*.js' --include='*.ts' --include='*.tsx' --exclude='warranty-print-vendor.js' -E '(^|[^a-zA-Z])(debugger|console\.log)\b' IndustrialCatalog/ClientApp/src IndustrialCatalog/ClientApp/public; then
