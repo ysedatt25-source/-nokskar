@@ -39,6 +39,7 @@ jobs:
           QA_BASE_URL: https://inokskar-web-preview.up.railway.app
         run: node .github/qa/product-ui-audit.mjs
       - name: Audit live site at 3 viewports
+        if: always()
         env:
           QA_BASE_URL: https://inokskar-web-preview.up.railway.app
           QA_OUTPUT: qa-output
