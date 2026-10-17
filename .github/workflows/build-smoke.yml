@@ -76,7 +76,9 @@ jobs:
           check_200() {
             local path="$1"
             local code
-            code="$(curl --silent --show-error --output /tmp/response --write-out '%{http_code}' "http://127.0.0.1:5099$path")"
+            # Canonical public aliases (such as /servis-talebi -> /iletisim?amac=servis) use HTTP 301.
+          # Follow safe local redirects, then assert that the destination renders successfully.
+          code="$(curl --location --max-redirs 5 --silent --show-error --output /tmp/response --write-out '%{http_code}' "http://127.0.0.1:5099$path")"
             if [ "$code" != "200" ]; then
               echo "Expected 200 for $path, got $code"
               cat /tmp/response
