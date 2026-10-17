@@ -56,6 +56,24 @@ jobs:
       - name: Build solution
         run: dotnet build INOKSKAR.sln -c Release
 
+      - name: Critical startup must exit on unattended hosting
+        run: |
+          set -euo pipefail
+          blocked="$(mktemp)"
+          set +e
+          timeout 20s env ASPNETCORE_ENVIRONMENT=Production RAILWAY_ENVIRONMENT=ci Storage__Path="$blocked" \\
+            dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --no-launch-profile \\
+            > /tmp/inokskar-fatal-startup.log 2>&1
+          status=$?
+          set -e
+          rm -f "$blocked"
+          if [ "$status" -eq 0 ] || [ "$status" -eq 124 ]; then
+            echo "An unattended startup failure must exit nonzero without hanging (status=$status)."
+            cat /tmp/inokskar-fatal-startup.log
+            exit 1
+          fi
+          grep -Fq "İNOKSKAR başlatılamadı" /tmp/inokskar-fatal-startup.log
+
       - name: Start application
         run: |
           dotnet run --project IndustrialCatalog/IndustrialCatalog.csproj -c Release --no-build --no-launch-profile --urls http://127.0.0.1:5099 > /tmp/inokskar.log 2>&1 &

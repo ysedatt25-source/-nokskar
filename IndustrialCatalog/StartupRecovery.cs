@@ -36,22 +36,33 @@ public static class StartupRecovery
         Console.WriteLine();
         Console.WriteLine("İNOKSKAR başlangıç güvenlik/kurtarma modu devreye girdi.");
         Console.ResetColor();
-        Console.WriteLine("Uygulama genel .NET çıkış hatasıyla kapatılmadı.");
+        // Keep the diagnostic window alive only while debugging locally. On IIS, Railway
+        // and unattended hosts the process must exit nonzero so the supervisor can restart
+        // it and monitoring can report the startup failure instead of a hung process.
+        var localDebug = OperatingSystem.IsWindows()
+            && Environment.UserInteractive
+            && Debugger.IsAttached
+            && string.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"), "Development", StringComparison.OrdinalIgnoreCase);
+        Console.WriteLine(localDebug ? "Yerel Visual Studio hata inceleme modu." : "Kritik başlatma hatası; sunucu işlemi hata koduyla sonlanacak.");
         Console.WriteLine("Ayrıntılı başlangıç kaydı: " + (string.IsNullOrWhiteSpace(logPath) ? "oluşturulamadı" : logPath));
         Console.WriteLine("Hata: " + error.GetType().Name + " - " + error.Message);
 
-        if (!string.IsNullOrWhiteSpace(htmlPath) && File.Exists(htmlPath))
+        if (localDebug)
         {
-            try
+            if (!string.IsNullOrWhiteSpace(htmlPath) && File.Exists(htmlPath))
             {
-                Process.Start(new ProcessStartInfo { FileName = htmlPath, UseShellExecute = true });
+                try
+                {
+                    Process.Start(new ProcessStartInfo { FileName = htmlPath, UseShellExecute = true });
+                }
+                catch { }
             }
-            catch { }
+
+            // Preserve the local debugger experience without masking failures in production.
+            Thread.Sleep(Timeout.Infinite);
         }
 
-        // Visual Studio'nun 0xe0434352 genel kapanış penceresine düşmemesi için
-        // süreç bilinçli olarak canlı tutulur. Kullanıcı Visual Studio'dan Durdur ile kapatır.
-        Thread.Sleep(Timeout.Infinite);
+        throw new InvalidOperationException("İNOKSKAR başlatılamadı. Başlangıç hata kaydını inceleyin.", error);
     }
 
     static string ResolveLogDirectory()
